@@ -1,4 +1,7 @@
 pluginManagement {
+    // Locally defined plugin to be included as part of build
+    // Do this, plus apply local gradle plugin from in this module in top level build.gradle
+    // includeBuild("build-logic")
     repositories {
         gradlePluginPortal()
         google()
@@ -12,6 +15,8 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
+
+println 'Executing OnHand settings.gradle - initialization phase.'
 rootProject.name = "OnHand"
 include ':app'
 include ':core'

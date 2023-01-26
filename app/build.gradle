@@ -1,4 +1,5 @@
 plugins {
+    // Resolves and applies plugin (applyPlugin bool defaults to true)
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
 }
@@ -47,6 +48,17 @@ android {
 }
 
 dependencies {
+
+    // On implementation vs. api:
+    // If you are a library maintainer you should use 'api' for every dependency which is needed for
+    // the public API of your library, while 'implementation' should be used for all dependencies
+    // which must not be used by the end consumers. 'api' effectively leaks the internal
+    // 'implementation' of dependencies, 'implementation' does not. 'implementation' does not force
+    // a recomplication of the dependency because we are indicating it is not 'within our control'.
+    //
+    // Think of 'api' dependency as public (seen by other modules) while 'implementation' dependency
+    // as private (only seen by this module).
+
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'
