@@ -1,9 +1,12 @@
 plugins {
+    // TODO: Does referencing via dot notation circumvent declaration for version catalog?
+    // TODO: or is it using the version we declare in top level build script via:
+    // TODO: `alias(libs.plugins.android.library)`?
     id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-android'
     // https://github.com/Kotlin/kotlinx.serialization
-    //id 'org.jetbrains.kotlin.multiplatform' version '1.7.20'
-    //id 'org.jetbrains.kotlin.plugin.serialization' version '1.7.20'
+    // Applies plugin we aliased in top level project buildscript (OnHand build.gradle)
+    id 'kotlinx-serialization'
 }
 
 android {
@@ -43,10 +46,9 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
     // Manually added deps below here
-    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
-    implementation "com.squareup.okhttp3:okhttp:4.10.0"
-    implementation 'com.squareup.okhttp3:logging-interceptor:4.10.0'
-    implementation 'com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0'
+    implementation libs.okhttp.logging
+    implementation libs.kotlinx.serialization.json
+    implementation libs.retrofit.kotlin.serialization
 
     // di TODO: every module will need this, refactor once better understood
     implementation 'com.google.dagger:dagger:2.44.2'
