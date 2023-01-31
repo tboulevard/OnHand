@@ -4,7 +4,8 @@ plugins {
 }
 
 android {
-    namespace 'com.tstreet.onhand.core.ui'
+    namespace 'com.tstreet.onhand.core.model'
+    // TODO: move everything below in android { } to separate build module for less redunancy
     compileSdk 33
 
     defaultConfig {

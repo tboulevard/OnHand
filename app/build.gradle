@@ -1,16 +1,19 @@
 plugins {
+    // TODO: Does referencing via dot notation circumvent declaration for version catalog?
+    // TODO: or is it using the version we declare in top level build script via:
+    // TODO: `alias(libs.plugins.android.application)`?
     id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-android'
 }
 
 android {
     namespace 'com.tstreet.onhand'
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.tstreet.onhand"
         minSdk 23
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
@@ -47,17 +50,28 @@ android {
 }
 
 dependencies {
+    // On implementation vs. api:
+    // If you are a library maintainer you should use 'api' for every dependency which is needed for
+    // the public API of your library, while 'implementation' should be used for all dependencies
+    // which must not be used by the end consumers. 'api' effectively leaks the internal
+    // 'implementation' of dependencies, 'implementation' does not. 'implementation' does not force
+    // a recomplication of the dependency because we are indicating it is not 'within our control'.
+    //
+    // Think of 'api' dependency as public (seen by other modules) while 'implementation' dependency
+    // as private (only seen by this module).
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.activity.compose
+    implementation libs.androidx.compose.ui
+    implementation libs.androidx.compose.ui.tooling.preview
+    implementation libs.androidx.compose.material
+    /// TODO: Needed?
+    //implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'
 
-    implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'
-    implementation 'androidx.activity:activity-compose:1.3.1'
-    implementation "androidx.compose.ui:ui:$compose_ui_version"
-    implementation "androidx.compose.ui:ui-tooling-preview:$compose_ui_version"
-    implementation 'androidx.compose.material:material:1.1.1'
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
-    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_ui_version"
-    debugImplementation "androidx.compose.ui:ui-tooling:$compose_ui_version"
-    debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_ui_version"
+    testImplementation libs.junit4
+    androidTestImplementation libs.androidx.test.ext
+    androidTestImplementation libs.androidx.test.espresso.core
+    androidTestImplementation libs.androidx.compose.ui.test
+
+    debugImplementation libs.androidx.compose.ui.tooling
+    debugImplementation libs.androidx.compose.ui.test.manifest
 }

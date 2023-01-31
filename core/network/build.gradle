@@ -1,10 +1,17 @@
 plugins {
+    // TODO: Does referencing via dot notation circumvent declaration for version catalog?
+    // TODO: or is it using the version we declare in top level build script via:
+    // TODO: `alias(libs.plugins.android.library)`?
     id 'com.android.library'
     id 'kotlin-android'
+    // https://github.com/Kotlin/kotlinx.serialization
+    // Applies plugin we aliased in top level project buildscript (OnHand build.gradle)
+    id 'kotlinx-serialization'
 }
 
 android {
-    namespace 'com.tstreet.onhand.core.ui'
+    namespace 'com.tstreet.onhand.core.network'
+    // TODO: move everything below in android { } to separate build module for less redunancy
     compileSdk 33
 
     defaultConfig {
@@ -31,8 +38,16 @@ android {
 }
 
 dependencies {
+    implementation project(path: ':core:model')
+
     implementation libs.androidx.core.ktx
     implementation libs.androidx.appcompat
+    implementation libs.okhttp.logging
+    implementation libs.kotlinx.serialization.json
+    implementation libs.retrofit.kotlin.serialization
+    implementation libs.dagger
+    annotationProcessor libs.dagger.compiler
+
     testImplementation libs.junit4
     androidTestImplementation libs.androidx.test.ext
     androidTestImplementation libs.androidx.test.espresso.core
