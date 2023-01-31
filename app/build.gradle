@@ -8,12 +8,12 @@ plugins {
 
 android {
     namespace 'com.tstreet.onhand'
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.tstreet.onhand"
         minSdk 23
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
@@ -50,7 +50,6 @@ android {
 }
 
 dependencies {
-
     // On implementation vs. api:
     // If you are a library maintainer you should use 'api' for every dependency which is needed for
     // the public API of your library, while 'implementation' should be used for all dependencies

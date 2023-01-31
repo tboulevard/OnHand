@@ -1,5 +1,6 @@
 package com.tstreet.onhand.core.network.retrofit
 
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.tstreet.onhand.core.network.model.NetworkIngredient
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
@@ -11,7 +12,7 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.serialization.json
+import kotlinx.serialization.json.Json
 
 private interface RetrofitOnHandService {
     @GET("food/ingredients/search")

@@ -11,11 +11,12 @@ plugins {
 
 android {
     namespace 'com.tstreet.onhand.core.network'
-    compileSdk 32
+    // TODO: move everything below in android { } to separate build module for less redunancy
+    compileSdk 33
 
     defaultConfig {
         minSdk 23
-        targetSdk 32
+        targetSdk 33
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -37,20 +38,17 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'androidx.appcompat:appcompat:1.4.1'
-    implementation 'com.google.android.material:material:1.5.0'
     implementation project(path: ':core:model')
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
-    // Manually added deps below here
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.appcompat
     implementation libs.okhttp.logging
     implementation libs.kotlinx.serialization.json
     implementation libs.retrofit.kotlin.serialization
+    implementation libs.dagger
+    annotationProcessor libs.dagger.compiler
 
-    // di TODO: every module will need this, refactor once better understood
-    implementation 'com.google.dagger:dagger:2.44.2'
-    annotationProcessor 'com.google.dagger:dagger-compiler:2.17'
+    testImplementation libs.junit4
+    androidTestImplementation libs.androidx.test.ext
+    androidTestImplementation libs.androidx.test.espresso.core
 }
