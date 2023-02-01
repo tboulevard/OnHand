@@ -1,5 +1,6 @@
 package com.tstreet.onhand.core.network.retrofit
 
+import OnHandNetworkDataSource
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.tstreet.onhand.core.network.model.NetworkIngredient
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -32,9 +33,9 @@ private data class NetworkResponse<T>(
 )
 
 @Singleton
-class RetrofitNiaNetwork @Inject constructor(
+class RetrofitOnHandNetwork @Inject constructor(
     networkJson: Json
-) {
+) : OnHandNetworkDataSource {
 
     private val networkApi = Retrofit.Builder()
         .baseUrl(BASE_URL)
@@ -49,14 +50,14 @@ class RetrofitNiaNetwork @Inject constructor(
                 .build()
         )
         .addConverterFactory(
+            // TODO: deep dive why we need the serialization api
             @OptIn(ExperimentalSerializationApi::class)
             networkJson.asConverterFactory("application/json".toMediaType())
         )
         .build()
         .create(RetrofitOnHandService::class.java)
 
-    fun getIngredients(prefix: String): List<NetworkIngredient> {
-        // TODO:
-        return listOf()
+    override fun getIngredients(prefix: String): List<NetworkIngredient> {
+        return networkApi.getIngredients(prefix).data
     }
 }

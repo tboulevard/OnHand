@@ -4,6 +4,7 @@ plugins {
     // TODO: `alias(libs.plugins.android.application)`?
     id 'com.android.application'
     id 'kotlin-android'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -50,6 +51,9 @@ android {
 }
 
 dependencies {
+    // TODO: remove and invert control later...
+    implementation project(path: ':core:network')
+
     // On implementation vs. api:
     // If you are a library maintainer you should use 'api' for every dependency which is needed for
     // the public API of your library, while 'implementation' should be used for all dependencies
@@ -64,6 +68,8 @@ dependencies {
     implementation libs.androidx.compose.ui
     implementation libs.androidx.compose.ui.tooling.preview
     implementation libs.androidx.compose.material
+    implementation libs.dagger
+    kapt libs.dagger.compiler
     /// TODO: Needed?
     //implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'
 

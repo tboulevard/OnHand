@@ -23,4 +23,5 @@ plugins {
     alias(libs.plugins.kotlin.jvm) apply false
     // Use the plugin 'kotlin-serialization' as declared in libs version catalog
     alias(libs.plugins.kotlin.serialization) apply false
+    alias(libs.plugins.kotlin.kapt) apply false
 }
