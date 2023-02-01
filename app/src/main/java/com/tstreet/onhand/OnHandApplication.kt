@@ -4,12 +4,9 @@ import android.app.Application
 
 class OnHandApplication : Application() {
 
-    //lateinit var appComponent : OnHandApplicationComponent = DaggerOn
+    val appComponent = DaggerOnHandApplicationComponent.create()
 
     override fun onCreate() {
         super.onCreate()
-
-        //appComponent = DaggerOnHandApplicationComponent
     }
-
 }

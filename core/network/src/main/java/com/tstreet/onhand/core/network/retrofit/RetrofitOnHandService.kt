@@ -1,6 +1,6 @@
 package com.tstreet.onhand.core.network.retrofit
 
-import OnHandNetworkDataSource
+import com.tstreet.onhand.core.network.OnHandNetworkDataSource
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.tstreet.onhand.core.network.model.NetworkIngredient
 import kotlinx.serialization.ExperimentalSerializationApi

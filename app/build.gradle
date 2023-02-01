@@ -53,6 +53,8 @@ android {
 dependencies {
     // TODO: remove and invert control later...
     implementation project(path: ':core:network')
+    implementation project(path: ':core:data')
+    implementation project(path: ':core:model')
 
     // On implementation vs. api:
     // If you are a library maintainer you should use 'api' for every dependency which is needed for

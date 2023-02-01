@@ -12,7 +12,7 @@ plugins {
 
 android {
     namespace 'com.tstreet.onhand.core.network'
-    // TODO: move everything below in android { } to separate build module for less redunancy
+    // TODO: move everything below in android { } to separate build module for less redundancy
     compileSdk 33
 
     defaultConfig {
