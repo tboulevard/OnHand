@@ -1,5 +1,6 @@
 package com.tstreet.onhand
 
+import android.app.Fragment
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,17 +11,24 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.tstreet.onhand.core.data.repository.OnlineFirstIngredientSearchRepository
+import com.tstreet.onhand.core.data.repository.IngredientSearchRepository
 import com.tstreet.onhand.ui.theme.OnHandTheme
 import javax.inject.Inject
 
 class MainActivity : ComponentActivity() {
 
     @Inject
-    lateinit var repository: OnlineFirstIngredientSearchRepository
+    lateinit var repository: IngredientSearchRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        (this.application as OnHandApplication)
+            .appComponent
+            .ingredientSearchComponent()
+            .create()
+            .inject(this)
+
         setContent {
             OnHandTheme {
                 // A surface container using the 'background' color from the theme
@@ -28,7 +36,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Greeting(repository.searchIngredients("blah").get(0).name)
+                    Greeting(repository.searchIngredients("")[0].name)
                 }
             }
         }
@@ -46,4 +54,9 @@ fun DefaultPreview() {
     OnHandTheme {
         Greeting("Android")
     }
+}
+
+class Frag : Fragment() {
+
+
 }
