@@ -15,7 +15,7 @@ import com.tstreet.onhand.core.data.repository.IngredientSearchRepository
 import com.tstreet.onhand.ui.theme.OnHandTheme
 import javax.inject.Inject
 
-class MainActivity : ComponentActivity() {
+class IngredientSearchActivity : ComponentActivity() {
 
     @Inject
     lateinit var repository: IngredientSearchRepository
