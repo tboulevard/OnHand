@@ -1,6 +1,5 @@
 package com.tstreet.onhand
 
-import android.app.Fragment
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -23,12 +22,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        (this.application as OnHandApplication)
-            .appComponent
-            .ingredientSearchComponent()
-            .create()
-            .inject(this)
-
         setContent {
             OnHandTheme {
                 // A surface container using the 'background' color from the theme
@@ -36,7 +29,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Greeting(repository.searchIngredients("")[0].name)
+                    Greeting("android")
                 }
             }
         }
@@ -54,9 +47,4 @@ fun DefaultPreview() {
     OnHandTheme {
         Greeting("Android")
     }
-}
-
-class Frag : Fragment() {
-
-
 }

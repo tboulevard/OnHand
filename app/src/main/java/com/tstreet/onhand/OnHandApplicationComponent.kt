@@ -12,24 +12,11 @@ import javax.inject.Singleton
  *
  * Put things in here to stay alive for lifetime of application (until killed or cleaned up)
  */
-@Component(
-    modules = [
-        SubcomponentsModule::class,
-    ]
-)
+@Component
 interface OnHandApplicationComponent {
 
     @Component.Factory
     interface Factory {
         fun create(@BindsInstance applicationContext: Context): OnHandApplicationComponent
     }
-
-    fun ingredientSearchComponent(): IngredientSearchComponent.Factory
 }
-
-@Module(
-    subcomponents = [
-        IngredientSearchComponent::class,
-    ]
-)
-object SubcomponentsModule
