@@ -19,5 +19,5 @@ interface IngredientSearchComponent {
         fun create(): IngredientSearchComponent
     }
 
-    fun inject(ingredientSearchActivity: IngredientSearchActivity)
+    fun inject(mainActivity: MainActivity)
 }
