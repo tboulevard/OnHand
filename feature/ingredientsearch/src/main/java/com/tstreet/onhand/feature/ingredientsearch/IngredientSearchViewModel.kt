@@ -1,15 +1,17 @@
 package com.tstreet.onhand.feature.ingredientsearch
 
-import com.tstreet.onhand.core.data.repository.IngredientSearchRepository
+import com.tstreet.onhand.core.domain.GetIngredientsUseCase
 import com.tstreet.onhand.core.model.Ingredient
 import javax.inject.Inject
 
 class IngredientSearchViewModel @Inject constructor(
-    private val repository: IngredientSearchRepository
+    private val getIngredients: GetIngredientsUseCase
 ) {
 
-    val searchPrefix : String = ""
-    val searchResults : List<Ingredient> = emptyList()
+//    val searchPrefix : String = ""
+//    val searchResults : List<Ingredient> = emptyList()
 
-    // TODO: implement...
+    fun search(prefix : String) : List<Ingredient> {
+        return getIngredients.invoke(prefix)
+    }
 }

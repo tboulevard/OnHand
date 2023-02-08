@@ -1,11 +1,11 @@
 package com.tstreet.onhand
 
 import android.content.Context
-import com.tstreet.onhand.core.network.di.NetworkModule
-import com.tstreet.onhand.core.data.di.DataModule
-import com.tstreet.onhand.core.data.repository.IngredientSearchRepository
+//import com.tstreet.onhand.core.network.di.NetworkModule
+//import com.tstreet.onhand.core.data.di.DataModule
+//import com.tstreet.onhand.core.data.repository.IngredientSearchRepository
 import dagger.*
-import javax.inject.Singleton
+//import javax.inject.Singleton
 
 /**
  * Definition of the Application graph.

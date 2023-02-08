@@ -8,23 +8,8 @@ import javax.inject.Inject
 class OnlineFirstIngredientSearchRepository @Inject constructor(
     private val onHandNetworkDataSource: OnHandNetworkDataSource
 ) : IngredientSearchRepository {
-    // TODO: super messy...refactor later
-    override fun searchIngredients(prefix: String): List<Ingredient> {
-        val networkIngredientList = onHandNetworkDataSource.getIngredients(prefix)
-        val externalIngredientList = mutableListOf<Ingredient>()
-        networkIngredientList.forEach {
-            externalIngredientList.add(it.toExternalIngredientModel())
-        }
-        return externalIngredientList
-    }
-
-    // TODO: move to domain layer (or whereever appropriate to bridge internal -> external model
-    // TODO: representation)
-    private fun NetworkIngredient.toExternalIngredientModel(): Ingredient {
-        return Ingredient(
-            name = this.name,
-            image = this.image,
-            childIngredient = this.children
-        )
+    // TODO: Refactor the fact that we're exposing NetworkIngredient to Domain layer
+    override fun searchIngredients(prefix: String): List<NetworkIngredient> {
+        return onHandNetworkDataSource.getIngredients(prefix)
     }
 }

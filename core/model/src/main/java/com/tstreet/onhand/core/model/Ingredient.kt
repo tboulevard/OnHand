@@ -6,7 +6,7 @@ package com.tstreet.onhand.core.model
 data class Ingredient(
     val name : String,
     // TODO: Path only, refactor once we need images
-    val image : String,
+    val image : String? = null,
     // TODO: Refactor if needed
     val childIngredient: ChildIngredient? = null
 )

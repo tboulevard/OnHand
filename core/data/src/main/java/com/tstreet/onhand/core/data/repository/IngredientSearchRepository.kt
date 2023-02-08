@@ -1,7 +1,7 @@
 package com.tstreet.onhand.core.data.repository
 
-import com.tstreet.onhand.core.model.Ingredient
+import com.tstreet.onhand.core.network.model.NetworkIngredient
 
 interface IngredientSearchRepository {
-    fun searchIngredients(prefix : String) : List<Ingredient>
+    fun searchIngredients(prefix : String) : List<NetworkIngredient>
 }
