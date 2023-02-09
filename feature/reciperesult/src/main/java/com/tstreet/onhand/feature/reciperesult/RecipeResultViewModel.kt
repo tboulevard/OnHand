@@ -1,11 +1,11 @@
-package com.tstreet.onhand.feature.ingredientsearch
+package com.tstreet.onhand.feature.reciperesult
 
 import androidx.lifecycle.ViewModel
 import com.tstreet.onhand.core.domain.GetIngredientsUseCase
 import com.tstreet.onhand.core.model.Ingredient
 import javax.inject.Inject
 
-class IngredientSearchViewModel @Inject constructor(
+class RecipeResultViewModel @Inject constructor(
     private val getIngredients: GetIngredientsUseCase
 ) : ViewModel() {
 

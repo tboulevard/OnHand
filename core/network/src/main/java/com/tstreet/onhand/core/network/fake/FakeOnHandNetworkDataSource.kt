@@ -5,6 +5,10 @@ import com.tstreet.onhand.core.network.model.NetworkIngredient
 import javax.inject.Inject
 
 class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSource {
+
+    init {
+        println("[OnHand] Creating ${this.javaClass.simpleName}")
+    }
     override fun getIngredients(prefix: String): List<NetworkIngredient> {
         return listOf(
             NetworkIngredient(

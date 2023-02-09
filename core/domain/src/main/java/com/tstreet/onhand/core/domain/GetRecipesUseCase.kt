@@ -1,12 +1,12 @@
 package com.tstreet.onhand.core.domain
 
-import com.tstreet.onhand.core.data.repository.IngredientSearchRepository
+import com.tstreet.onhand.core.data.repository.RecipeSearchRepository
 import com.tstreet.onhand.core.model.Ingredient
 import com.tstreet.onhand.core.network.model.NetworkIngredient
 import javax.inject.Inject
 
-class GetIngredientsUseCase @Inject constructor(
-    private val repository: IngredientSearchRepository
+class GetRecipesUseCase @Inject constructor(
+    private val repository: RecipeSearchRepository
 ) {
 
     init {
@@ -15,9 +15,10 @@ class GetIngredientsUseCase @Inject constructor(
 
     // TODO: Utilize the flow type (flow { ... })
     // TODO: Error and intermediate state handling
+    // TODO
     operator fun invoke(prefix: String): List<Ingredient> =
         repository
-            .searchIngredients(prefix)
+            .searchRecipes(prefix)
             .toExternalModel()
 
     private fun List<NetworkIngredient>.toExternalModel(): List<Ingredient> =

@@ -1,4 +1,4 @@
-package com.tstreet.onhand.feature.ingredientsearch
+package com.tstreet.onhand.feature.reciperesult
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,17 +12,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.tstreet.onhand.core.model.Ingredient
 
 //@Preview // TODO: why doesn't this work with args on function?
 @Composable
 // TODO: How do I inject the viewmodel?
-fun IngredientSearchScreen(
-    navController: NavController,
-    viewModel: IngredientSearchViewModel
+fun RecipeResultScreen(
+    viewModel: RecipeResultViewModel
 ) {
     var text by remember {
         mutableStateOf("")
@@ -52,10 +49,9 @@ fun IngredientSearchScreen(
                     if (text.isNotBlank()) {
                         searchResults = viewModel.search(text)
                     }
-                    navController.navigate("recipe_result")
                 }
             ) {
-                Text(text = "Search Ingredients")
+                Text(text = "Search Recipes")
             }
         }
         LazyColumn(
