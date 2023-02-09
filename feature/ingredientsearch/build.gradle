@@ -45,6 +45,7 @@ dependencies {
     // TODO: Attempt to invert control...this seems wrong.
     implementation project(path: ':core:domain')
     implementation project(path: ':core:model')
+    implementation project(path: ':core:data')
     implementation project(path: ':core:network')
     implementation project(path: ':core:ui')
 

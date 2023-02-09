@@ -10,8 +10,4 @@ class OnHandApplication : Application() {
     val appComponent by lazy {
         DaggerOnHandApplicationComponent.factory().create(applicationContext)
     }
-
-    override fun onCreate() {
-        super.onCreate()
-    }
 }

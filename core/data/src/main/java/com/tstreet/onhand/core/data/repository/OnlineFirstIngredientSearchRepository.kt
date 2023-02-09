@@ -1,6 +1,5 @@
 package com.tstreet.onhand.core.data.repository
 
-import com.tstreet.onhand.core.model.Ingredient
 import com.tstreet.onhand.core.network.OnHandNetworkDataSource
 import com.tstreet.onhand.core.network.model.NetworkIngredient
 import javax.inject.Inject

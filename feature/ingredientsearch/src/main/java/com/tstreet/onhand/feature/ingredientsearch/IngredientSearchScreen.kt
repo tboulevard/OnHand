@@ -13,13 +13,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.tstreet.onhand.core.model.Ingredient
 
-@Preview // TODO: why doesn't this work with args on function?
+//@Preview // TODO: why doesn't this work with args on function?
 @Composable
 // TODO: How do I inject the viewmodel?
-fun IngredientSearchScreen() {
+fun IngredientSearchScreen(
+    viewModel: IngredientSearchViewModel
+) {
     var text by remember {
         mutableStateOf("")
     }
@@ -27,9 +30,9 @@ fun IngredientSearchScreen() {
         mutableStateOf(listOf<Ingredient>())
     }
     Column(
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.Top,
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
     ) {
         Row(
             horizontalArrangement = Arrangement.Start,
@@ -45,20 +48,23 @@ fun IngredientSearchScreen() {
             Button(
                 onClick = {
                     // TODO:
-                    // searchResults = viewModel.search(text)
                     if (text.isNotBlank()) {
-                        searchResults = searchResults + Ingredient(text)
+                        searchResults = viewModel.search(text)
                     }
                 }
             ) {
                 Text(text = "Search")
             }
         }
-        LazyColumn {
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth()
+        ) {
             items(
                 searchResults
             ) {currentItem ->
-                Text(text = currentItem.name)
+                Text(
+                    modifier = Modifier.size(36.dp),
+                    text = currentItem.name)
             }
         }
     }

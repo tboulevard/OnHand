@@ -3,7 +3,7 @@ package com.tstreet.onhand
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import com.tstreet.onhand.nav.Navigation
+import com.tstreet.onhand.nav.SetupNavigation
 import com.tstreet.onhand.ui.theme.OnHandTheme
 
 class MainActivity : ComponentActivity() {
@@ -12,7 +12,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             OnHandTheme {
-                Navigation()
+                SetupNavigation(applicationContext)
             }
         }
     }
