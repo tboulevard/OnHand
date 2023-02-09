@@ -1,18 +1,24 @@
 package com.tstreet.onhand.feature.ingredientsearch.di
 
+import com.tstreet.onhand.MainActivity
+import com.tstreet.onhand.OnHandApplicationComponent
 import com.tstreet.onhand.feature.ingredientsearch.IngredientSearchViewModel
 import dagger.Component
 
 @Component(
-    modules = [IngredientSearchModule::class]
+    dependencies = [OnHandApplicationComponent::class]
 )
 @IngredientSearchScope
 interface IngredientSearchComponent {
 
-    @Component.Builder
-    interface Builder {
-        fun build(): IngredientSearchComponent
+    @Component.Factory
+    interface Factory {
+        // Takes an instance of AppComponent when creating
+        // an instance of IngredientSearchComponent
+        fun create(appComponent: OnHandApplicationComponent): IngredientSearchComponent
     }
 
     fun getViewModel(): IngredientSearchViewModel
+
+    fun inject(activity : MainActivity)
 }

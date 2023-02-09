@@ -38,6 +38,8 @@ android {
 }
 
 dependencies {
+    implementation project(path: ':app')
+
     // TODO: Attempt to invert control...this seems wrong.
     implementation project(path: ':core:domain')
     implementation project(path: ':core:model')

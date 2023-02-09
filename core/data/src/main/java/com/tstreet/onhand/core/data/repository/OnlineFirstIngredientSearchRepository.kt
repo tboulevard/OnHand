@@ -3,6 +3,7 @@ package com.tstreet.onhand.core.data.repository
 import com.tstreet.onhand.core.network.OnHandNetworkDataSource
 import com.tstreet.onhand.core.network.model.NetworkIngredient
 import javax.inject.Inject
+import javax.inject.Singleton
 
 // TODO: refactor to offline first...
 class OnlineFirstIngredientSearchRepository @Inject constructor(
