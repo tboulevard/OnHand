@@ -1,7 +1,6 @@
 package com.tstreet.onhand.feature.ingredientsearch
 
 import androidx.lifecycle.ViewModel
-import com.tstreet.onhand.core.domain.GetIngredientsUseCase
 import com.tstreet.onhand.core.model.Ingredient
 import javax.inject.Inject
 

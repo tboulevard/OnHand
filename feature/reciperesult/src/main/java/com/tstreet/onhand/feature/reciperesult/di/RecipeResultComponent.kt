@@ -1,18 +1,15 @@
 package com.tstreet.onhand.feature.reciperesult.di
 
+import com.tstreet.onhand.core.data.di.DataComponent
 import com.tstreet.onhand.feature.reciperesult.RecipeResultViewModel
 import dagger.Component
 
 @Component(
+    dependencies = [DataComponent::class],
     modules = [RecipeResultModule::class]
 )
 @RecipeResultScope
 interface RecipeResultComponent {
 
-    @Component.Builder
-    interface Builder {
-        fun build(): RecipeResultComponent
-    }
-
-    fun getViewModel(): RecipeResultViewModel
+    val viewModel: RecipeResultViewModel
 }

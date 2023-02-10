@@ -1,9 +1,7 @@
 package com.tstreet.onhand
 
 import android.content.Context
-import com.tstreet.onhand.core.data.di.DataModule
-import com.tstreet.onhand.core.network.di.NetworkModule
-import com.tstreet.onhand.feature.ingredientsearch.di.IngredientSearchComponent
+import com.tstreet.onhand.core.data.di.DataComponent
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
@@ -15,11 +13,15 @@ import javax.inject.Singleton
  * lifetime of application (until killed or cleaned up by OS).
  */
 @Singleton
-@Component
+@Component(
+    dependencies = [
+        DataComponent::class
+    ]
+)
 interface OnHandApplicationComponent {
 
-    @Component.Factory
-    interface Factory {
-        fun create(@BindsInstance applicationContext: Context): OnHandApplicationComponent
-    }
+//    @Component.Factory
+//    interface Factory {
+//        fun create(@BindsInstance applicationContext: Context): OnHandApplicationComponent
+//    }
 }

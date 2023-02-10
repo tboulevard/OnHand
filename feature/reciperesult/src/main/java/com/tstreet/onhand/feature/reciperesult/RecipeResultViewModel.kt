@@ -1,12 +1,11 @@
 package com.tstreet.onhand.feature.reciperesult
 
 import androidx.lifecycle.ViewModel
-import com.tstreet.onhand.core.domain.GetIngredientsUseCase
 import com.tstreet.onhand.core.model.Ingredient
 import javax.inject.Inject
 
 class RecipeResultViewModel @Inject constructor(
-    private val getIngredients: GetIngredientsUseCase
+    private val getRecipes: GetRecipesUseCase
 ) : ViewModel() {
 
     init {
@@ -17,6 +16,6 @@ class RecipeResultViewModel @Inject constructor(
 //    val searchResults : List<Ingredient> = emptyList()
 
     fun search(prefix : String) : List<Ingredient> {
-        return getIngredients.invoke(prefix)
+        return getRecipes.invoke(prefix)
     }
 }

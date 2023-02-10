@@ -30,7 +30,7 @@ fun setupNavigation(
                 navController,
                 // Allows us to attach viewmodel to lifecycle of parent activity/fragment
                 daggerViewModel {
-                    DaggerIngredientSearchComponent.builder().build().getViewModel()
+                    DaggerIngredientSearchComponent.builder().build().viewModel
                 }
             )
         }
@@ -38,7 +38,7 @@ fun setupNavigation(
             println("[OnHand] Navigating to recipe result screen")
             RecipeResultScreen(
                 daggerViewModel {
-                    DaggerRecipeResultComponent.builder().build().getViewModel()
+                    DaggerRecipeResultComponent.builder().build().viewModel
                 }
             )
         }

@@ -5,7 +5,6 @@ import com.tstreet.onhand.core.network.fake.FakeOnHandNetworkDataSource
 import com.tstreet.onhand.core.network.retrofit.RetrofitOnHandNetwork
 import dagger.Binds
 import dagger.Module
-import javax.inject.Singleton
 
 @Module
 interface NetworkModule {

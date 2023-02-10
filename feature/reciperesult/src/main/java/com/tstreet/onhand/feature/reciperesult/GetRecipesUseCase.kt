@@ -1,4 +1,4 @@
-package com.tstreet.onhand.core.domain
+package com.tstreet.onhand.feature.reciperesult
 
 import com.tstreet.onhand.core.data.repository.RecipeSearchRepository
 import com.tstreet.onhand.core.model.Ingredient

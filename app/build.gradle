@@ -58,7 +58,6 @@ dependencies {
 
     // Core modules we want to be retained for entire Application lifecycle
     implementation project(path: ':core:data')
-    implementation project(path: ':core:network')
     implementation project(path: ':core:common')
 
     // On implementation vs. api:

@@ -12,7 +12,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         // Example of how to retrieve appComponent, unused for now
-        val onHandAppComponent = (application as OnHandApplication).appComponent
+        //val onHandAppComponent = (application as OnHandApplication).appComponent
 
         setContent {
             OnHandTheme {
