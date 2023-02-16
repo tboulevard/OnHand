@@ -1,12 +1,15 @@
 package com.tstreet.onhand.nav
 
+import android.app.Application
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
 import com.tstreet.onhand.OnHandApplication
+import com.tstreet.onhand.appComponent
 import com.tstreet.onhand.core.common.daggerViewModel
+import com.tstreet.onhand.dataComponent
 import com.tstreet.onhand.feature.ingredientsearch.IngredientSearchScreen
 import com.tstreet.onhand.feature.ingredientsearch.di.DaggerIngredientSearchComponent
 import com.tstreet.onhand.feature.reciperesult.RecipeResultScreen
@@ -16,7 +19,7 @@ import com.tstreet.onhand.feature.reciperesult.di.DaggerRecipeResultComponent
 // Feature dependencies only available as needed
 @Composable
 fun setupNavigation(
-    applicationContext: Context,
+    application: Application,
 ) {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = Screen.IngredientSearch.route) {
@@ -30,7 +33,10 @@ fun setupNavigation(
                 navController,
                 // Allows us to attach viewmodel to lifecycle of parent activity/fragment
                 daggerViewModel {
-                    DaggerIngredientSearchComponent.builder().build().viewModel
+                    DaggerIngredientSearchComponent
+                        .builder()
+                        .dataComponent(application.dataComponent)
+                        .build().viewModel
                 }
             )
         }
@@ -38,7 +44,9 @@ fun setupNavigation(
             println("[OnHand] Navigating to recipe result screen")
             RecipeResultScreen(
                 daggerViewModel {
-                    DaggerRecipeResultComponent.builder().build().viewModel
+                    DaggerRecipeResultComponent.builder()
+                        .dataComponent(application.dataComponent)
+                        .build().viewModel
                 }
             )
         }

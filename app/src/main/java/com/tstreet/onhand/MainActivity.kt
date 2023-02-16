@@ -16,7 +16,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             OnHandTheme {
-                setupNavigation(applicationContext)
+                setupNavigation(this.application)
             }
         }
     }
