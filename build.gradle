@@ -1,8 +1,4 @@
 buildscript {
-    // TODO: remove compose version from here
-    ext {
-        compose_ui_version = '1.1.1'
-    }
     buildscript {
         repositories {
             google()
@@ -17,10 +13,11 @@ plugins {
     // We actually apply this specific plugin (executing plugin's Plugin.apply()) in
     // app/build.gradle (the app module build script) in the plugins { ... } block
 
+    // Uses the plugins as declared in version catalog toml
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.kotlin.jvm) apply false
-    // Use the plugin 'kotlin-serialization' as declared in libs version catalog
     alias(libs.plugins.kotlin.serialization) apply false
+    alias(libs.plugins.kotlin.kapt) apply false
 }

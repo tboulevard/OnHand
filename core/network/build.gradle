@@ -7,11 +7,12 @@ plugins {
     // https://github.com/Kotlin/kotlinx.serialization
     // Applies plugin we aliased in top level project buildscript (OnHand build.gradle)
     id 'kotlinx-serialization'
+    id 'kotlin-kapt'
 }
 
 android {
     namespace 'com.tstreet.onhand.core.network'
-    // TODO: move everything below in android { } to separate build module for less redunancy
+    // TODO: move everything below in android { } to separate build module for less redundancy
     compileSdk 33
 
     defaultConfig {
@@ -46,7 +47,7 @@ dependencies {
     implementation libs.kotlinx.serialization.json
     implementation libs.retrofit.kotlin.serialization
     implementation libs.dagger
-    annotationProcessor libs.dagger.compiler
+    kapt libs.dagger.compiler
 
     testImplementation libs.junit4
     androidTestImplementation libs.androidx.test.ext

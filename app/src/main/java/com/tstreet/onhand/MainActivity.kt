@@ -3,41 +3,27 @@ package com.tstreet.onhand
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.CompositionLocalProvider
+import com.tstreet.onhand.core.data.di.LocalDataProvider
+import com.tstreet.onhand.nav.setupNavigation
 import com.tstreet.onhand.ui.theme.OnHandTheme
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Example of how to retrieve appComponent, unused for now
+        //val onHandAppComponent = (application as OnHandApplication).appComponent
+
         setContent {
             OnHandTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
+                CompositionLocalProvider(
+                    LocalDataProvider provides application.dataComponent,
                 ) {
-                    Greeting("Android")
+                    setupNavigation()
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    OnHandTheme {
-        Greeting("Android")
     }
 }
