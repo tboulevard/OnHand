@@ -7,8 +7,8 @@ import com.tstreet.onhand.core.data.repository.RecipeSearchRepository
 // TODO: move to api module...
 interface DataComponentProvider {
 
-    val ingredientSearchRepository : IngredientSearchRepository
-    val recipeSearchRepository : RecipeSearchRepository
+    val ingredientSearchRepository: IngredientSearchRepository
+    val recipeSearchRepository: RecipeSearchRepository
 }
 
 val LocalDataProvider = compositionLocalOf<DataComponentProvider> {

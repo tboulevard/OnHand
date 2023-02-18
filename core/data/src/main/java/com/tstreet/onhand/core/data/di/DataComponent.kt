@@ -1,17 +1,18 @@
 package com.tstreet.onhand.core.data.di
 
-import com.tstreet.onhand.core.data.repository.IngredientSearchRepository
-import com.tstreet.onhand.core.data.repository.RecipeSearchRepository
 import dagger.Component
 import javax.inject.Singleton
 
-// Operates like @Singleton scope, but bc dagger doesn't let @Single components depend on scoped
-// components we need to do this...
-// TODO: why though?
 @Singleton
 @Component(
     modules = [
         DataModule::class
     ]
 )
+/**
+ * TODO: For some reason, attaching [DataComponentProvider] here allows us to to circumvent the
+ * 'Singleton component cannot depend on scoped components' error Dagger throws from the
+ * [OnHandApplicationComponent]. Look into this further later. For now everything appears to work
+ * though...
+ */
 interface DataComponent : DataComponentProvider

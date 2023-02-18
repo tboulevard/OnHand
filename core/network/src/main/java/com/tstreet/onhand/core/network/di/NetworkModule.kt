@@ -17,7 +17,7 @@ interface NetworkModule {
     // For fake network data source
     @Binds
     @Singleton
-    fun FakeOnHandNetworkDataSource.binds() : OnHandNetworkDataSource
+    fun FakeOnHandNetworkDataSource.binds(): OnHandNetworkDataSource
 
     // FYI: Above is shorthand of this:
     //    @Binds

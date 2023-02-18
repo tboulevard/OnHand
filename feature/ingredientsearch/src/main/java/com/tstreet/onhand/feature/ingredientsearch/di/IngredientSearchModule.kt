@@ -13,5 +13,5 @@ interface IngredientSearchModule {
     // TODO: because [IngredientSearchComponent] already specifies this? Either way, keeping
     // TODO: here to be pedantic...
     @IngredientSearchScope
-    fun GetIngredientsUseCase.binds() : UseCase
+    fun GetIngredientsUseCase.binds(): UseCase
 }

@@ -13,5 +13,5 @@ interface RecipeResultModule {
     // TODO: because [RecipeResultComponent] already specifies this? Either way, keeping
     // TODO: here to be pedantic...
     @RecipeResultScope
-    fun GetRecipesUseCase.binds() : UseCase
+    fun GetRecipesUseCase.binds(): UseCase
 }

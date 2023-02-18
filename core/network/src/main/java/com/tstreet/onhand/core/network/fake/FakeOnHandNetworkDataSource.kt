@@ -9,6 +9,7 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
     init {
         println("[OnHand] Creating ${this.javaClass.simpleName}")
     }
+
     override fun getIngredients(prefix: String): List<NetworkIngredient> {
         return listOf(
             NetworkIngredient(
