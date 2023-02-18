@@ -6,7 +6,9 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
-
+/**
+ * Per: https://www.droidcon.com/2021/06/06/dagger-2-and-jetpack-compose-integration/
+ */
 @Composable
 inline fun <reified T : ViewModel> daggerViewModel(
     key: String? = null,

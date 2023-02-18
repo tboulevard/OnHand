@@ -63,10 +63,11 @@ fun IngredientSearchScreen(
         ) {
             items(
                 searchResults
-            ) {currentItem ->
+            ) { currentItem ->
                 Text(
                     modifier = Modifier.size(36.dp),
-                    text = currentItem.name)
+                    text = currentItem.name
+                )
             }
         }
     }

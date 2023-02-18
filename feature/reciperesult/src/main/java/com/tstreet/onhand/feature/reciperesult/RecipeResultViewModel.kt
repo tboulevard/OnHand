@@ -15,7 +15,7 @@ class RecipeResultViewModel @Inject constructor(
 //    val searchPrefix : String = ""
 //    val searchResults : List<Ingredient> = emptyList()
 
-    fun search(prefix : String) : List<Ingredient> {
+    fun search(prefix: String): List<Ingredient> {
         return getRecipes.invoke(prefix)
     }
 }
