@@ -1,26 +1,19 @@
 package com.tstreet.onhand.nav
 
-import android.app.Application
-import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
-import com.tstreet.onhand.OnHandApplication
-import com.tstreet.onhand.appComponent
 import com.tstreet.onhand.core.common.daggerViewModel
-import com.tstreet.onhand.dataComponent
+import com.tstreet.onhand.core.data.di.LocalDataProvider
 import com.tstreet.onhand.feature.ingredientsearch.IngredientSearchScreen
 import com.tstreet.onhand.feature.ingredientsearch.di.DaggerIngredientSearchComponent
 import com.tstreet.onhand.feature.reciperesult.RecipeResultScreen
 import com.tstreet.onhand.feature.reciperesult.di.DaggerRecipeResultComponent
 
-// Ideal set up: Core dependencies such as network, data live for life of application graph
-// Feature dependencies only available as needed
+// TODO: navigation super buggy, look at printed statements when moving around app
 @Composable
-fun setupNavigation(
-    application: Application,
-) {
+fun setupNavigation() {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = Screen.IngredientSearch.route) {
         composable(route = Screen.IngredientSearch.route) {
@@ -31,11 +24,11 @@ fun setupNavigation(
             println("[OnHand] Navigating to search screen")
             IngredientSearchScreen(
                 navController,
-                // Allows us to attach viewmodel to lifecycle of parent activity/fragment
+                // Allows us to attach ViewModels to lifecycle of parent activity/fragment
                 daggerViewModel {
                     DaggerIngredientSearchComponent
                         .builder()
-                        .dataComponent(application.dataComponent)
+                        .dataComponentProvider(LocalDataProvider.current)
                         .build().viewModel
                 }
             )
@@ -45,7 +38,7 @@ fun setupNavigation(
             RecipeResultScreen(
                 daggerViewModel {
                     DaggerRecipeResultComponent.builder()
-                        .dataComponent(application.dataComponent)
+                        .dataComponentProvider(LocalDataProvider.current)
                         .build().viewModel
                 }
             )

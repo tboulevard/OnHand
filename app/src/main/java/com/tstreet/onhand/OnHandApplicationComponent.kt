@@ -1,8 +1,6 @@
 package com.tstreet.onhand
 
-import android.content.Context
-import com.tstreet.onhand.core.data.di.DataComponent
-import dagger.BindsInstance
+import com.tstreet.onhand.core.data.di.DataComponentProvider
 import dagger.Component
 import javax.inject.Singleton
 
@@ -15,7 +13,7 @@ import javax.inject.Singleton
 @Singleton
 @Component(
     dependencies = [
-        DataComponent::class
+        DataComponentProvider::class
     ]
 )
 interface OnHandApplicationComponent {

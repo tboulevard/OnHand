@@ -1,13 +1,15 @@
 package com.tstreet.onhand.feature.ingredientsearch
 
+import com.tstreet.onhand.core.common.UseCase
 import com.tstreet.onhand.core.data.repository.IngredientSearchRepository
 import com.tstreet.onhand.core.model.Ingredient
 import com.tstreet.onhand.core.network.model.NetworkIngredient
 import javax.inject.Inject
+import javax.inject.Provider
 
 class GetIngredientsUseCase @Inject constructor(
-    private val repository: IngredientSearchRepository
-) {
+    private val repository: Provider<IngredientSearchRepository>
+) : UseCase {
 
     init {
         println("Creating ${this.javaClass.simpleName}")
@@ -17,6 +19,7 @@ class GetIngredientsUseCase @Inject constructor(
     // TODO: Error and intermediate state handling
     operator fun invoke(prefix: String): List<Ingredient> =
         repository
+            .get()
             .searchIngredients(prefix)
             .toExternalModel()
 

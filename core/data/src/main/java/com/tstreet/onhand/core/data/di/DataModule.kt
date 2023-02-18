@@ -17,11 +17,13 @@ import javax.inject.Singleton
 interface DataModule {
 
     @Binds
+    @Singleton
     fun bindsIngredientSearchRepository(
         ingredientSearchRepository: OnlineFirstIngredientSearchRepository
     ): IngredientSearchRepository
 
     @Binds
+    @Singleton
     fun bindsRecipeSearchRepository(
         recipeSearchRepository: OnlineFirstRecipeSearchRepository
     ): RecipeSearchRepository

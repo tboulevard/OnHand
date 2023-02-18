@@ -3,6 +3,8 @@ package com.tstreet.onhand
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.CompositionLocalProvider
+import com.tstreet.onhand.core.data.di.LocalDataProvider
 import com.tstreet.onhand.nav.setupNavigation
 import com.tstreet.onhand.ui.theme.OnHandTheme
 
@@ -16,7 +18,11 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             OnHandTheme {
-                setupNavigation(this.application)
+                CompositionLocalProvider(
+                    LocalDataProvider provides application.dataComponent,
+                ) {
+                    setupNavigation()
+                }
             }
         }
     }

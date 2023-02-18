@@ -17,53 +17,12 @@ import com.tstreet.onhand.core.model.Ingredient
 
 //@Preview // TODO: why doesn't this work with args on function?
 @Composable
-// TODO: How do I inject the viewmodel?
 fun RecipeResultScreen(
     viewModel: RecipeResultViewModel
 ) {
-    var text by remember {
-        mutableStateOf("")
-    }
-    var searchResults by remember {
-        mutableStateOf(listOf<Ingredient>())
-    }
-    Column(
-        verticalArrangement = Arrangement.Top,
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.Start,
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            OutlinedTextField(
-                value = text,
-                onValueChange = {
-                    text = it
-                }
-            )
-            Button(
-                onClick = {
-                    // TODO:
-                    if (text.isNotBlank()) {
-                        searchResults = viewModel.search(text)
-                    }
-                }
-            ) {
-                Text(text = "Search Recipes")
-            }
-        }
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            items(
-                searchResults
-            ) {currentItem ->
-                Text(
-                    modifier = Modifier.size(36.dp),
-                    text = currentItem.name)
-            }
-        }
-    }
+
+    Text(text = "Recipe Result Screen")
+
+    // TODO: implement...
 }
+
