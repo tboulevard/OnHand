@@ -9,11 +9,7 @@ import dagger.Binds
 import dagger.Module
 import javax.inject.Singleton
 
-@Module(
-    includes = [
-        NetworkModule::class
-    ]
-)
+@Module(includes = [NetworkModule::class])
 interface DataModule {
 
     @Binds

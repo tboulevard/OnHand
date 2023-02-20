@@ -1,13 +1,13 @@
 package com.tstreet.onhand.core.data.di
 
+import com.tstreet.onhand.core.common.ContextComponentProvider
 import dagger.Component
 import javax.inject.Singleton
 
 @Singleton
 @Component(
-    modules = [
-        DataModule::class
-    ]
+    dependencies = [ContextComponentProvider::class],
+    modules = [DataModule::class]
 )
 /**
  * TODO: For some reason, attaching [DataComponentProvider] here allows us to to circumvent the
