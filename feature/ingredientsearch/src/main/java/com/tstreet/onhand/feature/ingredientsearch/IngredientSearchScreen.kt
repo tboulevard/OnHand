@@ -12,14 +12,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.tstreet.onhand.core.model.Ingredient
 
-//@Preview // TODO: why doesn't this work with args on function?
 @Composable
-// TODO: How do I inject the viewmodel?
 fun IngredientSearchScreen(
     navController: NavController,
     viewModel: IngredientSearchViewModel

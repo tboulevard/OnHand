@@ -8,6 +8,8 @@ import androidx.lifecycle.ViewModelProvider
 
 /**
  * Per: https://www.droidcon.com/2021/06/06/dagger-2-and-jetpack-compose-integration/
+ *
+ * tl;dr allows us to attach ViewModels to lifecycle of parent activity/fragment
  */
 @Composable
 inline fun <reified T : ViewModel> daggerViewModel(

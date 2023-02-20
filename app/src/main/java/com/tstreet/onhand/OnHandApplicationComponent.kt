@@ -1,5 +1,6 @@
 package com.tstreet.onhand
 
+import com.tstreet.onhand.core.common.ContextComponentProvider
 import com.tstreet.onhand.core.data.di.DataComponentProvider
 import dagger.Component
 import javax.inject.Singleton
@@ -13,13 +14,11 @@ import javax.inject.Singleton
 @Singleton
 @Component(
     dependencies = [
-        DataComponentProvider::class
+        DataComponentProvider::class,
+        ContextComponentProvider::class // TODO: might not be necessary, revisit later
     ]
 )
 interface OnHandApplicationComponent {
 
-//    @Component.Factory
-//    interface Factory {
-//        fun create(@BindsInstance applicationContext: Context): OnHandApplicationComponent
-//    }
+    val dataComponent : DataComponentProvider
 }
