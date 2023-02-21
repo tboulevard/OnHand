@@ -8,8 +8,8 @@ import com.tstreet.onhand.core.common.daggerViewModel
 import com.tstreet.onhand.core.data.di.LocalDataProvider
 import com.tstreet.onhand.feature.ingredientsearch.IngredientSearchScreen
 import com.tstreet.onhand.feature.ingredientsearch.di.DaggerIngredientSearchComponent
-import com.tstreet.onhand.feature.reciperesult.RecipeResultScreen
-import com.tstreet.onhand.feature.reciperesult.di.DaggerRecipeResultComponent
+import com.tstreet.onhand.feature.recipesearch.RecipeSearchScreen
+import com.tstreet.onhand.feature.recipesearch.di.DaggerRecipeSearchComponent
 
 @Composable
 fun Navigation() {
@@ -29,11 +29,11 @@ fun Navigation() {
                 }
             )
         }
-        composable(route = Screen.RecipeResult.route) {
+        composable(route = Screen.RecipeSearch.route) {
             println("[OnHand] Navigating to recipe result screen")
-            RecipeResultScreen(
+            RecipeSearchScreen(
                 daggerViewModel {
-                    DaggerRecipeResultComponent.builder()
+                    DaggerRecipeSearchComponent.builder()
                         .dataComponentProvider(LocalDataProvider.current)
                         .build().viewModel
                 }

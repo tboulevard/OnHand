@@ -1,9 +1,6 @@
 package com.tstreet.onhand.core.data.di
 
-import com.tstreet.onhand.core.data.repository.IngredientSearchRepository
-import com.tstreet.onhand.core.data.repository.OnlineFirstIngredientSearchRepository
-import com.tstreet.onhand.core.data.repository.OnlineFirstRecipeSearchRepository
-import com.tstreet.onhand.core.data.repository.RecipeSearchRepository
+import com.tstreet.onhand.core.data.repository.*
 import com.tstreet.onhand.core.network.di.NetworkModule
 import dagger.Binds
 import dagger.Module
@@ -23,4 +20,10 @@ interface DataModule {
     fun bindsRecipeSearchRepository(
         recipeSearchRepository: OnlineFirstRecipeSearchRepository
     ): RecipeSearchRepository
+
+    @Binds
+    @Singleton
+    fun bindsPantryRepository(
+        pantryRepository: PantryRepositoryImpl
+    ): PantryRepository
 }

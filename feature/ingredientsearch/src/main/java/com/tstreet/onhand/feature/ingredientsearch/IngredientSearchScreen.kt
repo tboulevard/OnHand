@@ -45,11 +45,9 @@ fun IngredientSearchScreen(
             )
             Button(
                 onClick = {
-                    // TODO:
                     if (text.isNotBlank()) {
                         searchResults = viewModel.search(text)
                     }
-                    navController.navigate("recipe_result")
                 }
             ) {
                 Text(text = "Search Ingredients")

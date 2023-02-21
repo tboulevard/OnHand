@@ -46,12 +46,12 @@ android {
 
 // TODO: extract dependencies into convention plugin and pull into plugins { ... } block
 dependencies {
-    implementation project(path: ':core:domain')
     implementation project(path: ':core:model')
     implementation project(path: ':core:data')
     implementation project(path: ':core:network')
     implementation project(path: ':core:ui')
     implementation project(path: ':core:common')
+    implementation project(path: ':core:domain')
 
     implementation libs.androidx.core.ktx
     implementation libs.androidx.activity.compose

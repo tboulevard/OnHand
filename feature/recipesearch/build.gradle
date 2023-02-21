@@ -5,8 +5,7 @@ plugins {
 }
 
 android {
-    namespace 'com.tstreet.onhand.core.domain'
-    // TODO: move everything below in android { } to separate build module for less redundancy
+    namespace 'com.tstreet.onhand.feature.recipesearch'
     compileSdk 33
 
     defaultConfig {
@@ -34,19 +33,33 @@ android {
         // -Xjvm-default option
         freeCompilerArgs = ["-Xjvm-default=all"]
     }
+    buildFeatures {
+        compose true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion '1.1.1'
+    }
 }
 
 dependencies {
+    implementation project(path: ':core:model')
     implementation project(path: ':core:data')
     implementation project(path: ':core:network')
-    implementation project(path: ':core:model')
+    implementation project(path: ':core:ui')
     implementation project(path: ':core:common')
+    implementation project(path: ':core:domain')
 
     implementation libs.androidx.core.ktx
-    implementation libs.androidx.appcompat
+    implementation libs.androidx.activity.compose
+    implementation libs.androidx.compose.ui
+    implementation libs.androidx.compose.material
+    implementation libs.androidx.navigation.compose
+    implementation libs.androidx.compose.material3
     implementation libs.dagger
     kapt libs.dagger.compiler
+
     testImplementation libs.junit4
     androidTestImplementation libs.androidx.test.ext
     androidTestImplementation libs.androidx.test.espresso.core
+    androidTestImplementation libs.androidx.compose.ui.test
 }
