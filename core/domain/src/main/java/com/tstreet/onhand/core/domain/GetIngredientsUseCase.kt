@@ -9,11 +9,7 @@ import javax.inject.Provider
 
 class GetIngredientsUseCase @Inject constructor(
     private val repository: Provider<IngredientSearchRepository>
-) : UseCase {
-
-    init {
-        println("Creating ${this.javaClass.simpleName}")
-    }
+) : UseCase() {
 
     // TODO: Utilize the flow type (flow { ... })
     // TODO: Error and intermediate state handling

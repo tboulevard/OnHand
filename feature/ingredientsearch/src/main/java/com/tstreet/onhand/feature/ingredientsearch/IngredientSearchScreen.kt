@@ -59,10 +59,15 @@ fun IngredientSearchScreen(
             items(
                 searchResults
             ) { currentItem ->
-                Text(
-                    modifier = Modifier.size(36.dp),
-                    text = currentItem.name
-                )
+                Button(
+                    onClick = {
+                        viewModel.addIngredientToPantry(currentItem)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    Text(text = currentItem.name)
+                }
             }
         }
     }
