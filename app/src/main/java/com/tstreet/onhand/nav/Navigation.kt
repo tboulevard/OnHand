@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
+import com.tstreet.onhand.core.common.LocalCommonProvider
 import com.tstreet.onhand.core.common.daggerViewModel
 import com.tstreet.onhand.core.data.di.LocalDataProvider
 import com.tstreet.onhand.feature.ingredientsearch.IngredientSearchScreen
@@ -25,6 +26,7 @@ fun Navigation() {
                     DaggerIngredientSearchComponent
                         .builder()
                         .dataComponentProvider(LocalDataProvider.current)
+                        .commonComponentProvider(LocalCommonProvider.current)
                         .build().viewModel
                 }
             )

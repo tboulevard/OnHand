@@ -25,8 +25,7 @@ class GetRecipesUseCase @Inject constructor(
             Ingredient(
                 id = it.id,
                 name = it.name,
-                image = it.image,
-                childIngredient = it.children
+                image = it.image
             )
         }
 }

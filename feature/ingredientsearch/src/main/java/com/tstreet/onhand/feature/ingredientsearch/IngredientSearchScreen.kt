@@ -6,15 +6,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.tstreet.onhand.core.model.Ingredient
+import kotlinx.coroutines.launch
 
 @Composable
 fun IngredientSearchScreen(
@@ -24,9 +21,8 @@ fun IngredientSearchScreen(
     var text by remember {
         mutableStateOf("")
     }
-    var searchResults by remember {
-        mutableStateOf(listOf<Ingredient>())
-    }
+    val searchResults by viewModel.currentSearchResults.collectAsState()
+
     Column(
         verticalArrangement = Arrangement.Top,
         modifier = Modifier
@@ -46,7 +42,10 @@ fun IngredientSearchScreen(
             Button(
                 onClick = {
                     if (text.isNotBlank()) {
-                        searchResults = viewModel.search(text)
+                        // Go through: https://developer.android.com/jetpack/compose/state-saving
+                        // figure out why just setting the searchResults value doesn't update
+                        // recyclerview
+                        viewModel.search(text)
                     }
                 }
             ) {
@@ -54,7 +53,7 @@ fun IngredientSearchScreen(
             }
         }
         LazyColumn(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             items(
                 searchResults

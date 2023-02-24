@@ -1,7 +1,7 @@
 package com.tstreet.onhand
 
 import android.app.Application
-import com.tstreet.onhand.core.common.DaggerContextComponent
+import com.tstreet.onhand.core.common.DaggerCommonComponent
 import com.tstreet.onhand.core.data.di.DaggerDataComponent
 
 class OnHandApplication : Application() {
@@ -13,14 +13,14 @@ class OnHandApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        val contextComponent = DaggerContextComponent.factory().create(this)
+        val commonComponent = DaggerCommonComponent.factory().create(this)
         val dataComponent = DaggerDataComponent
             .builder()
-            .contextComponentProvider(contextComponent)
+            .commonComponentProvider(commonComponent)
             .build()
         appComponent = DaggerOnHandApplicationComponent
             .builder()
-            .contextComponentProvider(contextComponent)
+            .commonComponentProvider(commonComponent)
             .dataComponentProvider(dataComponent)
             .build()
     }
