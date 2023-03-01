@@ -8,20 +8,17 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.tstreet.onhand.core.model.Ingredient
-import kotlinx.coroutines.launch
 
 @Composable
 fun IngredientSearchScreen(
     navController: NavController,
     viewModel: IngredientSearchViewModel
 ) {
-    var text by remember {
-        mutableStateOf("")
-    }
-    val searchResults by viewModel.currentSearchResults.collectAsState()
+    val searchText by viewModel.searchText.collectAsState()
+    val ingredients by viewModel.ingredients.collectAsState()
+    val isSearching by viewModel.isSearching.collectAsState()
 
     Column(
         verticalArrangement = Arrangement.Top,
@@ -34,38 +31,26 @@ fun IngredientSearchScreen(
                 .fillMaxWidth()
         ) {
             OutlinedTextField(
-                value = text,
-                onValueChange = {
-                    text = it
-                }
+                value = searchText,
+                onValueChange = viewModel::onSearchTextChange,
+                placeholder = { Text(text = "Search Ingredients") }
             )
-            Button(
-                onClick = {
-                    if (text.isNotBlank()) {
-                        // Go through: https://developer.android.com/jetpack/compose/state-saving
-                        // figure out why just setting the searchResults value doesn't update
-                        // recyclerview
-                        viewModel.search(text)
-                    }
-                }
-            ) {
-                Text(text = "Search Ingredients")
-            }
         }
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
         ) {
-            items(
-                searchResults
-            ) { currentItem ->
+            // TODO: fix unchecked type casting, for some reason viewModel.ingredients
+            // isn't recognizing the underlying List<Ingredient> type and only
+            // emitting List<Any>
+            items(ingredients) { ingredient ->
                 Button(
                     onClick = {
-                        viewModel.addIngredientToPantry(currentItem)
+                        viewModel.addIngredientToPantry(ingredient)
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                 ) {
-                    Text(text = currentItem.name)
+                    Text(text = ingredient.name)
                 }
             }
         }

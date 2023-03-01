@@ -8,10 +8,7 @@ import com.tstreet.onhand.core.domain.GetIngredientsUseCase
 import com.tstreet.onhand.core.domain.RemoveFromPantryUseCase
 import com.tstreet.onhand.core.model.Ingredient
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Provider
@@ -24,17 +21,35 @@ class IngredientSearchViewModel @Inject constructor(
     @Named(IO) private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
-    private val _currentSearchResults = MutableStateFlow(emptyList<Ingredient>())
-    val currentSearchResults: StateFlow<List<Ingredient>> = _currentSearchResults.asStateFlow()
+    private val _searchText = MutableStateFlow("")
+    val searchText = _searchText.asStateFlow()
+
+    private val _isSearching = MutableStateFlow(false)
+    val isSearching = _isSearching.asStateFlow()
+
+    private val _ingredients = MutableStateFlow(listOf<Ingredient>())
+    val ingredients : StateFlow<List<Ingredient>> = searchText
+        // TODO: use proper operator here...
+        .combine(_ingredients) { text, ingredients ->
+            if(text.isNotBlank()) {
+                getIngredients.get().invoke(text)
+            } else {
+                // TODO: cleanup
+                listOf()
+            }
+        }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            _ingredients.value
+        )
 
     init {
         println("[OnHand] Creating ${this.javaClass.simpleName}")
     }
 
-    fun search(prefix: String) {
-        viewModelScope.launch(ioDispatcher) {
-            _currentSearchResults.value = getIngredients.get().invoke(prefix)
-        }
+    fun onSearchTextChange(text : String) {
+        _searchText.value = text
     }
 
     fun addIngredientToPantry(ingredient: Ingredient) {

@@ -17,6 +17,10 @@ class GetIngredientsUseCase @Inject constructor(
         repository
             .get()
             .searchIngredients(prefix)
+            // TODO: actually implement this from the DB layer
+            .filter {
+                it.name.contains(prefix)
+            }
             .toExternalModel()
 
     private fun List<NetworkIngredient>.toExternalModel(): List<Ingredient> =
