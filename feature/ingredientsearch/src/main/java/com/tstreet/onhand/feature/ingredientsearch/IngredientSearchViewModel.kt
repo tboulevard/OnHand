@@ -1,5 +1,6 @@
 package com.tstreet.onhand.feature.ingredientsearch
 
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.CommonModule.IO
@@ -8,7 +9,6 @@ import com.tstreet.onhand.core.domain.GetIngredientsUseCase
 import com.tstreet.onhand.core.domain.RemoveFromPantryUseCase
 import com.tstreet.onhand.core.model.Ingredient
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 import javax.inject.Named
@@ -34,8 +34,8 @@ class IngredientSearchViewModel @Inject constructor(
     private val _isSearching = MutableStateFlow(false)
     val isSearching = _isSearching.asStateFlow()
 
-    private val _ingredients = MutableStateFlow(listOf<Ingredient>())
-    val ingredients = searchText
+    private val _ingredients = MutableStateFlow(emptyList<Ingredient>())
+    val ingredients : StateFlow<List<Ingredient>> = searchText
         .debounce(500L)
         .onEach { _isSearching.update { true } }
         // TODO: use proper operator here instead of combine()...
@@ -44,15 +44,15 @@ class IngredientSearchViewModel @Inject constructor(
                 getIngredients.get().invoke(text)
             } else {
                 // TODO: cleanup
-                listOf()
+                emptyList<Ingredient>()
             }
         }
         .onEach { _isSearching.update { false } }
         .stateIn(
             // TODO: revisit scoping since we're doing database operations behind the scenes
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
-            _ingredients.value
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = _ingredients.value
         )
 
     fun onSearchTextChange(text : String) {

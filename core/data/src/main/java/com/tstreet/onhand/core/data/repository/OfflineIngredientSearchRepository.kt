@@ -17,8 +17,9 @@ class OfflineIngredientSearchRepository @Inject constructor(
         println("[OnHand] Creating ${this.javaClass.simpleName}")
     }
 
-    override fun searchIngredients(prefix: String): List<Ingredient> {
+    override suspend fun searchIngredients(prefix: String): List<Ingredient> {
         return ingredientCatalogDao.get()
+            // TODO: revert
             .findByName(prefix)
             .map(IngredientCatalogEntity::asExternalModel)
     }

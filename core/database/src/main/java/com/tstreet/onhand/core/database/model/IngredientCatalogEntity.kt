@@ -6,7 +6,9 @@ import androidx.room.PrimaryKey
 import com.tstreet.onhand.core.model.Ingredient
 
 // TODO: Think about reusing this entity for stuff in the pantry, just add `isSaved`
-@Entity
+@Entity(
+    tableName = "ingredient_catalog"
+)
 data class IngredientCatalogEntity(
     @PrimaryKey val id : Int,
     @ColumnInfo(name = "name") val name: String

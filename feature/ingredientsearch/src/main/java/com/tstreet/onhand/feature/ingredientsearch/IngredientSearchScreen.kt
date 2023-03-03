@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
+import com.tstreet.onhand.core.model.Ingredient
 
 @Composable
 fun IngredientSearchScreen(
