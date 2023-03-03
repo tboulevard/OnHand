@@ -21,14 +21,4 @@ class GetIngredientsUseCase @Inject constructor(
             .filter {
                 it.name.contains(prefix)
             }
-            .toExternalModel()
-
-    private fun List<NetworkIngredient>.toExternalModel(): List<Ingredient> =
-        this.map {
-            Ingredient(
-                id = it.id,
-                name = it.name,
-                image = it.image
-            )
-        }
 }

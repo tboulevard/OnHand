@@ -8,18 +8,25 @@ import com.tstreet.onhand.core.domain.GetIngredientsUseCase
 import com.tstreet.onhand.core.domain.RemoveFromPantryUseCase
 import com.tstreet.onhand.core.model.Ingredient
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Provider
 
+
 //TODO: Encapsulates ingredient search and pantry logic...think about renaming this
+@OptIn(kotlinx.coroutines.FlowPreview::class)
 class IngredientSearchViewModel @Inject constructor(
     private val getIngredients: Provider<GetIngredientsUseCase>,
     private val addToPantry: Provider<AddToPantryUseCase>,
     private val removeFromPantry: Provider<RemoveFromPantryUseCase>,
     @Named(IO) private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
+
+    init {
+        println("[OnHand] Creating ${this.javaClass.simpleName}")
+    }
 
     private val _searchText = MutableStateFlow("")
     val searchText = _searchText.asStateFlow()
@@ -28,8 +35,10 @@ class IngredientSearchViewModel @Inject constructor(
     val isSearching = _isSearching.asStateFlow()
 
     private val _ingredients = MutableStateFlow(listOf<Ingredient>())
-    val ingredients : StateFlow<List<Ingredient>> = searchText
-        // TODO: use proper operator here...
+    val ingredients = searchText
+        .debounce(500L)
+        .onEach { _isSearching.update { true } }
+        // TODO: use proper operator here instead of combine()...
         .combine(_ingredients) { text, ingredients ->
             if(text.isNotBlank()) {
                 getIngredients.get().invoke(text)
@@ -38,15 +47,13 @@ class IngredientSearchViewModel @Inject constructor(
                 listOf()
             }
         }
+        .onEach { _isSearching.update { false } }
         .stateIn(
+            // TODO: revisit scoping since we're doing database operations behind the scenes
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
             _ingredients.value
         )
-
-    init {
-        println("[OnHand] Creating ${this.javaClass.simpleName}")
-    }
 
     fun onSearchTextChange(text : String) {
         _searchText.value = text
