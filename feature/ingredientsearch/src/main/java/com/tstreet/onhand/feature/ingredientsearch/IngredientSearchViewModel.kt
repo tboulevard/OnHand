@@ -1,6 +1,5 @@
 package com.tstreet.onhand.feature.ingredientsearch
 
-import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.CommonModule.IO
@@ -44,7 +43,7 @@ class IngredientSearchViewModel @Inject constructor(
                 getIngredients.get().invoke(text)
             } else {
                 // TODO: cleanup
-                emptyList<Ingredient>()
+                emptyList()
             }
         }
         .onEach { _isSearching.update { false } }

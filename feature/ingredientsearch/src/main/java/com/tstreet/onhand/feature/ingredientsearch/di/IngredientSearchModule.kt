@@ -1,5 +1,6 @@
 package com.tstreet.onhand.feature.ingredientsearch.di
 
+import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.common.UseCase
 import com.tstreet.onhand.core.domain.AddToPantryUseCase
 import com.tstreet.onhand.core.domain.GetIngredientsUseCase
@@ -15,7 +16,7 @@ interface IngredientSearchModule {
     // TODO: for some reason this scope isn't needed to bind use case to view lifecycle...is it
     // TODO: because [IngredientSearchComponent] already specifies this? Either way, keeping
     // TODO: here to be pedantic...
-    @Singleton
+    @FeatureScope
     fun bindsGetIngredientsUseCase(
         useCase: GetIngredientsUseCase
     ): UseCase

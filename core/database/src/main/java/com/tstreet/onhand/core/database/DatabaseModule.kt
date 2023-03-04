@@ -21,4 +21,5 @@ object DatabaseModule {
     )
         .createFromAsset("database/ingredient_catalog.db")
         .build()
+        .also { println("[OnHand] onhand-database created") }
 }

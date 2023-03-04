@@ -10,10 +10,6 @@ class AddToPantryUseCase @Inject constructor(
     private val repository: Provider<PantryRepository>
 ) : UseCase() {
 
-    init {
-        println("Creating ${this.javaClass.simpleName}")
-    }
-
     operator fun invoke(ingredient: Ingredient) {
         repository
             .get()

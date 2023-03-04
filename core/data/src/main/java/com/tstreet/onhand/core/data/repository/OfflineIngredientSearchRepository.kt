@@ -7,20 +7,20 @@ import com.tstreet.onhand.core.model.Ingredient
 import javax.inject.Inject
 import javax.inject.Provider
 
-// TODO: refactor to offline first...
 class OfflineIngredientSearchRepository @Inject constructor(
+    // TODO: Despite this repository being a Singleton, IngredientCatalogDao created every time
+    // TODO: we run a search query. Look into whether this is expected or if Dagger 2 setup is
+    // TODO: wrong
     private val ingredientCatalogDao: Provider<IngredientCatalogDao>
 ) : IngredientSearchRepository {
-    // TODO: Refactor the fact that we're exposing NetworkIngredient to Domain layer
 
     init {
         println("[OnHand] Creating ${this.javaClass.simpleName}")
     }
 
-    override suspend fun searchIngredients(prefix: String): List<Ingredient> {
+    override suspend fun searchIngredients(query: String): List<Ingredient> {
         return ingredientCatalogDao.get()
-            // TODO: revert
-            .findByName(prefix)
+            .search(query)
             .map(IngredientCatalogEntity::asExternalModel)
     }
 }

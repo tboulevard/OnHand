@@ -11,7 +11,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
-import com.tstreet.onhand.core.model.Ingredient
 
 @Composable
 fun IngredientSearchScreen(
@@ -45,11 +44,8 @@ fun IngredientSearchScreen(
             }
         } else {
             LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                // TODO: fix unchecked type casting, for some reason viewModel.ingredients
-                // isn't recognizing the underlying List<Ingredient> type and only
-                // emitting List<Any>
                 items(ingredients) { ingredient ->
                     Button(
                         onClick = {
