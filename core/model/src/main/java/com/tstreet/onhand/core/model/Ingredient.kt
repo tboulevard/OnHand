@@ -4,6 +4,7 @@ package com.tstreet.onhand.core.model
  * External model representation for an Ingredient in a given Recipe.
  */
 data class Ingredient(
+    val id: Int,
     val name: String,
     // TODO: Path only, refactor once we need images
     val image: String? = null,

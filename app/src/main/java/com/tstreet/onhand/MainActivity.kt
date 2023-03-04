@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.CompositionLocalProvider
+import com.tstreet.onhand.core.common.LocalCommonProvider
 import com.tstreet.onhand.core.data.di.LocalDataProvider
 import com.tstreet.onhand.nav.Navigation
 import com.tstreet.onhand.ui.theme.OnHandTheme
@@ -17,6 +18,7 @@ class MainActivity : ComponentActivity() {
             OnHandTheme {
                 CompositionLocalProvider(
                     LocalDataProvider provides application.appComponent.dataComponent,
+                    LocalCommonProvider provides application.appComponent.commonComponent
                 ) {
                     Navigation()
                 }

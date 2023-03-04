@@ -1,0 +1,64 @@
+plugins {
+    // TODO: Does referencing via dot notation circumvent declaration for version catalog?
+    // TODO: or is it using the version we declare in top level build script via:
+    // TODO: `alias(libs.plugins.android.library)`?
+    id 'com.android.library'
+    id 'kotlin-android'
+    // https://github.com/Kotlin/kotlinx.serialization
+    // Applies plugin we aliased in top level project buildscript (OnHand build.gradle)
+    //id 'kotlinx-serialization'
+    id 'kotlin-kapt'
+    // TODO: change the rest of the plugins in toml to follow this structure
+    alias(libs.plugins.ksp)
+}
+
+android {
+    namespace 'com.tstreet.onhand.core.database'
+    // TODO: move everything below in android { } to separate build module for less redundancy
+    compileSdk 33
+
+    defaultConfig {
+        minSdk 23
+        targetSdk 33
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+
+        // TO get around this error:
+        // Schema export directory is not provided to the annotation processor so we cannot export
+        // the schema.
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas")
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+dependencies {
+    implementation project(path: ':core:model')
+
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.appcompat
+    implementation libs.dagger
+    kapt libs.dagger.compiler
+    ksp libs.room.compiler
+    implementation libs.room.ktx
+    implementation libs.room.runtime
+
+    testImplementation libs.junit4
+    androidTestImplementation libs.androidx.test.ext
+    androidTestImplementation libs.androidx.test.espresso.core
+}

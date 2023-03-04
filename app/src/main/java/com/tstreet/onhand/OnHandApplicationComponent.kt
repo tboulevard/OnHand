@@ -1,6 +1,6 @@
 package com.tstreet.onhand
 
-import com.tstreet.onhand.core.common.ContextComponentProvider
+import com.tstreet.onhand.core.common.CommonComponentProvider
 import com.tstreet.onhand.core.data.di.DataComponentProvider
 import dagger.Component
 import javax.inject.Singleton
@@ -15,10 +15,11 @@ import javax.inject.Singleton
 @Component(
     dependencies = [
         DataComponentProvider::class,
-        ContextComponentProvider::class // TODO: might not be necessary, revisit later
+        CommonComponentProvider::class
     ]
 )
 interface OnHandApplicationComponent {
 
     val dataComponent : DataComponentProvider
+    val commonComponent : CommonComponentProvider
 }

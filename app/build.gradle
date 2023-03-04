@@ -41,7 +41,7 @@ android {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion '1.1.1'
+        kotlinCompilerExtensionVersion '1.4.0-alpha02'
     }
     packagingOptions {
         resources {
@@ -54,7 +54,8 @@ dependencies {
     // TODO: revisit if app module should depend on feature module
     // Feature modules we want to take a dependency on
     implementation project(path: ':feature:ingredientsearch')
-    implementation project(path: ':feature:reciperesult')
+    implementation project(path: ':feature:recipesearch')
+    implementation project(path: ':feature:pantry')
 
     // Core modules we want to be retained for entire Application lifecycle
     implementation project(path: ':core:data')
