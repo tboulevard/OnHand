@@ -15,7 +15,7 @@ import javax.inject.Singleton
 @Component(
     dependencies = [
         DataComponentProvider::class,
-        CommonComponentProvider::class // TODO: might not be necessary, revisit later
+        CommonComponentProvider::class
     ]
 )
 interface OnHandApplicationComponent {

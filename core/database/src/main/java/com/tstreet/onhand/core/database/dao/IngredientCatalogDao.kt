@@ -16,5 +16,4 @@ interface IngredientCatalogDao {
     // TODO: LIMIT of 6 entries returned hardcoded for now, make it dynamic later
     @Query("SELECT * FROM ingredient_catalog WHERE name LIKE '%' || :query || '%' LIMIT 6")
     suspend fun search(query: String): List<IngredientCatalogEntity>
-
 }

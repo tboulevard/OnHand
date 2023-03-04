@@ -21,6 +21,9 @@ import retrofit2.http.Headers
 private interface RetrofitOnHandService {
 
     //TODO: clean this up...
+
+    // TODO: Unsubscribe here: https://rapidapi.com/developer/billing/subscriptions-and-usage and
+    // generate new API key before making repo public. This is already in commit history...
     @Headers(
         "X-RapidAPI-Host: spoonacular-recipe-food-nutrition-v1.p.rapidapi.com",
         "X-RapidAPI-Key: 3749218b77mshea638b2be581548p186f46jsn90edcd6e1d2c"
