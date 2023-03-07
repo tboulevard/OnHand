@@ -11,10 +11,12 @@ import com.tstreet.onhand.core.model.Ingredient
 )
 data class IngredientCatalogEntity(
     @PrimaryKey val id : Int,
-    @ColumnInfo(name = "name") val name: String
+    @ColumnInfo(name = "name") val name: String,
+    @ColumnInfo(name = "inPantry") val inPantry: Boolean
 )
 
 fun IngredientCatalogEntity.asExternalModel() = Ingredient(
     id = id,
-    name = name
+    name = name,
+    inPantry = inPantry
 )

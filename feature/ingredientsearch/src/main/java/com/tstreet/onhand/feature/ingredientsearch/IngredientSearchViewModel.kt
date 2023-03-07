@@ -2,6 +2,7 @@ package com.tstreet.onhand.feature.ingredientsearch
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.domain.AddToPantryUseCase
 import com.tstreet.onhand.core.domain.GetIngredientsUseCase
@@ -9,6 +10,7 @@ import com.tstreet.onhand.core.domain.RemoveFromPantryUseCase
 import com.tstreet.onhand.core.model.Ingredient
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Provider
@@ -59,12 +61,16 @@ class IngredientSearchViewModel @Inject constructor(
     }
 
     fun addIngredientToPantry(ingredient: Ingredient) {
-        println("[OnHand] Adding $ingredient to pantry.")
-        addToPantry.get().invoke(ingredient)
+        viewModelScope.launch {
+            println("[OnHand] Adding $ingredient to pantry.")
+            addToPantry.get().invoke(ingredient)
+        }
     }
 
     fun removeIngredientFromPantry(ingredient: Ingredient) {
-        println("[OnHand] Removing $ingredient from pantry.")
-        removeFromPantry.get().invoke(ingredient)
+        viewModelScope.launch {
+            println("[OnHand] Removing $ingredient from pantry.")
+            removeFromPantry.get().invoke(ingredient)
+        }
     }
 }

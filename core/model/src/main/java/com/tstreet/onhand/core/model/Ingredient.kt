@@ -9,5 +9,6 @@ data class Ingredient(
     // TODO: Path only, refactor once we need images
     val image: String? = null,
     // TODO: Refactor if needed
-    val childIngredient: ChildIngredient? = null
+    val childIngredient: ChildIngredient? = null,
+    val inPantry : Boolean = false
 )

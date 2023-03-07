@@ -6,13 +6,11 @@ import com.tstreet.onhand.core.model.Ingredient
 import javax.inject.Inject
 import javax.inject.Provider
 
-class RemoveFromPantryUseCase @Inject constructor(
+class GetPantryUseCase @Inject constructor(
     private val repository: Provider<PantryRepository>
 ) : UseCase() {
 
-    suspend operator fun invoke(ingredient: Ingredient) {
-        repository
-            .get()
-            .removeIngredient(ingredient)
+    suspend operator fun invoke() : List<Ingredient> {
+        return listOf()
     }
 }
