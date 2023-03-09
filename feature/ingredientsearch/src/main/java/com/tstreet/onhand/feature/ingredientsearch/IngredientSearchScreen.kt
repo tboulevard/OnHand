@@ -10,17 +10,18 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.node.modifierElementOf
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.tstreet.onhand.core.model.Ingredient
-import kotlin.random.Random
 
 @Composable
 // TODO before merge: ingredient search shows first 7 items from db without search text entered
@@ -33,64 +34,96 @@ fun IngredientSearchScreen(
 
     Column(
         verticalArrangement = Arrangement.Top,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
     ) {
         Row(
             horizontalArrangement = Arrangement.Start,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
         ) {
             OutlinedTextField(
                 value = searchText,
                 onValueChange = viewModel::onSearchTextChange,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(2.dp),
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "search",
+                        tint = Color.Black,
+                    ) },
+                label = { Text(text = "Search Ingredients") },
             )
         }
         if (isSearching) {
-            Box(modifier = Modifier.fillMaxSize()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
                 CircularProgressIndicator(
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
         } else {
             LazyColumn(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp)
             ) {
-                itemsIndexed(items = viewModel.ingredients) { index, ingredient ->
+                itemsIndexed(
+                    items = viewModel.ingredients
+                ) { index, ingredient ->
                     IngredientSearchListItem(
                         ingredient = ingredient,
-                        index = index,
-                        viewModel = viewModel
+                        index,
+                        onItemClicked = viewModel::onToggleFromSearch
                     )
                 }
             }
         }
         Row {
             Text(
-                "Pantry"
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp),
+                text = "Your Pantry",
+                fontSize = 24.sp
             )
         }
         Box(
             modifier = Modifier.fillMaxWidth(),
         ) {
-
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .border(3.dp, randomColor())
-            ) {
-                // TODO: Make the grid elements have adaptive size based on the number of characters
-                // TODO: in the ingredient.
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(minSize = 72.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+            if (viewModel.pantry.isEmpty()) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(4.dp),
+                    text = "(empty)",
+                    fontSize = 16.sp
+                )
+            } else {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .border(3.dp, Color.DarkGray)
                 ) {
-                    itemsIndexed(viewModel.pantry) { index, ingredient ->
-                        PantryListItem(
-                            ingredient = ingredient,
-                            index = index,
-                            viewModel = viewModel
-                        )
+                    // TODO: Make the grid elements have adaptive size based on the number of characters
+                    // TODO: in the ingredient.
+                    LazyVerticalGrid(
+                        columns = GridCells.Adaptive(minSize = 72.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.padding(4.dp)
+                    ) {
+                        itemsIndexed(viewModel.pantry) { index, ingredient ->
+                            PantryListItem(
+                                ingredient = ingredient,
+                                index = index,
+                                onItemClicked = viewModel::onTogglefromPantry
+                            )
+                        }
                     }
                 }
             }
@@ -98,24 +131,30 @@ fun IngredientSearchScreen(
     }
 }
 
-// TODO: cleanup below...
 @Composable
-// TODO: have better encapsulation by not passing view model as arg
 private fun IngredientSearchListItem(
     ingredient: Ingredient,
     index: Int,
-    viewModel: IngredientSearchViewModel
+    onItemClicked: (Int) -> Unit
 ) {
-    Column(
-        modifier = Modifier.border(3.dp, randomColor())
+    Row(
+        modifier = Modifier
+            .border(
+                3.dp,
+                if (ingredient.inPantry) {
+                    MATTE_GREEN
+                } else {
+                    Color.LightGray
+                }
+            )
+            .padding(8.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable {
-                    viewModel.onTogglePantryState(index)
+                    onItemClicked(index)
                 }
-                .padding(8.dp)
         ) {
             Text(ingredient.name, fontSize = 20.sp)
             if (ingredient.inPantry) {
@@ -124,7 +163,7 @@ private fun IngredientSearchListItem(
                         .align(Alignment.CenterEnd),
                     imageVector = Icons.Default.Check,
                     contentDescription = "Added to pantry",
-                    tint = Color.Green,
+                    tint = MATTE_GREEN,
                 )
             }
         }
@@ -132,20 +171,19 @@ private fun IngredientSearchListItem(
 }
 
 @Composable
-// TODO: have better encapsulation by not passing view model as arg
-// TODO: make it so panty items can be removed from here too
 private fun PantryListItem(
     ingredient: Ingredient,
     index: Int,
-    viewModel: IngredientSearchViewModel
+    onItemClicked: (Int) -> Unit
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .clickable {
-                viewModel.onTogglePantryStateFromPantry(index)
+                onItemClicked(index)
             }
-            .border(3.dp, randomColor()),
+            .border(2.dp, Color.LightGray)
+            .padding(4.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -156,9 +194,12 @@ private fun PantryListItem(
     }
 }
 
-fun randomColor() = Color(
-    Random.nextInt(256),
-    Random.nextInt(256),
-    Random.nextInt(256),
-    alpha = 255
-)
+val MATTE_GREEN = Color(72, 161, 77)
+
+// Keeping around for testing recomposition later
+//fun randomColor() = Color(
+//    Random.nextInt(256),
+//    Random.nextInt(256),
+//    Random.nextInt(256),
+//    alpha = 255
+//)

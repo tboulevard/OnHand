@@ -11,6 +11,7 @@ import com.tstreet.onhand.core.domain.GetPantryUseCase
 import com.tstreet.onhand.core.domain.RemoveFromPantryUseCase
 import com.tstreet.onhand.core.model.Ingredient
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -43,15 +44,16 @@ class IngredientSearchViewModel @Inject constructor(
     val searchText: StateFlow<String> = _searchText
         .debounce(500L)
         .onEach {
+            // Only search and update listed ingredients if we have a valid search query
             if(it.isNotBlank()) {
                 _isSearching.update { true }
-                ingredients.clear()
-                ingredients.addAll(getIngredients.get().invoke(it))
-                refreshPantry()
-            } else {
+                ingredients.clearAndReplaceWith(getIngredients.get().invoke(it))
+            } else if (ingredients.isNotEmpty()) {
+                // Clear the list if search query is blank and we already have listed ingredients
                 ingredients.clear()
             }
         }
+        // TODO: is there a better operator than combine to appropriately set the backing field?
         .combine(_searchText) { _, _ ->
             _searchText.value
         }
@@ -72,7 +74,7 @@ class IngredientSearchViewModel @Inject constructor(
         _searchText.value = text
     }
 
-    fun onTogglePantryState(index: Int) {
+    fun onToggleFromSearch(index: Int) {
         viewModelScope.launch {
             val item = ingredients[index]
             val inPantry = item.inPantry
@@ -80,29 +82,31 @@ class IngredientSearchViewModel @Inject constructor(
 
             when (inPantry) {
                 true -> {
-                    println("[OnHand] Removing $item from pantry.")
                     removeFromPantry.get().invoke(item)
                 }
                 false -> {
-                    println("[OnHand] Adding $item to pantry.")
                     addToPantry.get().invoke(item)
                 }
             }
 
+            // TODO: find element in pantry and only change it instead of reloading the entire pantry
+            // TODO: this is also causing issues because we clear the pantry then addall. causes
+            // pantry to flash
             refreshPantry()
         }
     }
 
-    fun onTogglePantryStateFromPantry(index: Int) {
+    fun onTogglefromPantry(index: Int) {
         viewModelScope.launch {
             val item = pantry[index]
-            println("[OnHand] Removing $item from pantry in pantry list.")
             pantry[index] = item.copy(inPantry = false)
 
             removeFromPantry.get().invoke(item)
 
             // If the ingredient we toggle from pantry is visible in the search output,
             // we want to update it too
+            // TODO: this is causing an issue because we clear THEN update the ingredient search listing
+            // TODO: makes the screen look like it's flashing
             ingredients.find {
                 item.name == it.name
             }?.let {
@@ -127,5 +131,10 @@ class IngredientSearchViewModel @Inject constructor(
             }
             pantry.addAll(getPantry.get().invoke())
         }
+    }
+
+    private fun <T> MutableList<T>.clearAndReplaceWith(newListItems : List<T>) {
+        this.clear()
+        this.addAll(newListItems)
     }
 }
