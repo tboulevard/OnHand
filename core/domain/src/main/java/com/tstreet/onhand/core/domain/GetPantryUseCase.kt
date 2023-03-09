@@ -11,6 +11,8 @@ class GetPantryUseCase @Inject constructor(
 ) : UseCase() {
 
     suspend operator fun invoke() : List<Ingredient> {
-        return listOf()
+        return repository
+            .get()
+            .listPantry()
     }
 }

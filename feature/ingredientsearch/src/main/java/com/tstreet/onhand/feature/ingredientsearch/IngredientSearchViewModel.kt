@@ -1,11 +1,13 @@
 package com.tstreet.onhand.feature.ingredientsearch
 
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.domain.AddToPantryUseCase
 import com.tstreet.onhand.core.domain.GetIngredientsUseCase
+import com.tstreet.onhand.core.domain.GetPantryUseCase
 import com.tstreet.onhand.core.domain.RemoveFromPantryUseCase
 import com.tstreet.onhand.core.model.Ingredient
 import kotlinx.coroutines.CoroutineDispatcher
@@ -22,55 +24,108 @@ class IngredientSearchViewModel @Inject constructor(
     private val getIngredients: Provider<GetIngredientsUseCase>,
     private val addToPantry: Provider<AddToPantryUseCase>,
     private val removeFromPantry: Provider<RemoveFromPantryUseCase>,
+    private val getPantry: Provider<GetPantryUseCase>,
     @Named(IO) private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
+    val pantry = mutableStateListOf<Ingredient>()
+    val ingredients = emptyList<Ingredient>().toMutableStateList()
+
     init {
         println("[OnHand] Creating ${this.javaClass.simpleName}")
+
+        viewModelScope.launch {
+            refreshPantry(shouldClear = false)
+        }
     }
 
     private val _searchText = MutableStateFlow("")
-    val searchText = _searchText.asStateFlow()
-
-    private val _isSearching = MutableStateFlow(false)
-    val isSearching = _isSearching.asStateFlow()
-
-    private val _ingredients = MutableStateFlow(emptyList<Ingredient>())
-    val ingredients : StateFlow<List<Ingredient>> = searchText
+    val searchText: StateFlow<String> = _searchText
         .debounce(500L)
-        .onEach { _isSearching.update { true } }
-        // TODO: use proper operator here instead of combine()...
-        .combine(_ingredients) { text, ingredients ->
-            if(text.isNotBlank()) {
-                getIngredients.get().invoke(text)
+        .onEach {
+            if(it.isNotBlank()) {
+                _isSearching.update { true }
+                ingredients.clear()
+                ingredients.addAll(getIngredients.get().invoke(it))
+                refreshPantry()
             } else {
-                // TODO: cleanup
-                emptyList()
+                ingredients.clear()
             }
         }
-        .onEach { _isSearching.update { false } }
+        .combine(_searchText) { _, _ ->
+            _searchText.value
+        }
+        .onEach {
+            _isSearching.update { false }
+        }
         .stateIn(
             // TODO: revisit scoping since we're doing database operations behind the scenes
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = _ingredients.value
+            initialValue = _searchText.value
         )
 
-    fun onSearchTextChange(text : String) {
+    private val _isSearching = MutableStateFlow(false)
+    val isSearching = _isSearching.asStateFlow()
+
+    fun onSearchTextChange(text: String) {
         _searchText.value = text
     }
 
-    fun addIngredientToPantry(ingredient: Ingredient) {
+    fun onTogglePantryState(index: Int) {
         viewModelScope.launch {
-            println("[OnHand] Adding $ingredient to pantry.")
-            addToPantry.get().invoke(ingredient)
+            val item = ingredients[index]
+            val inPantry = item.inPantry
+            ingredients[index] = item.copy(inPantry = !inPantry)
+
+            when (inPantry) {
+                true -> {
+                    println("[OnHand] Removing $item from pantry.")
+                    removeFromPantry.get().invoke(item)
+                }
+                false -> {
+                    println("[OnHand] Adding $item to pantry.")
+                    addToPantry.get().invoke(item)
+                }
+            }
+
+            refreshPantry()
         }
     }
 
-    fun removeIngredientFromPantry(ingredient: Ingredient) {
+    fun onTogglePantryStateFromPantry(index: Int) {
         viewModelScope.launch {
-            println("[OnHand] Removing $ingredient from pantry.")
-            removeFromPantry.get().invoke(ingredient)
+            val item = pantry[index]
+            println("[OnHand] Removing $item from pantry in pantry list.")
+            pantry[index] = item.copy(inPantry = false)
+
+            removeFromPantry.get().invoke(item)
+
+            // If the ingredient we toggle from pantry is visible in the search output,
+            // we want to update it too
+            ingredients.find {
+                item.name == it.name
+            }?.let {
+                refreshSearchedIngredients()
+            }
+            refreshPantry()
+        }
+    }
+
+    private fun refreshSearchedIngredients(shouldClear : Boolean = true) {
+        viewModelScope.launch {
+            if (shouldClear) {
+                ingredients.clear()
+            }
+            ingredients.addAll(getIngredients.get().invoke(_searchText.value))
+        }
+    }
+    private fun refreshPantry(shouldClear : Boolean = true) {
+        viewModelScope.launch {
+            if (shouldClear) {
+                pantry.clear()
+            }
+            pantry.addAll(getPantry.get().invoke())
         }
     }
 }

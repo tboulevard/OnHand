@@ -22,10 +22,17 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+
     }
 
     buildTypes {
+        debug {
+            // TODO: figure out build variant to properly place this in...
+            applicationIdSuffix ".debug"
+            debuggable true
+        }
         release {
+            applicationIdSuffix ".release"
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
