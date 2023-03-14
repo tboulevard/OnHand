@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.tstreet.onhand.core.model.Ingredient
+import kotlin.random.Random
 
 @Composable
 // TODO before merge: ingredient search shows first 7 items from db without search text entered
@@ -144,7 +145,7 @@ private fun IngredientSearchListItem(
                 if (ingredient.inPantry) {
                     MATTE_GREEN
                 } else {
-                    Color.LightGray
+                    randomColor()
                 }
             )
             .padding(8.dp)
@@ -182,7 +183,7 @@ private fun PantryListItem(
             .clickable {
                 onItemClicked(index)
             }
-            .border(2.dp, Color.LightGray)
+            .border(2.dp, randomColor())
             .padding(4.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -197,9 +198,9 @@ private fun PantryListItem(
 val MATTE_GREEN = Color(72, 161, 77)
 
 // Keeping around for testing recomposition later
-//fun randomColor() = Color(
-//    Random.nextInt(256),
-//    Random.nextInt(256),
-//    Random.nextInt(256),
-//    alpha = 255
-//)
+fun randomColor() = Color(
+    Random.nextInt(256),
+    Random.nextInt(256),
+    Random.nextInt(256),
+    alpha = 255
+)

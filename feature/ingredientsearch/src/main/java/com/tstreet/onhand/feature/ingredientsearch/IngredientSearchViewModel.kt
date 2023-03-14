@@ -78,7 +78,6 @@ class IngredientSearchViewModel @Inject constructor(
         viewModelScope.launch {
             val item = ingredients[index]
             val inPantry = item.inPantry
-            ingredients[index] = item.copy(inPantry = !inPantry)
 
             when (inPantry) {
                 true -> {
@@ -89,19 +88,29 @@ class IngredientSearchViewModel @Inject constructor(
                 }
             }
 
+            // TODO: Only do this step if DB change is successful in future
+            ingredients[index] = item.copy(inPantry = !inPantry)
+
             // TODO: find element in pantry and only change it instead of reloading the entire pantry
             // TODO: this is also causing issues because we clear the pantry then addall. causes
             // pantry to flash
-            refreshPantry()
+            //refreshPantry()
         }
     }
 
     fun onTogglefromPantry(index: Int) {
         viewModelScope.launch {
-            val item = pantry[index]
-            pantry[index] = item.copy(inPantry = false)
 
-            removeFromPantry.get().invoke(item)
+            val item = pantry[index]
+
+            // TODO: probably an unnecessary check, but put here to make sure we didn't somehow
+            // get an ingredient in the pantry that isn't marked as such
+            if(item.inPantry) {
+                removeFromPantry.get().invoke(item)
+                // TODO: Only do this step if DB change is successful in future
+                pantry.removeAt(index)
+            }
+
 
             // If the ingredient we toggle from pantry is visible in the search output,
             // we want to update it too
@@ -110,20 +119,12 @@ class IngredientSearchViewModel @Inject constructor(
             ingredients.find {
                 item.name == it.name
             }?.let {
-                refreshSearchedIngredients()
+                //refreshSearchedIngredients()
             }
-            refreshPantry()
+            //refreshPantry()
         }
     }
 
-    private fun refreshSearchedIngredients(shouldClear : Boolean = true) {
-        viewModelScope.launch {
-            if (shouldClear) {
-                ingredients.clear()
-            }
-            ingredients.addAll(getIngredients.get().invoke(_searchText.value))
-        }
-    }
     private fun refreshPantry(shouldClear : Boolean = true) {
         viewModelScope.launch {
             if (shouldClear) {

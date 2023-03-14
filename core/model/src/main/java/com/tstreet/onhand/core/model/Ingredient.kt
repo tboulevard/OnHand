@@ -1,8 +1,11 @@
 package com.tstreet.onhand.core.model
 
+import androidx.compose.runtime.Stable
+
 /**
  * External model representation for an Ingredient in a given Recipe.
  */
+@Stable
 data class Ingredient(
     val id: Int,
     val name: String,
