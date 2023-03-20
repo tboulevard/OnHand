@@ -2,6 +2,8 @@ package com.tstreet.onhand.core.network.fake
 
 import com.tstreet.onhand.core.network.OnHandNetworkDataSource
 import com.tstreet.onhand.core.network.model.NetworkIngredient
+import com.tstreet.onhand.core.network.model.NetworkRecipe
+import com.tstreet.onhand.core.network.model.RecipeSearchIngredient
 import javax.inject.Inject
 
 class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSource {
@@ -14,18 +16,90 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
         return listOf(
             NetworkIngredient(
                 id = 1,
-                image = "image_here",
+                image = "potato.jpg",
                 name = "potato"
             ),
             NetworkIngredient(
                 id = 2,
-                image = "image_here",
+                image = "carrot.jpg",
                 name = "carrot"
             ),
             NetworkIngredient(
                 id = 3,
-                image = "image_here",
+                image = "tomato.jpg",
                 name = "tomato"
+            )
+        )
+    }
+
+    override fun getRecipesFromIngredients(ingredients: List<String>): List<NetworkRecipe> {
+        return listOf(
+            NetworkRecipe(
+                id = 10,
+                title = "Grilled Cheese",
+                image = "grilled-cheese.jpg",
+                imageType = "jpg",
+                usedIngredientCount = 2,
+                missedIngredientCount = 1,
+                usedIngredients = listOf(
+                    RecipeSearchIngredient(
+                        id = 12,
+                        amount = 8.0,
+                        unit = "oz",
+                        unitLong = "ounces",
+                        unitShort = "oz",
+                        aisle = "Dairy",
+                        name = "Cheddar Cheese",
+                        original = "",
+                        originalName = "",
+                        meta = emptyList(),
+                        image = "cheddar.jpg"
+                    ),
+                    RecipeSearchIngredient(
+                        id = 13,
+                        amount = 16.0,
+                        unit = "oz",
+                        unitLong = "ounces",
+                        unitShort = "oz",
+                        aisle = "Bread",
+                        name = "White Bread",
+                        original = "",
+                        originalName = "",
+                        meta = emptyList(),
+                        image = "white-bread.jpg"
+                    )
+                ),
+                missedIngredients = listOf(
+                    RecipeSearchIngredient(
+                        id = 20,
+                        amount = 2.0,
+                        unit = "oz",
+                        unitLong = "ounces",
+                        unitShort = "oz",
+                        aisle = "Condiments",
+                        name = "Mayo",
+                        original = "",
+                        originalName = "",
+                        meta = emptyList(),
+                        image = "mayo.jpg"
+                    )
+                ),
+                unusedIngredients = listOf(
+                    RecipeSearchIngredient(
+                        id = 999,
+                        amount = 200.0,
+                        unit = "g",
+                        unitLong = "grams",
+                        unitShort = "g",
+                        aisle = "Vegetables",
+                        name = "Green Beans",
+                        original = "",
+                        originalName = "",
+                        meta = emptyList(),
+                        image = "green-beans.jpg"
+                    )
+                ),
+                likes = 9999
             )
         )
     }

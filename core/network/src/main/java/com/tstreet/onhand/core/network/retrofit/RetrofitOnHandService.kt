@@ -4,6 +4,7 @@ import com.tstreet.onhand.core.network.OnHandNetworkDataSource
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.tstreet.onhand.core.network.model.NetworkIngredient
 import com.tstreet.onhand.core.network.model.IngredientSearchResult
+import com.tstreet.onhand.core.network.model.NetworkRecipe
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import okhttp3.MediaType.Companion.toMediaType
@@ -16,7 +17,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.serialization.json.Json
 import retrofit2.Call
-import retrofit2.http.Headers
 
 private interface RetrofitOnHandService {
 
@@ -24,19 +24,25 @@ private interface RetrofitOnHandService {
 
     // TODO: Unsubscribe here: https://rapidapi.com/developer/billing/subscriptions-and-usage and
     // generate new API key before making repo public. This is already in commit history...
-    @Headers(
-        "X-RapidAPI-Host: spoonacular-recipe-food-nutrition-v1.p.rapidapi.com",
-        "X-RapidAPI-Key: 3749218b77mshea638b2be581548p186f46jsn90edcd6e1d2c"
-    )
     @GET("food/ingredients/search")
     fun getIngredients(
         @Query("query") prefix: String,
         // TODO: note, need to look into custom call adapter factory to make it so we don't have
         // to unfurl Call<> types...
     ): Call<IngredientSearchResult>
+
+    // TODO: sort by number of likes to show more relevant recipes potentially
+    @GET("recipes/findByIngredients")
+    fun getRecipesFromIngredients(
+        @Query("ingredients") ingredients: List<String>,
+        // TODO: note, need to look into custom call adapter factory to make it so we don't have
+        // to unfurl Call<> types...
+    ): Call<List<NetworkRecipe>>
 }
 
 private const val BASE_URL = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/"
+private const val HOST = "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com"
+private const val API_KEY = "3749218b77mshea638b2be581548p186f46jsn90edcd6e1d2c"
 
 /**
  * Wrapper for data provided from the [BASE_URL]
@@ -63,6 +69,12 @@ class RetrofitOnHandNetwork @Inject constructor(
                         setLevel(HttpLoggingInterceptor.Level.BODY)
                     }
                 )
+                .addInterceptor { chain ->
+                    val request = chain.request().newBuilder()
+                        .addHeader("X-RapidAPI-Host", HOST)
+                        .addHeader("X-RapidAPI-Key", API_KEY)
+                    chain.proceed(request.build())
+                }
                 .build()
         )
         .addConverterFactory(
@@ -76,5 +88,9 @@ class RetrofitOnHandNetwork @Inject constructor(
     override fun getIngredients(prefix: String): List<NetworkIngredient> {
         // TODO: oof...refactor later...
         return networkApi.getIngredients(prefix).execute().body()!!.results
+    }
+
+    override fun getRecipesFromIngredients(ingredients: List<String>): List<NetworkRecipe> {
+        return networkApi.getRecipesFromIngredients(ingredients).execute().body()!!
     }
 }

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.Button
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.icons.Icons
@@ -127,6 +128,13 @@ fun IngredientSearchScreen(
                     }
                 }
             }
+        }
+        Button(
+            onClick = {
+                navController.navigate("recipe_search")
+            }
+        ) {
+            Text(text = "Find Recipes")
         }
     }
 }

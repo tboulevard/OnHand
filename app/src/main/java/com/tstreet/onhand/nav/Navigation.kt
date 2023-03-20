@@ -42,6 +42,7 @@ fun Navigation() {
                 injectedViewModel {
                     DaggerRecipeSearchComponent.builder()
                         .dataComponentProvider(dataProvider)
+                        .commonComponentProvider(commonProvider)
                         .build()
                         .viewModel
                 }

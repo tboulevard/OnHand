@@ -1,31 +1,25 @@
 package com.tstreet.onhand.core.domain
 
 import com.tstreet.onhand.core.common.UseCase
+import com.tstreet.onhand.core.data.repository.PantryRepository
 import com.tstreet.onhand.core.data.repository.RecipeSearchRepository
-import com.tstreet.onhand.core.model.Ingredient
-import com.tstreet.onhand.core.network.model.NetworkIngredient
+import com.tstreet.onhand.core.model.Recipe
 import javax.inject.Inject
 import javax.inject.Provider
 
 class GetRecipesUseCase @Inject constructor(
-    private val repository: Provider<RecipeSearchRepository>
+    private val recipeRepository: Provider<RecipeSearchRepository>,
+    private val pantryRepository: Provider<PantryRepository>
 ) : UseCase() {
 
-    // TODO: Utilize the flow type (flow { ... })
-    // TODO: Error and intermediate state handling
-    // TODO
-    operator fun invoke(prefix: String): List<Ingredient> =
-        repository
+    suspend operator fun invoke(): List<Recipe> {
+        val allIngredientNames = pantryRepository
             .get()
-            .searchRecipes(prefix)
-            .toExternalModel()
+            .listPantry()
+            .map { it.name }
 
-    private fun List<NetworkIngredient>.toExternalModel(): List<Ingredient> =
-        this.map {
-            Ingredient(
-                id = it.id,
-                name = it.name,
-                image = it.image
-            )
-        }
+        return recipeRepository
+            .get()
+            .searchRecipes(allIngredientNames)
+    }
 }
