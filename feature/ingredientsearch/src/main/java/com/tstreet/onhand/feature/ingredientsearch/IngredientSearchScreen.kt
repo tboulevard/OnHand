@@ -17,7 +17,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.node.modifierElementOf
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -122,7 +121,7 @@ fun IngredientSearchScreen(
                             PantryListItem(
                                 ingredient = ingredient,
                                 index = index,
-                                onItemClicked = viewModel::onTogglefromPantry
+                                onItemClicked = viewModel::onToggleFromPantry
                             )
                         }
                     }

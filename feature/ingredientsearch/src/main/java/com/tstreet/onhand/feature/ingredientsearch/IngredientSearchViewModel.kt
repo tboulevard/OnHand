@@ -1,7 +1,6 @@
 package com.tstreet.onhand.feature.ingredientsearch
 
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.CommonModule.IO
@@ -11,7 +10,6 @@ import com.tstreet.onhand.core.domain.GetPantryUseCase
 import com.tstreet.onhand.core.domain.RemoveFromPantryUseCase
 import com.tstreet.onhand.core.model.Ingredient
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,18 +24,16 @@ class IngredientSearchViewModel @Inject constructor(
     private val addToPantry: Provider<AddToPantryUseCase>,
     private val removeFromPantry: Provider<RemoveFromPantryUseCase>,
     private val getPantry: Provider<GetPantryUseCase>,
+    // TODO: leaving around as an example...
     @Named(IO) private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     val pantry = mutableStateListOf<Ingredient>()
-    val ingredients = emptyList<Ingredient>().toMutableStateList()
+    val ingredients = mutableStateListOf<Ingredient>()
 
     init {
         println("[OnHand] Creating ${this.javaClass.simpleName}")
-
-        viewModelScope.launch {
-            refreshPantry(shouldClear = false)
-        }
+        refreshPantry()
     }
 
     private val _searchText = MutableStateFlow("")
@@ -82,25 +78,24 @@ class IngredientSearchViewModel @Inject constructor(
             when (inPantry) {
                 true -> {
                     removeFromPantry.get().invoke(item)
+                    // TODO: messy double seek to remove one item
+                    // TODO: only do this if DB update successful
+                    pantry.remove(pantry.find { it.id == item.id })
                 }
                 false -> {
                     addToPantry.get().invoke(item)
+                    // TODO: only do this if DB update successful
+                    pantry.add(item.copy(inPantry = true))
                 }
             }
 
             // TODO: Only do this step if DB change is successful in future
             ingredients[index] = item.copy(inPantry = !inPantry)
-
-            // TODO: find element in pantry and only change it instead of reloading the entire pantry
-            // TODO: this is also causing issues because we clear the pantry then addall. causes
-            // pantry to flash
-            //refreshPantry()
         }
     }
 
-    fun onTogglefromPantry(index: Int) {
+    fun onToggleFromPantry(index: Int) {
         viewModelScope.launch {
-
             val item = pantry[index]
 
             // TODO: probably an unnecessary check, but put here to make sure we didn't somehow
@@ -109,27 +104,16 @@ class IngredientSearchViewModel @Inject constructor(
                 removeFromPantry.get().invoke(item)
                 // TODO: Only do this step if DB change is successful in future
                 pantry.removeAt(index)
+                // TODO: remove ingredient if shown in ingredients list. messy though...
+                ingredients.find { it.id == item.id }?.let {
+                    ingredients[ingredients.indexOf(it)] = it.copy(inPantry = false)
+                }
             }
-
-
-            // If the ingredient we toggle from pantry is visible in the search output,
-            // we want to update it too
-            // TODO: this is causing an issue because we clear THEN update the ingredient search listing
-            // TODO: makes the screen look like it's flashing
-            ingredients.find {
-                item.name == it.name
-            }?.let {
-                //refreshSearchedIngredients()
-            }
-            //refreshPantry()
         }
     }
 
-    private fun refreshPantry(shouldClear : Boolean = true) {
+    private fun refreshPantry() {
         viewModelScope.launch {
-            if (shouldClear) {
-                pantry.clear()
-            }
             pantry.addAll(getPantry.get().invoke())
         }
     }
