@@ -10,7 +10,7 @@ class AddToPantryUseCase @Inject constructor(
     private val repository: Provider<PantryRepository>
 ) : UseCase() {
 
-    operator fun invoke(ingredient: Ingredient) {
+    suspend operator fun invoke(ingredient: Ingredient) {
         repository
             .get()
             .addIngredient(ingredient)

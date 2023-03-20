@@ -32,6 +32,6 @@ interface DataModule {
     @Binds
     @Singleton
     fun bindsPantryRepository(
-        pantryRepository: PantryRepositoryImpl
+        pantryRepository: OfflinePantryRepository
     ): PantryRepository
 }
