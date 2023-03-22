@@ -10,8 +10,8 @@ class NetworkRecipe(
     val imageType : String,
     val usedIngredientCount : Int,
     val missedIngredientCount : Int,
-    val missedIngredients : List<RecipeSearchIngredient>,
-    val usedIngredients : List<RecipeSearchIngredient>,
-    val unusedIngredients : List<RecipeSearchIngredient>,
+    val missedIngredients : List<NetworkRecipeSearchIngredient>,
+    val usedIngredients : List<NetworkRecipeSearchIngredient>,
+    val unusedIngredients : List<NetworkRecipeSearchIngredient>,
     val likes : Int
 )

@@ -1,11 +1,6 @@
-package com.tstreet.onhand.ui.theme
+package com.tstreet.onhand.core.ui.theming
 
 import androidx.compose.ui.graphics.Color
-
-val Purple200 = Color(0xFFBB86FC)
-val Purple500 = Color(0xFF6200EE)
-val Purple700 = Color(0xFF3700B3)
-val Teal200 = Color(0xFF03DAC5)
 
 val Blue10 = Color(0xFF000F5E)
 val Blue20 = Color(0xFF001E92)
@@ -47,3 +42,5 @@ val BlueGrey50 = Color(0xFF767680)
 val BlueGrey60 = Color(0xFF90909A)
 val BlueGrey80 = Color(0xFFC6C5D0)
 val BlueGrey90 = Color(0xFFE2E1EC)
+
+val MATTE_GREEN = Color(72, 161, 77)

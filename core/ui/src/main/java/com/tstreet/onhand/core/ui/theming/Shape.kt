@@ -1,4 +1,4 @@
-package com.tstreet.onhand.ui.theme
+package com.tstreet.onhand.core.ui.theming
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes

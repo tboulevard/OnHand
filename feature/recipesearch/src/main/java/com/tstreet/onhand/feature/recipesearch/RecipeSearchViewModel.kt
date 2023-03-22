@@ -5,7 +5,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.tstreet.onhand.core.common.CommonModule
+import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.domain.GetRecipesUseCase
 import com.tstreet.onhand.core.model.Recipe
 import kotlinx.coroutines.CoroutineDispatcher
@@ -21,7 +21,7 @@ import javax.inject.Provider
 class RecipeSearchViewModel @Inject constructor(
     private val getRecipes: Provider<GetRecipesUseCase>,
     // TODO: leaving around as an example...
-    @Named(CommonModule.IO) private val ioDispatcher: CoroutineDispatcher
+    @Named(IO) private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     private var _isSearching: MutableStateFlow<Boolean>

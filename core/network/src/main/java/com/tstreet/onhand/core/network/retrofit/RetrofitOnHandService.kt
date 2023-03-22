@@ -3,7 +3,7 @@ package com.tstreet.onhand.core.network.retrofit
 import com.tstreet.onhand.core.network.OnHandNetworkDataSource
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.tstreet.onhand.core.network.model.NetworkIngredient
-import com.tstreet.onhand.core.network.model.IngredientSearchResult
+import com.tstreet.onhand.core.network.model.NetworkIngredientSearchResult
 import com.tstreet.onhand.core.network.model.NetworkRecipe
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
@@ -29,7 +29,7 @@ private interface RetrofitOnHandService {
         @Query("query") prefix: String,
         // TODO: note, need to look into custom call adapter factory to make it so we don't have
         // to unfurl Call<> types...
-    ): Call<IngredientSearchResult>
+    ): Call<NetworkIngredientSearchResult>
 
     // TODO: sort by number of likes to show more relevant recipes potentially
     @GET("recipes/findByIngredients")

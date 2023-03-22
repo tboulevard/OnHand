@@ -3,7 +3,7 @@ package com.tstreet.onhand.core.network.fake
 import com.tstreet.onhand.core.network.OnHandNetworkDataSource
 import com.tstreet.onhand.core.network.model.NetworkIngredient
 import com.tstreet.onhand.core.network.model.NetworkRecipe
-import com.tstreet.onhand.core.network.model.RecipeSearchIngredient
+import com.tstreet.onhand.core.network.model.NetworkRecipeSearchIngredient
 import javax.inject.Inject
 
 class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSource {
@@ -42,7 +42,7 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
                 usedIngredientCount = 2,
                 missedIngredientCount = 1,
                 usedIngredients = listOf(
-                    RecipeSearchIngredient(
+                    NetworkRecipeSearchIngredient(
                         id = 12,
                         amount = 8.0,
                         unit = "oz",
@@ -55,7 +55,7 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
                         meta = emptyList(),
                         image = "cheddar.jpg"
                     ),
-                    RecipeSearchIngredient(
+                    NetworkRecipeSearchIngredient(
                         id = 13,
                         amount = 16.0,
                         unit = "oz",
@@ -70,7 +70,7 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
                     )
                 ),
                 missedIngredients = listOf(
-                    RecipeSearchIngredient(
+                    NetworkRecipeSearchIngredient(
                         id = 20,
                         amount = 2.0,
                         unit = "oz",
@@ -85,7 +85,7 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
                     )
                 ),
                 unusedIngredients = listOf(
-                    RecipeSearchIngredient(
+                    NetworkRecipeSearchIngredient(
                         id = 999,
                         amount = 200.0,
                         unit = "g",
@@ -109,7 +109,7 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
                 usedIngredientCount = 2,
                 missedIngredientCount = 1,
                 usedIngredients = listOf(
-                    RecipeSearchIngredient(
+                    NetworkRecipeSearchIngredient(
                         id = 12,
                         amount = 1.0,
                         unit = "serving",
@@ -124,7 +124,7 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
                     )
                 ),
                 missedIngredients = listOf(
-                    RecipeSearchIngredient(
+                    NetworkRecipeSearchIngredient(
                         id = 20,
                         amount = 4.0,
                         unit = "cup",

@@ -3,7 +3,7 @@ package com.tstreet.onhand.core.network.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-class RecipeSearchIngredient(
+class NetworkRecipeSearchIngredient(
     val id: Int,
     val amount: Double,
     val unit: String,

@@ -1,4 +1,4 @@
-package com.tstreet.onhand.ui.theme
+package com.tstreet.onhand.core.ui.theming
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -7,6 +7,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
+// TODO: revisit UI design - potentially just do always dark theme
 private val DarkColorPalette = darkColorScheme(
     primary = Blue80,
     onPrimary = Blue20,
@@ -68,7 +69,7 @@ private val LightColorPalette = lightColorScheme(
 @Composable
 fun OnHandTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = if (darkTheme) { DarkColorPalette } else LightColorPalette,
+        colorScheme = if (darkTheme) DarkColorPalette else LightColorPalette,
         typography = OnHandTypography,
         shapes = OnHandShapes,
         content = content

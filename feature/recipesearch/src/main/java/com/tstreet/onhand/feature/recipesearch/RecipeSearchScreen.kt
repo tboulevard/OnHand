@@ -5,18 +5,17 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.tstreet.onhand.core.model.Recipe
+import com.tstreet.onhand.core.ui.FullScreenProgressIndicator
 
 @Composable
 fun RecipeSearchScreen(
@@ -31,7 +30,7 @@ fun RecipeSearchScreen(
     ) {
         when {
             isSearching -> {
-                ProgressIndicator()
+                FullScreenProgressIndicator()
             }
             else -> {
                 RecipeSearchCardList(
@@ -43,19 +42,7 @@ fun RecipeSearchScreen(
     }
 }
 
-@Composable
-fun ProgressIndicator() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        CircularProgressIndicator(
-            modifier = Modifier.align(Alignment.Center)
-        )
-    }
-}
-
-data class RecipeSearchCard(
+class RecipeSearchCard(
     val title: String,
     val usedIngredients: Int,
     val likes: Int

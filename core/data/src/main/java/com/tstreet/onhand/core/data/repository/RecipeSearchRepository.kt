@@ -4,6 +4,7 @@ import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.network.model.NetworkRecipe
 
 interface RecipeSearchRepository {
+    // TODO: look into whether API can accept list of ids instead of strings
     suspend fun searchRecipes(ingredients: List<String>): List<Recipe>
 }
 

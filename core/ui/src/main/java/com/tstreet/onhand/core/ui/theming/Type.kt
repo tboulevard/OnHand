@@ -1,4 +1,4 @@
-package com.tstreet.onhand.ui.theme
+package com.tstreet.onhand.core.ui.theming
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
@@ -6,7 +6,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.tstreet.onhand.R
+import com.tstreet.onhand.core.ui.R
 
 private val Montserrat = FontFamily(
     Font(R.font.montserrat_regular),
@@ -92,5 +92,4 @@ val OnHandTypography = Typography(
         lineHeight = 16.sp,
         letterSpacing = 0.5.sp
     )
-
 )
