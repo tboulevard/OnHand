@@ -37,12 +37,18 @@ class RecipeSearchViewModel @Inject constructor(
         search()
     }
 
+    fun onRecipeClicked(index: Int) {
+
+    }
+
     private fun search() {
         viewModelScope.launch {
             // Runs on UI/main thread
             _isSearching.update { true }
 
             // Run on a different dispatcher
+            // TODO fix before merge: this is causing intermittent crashes:
+            // java.lang.IllegalStateException: Reading a state that was created after the snapshot was taken or in a snapshot that has not yet been applied
             withContext(ioDispatcher) {
                 recipes.addAll(getRecipes.get().invoke().toMutableStateList())
             }
