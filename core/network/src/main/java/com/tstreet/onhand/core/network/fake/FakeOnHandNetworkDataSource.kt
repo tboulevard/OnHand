@@ -15,19 +15,11 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
     override fun getIngredients(prefix: String): List<NetworkIngredient> {
         return listOf(
             NetworkIngredient(
-                id = 1,
-                image = "potato.jpg",
-                name = "potato"
-            ),
-            NetworkIngredient(
-                id = 2,
-                image = "carrot.jpg",
-                name = "carrot"
-            ),
-            NetworkIngredient(
-                id = 3,
-                image = "tomato.jpg",
-                name = "tomato"
+                id = 1, image = "potato.jpg", name = "potato"
+            ), NetworkIngredient(
+                id = 2, image = "carrot.jpg", name = "carrot"
+            ), NetworkIngredient(
+                id = 3, image = "tomato.jpg", name = "tomato"
             )
         )
     }
@@ -54,8 +46,7 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
                         originalName = "",
                         meta = emptyList(),
                         image = "cheddar.jpg"
-                    ),
-                    NetworkRecipeSearchIngredient(
+                    ), NetworkRecipeSearchIngredient(
                         id = 13,
                         amount = 16.0,
                         unit = "oz",
@@ -100,8 +91,7 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
                     )
                 ),
                 likes = 9999
-            ),
-            NetworkRecipe(
+            ), NetworkRecipe(
                 id = 10,
                 title = "Tomato Soup",
                 image = "tomato-soup.jpg",

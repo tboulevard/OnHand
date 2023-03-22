@@ -32,6 +32,8 @@ fun RecipeSearchScreen(
     viewModel: RecipeSearchViewModel
 ) {
     val isSearching by viewModel.isSearching.collectAsState()
+    // TODO: use collectAsStateWithLifecycle instead, but research why first
+    val recipes by viewModel.recipes.collectAsState()
 
     Column(
         verticalArrangement = Arrangement.Top,
@@ -44,7 +46,7 @@ fun RecipeSearchScreen(
             }
             else -> {
                 RecipeSearchCardList(
-                    recipes = viewModel.recipes,
+                    recipes = recipes,
                     onItemClick = viewModel::onRecipeClicked,
                     onSaveClick = viewModel::onRecipeSaved
                 )
