@@ -38,7 +38,11 @@ class RecipeSearchViewModel @Inject constructor(
     }
 
     fun onRecipeClicked(index: Int) {
+        /* TODO: implement */
+    }
 
+    fun onRecipeSaved(index: Int) {
+        /* TODO: implement */
     }
 
     private fun search() {
