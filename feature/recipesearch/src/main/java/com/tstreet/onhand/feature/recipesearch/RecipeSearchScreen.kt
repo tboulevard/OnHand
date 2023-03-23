@@ -36,9 +36,7 @@ fun RecipeSearchScreen(
     val recipes by viewModel.recipes.collectAsState()
 
     Column(
-        verticalArrangement = Arrangement.Top,
-        modifier = Modifier
-            .fillMaxSize()
+        verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()
     ) {
         when {
             isSearching -> {
@@ -56,16 +54,12 @@ fun RecipeSearchScreen(
 }
 
 class RecipeSearchCard(
-    val title: String,
-    val usedIngredients: Int,
-    val likes: Int
+    val title: String, val usedIngredients: Int, val missedIngredients: Int, val likes: Int
 )
 
 @Composable
 fun RecipeSearchCardList(
-    recipes: List<Recipe>,
-    onItemClick: (Int) -> Unit,
-    onSaveClick: (Int) -> Unit
+    recipes: List<Recipe>, onItemClick: (Int) -> Unit, onSaveClick: (Int) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -78,11 +72,9 @@ fun RecipeSearchCardList(
                 card = RecipeSearchCard(
                     title = recipe.title,
                     usedIngredients = recipe.usedIngredientCount,
+                    missedIngredients = recipe.missedIngredientCount,
                     likes = recipe.likes
-                ),
-                index = index,
-                onItemClick = onItemClick,
-                onSaveClick = onSaveClick
+                ), index = index, onItemClick = onItemClick, onSaveClick = onSaveClick
             )
         }
     }
@@ -100,11 +92,8 @@ fun RecipeSearchCardItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                vertical = 8.dp,
-                horizontal = 16.dp
-            ),
-        shadowElevation = 8.dp,
-        shape = MaterialTheme.shapes.medium
+                vertical = 8.dp, horizontal = 16.dp
+            ), shadowElevation = 8.dp, shape = MaterialTheme.shapes.medium
     ) {
         Row(
             modifier = Modifier.clickable { onItemClick(index) },
@@ -113,18 +102,21 @@ fun RecipeSearchCardItem(
             Column(
                 modifier = Modifier
                     .padding(20.dp)
+                    .weight(1f)
             ) {
                 Text(text = card.title, style = MaterialTheme.typography.headlineMedium)
                 Text(
                     text = "${card.usedIngredients} ingredients used",
                     style = MaterialTheme.typography.bodyMedium
                 )
+                Text(
+                    text = "${card.missedIngredients} ingredients missed",
+                    style = MaterialTheme.typography.bodyMedium
+                )
                 Text(text = "${card.likes} likes", style = MaterialTheme.typography.bodySmall)
             }
             Column(
-                modifier = Modifier
-                    .padding(20.dp)
-                    .align(Alignment.CenterVertically)
+                modifier = Modifier.align(Alignment.CenterVertically)
             ) {
                 Icon(
                     Icons.Default.Add,
@@ -135,16 +127,11 @@ fun RecipeSearchCardItem(
                 )
             }
         }
-
     }
 }
 
 // TODO: move to a better location
 class FeatureScreenPreviewParamProvider : PreviewParameterProvider<RecipeSearchCard> {
     override val values: Sequence<RecipeSearchCard> =
-        sequenceOf(RecipeSearchCard("Recipe1", 10, 100))
+        sequenceOf(RecipeSearchCard("A very long recipe name that is very long", 10, 3, 100))
 }
-
-
-
-

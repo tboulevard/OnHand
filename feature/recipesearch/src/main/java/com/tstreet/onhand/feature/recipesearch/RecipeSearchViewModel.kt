@@ -25,10 +25,9 @@ class RecipeSearchViewModel @Inject constructor(
     private val _isSearching = MutableStateFlow(false)
     val isSearching = _isSearching
 
-    val recipes: StateFlow<List<Recipe>> =
-        flow { emit(getRecipes.get().invoke()) }
+    val recipes: StateFlow<List<Recipe>> = getRecipes.get().invoke()
             .onStart { _isSearching.update { true } }
-            .onCompletion { _isSearching.update { false } }
+            .onEach { _isSearching.update { false } }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),

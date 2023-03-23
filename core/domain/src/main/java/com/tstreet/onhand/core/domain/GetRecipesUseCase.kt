@@ -4,6 +4,9 @@ import com.tstreet.onhand.core.common.UseCase
 import com.tstreet.onhand.core.data.repository.PantryRepository
 import com.tstreet.onhand.core.data.repository.RecipeSearchRepository
 import com.tstreet.onhand.core.model.Recipe
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -12,14 +15,16 @@ class GetRecipesUseCase @Inject constructor(
     private val pantryRepository: Provider<PantryRepository>
 ) : UseCase() {
 
-    suspend operator fun invoke(): List<Recipe> {
-        val allIngredientNames = pantryRepository
-            .get()
-            .listPantry()
-            .map { it.name }
+    operator fun invoke(): Flow<List<Recipe>> {
+        val ingredientsInPantryFlow = pantryRepository.get().listPantry().map { ingredientList ->
+            ingredientList.map { ingredient ->
+                ingredient.name
+            }
+        }
 
-        return recipeRepository
-            .get()
-            .searchRecipes(allIngredientNames)
+        return ingredientsInPantryFlow.map {
+            // TODO: revisit whether first() is actually what we want here, works for now...
+            recipeRepository.get().searchRecipes(it).first()
+        }
     }
 }

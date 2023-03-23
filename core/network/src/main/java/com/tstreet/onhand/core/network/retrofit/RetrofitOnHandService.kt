@@ -5,6 +5,8 @@ import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFact
 import com.tstreet.onhand.core.network.model.NetworkIngredient
 import com.tstreet.onhand.core.network.model.NetworkIngredientSearchResult
 import com.tstreet.onhand.core.network.model.NetworkRecipe
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import okhttp3.MediaType.Companion.toMediaType
@@ -33,11 +35,11 @@ private interface RetrofitOnHandService {
 
     // TODO: sort by number of likes to show more relevant recipes potentially
     @GET("recipes/findByIngredients")
-    fun getRecipesFromIngredients(
+    suspend fun getRecipesFromIngredients(
         @Query("ingredients") ingredients: List<String>,
         // TODO: note, need to look into custom call adapter factory to make it so we don't have
         // to unfurl Call<> types...
-    ): Call<List<NetworkRecipe>>
+    ): List<NetworkRecipe>
 }
 
 private const val BASE_URL = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/"
@@ -90,7 +92,13 @@ class RetrofitOnHandNetwork @Inject constructor(
         return networkApi.getIngredients(prefix).execute().body()!!.results
     }
 
-    override fun getRecipesFromIngredients(ingredients: List<String>): List<NetworkRecipe> {
-        return networkApi.getRecipesFromIngredients(ingredients).execute().body()!!
+    override fun getRecipesFromIngredients(ingredients: List<String>): Flow<List<NetworkRecipe>> {
+        println("[OnHand] RetrofitOnHandNetwork.getRecipesFromIngredients()")
+        return flow {
+            println("[OnHand] emitting inside RetrofitOnHandNetwork.getRecipesFromIngredients()")
+            val test = networkApi.getRecipesFromIngredients(ingredients)
+            println("[OnHand] $test")
+            emit(test)
+        }
     }
 }

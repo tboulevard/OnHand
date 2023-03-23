@@ -114,7 +114,8 @@ class IngredientSearchViewModel @Inject constructor(
 
     private fun refreshPantry() {
         viewModelScope.launch {
-            pantry.addAll(getPantry.get().invoke())
+            // TODO: revisit before merge
+            pantry.addAll(getPantry.get().invoke().first())
         }
     }
 

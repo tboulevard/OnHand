@@ -2,6 +2,7 @@ package com.tstreet.onhand.core.network
 
 import com.tstreet.onhand.core.network.model.NetworkIngredient
 import com.tstreet.onhand.core.network.model.NetworkRecipe
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Interface representing network calls to the OnHand backend
@@ -9,5 +10,5 @@ import com.tstreet.onhand.core.network.model.NetworkRecipe
 interface OnHandNetworkDataSource {
     fun getIngredients(prefix: String): List<NetworkIngredient>
 
-    fun getRecipesFromIngredients(ingredients : List<String>) : List<NetworkRecipe>
+    fun getRecipesFromIngredients(ingredients : List<String>) : Flow<List<NetworkRecipe>>
 }

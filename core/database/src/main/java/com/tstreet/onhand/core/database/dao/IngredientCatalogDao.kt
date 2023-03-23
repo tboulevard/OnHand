@@ -2,7 +2,9 @@ package com.tstreet.onhand.core.database.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import com.tstreet.onhand.core.database.model.IngredientCatalogEntity
+import kotlinx.coroutines.flow.Flow
 
 /**
  * For accessing all possible ingredients for the app to use.
@@ -24,5 +26,6 @@ interface IngredientCatalogDao {
     suspend fun removeFromPantry(ingredientId: Int) : Int
 
     @Query("SELECT * FROM ingredient_catalog WHERE inPantry = 1")
-    suspend fun getAllFromPantry(): List<IngredientCatalogEntity>
+    @Transaction
+    fun getAllFromPantry(): Flow<List<IngredientCatalogEntity>>
 }
