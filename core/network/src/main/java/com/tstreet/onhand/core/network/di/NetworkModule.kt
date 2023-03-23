@@ -3,7 +3,6 @@ package com.tstreet.onhand.core.network.di
 import com.tstreet.onhand.core.network.OnHandNetworkDataSource
 import com.tstreet.onhand.core.network.fake.FakeOnHandNetworkDataSource
 import com.tstreet.onhand.core.network.retrofit.RetrofitOnHandNetwork
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import kotlinx.serialization.json.Json
@@ -12,20 +11,18 @@ import javax.inject.Singleton
 @Module
 object NetworkModule {
 
-    // For real network data source
-//    @Provides
-//    fun providesRetrofitOnHandNetwork(
-//        networkJson: Json
-//    ): OnHandNetworkDataSource {
-//        return RetrofitOnHandNetwork(networkJson)
-//    }
-//
+    // TODO: extract to build config later
+    private const val USE_FAKE_DATASOURCE = true
 
-    // For fake network data source
     @Provides
     @Singleton
-    fun providesFakeOnHandNetworkDataSource() : OnHandNetworkDataSource {
-        return FakeOnHandNetworkDataSource()
+    fun providesRetrofitOnHandNetwork(
+        networkJson: Json
+    ): OnHandNetworkDataSource {
+        if (USE_FAKE_DATASOURCE) {
+            return FakeOnHandNetworkDataSource()
+        }
+        return RetrofitOnHandNetwork(networkJson)
     }
 
     @Provides

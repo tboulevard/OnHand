@@ -1,30 +1,27 @@
 package com.tstreet.onhand.feature.ingredientsearch
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.*
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.OutlinedTextField
+import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.tstreet.onhand.core.model.Ingredient
-import kotlin.random.Random
+import com.tstreet.onhand.core.ui.FullScreenProgressIndicator
+import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
 
+// TODO: use @PreviewParameter + create module with fake models to populate composables
 @Composable
-// TODO before merge: ingredient search shows first 7 items from db without search text entered
 fun IngredientSearchScreen(
     navController: NavController,
     viewModel: IngredientSearchViewModel
@@ -33,137 +30,140 @@ fun IngredientSearchScreen(
     val isSearching by viewModel.isSearching.collectAsState()
 
     Column(
-        verticalArrangement = Arrangement.Top,
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.Top
     ) {
-        Row(
-            horizontalArrangement = Arrangement.Start,
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            OutlinedTextField(
-                value = searchText,
-                onValueChange = viewModel::onSearchTextChange,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(2.dp),
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "search",
-                        tint = Color.Black,
-                    ) },
-                label = { Text(text = "Search Ingredients") },
-            )
-        }
-        if (isSearching) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
+        IngredientSearchBar(searchText, viewModel::onSearchTextChange)
+
+        when {
+            isSearching -> {
+                FullScreenProgressIndicator()
+            }
+            else -> {
+                IngredientSearchCardList(
+                    ingredients = viewModel.ingredients,
+                    onItemClick = viewModel::onToggleFromSearch
                 )
             }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(4.dp)
-            ) {
-                itemsIndexed(
-                    items = viewModel.ingredients
-                ) { index, ingredient ->
-                    IngredientSearchListItem(
-                        ingredient = ingredient,
-                        index,
-                        onItemClicked = viewModel::onToggleFromSearch
-                    )
-                }
-            }
         }
-        Row {
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(4.dp),
-                text = "Your Pantry",
-                fontSize = 24.sp
-            )
-        }
-        Box(
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            if (viewModel.pantry.isEmpty()) {
+
+        // Pantry Header
+        Text(
+            modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 8.dp),
+            text = "Your Pantry",
+            style = MaterialTheme.typography.displayMedium
+        )
+
+        when {
+            viewModel.pantry.isEmpty() -> {
                 Text(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(4.dp),
+                        .align(Alignment.CenterHorizontally)
+                        .padding(16.dp),
                     text = "(empty)",
-                    fontSize = 16.sp
+                    style = MaterialTheme.typography.displaySmall
                 )
-            } else {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .border(3.dp, Color.DarkGray)
-                ) {
-                    // TODO: Make the grid elements have adaptive size based on the number of characters
-                    // TODO: in the ingredient.
-                    LazyVerticalGrid(
-                        columns = GridCells.Adaptive(minSize = 72.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp),
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        modifier = Modifier.padding(4.dp)
-                    ) {
-                        itemsIndexed(viewModel.pantry) { index, ingredient ->
-                            PantryListItem(
-                                ingredient = ingredient,
-                                index = index,
-                                onItemClicked = viewModel::onToggleFromPantry
-                            )
-                        }
-                    }
-                }
             }
+            else -> {
+                PantryCardList(
+                    pantry = viewModel.pantry,
+                    onItemClick = viewModel::onToggleFromPantry
+                )
+            }
+        }
+
+        // Find Recipes Button
+        Button(
+            onClick = {
+                navController.navigate("recipe_search")
+            },
+            modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = "Find Recipes",
+                style = MaterialTheme.typography.labelMedium
+            )
         }
     }
 }
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun IngredientSearchBar(
+    searchText: String,
+    onTextChanged: (String) -> Unit,
+) {
+    OutlinedTextField(
+        value = searchText,
+        onValueChange = onTextChanged,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp, horizontal = 16.dp),
+        leadingIcon = {
+            Icon(
+                Icons.Default.Search,
+                contentDescription = "search",
+                modifier = Modifier.size(24.dp)
+            )
+        },
+        label = {
+            Text(
+                text = "Search Ingredients",
+                style = MaterialTheme.typography.bodyMedium
+            )
+        },
+        textStyle = MaterialTheme.typography.bodyMedium
+    )
+}
+
+private class IngredientSearchCard(
+    val name: String,
+    val inPantry: Boolean
+)
 
 @Composable
 private fun IngredientSearchListItem(
-    ingredient: Ingredient,
+    card: IngredientSearchCard,
     index: Int,
     onItemClicked: (Int) -> Unit
 ) {
-    Row(
+    Card(
+        shape = MaterialTheme.shapes.medium,
+        colors = CardDefaults.cardColors(
+            containerColor = if (card.inPantry) {
+                MATTE_GREEN
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant
+            },
+        ),
         modifier = Modifier
-            .border(
-                3.dp,
-                if (ingredient.inPantry) {
-                    MATTE_GREEN
-                } else {
-                    randomColor()
-                }
-            )
-            .padding(8.dp)
+            .fillMaxWidth()
+            .height(72.dp)
+            .padding(vertical = 2.dp, horizontal = 4.dp)
+            .clickable(onClick = { onItemClicked(index) })
     ) {
-        Box(
+        Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    onItemClicked(index)
-                }
+                .fillMaxSize()
+                .padding(end = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(ingredient.name, fontSize = 20.sp)
-            if (ingredient.inPantry) {
+            Text(
+                text = card.name,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .padding(horizontal = 8.dp)
+            )
+            if (card.inPantry) {
                 Icon(
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd),
                     imageVector = Icons.Default.Check,
                     contentDescription = "Added to pantry",
-                    tint = MATTE_GREEN,
+                    tint = MaterialTheme.colorScheme.inverseOnSurface,
+                    modifier = Modifier.align(Alignment.CenterVertically)
                 )
             }
         }
@@ -171,35 +171,88 @@ private fun IngredientSearchListItem(
 }
 
 @Composable
-private fun PantryListItem(
-    ingredient: Ingredient,
-    index: Int,
-    onItemClicked: (Int) -> Unit
+fun IngredientSearchCardList(
+    ingredients: List<Ingredient>,
+    onItemClick: (Int) -> Unit
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .clickable {
-                onItemClicked(index)
-            }
-            .border(2.dp, randomColor())
-            .padding(4.dp),
-        contentAlignment = Alignment.Center
+    LazyColumn(
+        modifier = Modifier.padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Text(
-            modifier = Modifier.padding(4.dp),
-            fontSize = 12.sp,
-            text = ingredient.name,
-        )
+        itemsIndexed(
+            items = ingredients
+        ) { index, ingredient ->
+            IngredientSearchListItem(
+                card = IngredientSearchCard(
+                    name = ingredient.name,
+                    inPantry = ingredient.inPantry
+                ),
+                index,
+                onItemClicked = onItemClick
+            )
+        }
     }
 }
 
-val MATTE_GREEN = Color(72, 161, 77)
-
-// Keeping around for testing recomposition later
-fun randomColor() = Color(
-    Random.nextInt(256),
-    Random.nextInt(256),
-    Random.nextInt(256),
-    alpha = 255
+private class PantryItemCard(
+    val ingredientName: String,
+    val inPantry: Boolean
 )
+
+@Composable
+private fun PantryListItem(
+    card: PantryItemCard,
+    index: Int,
+    onItemClicked: (Int) -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                onItemClicked(index)
+            }
+            .height(56.dp)
+            .padding(2.dp),
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.tertiary),
+        elevation = CardDefaults.cardElevation(2.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp)
+        ) {
+            Text(
+                text = card.ingredientName,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+
+@Composable
+private fun PantryCardList(
+    pantry: List<Ingredient>,
+    onItemClick: (Int) -> Unit
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(minSize = 96.dp),
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .padding(bottom = 16.dp),
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+    ) {
+        itemsIndexed(pantry) { index, ingredient ->
+            PantryListItem(
+                card = PantryItemCard(
+                    ingredient.name,
+                    ingredient.inPantry
+                ),
+                index = index,
+                onItemClicked = onItemClick
+            )
+        }
+    }
+}

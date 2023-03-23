@@ -1,31 +1,30 @@
 package com.tstreet.onhand.core.domain
 
 import com.tstreet.onhand.core.common.UseCase
+import com.tstreet.onhand.core.data.repository.PantryRepository
 import com.tstreet.onhand.core.data.repository.RecipeSearchRepository
-import com.tstreet.onhand.core.model.Ingredient
-import com.tstreet.onhand.core.network.model.NetworkIngredient
+import com.tstreet.onhand.core.model.Recipe
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Provider
 
 class GetRecipesUseCase @Inject constructor(
-    private val repository: Provider<RecipeSearchRepository>
+    private val recipeRepository: Provider<RecipeSearchRepository>,
+    private val pantryRepository: Provider<PantryRepository>
 ) : UseCase() {
 
-    // TODO: Utilize the flow type (flow { ... })
-    // TODO: Error and intermediate state handling
-    // TODO
-    operator fun invoke(prefix: String): List<Ingredient> =
-        repository
-            .get()
-            .searchRecipes(prefix)
-            .toExternalModel()
-
-    private fun List<NetworkIngredient>.toExternalModel(): List<Ingredient> =
-        this.map {
-            Ingredient(
-                id = it.id,
-                name = it.name,
-                image = it.image
-            )
+    operator fun invoke(): Flow<List<Recipe>> {
+        val ingredientsInPantryFlow = pantryRepository.get().listPantry().map { ingredientList ->
+            ingredientList.map { ingredient ->
+                ingredient.name
+            }
         }
+
+        return ingredientsInPantryFlow.map {
+            // TODO: revisit whether first() is actually what we want here, works for now...
+            recipeRepository.get().searchRecipes(it).first()
+        }
+    }
 }

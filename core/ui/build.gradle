@@ -27,13 +27,27 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+        // For DaggerViewModel error:
+        // Inheritance from an interface with '@JvmDefault' members is only allowed with
+        // -Xjvm-default option
+        freeCompilerArgs = ["-Xjvm-default=all"]
+    }
+    buildFeatures {
+        compose true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion '1.4.0-alpha02'
     }
 }
 
 dependencies {
     implementation libs.androidx.core.ktx
     implementation libs.androidx.appcompat
+    implementation libs.androidx.compose.ui
+    implementation libs.androidx.compose.material3
+
     testImplementation libs.junit4
+
     androidTestImplementation libs.androidx.test.ext
     androidTestImplementation libs.androidx.test.espresso.core
 }
