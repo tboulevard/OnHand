@@ -5,6 +5,7 @@ import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFact
 import com.tstreet.onhand.core.network.model.NetworkIngredient
 import com.tstreet.onhand.core.network.model.NetworkIngredientSearchResult
 import com.tstreet.onhand.core.network.model.NetworkRecipe
+import com.tstreet.onhand.core.network.model.NetworkRecipeDetail
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -19,6 +20,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.serialization.json.Json
 import retrofit2.Call
+import retrofit2.http.Path
 
 private interface RetrofitOnHandService {
 
@@ -40,6 +42,14 @@ private interface RetrofitOnHandService {
         // TODO: note, need to look into custom call adapter factory to make it so we don't have
         // to unfurl Call<> types...
     ): List<NetworkRecipe>
+
+    // TODO: sort by number of likes to show more relevant recipes potentially
+    @GET("recipes/{id}/information")
+    suspend fun getRecipeDetail(
+        @Path("id") id: Int,
+        // TODO: note, need to look into custom call adapter factory to make it so we don't have
+        // to unfurl Call<> types...
+    ): NetworkRecipeDetail
 }
 
 private const val BASE_URL = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/"
@@ -97,8 +107,15 @@ class RetrofitOnHandNetwork @Inject constructor(
         return flow {
             println("[OnHand] emitting inside RetrofitOnHandNetwork.getRecipesFromIngredients()")
             val test = networkApi.getRecipesFromIngredients(ingredients)
-            println("[OnHand] $test")
             emit(test)
+        }
+    }
+
+    override fun getRecipeDetail(id: Int): Flow<NetworkRecipeDetail> {
+        println("[OnHand] RetrofitOnHandNetwork.getRecipeDetail($id)")
+        return flow {
+            println("[OnHand] emitting inside RetrofitOnHandNetwork.getRecipeDetail($id)")
+            emit(networkApi.getRecipeDetail(id))
         }
     }
 }

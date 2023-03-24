@@ -7,9 +7,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -24,11 +21,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.ui.FullScreenProgressIndicator
 
 @Composable
 fun RecipeSearchScreen(
+    navController: NavController,
     viewModel: RecipeSearchViewModel
 ) {
     val isSearching by viewModel.isSearching.collectAsState()
@@ -45,8 +44,8 @@ fun RecipeSearchScreen(
             else -> {
                 RecipeSearchCardList(
                     recipes = recipes,
-                    onItemClick = viewModel::onRecipeClicked,
-                    onSaveClick = viewModel::onRecipeSaved
+                    onItemClick = navController::navigate,
+                    onSaveClick = viewModel::onRecipeSaved,
                 )
             }
         }
@@ -54,12 +53,16 @@ fun RecipeSearchScreen(
 }
 
 class RecipeSearchCard(
-    val title: String, val usedIngredients: Int, val missedIngredients: Int, val likes: Int
+    val id: Int,
+    val title: String,
+    val usedIngredients: Int,
+    val missedIngredients: Int,
+    val likes: Int
 )
 
 @Composable
 fun RecipeSearchCardList(
-    recipes: List<Recipe>, onItemClick: (Int) -> Unit, onSaveClick: (Int) -> Unit
+    recipes: List<Recipe>, onItemClick: (String) -> Unit, onSaveClick: (Int) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -70,6 +73,7 @@ fun RecipeSearchCardList(
         itemsIndexed(recipes) { index, recipe ->
             RecipeSearchCardItem(
                 card = RecipeSearchCard(
+                    id = recipe.id,
                     title = recipe.title,
                     usedIngredients = recipe.usedIngredientCount,
                     missedIngredients = recipe.missedIngredientCount,
@@ -85,7 +89,7 @@ fun RecipeSearchCardList(
 fun RecipeSearchCardItem(
     @PreviewParameter(FeatureScreenPreviewParamProvider::class) card: RecipeSearchCard,
     index: Int = 0,
-    onItemClick: (Int) -> Unit = { },
+    onItemClick: (String) -> Unit = { },
     onSaveClick: (Int) -> Unit = { }
 ) {
     Surface(
@@ -96,7 +100,9 @@ fun RecipeSearchCardItem(
             ), shadowElevation = 8.dp, shape = MaterialTheme.shapes.medium
     ) {
         Row(
-            modifier = Modifier.clickable { onItemClick(index) },
+            // TODO: pretty unclear we are passing in a function to navigate here, might be worth
+            // refactoring later
+            modifier = Modifier.clickable { onItemClick("recipe_detail/${card.id}") },
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(
@@ -133,5 +139,5 @@ fun RecipeSearchCardItem(
 // TODO: move to a better location
 class FeatureScreenPreviewParamProvider : PreviewParameterProvider<RecipeSearchCard> {
     override val values: Sequence<RecipeSearchCard> =
-        sequenceOf(RecipeSearchCard("A very long recipe name that is very long", 10, 3, 100))
+        sequenceOf(RecipeSearchCard(1, "A very long recipe name that is very long", 10, 3, 100))
 }

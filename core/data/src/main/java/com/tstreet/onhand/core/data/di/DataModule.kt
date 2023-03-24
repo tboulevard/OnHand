@@ -34,4 +34,10 @@ interface DataModule {
     fun bindsPantryRepository(
         pantryRepository: OfflinePantryRepository
     ): PantryRepository
+
+    @Binds
+    @Singleton
+    fun bindsRecipeDetailRepository(
+        recipeDetailRepository: OnlineFirstRecipeDetailRepository
+    ): RecipeDetailRepository
 }
