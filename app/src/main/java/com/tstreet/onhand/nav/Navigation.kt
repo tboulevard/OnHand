@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.tstreet.onhand.core.common.LocalCommonProvider
 import com.tstreet.onhand.core.common.injectedViewModel
+import com.tstreet.onhand.core.common.injectedViewModelWithArguments
 import com.tstreet.onhand.core.data.di.LocalDataProvider
 import com.tstreet.onhand.feature.ingredientsearch.IngredientSearchScreen
 import com.tstreet.onhand.feature.ingredientsearch.di.DaggerIngredientSearchComponent
@@ -58,17 +59,17 @@ fun Navigation() {
             arguments = listOf(navArgument("recipeId") { type = NavType.IntType })
         ) {
             println("[OnHand] Navigating to recipe detail screen")
+            println("[OnHand] bundle passed to RecipeDetailScreen=${it.arguments.toString()}")
             // TODO: come back to issue described here ... https://github.com/google/dagger/issues/3188
             // TODO: for some reason this broke when we upgraded compose version
             RecipeDetailScreen(
-                injectedViewModel {
+                injectedViewModelWithArguments(bundle = it.arguments) {
                     DaggerRecipeDetailComponent.builder()
                         .dataComponentProvider(dataProvider)
                         .commonComponentProvider(commonProvider)
                         .build()
                         .viewModel
-                },
-                it.arguments?.getInt("recipeId")
+                }
             )
         }
     }

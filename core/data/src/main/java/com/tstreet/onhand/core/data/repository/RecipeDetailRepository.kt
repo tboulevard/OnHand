@@ -12,6 +12,6 @@ interface RecipeDetailRepository {
 // TODO: move to more appropriate spot
 fun NetworkRecipeDetail.asExternalModel() = RecipeDetail(
     id = id,
-    // TODO: handle this better
+    // TODO: handle this better before merge
     sourceUrl = sourceUrl ?: ""
 )
