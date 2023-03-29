@@ -5,6 +5,7 @@ import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFact
 import com.tstreet.onhand.core.network.model.NetworkIngredient
 import com.tstreet.onhand.core.network.model.NetworkIngredientSearchResult
 import com.tstreet.onhand.core.network.model.NetworkRecipe
+import com.tstreet.onhand.core.network.model.NetworkRecipeDetail
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -19,6 +20,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.serialization.json.Json
 import retrofit2.Call
+import retrofit2.http.Path
 
 private interface RetrofitOnHandService {
 
@@ -40,6 +42,12 @@ private interface RetrofitOnHandService {
         // TODO: note, need to look into custom call adapter factory to make it so we don't have
         // to unfurl Call<> types...
     ): List<NetworkRecipe>
+
+    // TODO: sort by number of likes to show more relevant recipes potentially
+    @GET("recipes/{id}/information")
+    suspend fun getRecipeDetail(
+        @Path("id") id: Int,
+    ): NetworkRecipeDetail
 }
 
 private const val BASE_URL = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/"
@@ -92,13 +100,14 @@ class RetrofitOnHandNetwork @Inject constructor(
         return networkApi.getIngredients(prefix).execute().body()!!.results
     }
 
+    // TODO: is immediately returning a flow that emits the right way to handle this?
+    // TODO: upstream can use flownOn(dispatcher) to change to appropriate coroutine context, may
+    // want to take advantage of this later
     override fun getRecipesFromIngredients(ingredients: List<String>): Flow<List<NetworkRecipe>> {
-        println("[OnHand] RetrofitOnHandNetwork.getRecipesFromIngredients()")
-        return flow {
-            println("[OnHand] emitting inside RetrofitOnHandNetwork.getRecipesFromIngredients()")
-            val test = networkApi.getRecipesFromIngredients(ingredients)
-            println("[OnHand] $test")
-            emit(test)
-        }
+        return flow { emit(networkApi.getRecipesFromIngredients(ingredients)) }
+    }
+
+    override fun getRecipeDetail(id: Int): Flow<NetworkRecipeDetail> {
+        return flow { emit(networkApi.getRecipeDetail(id)) }
     }
 }
