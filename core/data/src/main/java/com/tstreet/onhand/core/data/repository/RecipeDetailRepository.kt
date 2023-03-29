@@ -12,6 +12,8 @@ interface RecipeDetailRepository {
 // TODO: move to more appropriate spot
 fun NetworkRecipeDetail.asExternalModel() = RecipeDetail(
     id = id,
-    // TODO: handle this better before merge
-    sourceUrl = sourceUrl ?: ""
+    // TODO: Determine whether it's best to just transmit an empty src url or some other state
+    sourceUrl = sourceUrl ?: EMPTY_SOURCE_URL
 )
+
+private const val EMPTY_SOURCE_URL = ""

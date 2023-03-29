@@ -9,41 +9,37 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.viewinterop.AndroidView
 import com.tstreet.onhand.core.ui.FullScreenErrorMessage
 import com.tstreet.onhand.core.ui.FullScreenProgressIndicator
-import com.tstreet.onhand.feature.recipedetail.RecipeDetailUiState.*
+import com.tstreet.onhand.core.ui.RecipeDetailUiState.*
 
 @Composable
 fun RecipeDetailScreen(
     viewModel: RecipeDetailViewModel
 ) {
-    // TODO: research collectasstatewithlifecycle instead...
+    // TODO: research collectAsstatewithlifecycle instead...
     val uiState by viewModel.recipeDetailUiState.collectAsState()
 
-    when (uiState) {
-        Loading -> {
-            println("[OnHand] recompose: loading")
+    when (val state = uiState) {
+        is Loading -> {
             FullScreenProgressIndicator()
         }
         is Success -> {
-            println("[OnHand] recompose: success")
-            AndroidView(factory = {
-                WebView(it).apply {
-                    layoutParams = ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT
-                    )
-                    webViewClient = WebViewClient()
-                    // TODO: to get around this error:
+            AndroidView(
+                factory = {
+                    WebView(it).apply {
+                        layoutParams = ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT
+                        )
+                        webViewClient = WebViewClient()
+                    }
+                }, update = {
                     // Smart cast to 'RecipeDetailUiState.Success' is impossible, because 'uiState'
                     // is a property that has open or custom getter
-                    loadUrl((uiState as Success).recipeDetail.sourceUrl)
-                }
-            }, update = {
-                it.loadUrl((uiState as Success).recipeDetail.sourceUrl)
-            })
+                    it.loadUrl(state.recipeDetail.sourceUrl)
+                })
         }
-        else -> {
-            println("recompose: else")
-            FullScreenErrorMessage(msg = "error - fill in details later")
+        is Error -> {
+            FullScreenErrorMessage(message = state.message)
         }
     }
 }

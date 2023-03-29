@@ -8,13 +8,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.material3.Text
 
 @Composable
-fun FullScreenErrorMessage(msg : String) {
+fun FullScreenErrorMessage(message : String) {
     Box(
         modifier = Modifier
             .fillMaxSize()
     ) {
         Text(
-            text = msg,
+            text = message,
             modifier = Modifier.align(Alignment.Center)
         )
     }

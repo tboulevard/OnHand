@@ -2,8 +2,6 @@ package com.tstreet.onhand.core.network.model
 
 import kotlinx.serialization.Serializable
 
-// TODO: look into which fields should be nullable to prevent network layer crashes when
-// deserializing
 @Serializable
 class NetworkRecipeDetail(
     val id: Int,
@@ -22,7 +20,6 @@ class NetworkRecipeDetail(
     val aggregateLikes: Int,
     val healthScore: Int,
     val creditsText: String?,
-    //val license: String?, TODO error: field 'license' is required for type with serial name, but it was missing at path: $
     val sourceName: String?,
     val pricePerServing: Double,
     val title: String?,

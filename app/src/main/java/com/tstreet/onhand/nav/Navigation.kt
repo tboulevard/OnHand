@@ -11,6 +11,8 @@ import com.tstreet.onhand.core.common.injectedViewModel
 import com.tstreet.onhand.core.data.di.LocalDataProvider
 import com.tstreet.onhand.feature.ingredientsearch.IngredientSearchScreen
 import com.tstreet.onhand.feature.ingredientsearch.di.DaggerIngredientSearchComponent
+import com.tstreet.onhand.feature.recipedetail.INVALID_RECIPE_ID
+import com.tstreet.onhand.feature.recipedetail.RECIPE_ID_NAV_KEY
 import com.tstreet.onhand.feature.recipedetail.RecipeDetailScreen
 import com.tstreet.onhand.feature.recipedetail.di.DaggerRecipeDetailComponent
 import com.tstreet.onhand.feature.recipesearch.RecipeSearchScreen
@@ -54,12 +56,11 @@ fun Navigation() {
             )
         }
         composable(
-            route = "${Screen.RecipeDetail.route}/{recipeId}",
-            arguments = listOf(navArgument("recipeId") { type = NavType.IntType })
+            route = "${Screen.RecipeDetail.route}/{$RECIPE_ID_NAV_KEY}",
+            arguments = listOf(navArgument(RECIPE_ID_NAV_KEY) { type = NavType.IntType })
         ) {
             println("[OnHand] Navigating to recipe detail screen")
-            // TODO: handle nullability later
-            val recipeId = it.arguments!!.getInt("recipeId")
+            val recipeId = it.arguments?.getInt(RECIPE_ID_NAV_KEY) ?: INVALID_RECIPE_ID
             RecipeDetailScreen(
                 injectedViewModel {
                     DaggerRecipeDetailComponent.factory().create(

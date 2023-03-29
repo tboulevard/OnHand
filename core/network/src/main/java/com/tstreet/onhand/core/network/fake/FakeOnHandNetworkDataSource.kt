@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
+// TODO: move fake models to separate debugImplementation-provided module
 class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSource {
 
     init {

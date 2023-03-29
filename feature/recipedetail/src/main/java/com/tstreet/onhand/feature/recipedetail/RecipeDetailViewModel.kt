@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.domain.GetRecipeDetailUseCase
-import com.tstreet.onhand.core.model.RecipeDetail
+import com.tstreet.onhand.core.ui.RecipeDetailUiState
 import com.tstreet.onhand.feature.recipedetail.di.RecipeId
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
@@ -19,30 +19,27 @@ class RecipeDetailViewModel @Inject constructor(
     @Named(IO) private val ioDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
 
-    init {
-        println("[OnHand] Creating ${this.javaClass.simpleName}")
-    }
-
-    // Once we receive the recipe id, then invoke? Waiting up to x seconds?
-
-    // TODO: error handling around null recipe id instead of default to 0
-    val recipeDetailUiState = getRecipeDetail.get().invoke(recipeId)
-        .map(RecipeDetailUiState::Success)
-        .stateIn(
-            // TODO: revisit scoping since we're doing database operations behind the scenes
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = RecipeDetailUiState.Loading
-        )
-}
-
-sealed interface RecipeDetailUiState {
-
-    object Loading : RecipeDetailUiState
-
-    data class Success(
-        val recipeDetail: RecipeDetail
-    ) : RecipeDetailUiState
-
-    object Error : RecipeDetailUiState
+    // TODO: Need to handle state if default recipeId (0) is passed through. Null recipeId theoretically
+    // not possible, but we allow it because of how passing navArgument works. This prevents crashes - recipeId = 0
+    // will just link to an invalid url and show nothing.
+    val recipeDetailUiState =
+        when (recipeId) {
+            INVALID_RECIPE_ID -> {
+                MutableStateFlow(
+                    RecipeDetailUiState.Error(
+                        message = "Error: Received null id for detail"
+                    )
+                )
+            }
+            else -> {
+                getRecipeDetail.get().invoke(recipeId)
+                    .map(RecipeDetailUiState::Success)
+                    .stateIn(
+                        // TODO: revisit scoping since we're doing network operations behind the scenes
+                        scope = viewModelScope,
+                        started = SharingStarted.WhileSubscribed(5000),
+                        initialValue = RecipeDetailUiState.Loading
+                    )
+            }
+        }
 }

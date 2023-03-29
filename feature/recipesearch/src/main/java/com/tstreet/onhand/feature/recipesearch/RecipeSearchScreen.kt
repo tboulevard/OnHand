@@ -102,6 +102,8 @@ fun RecipeSearchCardItem(
         Row(
             // TODO: pretty unclear we are passing in a function to navigate here, might be worth
             // refactoring later
+            // TODO: hardcoding recipe_detail route not ideal. Not easy to fix b/c it would require
+            // this module to rely on :app, refactor later...
             modifier = Modifier.clickable { onItemClick("recipe_detail/${card.id}") },
             horizontalArrangement = Arrangement.SpaceBetween
         ) {

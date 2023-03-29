@@ -5,7 +5,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <!-- TODO: allowBackup switched to false for development, revisit later -->
-    <!-- TODO: usesCleartextTraffic=true for now, revisit what this is later -->
     <application
         android:name=".OnHandApplication"
         android:allowBackup="false"

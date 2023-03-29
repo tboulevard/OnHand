@@ -47,8 +47,6 @@ private interface RetrofitOnHandService {
     @GET("recipes/{id}/information")
     suspend fun getRecipeDetail(
         @Path("id") id: Int,
-        // TODO: note, need to look into custom call adapter factory to make it so we don't have
-        // to unfurl Call<> types...
     ): NetworkRecipeDetail
 }
 
@@ -102,20 +100,14 @@ class RetrofitOnHandNetwork @Inject constructor(
         return networkApi.getIngredients(prefix).execute().body()!!.results
     }
 
+    // TODO: is immediately returning a flow that emits the right way to handle this?
+    // TODO: upstream can use flownOn(dispatcher) to change to appropriate coroutine context, may
+    // want to take advantage of this later
     override fun getRecipesFromIngredients(ingredients: List<String>): Flow<List<NetworkRecipe>> {
-        println("[OnHand] RetrofitOnHandNetwork.getRecipesFromIngredients()")
-        return flow {
-            println("[OnHand] emitting inside RetrofitOnHandNetwork.getRecipesFromIngredients()")
-            val test = networkApi.getRecipesFromIngredients(ingredients)
-            emit(test)
-        }
+        return flow { emit(networkApi.getRecipesFromIngredients(ingredients)) }
     }
 
     override fun getRecipeDetail(id: Int): Flow<NetworkRecipeDetail> {
-        println("[OnHand] RetrofitOnHandNetwork.getRecipeDetail($id)")
-        return flow {
-            println("[OnHand] emitting inside RetrofitOnHandNetwork.getRecipeDetail($id)")
-            emit(networkApi.getRecipeDetail(id))
-        }
+        return flow { emit(networkApi.getRecipeDetail(id)) }
     }
 }
