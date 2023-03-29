@@ -10,23 +10,21 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.tstreet.onhand.core.ui.FullScreenErrorMessage
 import com.tstreet.onhand.core.ui.FullScreenProgressIndicator
 import com.tstreet.onhand.feature.recipedetail.RecipeDetailUiState.*
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.runBlocking
 
 @Composable
 fun RecipeDetailScreen(
     viewModel: RecipeDetailViewModel
 ) {
     // TODO: research collectasstatewithlifecycle instead...
-    val uiState by viewModel.recipeDetailUiState().collectAsState()
+    val uiState by viewModel.recipeDetailUiState.collectAsState()
 
     when (uiState) {
         Loading -> {
-            println("recompose: loading")
+            println("[OnHand] recompose: loading")
             FullScreenProgressIndicator()
         }
         is Success -> {
-            println("recompose: success")
+            println("[OnHand] recompose: success")
             AndroidView(factory = {
                 WebView(it).apply {
                     layoutParams = ViewGroup.LayoutParams(
