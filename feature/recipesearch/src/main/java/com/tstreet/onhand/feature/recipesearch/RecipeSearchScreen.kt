@@ -20,7 +20,6 @@ import androidx.navigation.NavController
 import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.ui.FullScreenErrorMessage
 import com.tstreet.onhand.core.ui.FullScreenProgressIndicator
-import com.tstreet.onhand.core.ui.RECIPE_ID_NAV_KEY
 import com.tstreet.onhand.core.ui.RecipeSearchUiState.*
 
 @Composable
@@ -155,7 +154,7 @@ fun RecipeSearchCardItem(
             // refactoring later
             // TODO: hardcoding recipe_detail route not ideal. Not easy to fix b/c it would require
             // this module to rely on :app, refactor later...
-            modifier = Modifier.clickable { onItemClick("$RECIPE_ID_NAV_KEY/${card.id}") },
+            modifier = Modifier.clickable { onItemClick("recipe_detail/${card.id}") },
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(
