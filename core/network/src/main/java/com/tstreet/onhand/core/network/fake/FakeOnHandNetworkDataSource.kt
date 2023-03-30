@@ -29,8 +29,6 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
     }
 
     override fun getRecipesFromIngredients(ingredients: List<String>): Flow<List<NetworkRecipe>> {
-        println("[OnHand] FakeOnHandNetworkDataSource.getRecipesFromIngredients()")
-
         return flow {
             emit(
                 listOf(
@@ -104,8 +102,8 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
                         title = "Tomato Soup",
                         image = "tomato-soup.jpg",
                         imageType = "jpg",
-                        usedIngredientCount = 2,
-                        missedIngredientCount = 1,
+                        usedIngredientCount = 1,
+                        missedIngredientCount = 2,
                         usedIngredients = listOf(
                             NetworkRecipeSearchIngredient(
                                 id = 12,
@@ -138,6 +136,57 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
                         ),
                         unusedIngredients = listOf(),
                         likes = 20
+                    ), NetworkRecipe(
+                        id = 10,
+                        title = "Cheese Steak",
+                        image = "cheese-steak.jpg",
+                        imageType = "jpg",
+                        usedIngredientCount = 4,
+                        missedIngredientCount = 3,
+                        usedIngredients = listOf(
+                            NetworkRecipeSearchIngredient(
+                                id = 12,
+                                amount = 8.0,
+                                unit = "oz",
+                                unitLong = "ounces",
+                                unitShort = "oz",
+                                aisle = "Dairy",
+                                name = "Cheddar Cheese",
+                                original = "",
+                                originalName = "",
+                                meta = emptyList(),
+                                image = "cheddar.jpg"
+                            ), NetworkRecipeSearchIngredient(
+                                id = 13,
+                                amount = 16.0,
+                                unit = "oz",
+                                unitLong = "ounces",
+                                unitShort = "oz",
+                                aisle = "Bread",
+                                name = "White Bread",
+                                original = "",
+                                originalName = "",
+                                meta = emptyList(),
+                                image = "white-bread.jpg"
+                            )
+                        ),
+                        missedIngredients = listOf(
+                            NetworkRecipeSearchIngredient(
+                                id = 45,
+                                amount = 16.0,
+                                unit = "oz",
+                                unitLong = "ounces",
+                                unitShort = "oz",
+                                aisle = "Bread",
+                                name = "Ribeye Steak",
+                                original = "",
+                                originalName = "",
+                                meta = emptyList(),
+                                image = "ribeye-steak.jpg"
+                            )
+                        ),
+                        unusedIngredients = listOf(),
+                        likes = 333
                     )
                 )
             )

@@ -9,10 +9,10 @@ import androidx.navigation.navArgument
 import com.tstreet.onhand.core.common.LocalCommonProvider
 import com.tstreet.onhand.core.common.injectedViewModel
 import com.tstreet.onhand.core.data.di.LocalDataProvider
+import com.tstreet.onhand.core.ui.RECIPE_ID_NAV_KEY
 import com.tstreet.onhand.feature.ingredientsearch.IngredientSearchScreen
 import com.tstreet.onhand.feature.ingredientsearch.di.DaggerIngredientSearchComponent
 import com.tstreet.onhand.feature.recipedetail.INVALID_RECIPE_ID
-import com.tstreet.onhand.feature.recipedetail.RECIPE_ID_NAV_KEY
 import com.tstreet.onhand.feature.recipedetail.RecipeDetailScreen
 import com.tstreet.onhand.feature.recipedetail.di.DaggerRecipeDetailComponent
 import com.tstreet.onhand.feature.recipesearch.RecipeSearchScreen

@@ -7,13 +7,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,30 +18,38 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.tstreet.onhand.core.model.Recipe
+import com.tstreet.onhand.core.ui.FullScreenErrorMessage
 import com.tstreet.onhand.core.ui.FullScreenProgressIndicator
+import com.tstreet.onhand.core.ui.RECIPE_ID_NAV_KEY
+import com.tstreet.onhand.core.ui.RecipeSearchUiState.*
 
 @Composable
 fun RecipeSearchScreen(
     navController: NavController,
     viewModel: RecipeSearchViewModel
 ) {
-    val isSearching by viewModel.isSearching.collectAsState()
     // TODO: use collectAsStateWithLifecycle instead, but research why first
-    val recipes by viewModel.recipes.collectAsState()
+    val uiState by viewModel.recipeSearchUiState.collectAsState()
 
     Column(
         verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()
     ) {
-        when {
-            isSearching -> {
+        when (val state = uiState) {
+            Loading -> {
                 FullScreenProgressIndicator()
             }
-            else -> {
+            is Success -> {
+                SortByFilterSpinner(
+                    viewModel::onSortOrderChanged
+                )
                 RecipeSearchCardList(
-                    recipes = recipes,
+                    recipes = state.recipes,
                     onItemClick = navController::navigate,
                     onSaveClick = viewModel::onRecipeSaved,
                 )
+            }
+            is Error -> {
+                FullScreenErrorMessage(message = state.message)
             }
         }
     }
@@ -59,6 +62,54 @@ class RecipeSearchCard(
     val missedIngredients: Int,
     val likes: Int
 )
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+@Preview
+fun SortByFilterSpinner(
+    @PreviewParameter(OnSpinnerSelectionChangedPreviewParamProvider::class) onSelectionChanged: (SortBy) -> Unit
+) {
+    var selectedSortOrder by remember { mutableStateOf(DEFAULT_SORT_ORDER) }
+    var sortSpinnerExpanded by remember { mutableStateOf(false) }
+
+    Row(
+        modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center
+    ) {
+        ExposedDropdownMenuBox(
+            expanded = sortSpinnerExpanded,
+            onExpandedChange = { sortSpinnerExpanded = !sortSpinnerExpanded },
+            modifier = Modifier.padding(8.dp)
+        ) {
+            TextField(
+                modifier = Modifier.menuAnchor(),
+                readOnly = true,
+                value = selectedSortOrder.toString(),
+                onValueChange = { },
+                label = { Text("Sort Order") },
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(
+                        expanded = sortSpinnerExpanded
+                    )
+                },
+                textStyle = MaterialTheme.typography.bodyMedium
+            )
+            ExposedDropdownMenu(expanded = sortSpinnerExpanded, onDismissRequest = {
+                sortSpinnerExpanded = false
+            }) {
+                SortBy.values().forEach { selectionOption ->
+                    DropdownMenuItem(modifier = Modifier.align(Alignment.CenterHorizontally),
+                        onClick = {
+                            selectedSortOrder = selectionOption
+                            sortSpinnerExpanded = false
+                            println("[OnHand] onValueChanged=$selectionOption")
+                            onSelectionChanged(selectionOption)
+                        },
+                        text = { Text(selectionOption.toString()) })
+                }
+            }
+        }
+    }
+}
 
 @Composable
 fun RecipeSearchCardList(
@@ -87,7 +138,7 @@ fun RecipeSearchCardList(
 @Preview
 @Composable
 fun RecipeSearchCardItem(
-    @PreviewParameter(FeatureScreenPreviewParamProvider::class) card: RecipeSearchCard,
+    @PreviewParameter(RecipeSearchCardPreviewParamProvider::class) card: RecipeSearchCard,
     index: Int = 0,
     onItemClick: (String) -> Unit = { },
     onSaveClick: (Int) -> Unit = { }
@@ -104,7 +155,7 @@ fun RecipeSearchCardItem(
             // refactoring later
             // TODO: hardcoding recipe_detail route not ideal. Not easy to fix b/c it would require
             // this module to rely on :app, refactor later...
-            modifier = Modifier.clickable { onItemClick("recipe_detail/${card.id}") },
+            modifier = Modifier.clickable { onItemClick("$RECIPE_ID_NAV_KEY/${card.id}") },
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(
@@ -138,8 +189,13 @@ fun RecipeSearchCardItem(
     }
 }
 
-// TODO: move to a better location
-class FeatureScreenPreviewParamProvider : PreviewParameterProvider<RecipeSearchCard> {
-    override val values: Sequence<RecipeSearchCard> =
-        sequenceOf(RecipeSearchCard(1, "A very long recipe name that is very long", 10, 3, 100))
+// TODO: move all below to a better location...
+class RecipeSearchCardPreviewParamProvider : PreviewParameterProvider<RecipeSearchCard> {
+    override val values: Sequence<RecipeSearchCard> = sequenceOf(
+        RecipeSearchCard(1, "A very long recipe name that is very long", 10, 3, 100)
+    )
+}
+
+class OnSpinnerSelectionChangedPreviewParamProvider : PreviewParameterProvider<(SortBy) -> Unit> {
+    override val values: Sequence<(SortBy) -> Unit> = sequenceOf({ (SortBy.MISSING_INGREDIENTS) })
 }
