@@ -24,12 +24,13 @@ class RecipeSearchViewModel @Inject constructor(
 
     private val _sortOrder = MutableStateFlow(DEFAULT_SORT_ORDER)
     val recipeSearchUiState: StateFlow<RecipeSearchUiState> = _sortOrder
+        // TODO: note this onEach { } block currently does nothing because we don't actually emit
+        // the value (instead initialValue on stateIn is obeyed). May need to look into SharedFlows
+        // to re-trigger loading state on UI each time we change sort order (if desired)
         .onEach { RecipeSearchUiState.Loading }
-            // TODO: Each time we invoke use case it makes a network call - cache values on recipe
-            //  screen in repo layer (only re-query network if pantry state has changed)
+        // Note: When we change the sort order, we don't re-invoke getRecipes use case
         .combine(getRecipes.get().invoke()) { sortBy, recipes ->
-            // TODO: move logic into usecase layer for better separation of concerns. Leaving
-            // here for v1
+            // TODO: Potentially move logic into usecase layer for better separation of concerns
             when (sortBy) {
                 POPULARITY -> recipes.sortedByDescending { it.likes }
                 MISSING_INGREDIENTS -> recipes.sortedBy { it.missedIngredientCount }
