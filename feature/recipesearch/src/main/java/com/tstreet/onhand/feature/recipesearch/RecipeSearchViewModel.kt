@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.domain.GetRecipesUseCase
+import com.tstreet.onhand.core.domain.SaveRecipeUseCase
 import com.tstreet.onhand.core.ui.RecipeSearchUiState
 import com.tstreet.onhand.feature.recipesearch.SortBy.*
 import kotlinx.coroutines.CoroutineDispatcher
@@ -14,6 +15,7 @@ import javax.inject.Provider
 
 class RecipeSearchViewModel @Inject constructor(
     getRecipes: Provider<GetRecipesUseCase>,
+    saveRecipes : Provider<SaveRecipeUseCase>,
     // TODO: leaving around as an example...
     @Named(IO) private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
