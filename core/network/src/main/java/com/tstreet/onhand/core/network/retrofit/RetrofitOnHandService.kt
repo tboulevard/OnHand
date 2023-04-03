@@ -103,8 +103,8 @@ class RetrofitOnHandNetwork @Inject constructor(
     // TODO: is immediately returning a flow that emits the right way to handle this?
     // TODO: upstream can use flownOn(dispatcher) to change to appropriate coroutine context, may
     // want to take advantage of this later
-    override fun getRecipesFromIngredients(ingredients: List<String>): Flow<List<NetworkRecipe>> {
-        return flow { emit(networkApi.getRecipesFromIngredients(ingredients)) }
+    override suspend fun getRecipesFromIngredients(ingredients: List<String>): List<NetworkRecipe> {
+        return networkApi.getRecipesFromIngredients(ingredients)
     }
 
     override fun getRecipeDetail(id: Int): Flow<NetworkRecipeDetail> {

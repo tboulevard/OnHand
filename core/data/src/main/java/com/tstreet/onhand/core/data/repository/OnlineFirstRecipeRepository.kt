@@ -19,13 +19,13 @@ class OnlineFirstRecipeRepository @Inject constructor(
         println("[OnHand] Creating ${this.javaClass.simpleName}")
     }
 
-    override fun searchRecipes(ingredients: List<String>): Flow<List<Recipe>> {
+    override suspend fun searchRecipes(ingredients: List<String>): List<Recipe> {
         println("[OnHand] OnlineFirstRecipeSearchRepository.searchRecipes()")
 
         return onHandNetworkDataSource
             .get()
             .getRecipesFromIngredients(ingredients)
-            .map{ it.map(NetworkRecipe::asExternalModel) }
+            .map(NetworkRecipe::asExternalModel)
     }
 
     override fun getRecipeDetail(id: Int): Flow<RecipeDetail> {

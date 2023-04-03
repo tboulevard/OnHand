@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface RecipeRepository {
     // TODO: look into whether API can accept list of ids instead of strings
-    fun searchRecipes(ingredients: List<String>): Flow<List<Recipe>>
+    suspend fun searchRecipes(ingredients: List<String>): List<Recipe>
 
     fun getRecipeDetail(id: Int) : Flow<RecipeDetail>
 
