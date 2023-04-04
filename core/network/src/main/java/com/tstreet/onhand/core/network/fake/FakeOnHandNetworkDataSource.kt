@@ -28,7 +28,7 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
         )
     }
 
-    override suspend fun getRecipesFromIngredients(ingredients: List<String>): List<NetworkRecipe> {
+    override suspend fun findRecipesFromIngredients(ingredients: List<String>): List<NetworkRecipe> {
         return listOf(
             NetworkRecipe(
                 id = 10,

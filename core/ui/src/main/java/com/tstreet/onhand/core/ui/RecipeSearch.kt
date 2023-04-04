@@ -1,13 +1,14 @@
 package com.tstreet.onhand.core.ui
 
-import com.tstreet.onhand.core.model.Recipe
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import com.tstreet.onhand.core.model.SaveableRecipe
 
 sealed interface RecipeSearchUiState {
 
     object Loading : RecipeSearchUiState
 
     data class Success(
-        val recipes: List<Recipe>,
+        val recipes: SnapshotStateList<SaveableRecipe>,
     ) : RecipeSearchUiState
 
     data class Error(

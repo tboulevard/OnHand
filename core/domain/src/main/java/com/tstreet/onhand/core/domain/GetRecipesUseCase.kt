@@ -6,7 +6,7 @@ import com.tstreet.onhand.core.common.UseCase
 import com.tstreet.onhand.core.data.repository.PantryRepository
 import com.tstreet.onhand.core.data.repository.RecipeRepository
 import com.tstreet.onhand.core.domain.SortBy.*
-import com.tstreet.onhand.core.model.Recipe
+import com.tstreet.onhand.core.model.SaveableRecipe
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
@@ -20,14 +20,14 @@ class GetRecipesUseCase @Inject constructor(
     @Named(IO) private val ioDispatcher: CoroutineDispatcher
 ) : UseCase() {
 
-    operator fun invoke(sortBy: SortBy = DEFAULT_SORTING): Flow<List<Recipe>> {
+    operator fun invoke(sortBy: SortBy = DEFAULT_SORTING): Flow<List<SaveableRecipe>> {
         println("[OnHand] GetRecipesUseCase.invoke($sortBy)")
         val recipes = getPantryIngredients()
             .map { ingredients ->
-                val recipes = recipeRepository.get().searchRecipes(ingredients)
+                val recipes = recipeRepository.get().findRecipes(ingredients)
                 when (sortBy) {
-                    POPULARITY -> recipes.sortedByDescending { it.likes }
-                    MISSING_INGREDIENTS -> recipes.sortedBy { it.missedIngredientCount }
+                    POPULARITY -> recipes.sortedByDescending { it.recipe.likes }
+                    MISSING_INGREDIENTS -> recipes.sortedBy { it.recipe.missedIngredientCount }
                 }
             }
 

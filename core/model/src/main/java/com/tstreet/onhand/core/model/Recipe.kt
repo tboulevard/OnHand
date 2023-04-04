@@ -1,6 +1,6 @@
 package com.tstreet.onhand.core.model
 
-class Recipe(
+data class Recipe(
     val id: Int,
     val title: String,
     val image: String,
@@ -8,4 +8,9 @@ class Recipe(
     val usedIngredientCount: Int,
     val missedIngredientCount: Int,
     val likes: Int
+)
+
+data class SaveableRecipe(
+    val recipe : Recipe,
+    val isSaved : Boolean
 )

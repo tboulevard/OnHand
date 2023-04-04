@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,10 +18,12 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.tstreet.onhand.core.model.Recipe
+import com.tstreet.onhand.core.domain.SortBy
+import com.tstreet.onhand.core.model.SaveableRecipe
 import com.tstreet.onhand.core.ui.FullScreenErrorMessage
 import com.tstreet.onhand.core.ui.FullScreenProgressIndicator
 import com.tstreet.onhand.core.ui.RecipeSearchUiState.*
+import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
 
 @Composable
 fun RecipeSearchScreen(
@@ -28,7 +31,8 @@ fun RecipeSearchScreen(
     viewModel: RecipeSearchViewModel
 ) {
     // TODO: use collectAsStateWithLifecycle instead, but research why first
-    val uiState by viewModel.recipeSearchUiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
+    val sortOrder by viewModel.sortOrder.collectAsState()
 
     Column(
         verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()
@@ -38,7 +42,8 @@ fun RecipeSearchScreen(
                 FullScreenProgressIndicator()
             }
             is Success -> {
-                SortByFilterSpinner(
+                SortBySpinner(
+                    sortOrder,
                     viewModel::onSortOrderChanged
                 )
                 RecipeSearchCardList(
@@ -59,16 +64,17 @@ class RecipeSearchCard(
     val title: String,
     val usedIngredients: Int,
     val missedIngredients: Int,
-    val likes: Int
+    val likes: Int,
+    val isSaved: Boolean
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
-fun SortByFilterSpinner(
+fun SortBySpinner(
+    sortOrder: SortBy = SortBy.POPULARITY,
     @PreviewParameter(OnSpinnerSelectionChangedPreviewParamProvider::class) onSelectionChanged: (SortBy) -> Unit
 ) {
-    var selectedSortOrder by remember { mutableStateOf(DEFAULT_SORT_ORDER) }
     var sortSpinnerExpanded by remember { mutableStateOf(false) }
 
     Row(
@@ -82,7 +88,7 @@ fun SortByFilterSpinner(
             TextField(
                 modifier = Modifier.menuAnchor(),
                 readOnly = true,
-                value = selectedSortOrder.toString(),
+                value = sortOrder.toString(),
                 onValueChange = { },
                 label = { Text("Sort Order") },
                 trailingIcon = {
@@ -98,7 +104,6 @@ fun SortByFilterSpinner(
                 SortBy.values().forEach { selectionOption ->
                     DropdownMenuItem(modifier = Modifier.align(Alignment.CenterHorizontally),
                         onClick = {
-                            selectedSortOrder = selectionOption
                             sortSpinnerExpanded = false
                             println("[OnHand] onValueChanged=$selectionOption")
                             onSelectionChanged(selectionOption)
@@ -112,7 +117,7 @@ fun SortByFilterSpinner(
 
 @Composable
 fun RecipeSearchCardList(
-    recipes: List<Recipe>, onItemClick: (String) -> Unit, onSaveClick: (Int) -> Unit
+    recipes: List<SaveableRecipe>, onItemClick: (String) -> Unit, onSaveClick: (Int) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -123,11 +128,12 @@ fun RecipeSearchCardList(
         itemsIndexed(recipes) { index, recipe ->
             RecipeSearchCardItem(
                 card = RecipeSearchCard(
-                    id = recipe.id,
-                    title = recipe.title,
-                    usedIngredients = recipe.usedIngredientCount,
-                    missedIngredients = recipe.missedIngredientCount,
-                    likes = recipe.likes
+                    id = recipe.recipe.id,
+                    title = recipe.recipe.title,
+                    usedIngredients = recipe.recipe.usedIngredientCount,
+                    missedIngredients = recipe.recipe.missedIngredientCount,
+                    likes = recipe.recipe.likes,
+                    isSaved = recipe.isSaved
                 ), index = index, onItemClick = onItemClick, onSaveClick = onSaveClick
             )
         }
@@ -176,13 +182,29 @@ fun RecipeSearchCardItem(
             Column(
                 modifier = Modifier.align(Alignment.CenterVertically)
             ) {
-                Icon(
-                    Icons.Default.Add,
-                    contentDescription = "save",
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clickable { onSaveClick(index) },
-                )
+
+                when (card.isSaved) {
+                    true -> {
+                        Icon(
+                            Icons.Default.Check,
+                            contentDescription = "saved",
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clickable { onSaveClick(index) },
+                            tint = MATTE_GREEN
+                        )
+                    }
+                    else -> {
+                        Icon(
+                            Icons.Default.Add,
+                            contentDescription = "save",
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clickable { onSaveClick(index) },
+                        )
+                    }
+                }
+
             }
         }
     }
@@ -191,7 +213,7 @@ fun RecipeSearchCardItem(
 // TODO: move all below to a better location...
 class RecipeSearchCardPreviewParamProvider : PreviewParameterProvider<RecipeSearchCard> {
     override val values: Sequence<RecipeSearchCard> = sequenceOf(
-        RecipeSearchCard(1, "A very long recipe name that is very long", 10, 3, 100)
+        RecipeSearchCard(1, "A very long recipe name that is very long", 10, 3, 100, true)
     )
 }
 

@@ -1,62 +1,72 @@
 package com.tstreet.onhand.feature.recipesearch
 
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.tstreet.onhand.core.common.CommonModule.IO
+import com.tstreet.onhand.core.domain.DEFAULT_SORTING
 import com.tstreet.onhand.core.domain.GetRecipesUseCase
 import com.tstreet.onhand.core.domain.SaveRecipeUseCase
+import com.tstreet.onhand.core.domain.SortBy
+import com.tstreet.onhand.core.model.SaveableRecipe
 import com.tstreet.onhand.core.ui.RecipeSearchUiState
-import com.tstreet.onhand.feature.recipesearch.SortBy.*
-import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Named
 import javax.inject.Provider
 
 class RecipeSearchViewModel @Inject constructor(
     getRecipes: Provider<GetRecipesUseCase>,
-    saveRecipes : Provider<SaveRecipeUseCase>,
-    // TODO: leaving around as an example...
-    @Named(IO) private val ioDispatcher: CoroutineDispatcher
+    private val saveRecipe: Provider<SaveRecipeUseCase>,
 ) : ViewModel() {
 
     init {
         println("[OnHand] Creating ${this.javaClass.simpleName}")
     }
 
-    private val _sortOrder = MutableStateFlow(DEFAULT_SORT_ORDER)
-    val recipeSearchUiState: StateFlow<RecipeSearchUiState> = _sortOrder
-        // TODO: note this onEach { } block currently does nothing because we don't actually emit
-        // the value (instead initialValue on stateIn is obeyed). May need to look into SharedFlows
-        // to re-trigger loading state on UI each time we change sort order (if desired)
-        .onEach { RecipeSearchUiState.Loading }
-        // Note: When we change the sort order, we don't re-invoke getRecipes use case
-        .combine(getRecipes.get().invoke()) { sortBy, recipes ->
-            // TODO: Potentially move logic into usecase layer for better separation of concerns
-            when (sortBy) {
-                POPULARITY -> recipes.sortedByDescending { it.likes }
-                MISSING_INGREDIENTS -> recipes.sortedBy { it.missedIngredientCount }
-            }
+
+    private val _sortOrder = MutableStateFlow(DEFAULT_SORTING)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val sortOrder : StateFlow<SortBy> = _sortOrder
+        .flatMapLatest {
+            getRecipes.get().invoke(it)
         }
-        .map(RecipeSearchUiState::Success)
+        .combine(_sortOrder) { recipes, sortBy ->
+            _recipes = recipes.toMutableStateList()
+            _uiState.update { RecipeSearchUiState.Success(_recipes) }
+            sortBy
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = DEFAULT_SORTING
+        )
+
+    private val _uiState = MutableStateFlow<RecipeSearchUiState>(RecipeSearchUiState.Loading)
+    val uiState = _uiState
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = RecipeSearchUiState.Loading
         )
 
+    private var _recipes = mutableStateListOf<SaveableRecipe>()
+
     fun onRecipeSaved(index: Int) {
-        /* TODO: implement */
+        viewModelScope.launch {
+            // TODO: wrap these in a lock to prevent concurrent execution. in general make
+            //  mutable states visible to only one thread
+            val recipe = _recipes[index]
+            val isSaved = recipe.isSaved
+            // TODO: What if this call fails? UI state will not reflect DB state.
+            // TODO: moreover...how to be transmit the state of whether the save succeeded to UI?
+            saveRecipe.get().invoke(_recipes[index])
+            _recipes[index] = recipe.copy(isSaved = !isSaved)
+        }
     }
 
     fun onSortOrderChanged(sortingOrder: SortBy) {
         _sortOrder.update { sortingOrder }
     }
 }
-
-enum class SortBy {
-    POPULARITY,
-    MISSING_INGREDIENTS
-}
-
-val DEFAULT_SORT_ORDER = POPULARITY
