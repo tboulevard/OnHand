@@ -8,8 +8,10 @@ import com.tstreet.onhand.core.domain.DEFAULT_SORTING
 import com.tstreet.onhand.core.domain.GetRecipesUseCase
 import com.tstreet.onhand.core.domain.SaveRecipeUseCase
 import com.tstreet.onhand.core.domain.SortBy
-import com.tstreet.onhand.core.model.SaveableRecipe
+import com.tstreet.onhand.core.ui.RecipeSaveState
+import com.tstreet.onhand.core.ui.RecipeSearchItem
 import com.tstreet.onhand.core.ui.RecipeSearchUiState
+import com.tstreet.onhand.core.ui.toRecipeSearchItemList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -34,7 +36,7 @@ class RecipeSearchViewModel @Inject constructor(
             getRecipes.get().invoke(it)
         }
         .combine(_sortOrder) { recipes, sortBy ->
-            _recipes = recipes.toMutableStateList()
+            _recipes = recipes.toRecipeSearchItemList().toMutableStateList()
             _uiState.update { RecipeSearchUiState.Success(_recipes) }
             sortBy
         }
@@ -52,20 +54,38 @@ class RecipeSearchViewModel @Inject constructor(
             initialValue = RecipeSearchUiState.Loading
         )
 
-    private var _recipes = mutableStateListOf<SaveableRecipe>()
+    private var _recipes = mutableStateListOf<RecipeSearchItem>()
 
     fun onRecipeSaved(index: Int) {
         viewModelScope.launch {
             // TODO: wrap these in a lock to prevent concurrent execution. in general make
             //  mutable states visible to only one thread
-            val recipe = _recipes[index]
-            val isSaved = recipe.isSaved
-            saveRecipe.get().invoke(recipe).collect {
+            val item = _recipes[index]
+            val saveState = item.recipeSaveState
+
+            // Mark the recipe as saving
+            _recipes[index] = item.copy(recipeSaveState = RecipeSaveState.SAVING)
+
+            // Actually save/unsave the recipe
+            saveRecipe.get().invoke(item.recipe).collect {
                 when (it) {
                     // When the save is successful, change the UI state.
                     true -> {
                         println("[OnHand] Recipe save successful, updating UI")
-                        _recipes[index] = recipe.copy(isSaved = !isSaved)
+                        _recipes[index] = item.copy(
+                            recipeSaveState =
+                            when (saveState) {
+                                RecipeSaveState.SAVED -> {
+                                    RecipeSaveState.NOT_SAVED
+                                }
+                                RecipeSaveState.NOT_SAVED -> {
+                                    RecipeSaveState.SAVED
+                                }
+                                else -> {
+                                    RecipeSaveState.SAVING
+                                }
+                            }
+                        )
                     }
                     else -> {
                         // TODO: todo better error handling
