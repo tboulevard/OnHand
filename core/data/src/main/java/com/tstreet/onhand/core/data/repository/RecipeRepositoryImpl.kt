@@ -43,7 +43,7 @@ class RecipeRepositoryImpl @Inject constructor(
             .addRecipe(recipeDetail.toEntity())
     }
 
-    override suspend fun unSaveRecipe(id: Int) {
+    override suspend fun unsaveRecipe(id: Int) {
         println("[OnHand] Delete recipe called for recipeId=$id")
         savedRecipeDao
             .get()

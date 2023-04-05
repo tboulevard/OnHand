@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import com.tstreet.onhand.core.database.model.SavedRecipeEntity
+import javax.inject.Singleton
 
 @Dao
 interface SavedRecipeDao {

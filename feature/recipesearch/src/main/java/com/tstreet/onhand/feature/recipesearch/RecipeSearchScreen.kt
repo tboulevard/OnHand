@@ -52,7 +52,7 @@ fun RecipeSearchScreen(
                     recipes = state.recipes,
                     onItemClick = navController::navigate,
                     onSaveClick = viewModel::onRecipeSaved,
-                    onUnSaveClick = viewModel::onRecipeUnSaved
+                    onUnSaveClick = viewModel::onRecipeUnsaved
                 )
             }
             is Error -> {
@@ -215,7 +215,7 @@ fun RecipeSearchCardItem(
                                 .clickable { onSaveClick(index) },
                         )
                     }
-                    SAVING -> {
+                    LOADING -> {
                         OnHandProgressIndicator(modifier = Modifier.size(36.dp))
                     }
                 }

@@ -2,7 +2,6 @@ package com.tstreet.onhand.core.data.repository
 
 import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.model.RecipeDetail
-import com.tstreet.onhand.core.model.SaveableRecipe
 import com.tstreet.onhand.core.network.model.NetworkRecipe
 import com.tstreet.onhand.core.network.model.NetworkRecipeDetail
 import kotlinx.coroutines.flow.Flow
@@ -18,7 +17,7 @@ interface RecipeRepository {
 
     suspend fun isRecipeSaved(id: Int): Boolean
 
-    suspend fun unSaveRecipe(id: Int)
+    suspend fun unsaveRecipe(id: Int)
 }
 
 // TODO: move to more appropriate spot

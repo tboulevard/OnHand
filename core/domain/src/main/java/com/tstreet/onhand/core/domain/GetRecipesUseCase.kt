@@ -13,6 +13,11 @@ import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Provider
 
+// TODO: for some reason this scope isn't needed to bind use case to view lifecycle...is it
+//  because [RecipeResultComponent] already specifies this? Either way, keeping
+//  here to be pedantic...
+// TODO: Also - Is it correct to have this annotation at the class or module level? For all
+//  use cases, class level appears to work while module level does not
 @FeatureScope
 class GetRecipesUseCase @Inject constructor(
     private val recipeRepository: Provider<RecipeRepository>,
