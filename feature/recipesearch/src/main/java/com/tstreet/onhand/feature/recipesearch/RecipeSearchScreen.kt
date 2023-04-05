@@ -18,11 +18,12 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.tstreet.onhand.core.domain.DEFAULT_SORTING
 import com.tstreet.onhand.core.domain.SortBy
-import com.tstreet.onhand.core.model.SaveableRecipe
 import com.tstreet.onhand.core.ui.FullScreenErrorMessage
-import com.tstreet.onhand.core.ui.FullScreenProgressIndicator
+import com.tstreet.onhand.core.ui.OnHandProgressIndicator
 import com.tstreet.onhand.core.ui.RecipeSaveState
+import com.tstreet.onhand.core.ui.RecipeSaveState.*
 import com.tstreet.onhand.core.ui.RecipeSearchItem
 import com.tstreet.onhand.core.ui.RecipeSearchUiState.*
 import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
@@ -40,7 +41,7 @@ fun RecipeSearchScreen(
     ) {
         when (val state = uiState) {
             Loading -> {
-                FullScreenProgressIndicator()
+                OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
             }
             is Success -> {
                 SortBySpinner(
@@ -51,6 +52,7 @@ fun RecipeSearchScreen(
                     recipes = state.recipes,
                     onItemClick = navController::navigate,
                     onSaveClick = viewModel::onRecipeSaved,
+                    onUnSaveClick = viewModel::onRecipeUnSaved
                 )
             }
             is Error -> {
@@ -66,15 +68,15 @@ class RecipeSearchCard(
     val usedIngredients: Int,
     val missedIngredients: Int,
     val likes: Int,
-    val isSaved: RecipeSaveState
+    val saveState: RecipeSaveState
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
 fun SortBySpinner(
-    sortOrder: SortBy = SortBy.POPULARITY,
-    @PreviewParameter(OnSpinnerSelectionChangedPreviewParamProvider::class) onSelectionChanged: (SortBy) -> Unit
+    sortOrder: SortBy = DEFAULT_SORTING,
+    onSelectionChanged: (SortBy) -> Unit = { }
 ) {
     var sortSpinnerExpanded by remember { mutableStateOf(false) }
 
@@ -106,7 +108,6 @@ fun SortBySpinner(
                     DropdownMenuItem(modifier = Modifier.align(Alignment.CenterHorizontally),
                         onClick = {
                             sortSpinnerExpanded = false
-                            println("[OnHand] onValueChanged=$selectionOption")
                             onSelectionChanged(selectionOption)
                         },
                         text = { Text(selectionOption.toString()) })
@@ -118,7 +119,10 @@ fun SortBySpinner(
 
 @Composable
 fun RecipeSearchCardList(
-    recipes: List<RecipeSearchItem>, onItemClick: (String) -> Unit, onSaveClick: (Int) -> Unit
+    recipes: List<RecipeSearchItem>,
+    onItemClick: (String) -> Unit,
+    onSaveClick: (Int) -> Unit,
+    onUnSaveClick: (Int) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -126,16 +130,22 @@ fun RecipeSearchCardList(
             .background(Color.White)
             .padding(8.dp)
     ) {
-        itemsIndexed(recipes) { index, recipe ->
+        itemsIndexed(recipes) { index, item ->
+            val recipe = item.saveableRecipe.recipe
             RecipeSearchCardItem(
                 card = RecipeSearchCard(
-                    id = recipe.recipe.recipe.id,
-                    title = recipe.recipe.recipe.title,
-                    usedIngredients = recipe.recipe.recipe.usedIngredientCount,
-                    missedIngredients = recipe.recipe.recipe.missedIngredientCount,
-                    likes = recipe.recipe.recipe.likes,
-                    isSaved = recipe.recipeSaveState
-                ), index = index, onItemClick = onItemClick, onSaveClick = onSaveClick
+                    // TODO: clean this up
+                    id = recipe.id,
+                    title = recipe.title,
+                    usedIngredients = recipe.usedIngredientCount,
+                    missedIngredients = recipe.missedIngredientCount,
+                    likes = recipe.likes,
+                    saveState = item.recipeSaveState
+                ),
+                index = index,
+                onItemClick = onItemClick,
+                onSaveClick = onSaveClick,
+                onUnSaveClick = onUnSaveClick
             )
         }
     }
@@ -147,7 +157,8 @@ fun RecipeSearchCardItem(
     @PreviewParameter(RecipeSearchCardPreviewParamProvider::class) card: RecipeSearchCard,
     index: Int = 0,
     onItemClick: (String) -> Unit = { },
-    onSaveClick: (Int) -> Unit = { }
+    onSaveClick: (Int) -> Unit = { },
+    onUnSaveClick: (Int) -> Unit = { }
 ) {
     Surface(
         modifier = Modifier
@@ -184,18 +195,18 @@ fun RecipeSearchCardItem(
                 modifier = Modifier.align(Alignment.CenterVertically)
             ) {
 
-                when (card.isSaved) {
-                    RecipeSaveState.SAVED -> {
+                when (card.saveState) {
+                    SAVED -> {
                         Icon(
                             Icons.Default.Check,
                             contentDescription = "saved",
                             modifier = Modifier
                                 .size(36.dp)
-                                .clickable { /* TODO: unsave */ },
+                                .clickable { onUnSaveClick(index) },
                             tint = MATTE_GREEN
                         )
                     }
-                    RecipeSaveState.NOT_SAVED -> {
+                    NOT_SAVED -> {
                         Icon(
                             Icons.Default.Add,
                             contentDescription = "save",
@@ -204,11 +215,8 @@ fun RecipeSearchCardItem(
                                 .clickable { onSaveClick(index) },
                         )
                     }
-                    RecipeSaveState.SAVING -> {
-                        CircularProgressIndicator(
-                            modifier = Modifier
-                                .size(36.dp)
-                        )
+                    SAVING -> {
+                        OnHandProgressIndicator(modifier = Modifier.size(36.dp))
                     }
                 }
 
@@ -220,10 +228,13 @@ fun RecipeSearchCardItem(
 // TODO: move all below to a better location...
 class RecipeSearchCardPreviewParamProvider : PreviewParameterProvider<RecipeSearchCard> {
     override val values: Sequence<RecipeSearchCard> = sequenceOf(
-        RecipeSearchCard(1, "A very long recipe name that is very long", 10, 3, 100, RecipeSaveState.NOT_SAVED)
+        RecipeSearchCard(
+            1,
+            "A very long recipe name that is very long",
+            10,
+            3,
+            100,
+            NOT_SAVED
+        )
     )
-}
-
-class OnSpinnerSelectionChangedPreviewParamProvider : PreviewParameterProvider<(SortBy) -> Unit> {
-    override val values: Sequence<(SortBy) -> Unit> = sequenceOf({ (SortBy.MISSING_INGREDIENTS) })
 }

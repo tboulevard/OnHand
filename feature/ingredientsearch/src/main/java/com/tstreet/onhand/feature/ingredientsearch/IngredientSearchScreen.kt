@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.tstreet.onhand.core.model.Ingredient
-import com.tstreet.onhand.core.ui.FullScreenProgressIndicator
+import com.tstreet.onhand.core.ui.OnHandProgressIndicator
 import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
 
 // TODO: use @PreviewParameter + create module with fake models to populate composables
@@ -38,7 +38,7 @@ fun IngredientSearchScreen(
 
         when {
             isSearching -> {
-                FullScreenProgressIndicator()
+                OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
             }
             else -> {
                 IngredientSearchCardList(

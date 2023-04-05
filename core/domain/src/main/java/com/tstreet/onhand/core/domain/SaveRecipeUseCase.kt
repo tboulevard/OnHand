@@ -19,7 +19,6 @@ class SaveRecipeUseCase @Inject constructor(
 
     // TODO: Model state using an object (Success/Failure) rather than boolean?
     operator fun invoke(saveableRecipe: SaveableRecipe): Flow<Boolean> {
-        println("[OnHand] SaveRecipeUseCase invoke: $saveableRecipe")
         return repository
             .get()
             .getRecipeDetail(saveableRecipe.recipe.id)

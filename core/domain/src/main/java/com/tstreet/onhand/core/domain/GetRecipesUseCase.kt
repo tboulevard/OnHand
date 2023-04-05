@@ -21,19 +21,9 @@ class GetRecipesUseCase @Inject constructor(
 ) : UseCase() {
 
     operator fun invoke(sortBy: SortBy = DEFAULT_SORTING): Flow<List<SaveableRecipe>> {
-        println("[OnHand] GetRecipesUseCase.invoke($sortBy)")
         val recipes = getPantryIngredients()
             .map { ingredients ->
-                val recipes = recipeRepository.get().findRecipes(ingredients)
-                    .map { recipe ->
-                        // TODO: make this a bulk operation -- many segmented DB reads this way
-                        val isRecipeSaved = recipeRepository.get().isRecipeSaved(recipe.id)
-                        SaveableRecipe(
-                            recipe = recipe,
-                            isSaved = isRecipeSaved
-                        )
-                    }
-
+                val recipes = findSaveableRecipes(ingredients)
                 when (sortBy) {
                     POPULARITY -> recipes.sortedByDescending { it.recipe.likes }
                     MISSING_INGREDIENTS -> recipes.sortedBy { it.recipe.missedIngredientCount }
@@ -41,6 +31,18 @@ class GetRecipesUseCase @Inject constructor(
             }
 
         return recipes.flowOn(ioDispatcher)
+    }
+
+    private suspend fun findSaveableRecipes(ingredientNames: List<String>): List<SaveableRecipe> {
+        return recipeRepository.get().findRecipes(ingredientNames)
+            .map { recipe ->
+                // TODO: make this a bulk operation -- many segmented DB reads this way
+                val isRecipeSaved = recipeRepository.get().isRecipeSaved(recipe.id)
+                SaveableRecipe(
+                    recipe = recipe,
+                    isSaved = isRecipeSaved
+                )
+            }
     }
 
     private fun getPantryIngredients(): Flow<List<String>> {

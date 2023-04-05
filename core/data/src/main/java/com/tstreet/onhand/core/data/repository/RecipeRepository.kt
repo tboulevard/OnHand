@@ -16,9 +16,9 @@ interface RecipeRepository {
     // TODO: model `Saveable`RecipeDetail or similar
     suspend fun saveRecipe(recipeDetail: RecipeDetail)
 
-    suspend fun unSaveRecipe(id: Int)
-
     suspend fun isRecipeSaved(id: Int): Boolean
+
+    suspend fun unSaveRecipe(id: Int)
 }
 
 // TODO: move to more appropriate spot

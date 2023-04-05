@@ -3,12 +3,14 @@ package com.tstreet.onhand.feature.recipedetail
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import com.tstreet.onhand.core.ui.FullScreenErrorMessage
-import com.tstreet.onhand.core.ui.FullScreenProgressIndicator
+import com.tstreet.onhand.core.ui.OnHandProgressIndicator
 import com.tstreet.onhand.core.ui.RecipeDetailUiState.*
 
 @Composable
@@ -20,7 +22,7 @@ fun RecipeDetailScreen(
 
     when (val state = uiState) {
         is Loading -> {
-            FullScreenProgressIndicator()
+            OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
         }
         is Success -> {
             AndroidView(

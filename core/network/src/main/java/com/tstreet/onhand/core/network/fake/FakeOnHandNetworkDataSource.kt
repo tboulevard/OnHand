@@ -5,6 +5,7 @@ import com.tstreet.onhand.core.network.model.NetworkIngredient
 import com.tstreet.onhand.core.network.model.NetworkRecipe
 import com.tstreet.onhand.core.network.model.NetworkRecipeDetail
 import com.tstreet.onhand.core.network.model.NetworkRecipeSearchIngredient
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
@@ -29,6 +30,8 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
     }
 
     override suspend fun findRecipesFromIngredients(ingredients: List<String>): List<NetworkRecipe> {
+        // For testing purposes (progress indicators, etc)
+        delay(ARTIFICIAL_DELAY_MILLIS)
         return listOf(
             NetworkRecipe(
                 id = 10,
@@ -191,6 +194,7 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
 
     override fun getRecipeDetail(id: Int): Flow<NetworkRecipeDetail> {
         return flow {
+            delay(ARTIFICIAL_DELAY_MILLIS)
             emit(
                 NetworkRecipeDetail(
                     vegetarian = false,
@@ -238,5 +242,6 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
             )
         }
     }
-
 }
+
+private const val ARTIFICIAL_DELAY_MILLIS = 500L
