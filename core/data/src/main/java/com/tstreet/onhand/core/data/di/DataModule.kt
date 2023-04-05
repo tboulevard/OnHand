@@ -26,18 +26,12 @@ interface DataModule {
     @Binds
     @Singleton
     fun bindsRecipeSearchRepository(
-        recipeSearchRepository: OnlineFirstRecipeSearchRepository
-    ): RecipeSearchRepository
+        recipeSearchRepository: RecipeRepositoryImpl
+    ): RecipeRepository
 
     @Binds
     @Singleton
     fun bindsPantryRepository(
         pantryRepository: OfflinePantryRepository
     ): PantryRepository
-
-    @Binds
-    @Singleton
-    fun bindsRecipeDetailRepository(
-        recipeDetailRepository: OnlineFirstRecipeDetailRepository
-    ): RecipeDetailRepository
 }

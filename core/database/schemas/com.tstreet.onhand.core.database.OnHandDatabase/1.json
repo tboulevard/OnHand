@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "cb1db44249eb3976f84d9ebafc7c5325",
+    "identityHash": "2b97231a3e24df9af70f75f0eb2f159c",
     "entities": [
       {
         "tableName": "ingredient_catalog",
@@ -35,12 +35,38 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "saved_recipes",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `sourceUrl` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceUrl",
+            "columnName": "sourceUrl",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cb1db44249eb3976f84d9ebafc7c5325')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2b97231a3e24df9af70f75f0eb2f159c')"
     ]
   }
 }

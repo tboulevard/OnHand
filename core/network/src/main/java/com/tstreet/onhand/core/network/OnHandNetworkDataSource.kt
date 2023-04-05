@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface OnHandNetworkDataSource {
     fun getIngredients(prefix: String): List<NetworkIngredient>
 
-    fun getRecipesFromIngredients(ingredients : List<String>) : Flow<List<NetworkRecipe>>
+    suspend fun findRecipesFromIngredients(ingredients : List<String>) : List<NetworkRecipe>
 
     fun getRecipeDetail(id: Int) : Flow<NetworkRecipeDetail>
 }

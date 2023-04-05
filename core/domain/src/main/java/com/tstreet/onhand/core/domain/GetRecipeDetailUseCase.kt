@@ -1,14 +1,14 @@
 package com.tstreet.onhand.core.domain
 
 import com.tstreet.onhand.core.common.UseCase
-import com.tstreet.onhand.core.data.repository.RecipeDetailRepository
+import com.tstreet.onhand.core.data.repository.RecipeRepository
 import com.tstreet.onhand.core.model.RecipeDetail
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Provider
 
 class GetRecipeDetailUseCase @Inject constructor(
-    private val repository : Provider<RecipeDetailRepository>
+    private val repository : Provider<RecipeRepository>
 ) : UseCase() {
 
     operator fun invoke(id: Int): Flow<RecipeDetail> {

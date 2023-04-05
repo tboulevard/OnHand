@@ -25,6 +25,9 @@ class IngredientSearchViewModel @Inject constructor(
     private val removeFromPantry: Provider<RemoveFromPantryUseCase>,
     private val getPantry: Provider<GetPantryUseCase>,
     // TODO: leaving around as an example...
+    // Use these dispatchers for things like DB operations that we want to outlive this viewmodel's
+    // context.
+    // viewModelScope only used for UI related stuff? Research
     @Named(IO) private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 

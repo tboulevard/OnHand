@@ -9,3 +9,8 @@ class Recipe(
     val missedIngredientCount: Int,
     val likes: Int
 )
+
+data class SaveableRecipe(
+    val recipe: Recipe,
+    val isSaved: Boolean,
+)
