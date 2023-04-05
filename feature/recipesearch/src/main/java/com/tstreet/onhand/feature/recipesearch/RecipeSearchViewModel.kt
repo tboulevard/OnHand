@@ -27,8 +27,9 @@ class RecipeSearchViewModel @Inject constructor(
 
 
     private val _sortOrder = MutableStateFlow(DEFAULT_SORTING)
+
     @OptIn(ExperimentalCoroutinesApi::class)
-    val sortOrder : StateFlow<SortBy> = _sortOrder
+    val sortOrder: StateFlow<SortBy> = _sortOrder
         .flatMapLatest {
             getRecipes.get().invoke(it)
         }
@@ -59,10 +60,19 @@ class RecipeSearchViewModel @Inject constructor(
             //  mutable states visible to only one thread
             val recipe = _recipes[index]
             val isSaved = recipe.isSaved
-            // TODO: What if this call fails? UI state will not reflect DB state.
-            // TODO: moreover...how to be transmit the state of whether the save succeeded to UI?
-            saveRecipe.get().invoke(_recipes[index])
-            _recipes[index] = recipe.copy(isSaved = !isSaved)
+            saveRecipe.get().invoke(recipe).collect {
+                when (it) {
+                    // When the save is successful, change the UI state.
+                    true -> {
+                        println("[OnHand] Recipe save successful, updating UI")
+                        _recipes[index] = recipe.copy(isSaved = !isSaved)
+                    }
+                    else -> {
+                        // TODO: todo better error handling
+                        println("[OnHand] Recipe save unsuccessful, there was an exception")
+                    }
+                }
+            }
         }
     }
 

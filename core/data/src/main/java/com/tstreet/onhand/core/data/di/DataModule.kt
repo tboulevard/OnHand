@@ -26,7 +26,7 @@ interface DataModule {
     @Binds
     @Singleton
     fun bindsRecipeSearchRepository(
-        recipeSearchRepository: OnlineFirstRecipeRepository
+        recipeSearchRepository: RecipeRepositoryImpl
     ): RecipeRepository
 
     @Binds

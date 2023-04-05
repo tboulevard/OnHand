@@ -1,18 +1,12 @@
 package com.tstreet.onhand.core.domain
 
-import com.tstreet.onhand.core.common.CommonModule
 import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.common.UseCase
 import com.tstreet.onhand.core.data.repository.RecipeRepository
-import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.model.SaveableRecipe
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.invoke
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Provider
@@ -23,22 +17,21 @@ class SaveRecipeUseCase @Inject constructor(
     @Named(IO) private val ioDispatcher: CoroutineDispatcher
 ) : UseCase() {
 
-    // TODO: Propagate boolean (as return value here) and catch any DB exception to prevent crashes?
-    suspend operator fun invoke(saveableRecipe: SaveableRecipe) {
+    // TODO: Model state using an object (Success/Failure) rather than boolean?
+    operator fun invoke(saveableRecipe: SaveableRecipe): Flow<Boolean> {
         println("[OnHand] SaveRecipeUseCase invoke: $saveableRecipe")
-        when (saveableRecipe.isSaved) {
-            true -> {
-                repository.get().unSaveRecipe(saveableRecipe.recipe.id)
+        return repository
+            .get()
+            .getRecipeDetail(saveableRecipe.recipe.id)
+            .map {
+                repository.get().saveRecipe(it)
+                true
             }
-            false -> {
-                repository
-                    .get()
-                    .getRecipeDetail(saveableRecipe.recipe.id)
-                    .flowOn(ioDispatcher)
-                    .collect {
-                        repository.get().saveRecipe(it)
-                    }
+            .flowOn(ioDispatcher)
+            .catch {
+                // TODO: better error handling, and make sure this actually works.
+                println("[OnHand] Error saving $saveableRecipe to database. Error=${it.message}")
+                emit(false)
             }
-        }
     }
 }

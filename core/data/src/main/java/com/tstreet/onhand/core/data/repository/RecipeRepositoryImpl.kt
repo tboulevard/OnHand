@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Provider
 
-class OnlineFirstRecipeRepository @Inject constructor(
+class RecipeRepositoryImpl @Inject constructor(
     private val onHandNetworkDataSource: Provider<OnHandNetworkDataSource>,
     private val savedRecipeDao: Provider<SavedRecipeDao>
 ) : RecipeRepository {
@@ -22,7 +22,7 @@ class OnlineFirstRecipeRepository @Inject constructor(
         println("[OnHand] Creating ${this.javaClass.simpleName}")
     }
 
-    override suspend fun findRecipes(ingredients: List<String>): List<SaveableRecipe> {
+    override suspend fun findRecipes(ingredients: List<String>): List<Recipe> {
         return onHandNetworkDataSource
             .get()
             .findRecipesFromIngredients(ingredients)
@@ -44,9 +44,16 @@ class OnlineFirstRecipeRepository @Inject constructor(
     }
 
     override suspend fun unSaveRecipe(id: Int) {
-        println("[OnHand] Delete recipe called for recipeId= $id")
+        println("[OnHand] Delete recipe called for recipeId=$id")
         savedRecipeDao
             .get()
             .deleteRecipe(id)
+    }
+
+    override suspend fun isRecipeSaved(id: Int): Boolean {
+        println("[OnHand] Checking if recipe with recipeId=$id saved already")
+        return savedRecipeDao
+            .get()
+            .isRecipeSaved(id) == 1
     }
 }

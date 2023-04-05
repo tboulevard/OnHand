@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface RecipeRepository {
     // TODO: look into whether API can accept list of ids instead of strings
-    suspend fun findRecipes(ingredients: List<String>): List<SaveableRecipe>
+    suspend fun findRecipes(ingredients: List<String>): List<Recipe>
 
     fun getRecipeDetail(id: Int): Flow<RecipeDetail>
 
@@ -17,21 +17,20 @@ interface RecipeRepository {
     suspend fun saveRecipe(recipeDetail: RecipeDetail)
 
     suspend fun unSaveRecipe(id: Int)
+
+    suspend fun isRecipeSaved(id: Int): Boolean
 }
 
 // TODO: move to more appropriate spot
 fun NetworkRecipe.asExternalModel() =
-    SaveableRecipe(
-        Recipe(
-            id = id,
-            title = title,
-            image = image,
-            imageType = imageType,
-            usedIngredientCount = usedIngredientCount,
-            missedIngredientCount = missedIngredientCount,
-            likes = likes
-        ),
-        isSaved = false
+    Recipe(
+        id = id,
+        title = title,
+        image = image,
+        imageType = imageType,
+        usedIngredientCount = usedIngredientCount,
+        missedIngredientCount = missedIngredientCount,
+        likes = likes
     )
 
 // TODO: move to more appropriate spot

@@ -25,6 +25,15 @@ class GetRecipesUseCase @Inject constructor(
         val recipes = getPantryIngredients()
             .map { ingredients ->
                 val recipes = recipeRepository.get().findRecipes(ingredients)
+                    .map { recipe ->
+                        // TODO: make this a bulk operation -- many segmented DB reads this way
+                        val isRecipeSaved = recipeRepository.get().isRecipeSaved(recipe.id)
+                        SaveableRecipe(
+                            recipe = recipe,
+                            isSaved = isRecipeSaved
+                        )
+                    }
+
                 when (sortBy) {
                     POPULARITY -> recipes.sortedByDescending { it.recipe.likes }
                     MISSING_INGREDIENTS -> recipes.sortedBy { it.recipe.missedIngredientCount }

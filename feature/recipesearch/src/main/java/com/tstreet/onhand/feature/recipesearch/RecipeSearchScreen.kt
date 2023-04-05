@@ -30,7 +30,6 @@ fun RecipeSearchScreen(
     navController: NavController,
     viewModel: RecipeSearchViewModel
 ) {
-    // TODO: use collectAsStateWithLifecycle instead, but research why first
     val uiState by viewModel.uiState.collectAsState()
     val sortOrder by viewModel.sortOrder.collectAsState()
 

@@ -11,6 +11,9 @@ interface SavedRecipeDao {
     @Insert
     suspend fun addRecipe(recipe: SavedRecipeEntity)
 
-    @Query("DELETE FROM ingredient_catalog WHERE id = :id")
+    @Query("SELECT 1 from saved_recipes WHERE id = :id")
+    suspend fun isRecipeSaved(id: Int): Int
+
+    @Query("DELETE FROM saved_recipes WHERE id = :id")
     suspend fun deleteRecipe(id: Int)
 }
