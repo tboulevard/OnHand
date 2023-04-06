@@ -2,6 +2,7 @@ package com.tstreet.onhand.core.domain
 
 import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.FeatureScope
+import com.tstreet.onhand.core.common.PantryStateManager
 import com.tstreet.onhand.core.common.UseCase
 import com.tstreet.onhand.core.data.repository.PantryRepository
 import com.tstreet.onhand.core.data.repository.RecipeRepository
@@ -22,7 +23,8 @@ import javax.inject.Provider
 class GetRecipesUseCase @Inject constructor(
     private val recipeRepository: Provider<RecipeRepository>,
     private val pantryRepository: Provider<PantryRepository>,
-    @Named(IO) private val ioDispatcher: CoroutineDispatcher
+    private val pantryStateManager: Provider<PantryStateManager>,
+    @Named(IO) private val ioDispatcher: CoroutineDispatcher,
 ) : UseCase() {
 
     operator fun invoke(sortBy: SortBy = DEFAULT_SORTING): Flow<List<SaveableRecipe>> {
@@ -32,6 +34,8 @@ class GetRecipesUseCase @Inject constructor(
                 when (sortBy) {
                     POPULARITY -> recipes.sortedByDescending { it.recipe.likes }
                     MISSING_INGREDIENTS -> recipes.sortedBy { it.recipe.missedIngredientCount }
+                }.also {
+                    pantryStateManager.get().onResetPantryState()
                 }
             }
 
