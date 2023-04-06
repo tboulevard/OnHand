@@ -20,7 +20,7 @@ sealed interface RecipeSearchUiState {
 enum class RecipeSaveState {
     SAVED,
     NOT_SAVED,
-    LOADING
+    SAVING
 }
 
 data class RecipeSearchItem(

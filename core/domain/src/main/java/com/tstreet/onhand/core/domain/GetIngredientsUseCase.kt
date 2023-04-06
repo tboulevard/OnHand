@@ -7,6 +7,9 @@ import com.tstreet.onhand.core.model.Ingredient
 import javax.inject.Inject
 import javax.inject.Provider
 
+// TODO: for some reason this scope isn't needed to bind use case to view lifecycle...is it
+// TODO: because [IngredientSearchComponent] already specifies this? Either way, keeping
+// TODO: here to be pedantic...
 @FeatureScope
 class GetIngredientsUseCase @Inject constructor(
     private val repository: Provider<IngredientSearchRepository>

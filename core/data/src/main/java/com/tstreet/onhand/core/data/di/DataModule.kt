@@ -18,7 +18,7 @@ import javax.inject.Singleton
 interface DataModule {
 
     @Binds
-    // TODO: scope annotations at the module level seem to do nothing and are only
+    // TODO: scope annotations at the module level seems to do nothing and are only
     //  needed at the class level? Look into later
     @Singleton
     fun bindsIngredientSearchRepository(
@@ -26,7 +26,7 @@ interface DataModule {
     ): IngredientSearchRepository
 
     @Binds
-    // TODO: scope annotations at the module level seem to do nothing and are only
+    // TODO: scope annotations at the module level seems to do nothing and are only
     //  needed at the class level? Look into later
     @Singleton
     fun bindsRecipeSearchRepository(
@@ -34,7 +34,7 @@ interface DataModule {
     ): RecipeRepository
 
     @Binds
-    // TODO: scope annotations at the module level seem to do nothing and are only
+    // TODO: scope annotations at the module level seems to do nothing and are only
     //  needed at the class level? Look into later
     @Singleton
     fun bindsPantryRepository(

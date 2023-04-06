@@ -10,7 +10,7 @@ import javax.inject.Singleton
 object DaosModule {
 
     @Provides
-    // TODO: having scope annotation here works - this is different than in the DataModule.
+    // TODO: having scope annotation here works - this is different than in DataModule
     //  There we pleace scope annotations at the class level. Look into why later...
     @Singleton
     fun providesIngredientDao(

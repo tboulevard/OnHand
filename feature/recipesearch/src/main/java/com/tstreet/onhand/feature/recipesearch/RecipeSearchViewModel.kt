@@ -58,7 +58,7 @@ class RecipeSearchViewModel @Inject constructor(
         viewModelScope.launch {
             val item = _recipes[index]
             // Mark the recipe as saving
-            _recipes[index] = item.copy(recipeSaveState = LOADING)
+            _recipes[index] = item.copy(recipeSaveState = SAVING)
             // Save the recipe
             saveRecipe.get().invoke(item.saveableRecipe).collect {
                 when (it) {

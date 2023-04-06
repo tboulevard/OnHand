@@ -215,7 +215,7 @@ fun RecipeSearchCardItem(
                                 .clickable { onSaveClick(index) },
                         )
                     }
-                    LOADING -> {
+                    SAVING -> {
                         OnHandProgressIndicator(modifier = Modifier.size(36.dp))
                     }
                 }

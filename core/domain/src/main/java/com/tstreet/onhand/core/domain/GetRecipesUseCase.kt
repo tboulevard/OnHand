@@ -42,6 +42,9 @@ class GetRecipesUseCase @Inject constructor(
         return recipeRepository.get().findRecipes(ingredientNames)
             .map { recipe ->
                 // TODO: make this a bulk operation -- many segmented DB reads this way
+                //  Also - this is retriggered when we sort for each element in list; unnecessary
+                //  if list contents haven't changed. Look into caching the results to re-use
+                //  specifically for sorting
                 val isRecipeSaved = recipeRepository.get().isRecipeSaved(recipe.id)
                 SaveableRecipe(
                     recipe = recipe,
