@@ -41,7 +41,7 @@ class RecipeSearchViewModel @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = DEFAULT_SORTING
+            initialValue = _sortOrder.value
         )
 
     private val _uiState = MutableStateFlow<RecipeSearchUiState>(RecipeSearchUiState.Loading)
@@ -57,6 +57,7 @@ class RecipeSearchViewModel @Inject constructor(
         //  mutable states visible to only one thread
         viewModelScope.launch {
             val item = _recipes[index]
+            val saveState = item.recipeSaveState
             // Mark the recipe as saving
             _recipes[index] = item.copy(recipeSaveState = SAVING)
             // Save the recipe
@@ -64,7 +65,6 @@ class RecipeSearchViewModel @Inject constructor(
                 when (it) {
                     // When save is successful, update UI state
                     true -> {
-                        // TODO: this logic can be consolidated, do it in the unsave impl PR
                         _recipes[index] = item.copy(
                             recipeSaveState = SAVED
                         )
@@ -75,8 +75,9 @@ class RecipeSearchViewModel @Inject constructor(
                             "[OnHand] Recipe save unsuccessful, there was an exception - " +
                                     "recipe not saved"
                         )
+                        // Retain the previous save state on error
                         _recipes[index] = item.copy(
-                            recipeSaveState = NOT_SAVED
+                            recipeSaveState = saveState
                         )
                     }
                 }
@@ -87,13 +88,11 @@ class RecipeSearchViewModel @Inject constructor(
     fun onRecipeUnsaved(index: Int) {
         viewModelScope.launch {
             val item = _recipes[index]
-
             // Just unsave the recipe - no loading indicator
             unsaveRecipe.get().invoke(item.saveableRecipe).collect {
                 when (it) {
                     // When the unsave is successful, update UI state
                     true -> {
-                        // TODO: this logic can be consolidated, do it in the unsave impl PR
                         _recipes[index] = item.copy(
                             recipeSaveState = NOT_SAVED
                         )
@@ -103,9 +102,6 @@ class RecipeSearchViewModel @Inject constructor(
                         println(
                             "[OnHand] Recipe unsave unsuccessful, there was an exception - " +
                                     "recipe not removed from DB"
-                        )
-                        _recipes[index] = item.copy(
-                            recipeSaveState = SAVED
                         )
                     }
                 }

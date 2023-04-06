@@ -27,7 +27,6 @@ fun Navigation() {
         // Note: each composable { } block is triggered for each recomposition (potentially as
         // often each new frame). Revisit whether this is a performance issue later.
         composable(route = Screen.IngredientSearch.route) {
-            println("[OnHand] Navigating to search screen")
             IngredientSearchScreen(
                 navController,
                 injectedViewModel {
@@ -41,7 +40,6 @@ fun Navigation() {
             )
         }
         composable(route = Screen.RecipeSearch.route) {
-            println("[OnHand] Navigating to recipe result screen")
             // TODO: come back to issue described here ... https://github.com/google/dagger/issues/3188
             // TODO: for some reason this broke when we upgraded compose version
             RecipeSearchScreen(
@@ -59,7 +57,6 @@ fun Navigation() {
             route = "${Screen.RecipeDetail.route}/{$RECIPE_ID_NAV_KEY}",
             arguments = listOf(navArgument(RECIPE_ID_NAV_KEY) { type = NavType.IntType })
         ) {
-            println("[OnHand] Navigating to recipe detail screen")
             val recipeId = it.arguments?.getInt(RECIPE_ID_NAV_KEY) ?: INVALID_RECIPE_ID
             RecipeDetailScreen(
                 injectedViewModel {
