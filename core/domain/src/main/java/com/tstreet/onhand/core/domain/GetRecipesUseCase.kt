@@ -24,7 +24,7 @@ class GetRecipesUseCase @Inject constructor(
     private val recipeRepository: Provider<RecipeRepository>,
     private val pantryRepository: Provider<PantryRepository>,
     private val pantryStateManager: Provider<PantryStateManager>,
-    @Named(IO) private val ioDispatcher: CoroutineDispatcher
+    @Named(IO) private val ioDispatcher: CoroutineDispatcher,
 ) : UseCase() {
 
     operator fun invoke(sortBy: SortBy = DEFAULT_SORTING): Flow<List<SaveableRecipe>> {

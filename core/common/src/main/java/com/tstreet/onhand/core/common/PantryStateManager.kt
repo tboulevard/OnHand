@@ -6,7 +6,6 @@ import com.tstreet.onhand.core.common.CommonModule.SHARED_PREF_FILE
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Named
-import javax.inject.Singleton
 
 // TODO: Does this belong in the common module?
 interface PantryStateManager {
@@ -28,10 +27,13 @@ interface PantryStateManager {
     fun onResetPantryState()
 }
 
-@Singleton
 class PantryStateManagerImpl @Inject constructor(
     @Named(SHARED_PREF_FILE) private val sharedPreferences: SharedPreferences
 ) : PantryStateManager {
+
+    init {
+        println("[OnHand] Creating ${this.javaClass.simpleName}")
+    }
 
     // Default to true to eagerly say pantry state has updated in case of error
     private val pantryStateChanged =
@@ -42,6 +44,7 @@ class PantryStateManagerImpl @Inject constructor(
     }
 
     override fun onPantryStateChange() {
+        // So we only trigger saving to shared prefs once per state change
         if (!pantryStateChanged.getAndSet(true)) {
             sharedPreferences.edit {
                 putBoolean(PANTRY_STATE_KEY, pantryStateChanged.get())
@@ -51,6 +54,7 @@ class PantryStateManagerImpl @Inject constructor(
     }
 
     override fun onResetPantryState() {
+        // So we only trigger saving to shared prefs once per reset
         if (pantryStateChanged.getAndSet(false)) {
             sharedPreferences.edit {
                 putBoolean(PANTRY_STATE_KEY, pantryStateChanged.get())

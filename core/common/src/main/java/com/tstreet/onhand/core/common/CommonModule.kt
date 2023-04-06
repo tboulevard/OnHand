@@ -21,7 +21,6 @@ object CommonModule {
     fun provideIODispatcher(): CoroutineDispatcher = Dispatchers.IO
 
     @Provides
-    @Singleton
     @Named(SHARED_PREF_FILE)
     fun provideSharedPreferences(context: Context): SharedPreferences {
         return context.getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE)
