@@ -2,7 +2,6 @@ package com.tstreet.onhand.core.ui
 
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
-import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.model.SaveableRecipe
 
 sealed interface RecipeSearchUiState {

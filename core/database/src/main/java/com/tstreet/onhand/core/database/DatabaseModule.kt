@@ -9,7 +9,6 @@ import javax.inject.Singleton
 @Module
 object DatabaseModule {
 
-    // TODO: check when this is created, i.e. how early in lifecycle
     @Provides
     @Singleton
     fun providesOnHandDatabase(
