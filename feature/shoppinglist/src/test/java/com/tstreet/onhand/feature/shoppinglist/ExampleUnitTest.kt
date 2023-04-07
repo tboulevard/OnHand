@@ -1,4 +1,4 @@
-package com.tstreet.onhand.feature.pantry
+package com.tstreet.onhand.feature.shoppinglist
 
 import org.junit.Test
 

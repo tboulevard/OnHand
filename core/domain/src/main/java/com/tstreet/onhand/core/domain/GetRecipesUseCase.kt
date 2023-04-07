@@ -31,13 +31,15 @@ class GetRecipesUseCase @Inject constructor(
     operator fun invoke(sortBy: SortBy = DEFAULT_SORTING): Flow<List<SaveableRecipe>> {
         val recipes = getPantryIngredients()
             .map { ingredients ->
-                val recipes = findSaveableRecipes(ingredients)
-                when (sortBy) {
-                    POPULARITY -> recipes.sortedByDescending { it.recipe.likes }
-                    MISSING_INGREDIENTS -> recipes.sortedBy { it.recipe.missedIngredientCount }
-                }.also {
-                    pantryStateManager.get().onResetPantryState()
-                }
+                if (ingredients.isNotEmpty()) {
+                    val recipes = findSaveableRecipes(ingredients)
+                    when (sortBy) {
+                        POPULARITY -> recipes.sortedByDescending { it.recipe.likes }
+                        MISSING_INGREDIENTS -> recipes.sortedBy { it.recipe.missedIngredientCount }
+                    }.also {
+                        pantryStateManager.get().onResetPantryState()
+                    }
+                } else { emptyList() }
             }
 
         return recipes.flowOn(ioDispatcher)

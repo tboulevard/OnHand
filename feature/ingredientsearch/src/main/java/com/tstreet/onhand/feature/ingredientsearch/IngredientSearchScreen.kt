@@ -72,21 +72,6 @@ fun IngredientSearchScreen(
                 )
             }
         }
-
-        // Find Recipes Button
-        Button(
-            onClick = {
-                navController.navigate("recipe_search")
-            },
-            modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .fillMaxWidth()
-        ) {
-            Text(
-                text = "Find Recipes",
-                style = MaterialTheme.typography.labelMedium
-            )
-        }
     }
 }
 

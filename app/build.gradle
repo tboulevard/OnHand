@@ -61,7 +61,7 @@ dependencies {
     // TODO: revisit if app module should depend on feature module
     // Feature modules we want to take a dependency on
     implementation project(path: ':feature:ingredientsearch')
-    implementation project(path: ':feature:pantry')
+    implementation project(path: ':feature:shoppinglist')
     implementation project(path: ':feature:recipesearch')
     implementation project(path: ':feature:recipedetail')
 
