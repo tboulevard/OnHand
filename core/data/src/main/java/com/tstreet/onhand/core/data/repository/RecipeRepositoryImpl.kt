@@ -32,7 +32,7 @@ class RecipeRepositoryImpl @Inject constructor(
     ): List<Recipe> {
         println("[OnHand] findRecipes($fetchStrategy, $ingredients)")
 
-        // TODO: this would be much cleaner with a Flow<>, look into before merging PR
+        // TODO: this might be cleaner if we deal with just Flows here
         return when (fetchStrategy) {
             FetchStrategy.DATABASE -> {
                 recipeSearchCacheDao

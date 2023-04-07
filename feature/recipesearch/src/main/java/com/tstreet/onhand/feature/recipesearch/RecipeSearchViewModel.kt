@@ -21,7 +21,7 @@ class RecipeSearchViewModel @Inject constructor(
 ) : ViewModel() {
 
     init {
-        println("[OnHand] Creating ${this.javaClass.simpleName}")
+        println("[OnHand] ${this.javaClass.simpleName} created")
     }
 
     private val _sortOrder = MutableStateFlow(DEFAULT_SORTING)

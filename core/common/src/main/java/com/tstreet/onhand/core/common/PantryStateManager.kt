@@ -32,7 +32,7 @@ class PantryStateManagerImpl @Inject constructor(
 ) : PantryStateManager {
 
     init {
-        println("[OnHand] Creating ${this.javaClass.simpleName}")
+        println("[OnHand] ${this.javaClass.simpleName} created")
     }
 
     // Default to true to eagerly say pantry state has updated in case of error
@@ -50,6 +50,7 @@ class PantryStateManagerImpl @Inject constructor(
                 putBoolean(PANTRY_STATE_KEY, pantryStateChanged.get())
                 commit()
             }
+            println("[OnHand] Pantry state changed")
         }
     }
 
@@ -60,6 +61,7 @@ class PantryStateManagerImpl @Inject constructor(
                 putBoolean(PANTRY_STATE_KEY, pantryStateChanged.get())
                 commit()
             }
+            println("[OnHand] Pantry state reset")
         }
     }
 }

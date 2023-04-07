@@ -4,6 +4,6 @@ package com.tstreet.onhand.core.common
 // Represents an invokable use case in the domain layer of app
 abstract class UseCase {
     init {
-        println("[OnHand] Creating ${this.javaClass.simpleName}")
+        println("[OnHand] ${this.javaClass.simpleName} created")
     }
 }
