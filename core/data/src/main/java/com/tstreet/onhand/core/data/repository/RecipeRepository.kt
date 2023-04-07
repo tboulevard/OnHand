@@ -1,6 +1,7 @@
 package com.tstreet.onhand.core.data.repository
 
 import com.tstreet.onhand.core.common.FetchStrategy
+import com.tstreet.onhand.core.database.model.SavedRecipeEntity
 import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.model.RecipeDetail
 import com.tstreet.onhand.core.network.model.NetworkRecipe
@@ -35,6 +36,13 @@ fun NetworkRecipe.asExternalModel() =
 
 // TODO: move to more appropriate spot
 fun NetworkRecipeDetail.asExternalModel() = RecipeDetail(
+    id = id,
+    // TODO: Determine whether it's best to just transmit an empty src url or some other state
+    sourceUrl = sourceUrl ?: EMPTY_SOURCE_URL
+)
+
+// TODO: move to more appropriate spot
+fun SavedRecipeEntity.asExternalModel() = RecipeDetail(
     id = id,
     // TODO: Determine whether it's best to just transmit an empty src url or some other state
     sourceUrl = sourceUrl ?: EMPTY_SOURCE_URL
