@@ -44,16 +44,28 @@ fun RecipeSearchScreen(
                 OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
             }
             is Success -> {
-                SortBySpinner(
-                    sortOrder,
-                    viewModel::onSortOrderChanged
-                )
-                RecipeSearchCardList(
-                    recipes = state.recipes,
-                    onItemClick = navController::navigate,
-                    onSaveClick = viewModel::onRecipeSaved,
-                    onUnSaveClick = viewModel::onRecipeUnsaved
-                )
+                when (state.recipes.isNotEmpty()) {
+                    true -> {
+                        SortBySpinner(
+                            sortOrder,
+                            viewModel::onSortOrderChanged
+                        )
+                        RecipeSearchCardList(
+                            recipes = state.recipes,
+                            onItemClick = navController::navigate,
+                            onSaveClick = viewModel::onRecipeSaved,
+                            onUnSaveClick = viewModel::onRecipeUnsaved
+                        )
+                    }
+                    else -> {
+                        Text(
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            text = "Add ingredients to your pantry to see recipes",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
             }
             is Error -> {
                 FullScreenErrorMessage(message = state.message)
@@ -189,7 +201,10 @@ fun RecipeSearchCardItem(
                     text = "${card.missedIngredients} ingredients missed",
                     style = MaterialTheme.typography.bodyMedium
                 )
-                Text(text = "${card.likes} likes", style = MaterialTheme.typography.bodySmall)
+                Text(
+                    text = "${card.likes} likes",
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
             Column(
                 modifier = Modifier.align(Alignment.CenterVertically)

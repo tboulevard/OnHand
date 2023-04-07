@@ -6,6 +6,11 @@ import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.ui.graphics.vector.ImageVector
 
+<<<<<<< Updated upstream
+=======
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
 sealed class BottomNavigationScreen(
     val route: String,
     val displayText: String,
@@ -30,8 +35,21 @@ sealed class BottomNavigationScreen(
     )
 }
 
+<<<<<<< Updated upstream
 sealed class Screen(
     val route: String
 ) {
+=======
+val BottomNavigationScreens = listOf(
+    BottomNavigationScreen.IngredientSearch,
+    BottomNavigationScreen.RecipeSearch,
+    BottomNavigationScreen.ShoppingList
+)
+
+sealed class Screen(
+    val route: String
+) {
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
     object RecipeDetail : Screen("recipe_detail")
 }

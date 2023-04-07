@@ -29,16 +29,25 @@ import com.tstreet.onhand.feature.recipesearch.di.DaggerRecipeSearchComponent
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
+<<<<<<< Updated upstream
+=======
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
 
     Scaffold(
         bottomBar = {
             OnHandBottomNavigationBar(
                 navController,
+<<<<<<< Updated upstream
                 listOf(
                     BottomNavigationScreen.IngredientSearch,
                     BottomNavigationScreen.RecipeSearch,
                     BottomNavigationScreen.ShoppingList
                 )
+=======
+                BottomNavigationScreens
+>>>>>>> Stashed changes
             )
         }
     ) { padding ->
@@ -54,6 +63,10 @@ fun Navigation() {
 private fun NavigationConfiguration(
     navController: NavHostController
 ) {
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
     val dataProvider = LocalDataProvider.current
     val commonProvider = LocalCommonProvider.current
 
