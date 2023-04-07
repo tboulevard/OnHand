@@ -2,6 +2,7 @@ package com.tstreet.onhand.core.domain
 
 import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.FeatureScope
+import com.tstreet.onhand.core.common.FetchStrategy
 import com.tstreet.onhand.core.common.PantryStateManager
 import com.tstreet.onhand.core.common.UseCase
 import com.tstreet.onhand.core.data.repository.PantryRepository
@@ -43,18 +44,21 @@ class GetRecipesUseCase @Inject constructor(
     }
 
     private suspend fun findSaveableRecipes(ingredientNames: List<String>): List<SaveableRecipe> {
-        return recipeRepository.get().findRecipes(ingredientNames)
-            .map { recipe ->
-                // TODO: make this a bulk operation -- many segmented DB reads this way
-                //  Also - this is retriggered when we sort for each element in list; unnecessary
-                //  if list contents haven't changed. Look into caching the results to re-use
-                //  specifically for sorting
-                val isRecipeSaved = recipeRepository.get().isRecipeSaved(recipe.id)
-                SaveableRecipe(
-                    recipe = recipe,
-                    isSaved = isRecipeSaved
-                )
-            }
+        // TODO: handle empty ingredient list (don't make network call)
+        return recipeRepository.get().findRecipes(
+            fetchStrategy = getFetchStrategy(),
+            ingredients = ingredientNames
+        ).map { recipe ->
+            // TODO: make this a bulk operation -- many segmented DB reads this way
+            //  Also - this is retriggered when we sort for each element in list; unnecessary
+            //  if list contents haven't changed. Look into caching the results to re-use
+            //  specifically for sorting
+            val isRecipeSaved = recipeRepository.get().isRecipeSaved(recipe.id)
+            SaveableRecipe(
+                recipe = recipe,
+                isSaved = isRecipeSaved
+            )
+        }
     }
 
     private fun getPantryIngredients(): Flow<List<String>> {
@@ -68,6 +72,12 @@ class GetRecipesUseCase @Inject constructor(
                     }
             }
     }
+
+    private fun getFetchStrategy() =
+        when (pantryStateManager.get().hasPantryStateChanged()) {
+            true -> FetchStrategy.NETWORK
+            false -> FetchStrategy.DATABASE
+        }
 }
 
 enum class SortBy {

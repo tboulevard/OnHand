@@ -1,5 +1,6 @@
 package com.tstreet.onhand.core.data.repository
 
+import com.tstreet.onhand.core.common.FetchStrategy
 import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.model.RecipeDetail
 import com.tstreet.onhand.core.network.model.NetworkRecipe
@@ -8,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface RecipeRepository {
     // TODO: look into whether API can accept list of ids instead of strings
-    suspend fun findRecipes(ingredients: List<String>): List<Recipe>
+    suspend fun findRecipes(fetchStrategy: FetchStrategy, ingredients: List<String>): List<Recipe>
 
     fun getRecipeDetail(id: Int): Flow<RecipeDetail>
 
