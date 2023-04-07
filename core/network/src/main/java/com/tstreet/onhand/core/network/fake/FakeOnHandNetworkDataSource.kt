@@ -99,7 +99,7 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
                 ),
                 likes = 9999
             ), NetworkRecipe(
-                id = 10,
+                id = 100,
                 title = "Tomato Soup",
                 image = "tomato-soup.jpg",
                 imageType = "jpg",
@@ -107,7 +107,7 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
                 missedIngredientCount = 2,
                 usedIngredients = listOf(
                     NetworkRecipeSearchIngredient(
-                        id = 12,
+                        id = 120,
                         amount = 1.0,
                         unit = "serving",
                         unitLong = "serving",
@@ -122,7 +122,7 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
                 ),
                 missedIngredients = listOf(
                     NetworkRecipeSearchIngredient(
-                        id = 20,
+                        id = 200,
                         amount = 4.0,
                         unit = "cup",
                         unitLong = "cups",
@@ -138,7 +138,7 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
                 unusedIngredients = listOf(),
                 likes = 20
             ), NetworkRecipe(
-                id = 10,
+                id = 1000,
                 title = "Cheese Steak",
                 image = "cheese-steak.jpg",
                 imageType = "jpg",

@@ -35,7 +35,7 @@ class IngredientSearchViewModel @Inject constructor(
     val ingredients = mutableStateListOf<Ingredient>()
 
     init {
-        println("[OnHand] Creating ${this.javaClass.simpleName}")
+        println("[OnHand] ${this.javaClass.simpleName} created")
         refreshPantry()
     }
 

@@ -1,6 +1,10 @@
 package com.tstreet.onhand.core.data.repository
 
+import com.tstreet.onhand.core.common.FetchStrategy
+import com.tstreet.onhand.core.database.dao.RecipeSearchCacheDao
 import com.tstreet.onhand.core.database.dao.SavedRecipeDao
+import com.tstreet.onhand.core.database.model.RecipeSearchCacheEntity
+import com.tstreet.onhand.core.database.model.asExternalModel
 import com.tstreet.onhand.core.database.model.toEntity
 import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.model.RecipeDetail
@@ -14,19 +18,47 @@ import javax.inject.Provider
 
 class RecipeRepositoryImpl @Inject constructor(
     private val onHandNetworkDataSource: Provider<OnHandNetworkDataSource>,
-    private val savedRecipeDao: Provider<SavedRecipeDao>
+    private val savedRecipeDao: Provider<SavedRecipeDao>,
+    private val recipeSearchCacheDao: Provider<RecipeSearchCacheDao>,
 ) : RecipeRepository {
 
     init {
         println("[OnHand] Creating ${this.javaClass.simpleName}")
     }
 
-    override suspend fun findRecipes(ingredients: List<String>): List<Recipe> {
-        println("[OnHand] findRecipes($ingredients)")
-        return onHandNetworkDataSource
-            .get()
-            .findRecipesFromIngredients(ingredients)
-            .map(NetworkRecipe::asExternalModel)
+    override suspend fun findRecipes(
+        fetchStrategy: FetchStrategy,
+        ingredients: List<String>
+    ): List<Recipe> {
+        println("[OnHand] findRecipes($fetchStrategy, $ingredients)")
+
+        // TODO: this might be cleaner if we deal with just Flows here
+        return when (fetchStrategy) {
+            FetchStrategy.DATABASE -> {
+                recipeSearchCacheDao
+                    .get()
+                    .getRecipeSearchResult()
+                    .map(RecipeSearchCacheEntity::asExternalModel)
+            }
+            FetchStrategy.NETWORK -> {
+                val result: List<Recipe> = onHandNetworkDataSource
+                    .get()
+                    .findRecipesFromIngredients(ingredients)
+                    .map(NetworkRecipe::asExternalModel)
+
+                // TODO: this is getting kind of business logic-y too...refactor
+                //  Potentially expose each of these actions as a method and allow use case to call?
+                recipeSearchCacheDao.get().clear()
+
+                recipeSearchCacheDao
+                    .get()
+                    .addRecipeSearchResult(
+                        result.map(Recipe::toEntity)
+                    )
+
+                result
+            }
+        }
     }
 
     override fun getRecipeDetail(id: Int): Flow<RecipeDetail> {

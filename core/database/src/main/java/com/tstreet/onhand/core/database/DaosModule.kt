@@ -1,6 +1,7 @@
 package com.tstreet.onhand.core.database
 
 import com.tstreet.onhand.core.database.dao.IngredientCatalogDao
+import com.tstreet.onhand.core.database.dao.RecipeSearchCacheDao
 import com.tstreet.onhand.core.database.dao.SavedRecipeDao
 import dagger.Module
 import dagger.Provides
@@ -24,4 +25,11 @@ object DaosModule {
         database: OnHandDatabase,
     ): SavedRecipeDao = database.savedRecipeDao()
         .also { println("[OnHand] SavedRecipeDao created") }
+
+    @Provides
+    @Singleton
+    fun providesRecipeSearchCacheDao(
+        database: OnHandDatabase,
+    ): RecipeSearchCacheDao = database.recipeSearchCacheDao()
+        .also { println("[OnHand] RecipeSearchCacheDao created") }
 }
