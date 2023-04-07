@@ -1,4 +1,4 @@
-package com.tstreet.onhand.feature.pantry
+package com.tstreet.onhand.feature.shoppinglist
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

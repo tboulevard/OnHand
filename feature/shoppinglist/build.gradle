@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace 'com.tstreet.onhand.feature.pantry'
+    namespace 'com.tstreet.onhand.feature.shoppinglist'
     compileSdk 33
 
     defaultConfig {
