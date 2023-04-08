@@ -24,6 +24,8 @@ import com.tstreet.onhand.feature.recipedetail.RecipeDetailScreen
 import com.tstreet.onhand.feature.recipedetail.di.DaggerRecipeDetailComponent
 import com.tstreet.onhand.feature.recipesearch.RecipeSearchScreen
 import com.tstreet.onhand.feature.recipesearch.di.DaggerRecipeSearchComponent
+import com.tstreet.onhand.feature.shoppinglist.ShoppingListScreen
+import com.tstreet.onhand.feature.shoppinglist.di.DaggerShoppingListComponent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,7 +80,8 @@ private fun NavigationConfiguration(
             RecipeSearchScreen(
                 navController,
                 injectedViewModel {
-                    DaggerRecipeSearchComponent.builder()
+                    DaggerRecipeSearchComponent
+                        .builder()
                         .dataComponentProvider(dataProvider)
                         .commonComponentProvider(commonProvider)
                         .build()
@@ -102,7 +105,16 @@ private fun NavigationConfiguration(
             )
         }
         composable(route = BottomNavigationScreen.ShoppingList.route) {
-            /* TODO */
+            ShoppingListScreen(
+                injectedViewModel {
+                    DaggerShoppingListComponent
+                        .builder()
+                        .dataComponentProvider(dataProvider)
+                        .commonComponentProvider(commonProvider)
+                        .build()
+                        .viewModel
+                }
+            )
         }
     }
 }
