@@ -1,6 +1,9 @@
 plugins {
     id 'com.android.library'
     id 'kotlin-android'
+    // https://github.com/Kotlin/kotlinx.serialization
+    // Applies plugin we aliased in top level project buildscript (OnHand build.gradle)
+    id 'kotlinx-serialization'
 }
 
 android {
@@ -35,6 +38,7 @@ dependencies {
     implementation libs.androidx.core.ktx
     implementation libs.androidx.appcompat
     implementation libs.androidx.compose.runtime
+    implementation libs.kotlinx.serialization.json
     testImplementation libs.junit4
     androidTestImplementation libs.androidx.test.ext
     androidTestImplementation libs.androidx.test.espresso.core

@@ -1,5 +1,8 @@
 package com.tstreet.onhand.core.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 class Recipe(
     val id: Int,
     val title: String,
@@ -12,6 +15,7 @@ class Recipe(
     val likes: Int
 )
 
+@Serializable
 data class SaveableRecipe(
     val recipe: Recipe,
     val isSaved: Boolean,
