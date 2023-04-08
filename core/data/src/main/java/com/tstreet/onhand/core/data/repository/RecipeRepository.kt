@@ -2,10 +2,13 @@ package com.tstreet.onhand.core.data.repository
 
 import com.tstreet.onhand.core.common.FetchStrategy
 import com.tstreet.onhand.core.database.model.SavedRecipeEntity
+import com.tstreet.onhand.core.model.CompositeRecipe
+import com.tstreet.onhand.core.model.Ingredient
 import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.model.RecipeDetail
 import com.tstreet.onhand.core.network.model.NetworkRecipe
 import com.tstreet.onhand.core.network.model.NetworkRecipeDetail
+import com.tstreet.onhand.core.network.model.NetworkRecipeSearchIngredient
 import kotlinx.coroutines.flow.Flow
 
 interface RecipeRepository {
@@ -15,11 +18,13 @@ interface RecipeRepository {
     fun getRecipeDetail(id: Int): Flow<RecipeDetail>
 
     // TODO: model `Saveable`RecipeDetail or similar
-    suspend fun saveRecipe(recipeDetail: RecipeDetail)
+    suspend fun saveRecipe(compositeRecipe: CompositeRecipe)
 
     suspend fun unsaveRecipe(id: Int)
 
     suspend fun isRecipeSaved(id: Int): Boolean
+
+    fun getSavedRecipes() : Flow<List<CompositeRecipe>>
 }
 
 // TODO: move to more appropriate spot
@@ -30,9 +35,17 @@ fun NetworkRecipe.asExternalModel() =
         image = image,
         imageType = imageType,
         usedIngredientCount = usedIngredientCount,
+        usedIngredients = usedIngredients.map { it.asExternalModel() },
         missedIngredientCount = missedIngredientCount,
+        missedIngredients = missedIngredients.map { it.asExternalModel() },
         likes = likes
     )
+
+// TODO: move to more appropriate spot
+fun NetworkRecipeSearchIngredient.asExternalModel() = Ingredient(
+    id = id,
+    name = name
+)
 
 // TODO: move to more appropriate spot
 fun NetworkRecipeDetail.asExternalModel() = RecipeDetail(

@@ -4,6 +4,7 @@ import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.common.UseCase
 import com.tstreet.onhand.core.data.repository.RecipeRepository
+import com.tstreet.onhand.core.model.CompositeRecipe
 import com.tstreet.onhand.core.model.SaveableRecipe
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
@@ -22,8 +23,21 @@ class SaveRecipeUseCase @Inject constructor(
         return repository
             .get()
             .getRecipeDetail(saveableRecipe.recipe.id)
-            .map {
-                repository.get().saveRecipe(it)
+            .map { recipeDetail ->
+                repository.get().saveRecipe(
+                    CompositeRecipe(
+                        id = saveableRecipe.recipe.id,
+                        title = saveableRecipe.recipe.title,
+                        image = saveableRecipe.recipe.image,
+                        imageType = saveableRecipe.recipe.imageType,
+                        missedIngredients = saveableRecipe.recipe.missedIngredients,
+                        missedIngredientCount = saveableRecipe.recipe.missedIngredientCount,
+                        usedIngredients = saveableRecipe.recipe.usedIngredients,
+                        usedIngredientCount = saveableRecipe.recipe.usedIngredientCount,
+                        likes = saveableRecipe.recipe.likes,
+                        sourceUrl = recipeDetail.sourceUrl
+                    )
+                )
                 true
             }
             .flowOn(ioDispatcher)

@@ -3,10 +3,9 @@ package com.tstreet.onhand.core.data.repository
 import com.tstreet.onhand.core.common.FetchStrategy
 import com.tstreet.onhand.core.database.dao.RecipeSearchCacheDao
 import com.tstreet.onhand.core.database.dao.SavedRecipeDao
-import com.tstreet.onhand.core.database.model.RecipeSearchCacheEntity
-import com.tstreet.onhand.core.database.model.SavedRecipeEntity
+import com.tstreet.onhand.core.database.model.*
 import com.tstreet.onhand.core.database.model.asExternalModel
-import com.tstreet.onhand.core.database.model.toEntity
+import com.tstreet.onhand.core.model.CompositeRecipe
 import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.model.RecipeDetail
 import com.tstreet.onhand.core.network.OnHandNetworkDataSource
@@ -67,7 +66,7 @@ class RecipeRepositoryImpl @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun getRecipeDetail(id: Int): Flow<RecipeDetail> {
-        return flow<Boolean> {
+        return flow {
             emit(savedRecipeDao.get().isRecipeSaved(id) == 1)
         }.flatMapLatest { recipeSaved ->
             when (recipeSaved) {
@@ -76,7 +75,7 @@ class RecipeRepositoryImpl @Inject constructor(
                     savedRecipeDao
                         .get()
                         .getRecipe(id)
-                        .map(SavedRecipeEntity::asExternalModel)
+                        .map(SavedRecipeEntity::toRecipeDetail)
                 }
                 false -> {
                     println("[OnHand] getRecipeDetail($id) - from Network")
@@ -89,11 +88,11 @@ class RecipeRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun saveRecipe(recipeDetail: RecipeDetail) {
-        println("[OnHand] saveRecipe($recipeDetail)")
+    override suspend fun saveRecipe(compositeRecipe: CompositeRecipe) {
+        println("[OnHand] saveRecipe($compositeRecipe)")
         savedRecipeDao
             .get()
-            .addRecipe(recipeDetail.toEntity())
+            .addRecipe(compositeRecipe.toEntity())
     }
 
     override suspend fun unsaveRecipe(id: Int) {
@@ -108,5 +107,13 @@ class RecipeRepositoryImpl @Inject constructor(
         return savedRecipeDao
             .get()
             .isRecipeSaved(id) == 1
+    }
+
+    override fun getSavedRecipes(): Flow<List<CompositeRecipe>> {
+        println("[OnHand] getSavedRecipes()")
+        return savedRecipeDao
+            .get()
+            .getSavedRecipes()
+            .map { it.map(SavedRecipeEntity::asExternalModel) }
     }
 }
