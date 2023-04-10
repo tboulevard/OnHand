@@ -5,6 +5,7 @@ import com.tstreet.onhand.core.model.Ingredient
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.decodeFromString
+import java.io.ByteArrayOutputStream
 
 // https://developer.android.com/training/data-storage/room/referencing-data
 
@@ -27,6 +28,6 @@ class Converters {
 
     @TypeConverter
     fun fromIngredientList(ingredients: List<Ingredient>): String {
-        return Json.encodeToString(Ingredient)
+        return Json.encodeToString(ingredients)
     }
 }
