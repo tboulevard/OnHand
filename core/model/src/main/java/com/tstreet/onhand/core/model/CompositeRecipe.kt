@@ -1,13 +1,10 @@
 package com.tstreet.onhand.core.model
 
-import kotlinx.serialization.Serializable
-
 /**
  * Composite of [Recipe] and [RecipeDetail].
  *
  * Primarily used so sourceUrl and ingredients are on the same class.
  */
-@Serializable
 data class CompositeRecipe(
     // Recipe fields
     val id: Int,

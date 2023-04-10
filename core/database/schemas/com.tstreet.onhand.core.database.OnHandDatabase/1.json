@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "54194b6b6b4945ef0fe0d967ade9cc12",
+    "identityHash": "c33f941688a808a1f50ce07f7a3e88d1",
     "entities": [
       {
         "tableName": "ingredient_catalog",
@@ -112,7 +112,7 @@
       },
       {
         "tableName": "recipe_search_cache",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `title` TEXT NOT NULL, `image` TEXT NOT NULL, `imageType` TEXT NOT NULL, `missingIngredientCount` INTEGER NOT NULL, `usedIngredientCount` INTEGER NOT NULL, `sourceUrl` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `title` TEXT NOT NULL, `image` TEXT NOT NULL, `imageType` TEXT NOT NULL, `missedIngredients` TEXT NOT NULL, `missedIngredientCount` INTEGER NOT NULL, `usedIngredients` TEXT NOT NULL, `usedIngredientCount` INTEGER NOT NULL, `sourceUrl` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -139,9 +139,21 @@
             "notNull": true
           },
           {
+            "fieldPath": "missedIngredients",
+            "columnName": "missedIngredients",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
             "fieldPath": "missedIngredientCount",
-            "columnName": "missingIngredientCount",
+            "columnName": "missedIngredientCount",
             "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "usedIngredients",
+            "columnName": "usedIngredients",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -208,7 +220,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '54194b6b6b4945ef0fe0d967ade9cc12')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c33f941688a808a1f50ce07f7a3e88d1')"
     ]
   }
 }

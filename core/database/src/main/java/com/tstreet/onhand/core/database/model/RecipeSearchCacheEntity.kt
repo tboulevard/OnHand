@@ -3,6 +3,7 @@ package com.tstreet.onhand.core.database.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.tstreet.onhand.core.model.Ingredient
 import com.tstreet.onhand.core.model.Recipe
 
 @Entity(
@@ -13,7 +14,9 @@ data class RecipeSearchCacheEntity(
     @ColumnInfo(name = "title") val title: String,
     @ColumnInfo(name = "image") val image: String,
     @ColumnInfo(name = "imageType") val imageType: String,
-    @ColumnInfo(name = "missingIngredientCount") val missedIngredientCount: Int,
+    @ColumnInfo(name = "missedIngredients") val missedIngredients: List<Ingredient>,
+    @ColumnInfo(name = "missedIngredientCount") val missedIngredientCount: Int,
+    @ColumnInfo(name = "usedIngredients") val usedIngredients: List<Ingredient>,
     @ColumnInfo(name = "usedIngredientCount") val usedIngredientCount: Int,
     @ColumnInfo(name = "sourceUrl") val likes: Int
 )
@@ -24,19 +27,23 @@ fun RecipeSearchCacheEntity.asExternalModel(): Recipe {
         title = title,
         image = image,
         imageType = imageType,
+        missedIngredients = missedIngredients,
         missedIngredientCount = missedIngredientCount,
+        usedIngredients = usedIngredients,
         usedIngredientCount = usedIngredientCount,
         likes = likes
     )
 }
 
-fun Recipe.toEntity() : RecipeSearchCacheEntity {
+fun Recipe.toEntity(): RecipeSearchCacheEntity {
     return RecipeSearchCacheEntity(
         id = id,
         title = title,
         image = image,
         imageType = imageType,
+        missedIngredients = missedIngredients,
         missedIngredientCount = missedIngredientCount,
+        usedIngredients = usedIngredients,
         usedIngredientCount = usedIngredientCount,
         likes = likes
     )

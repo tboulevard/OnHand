@@ -21,6 +21,7 @@ class GetShoppingListUseCase @Inject constructor(
     @Named(IO) private val ioDispatcher: CoroutineDispatcher,
 ) : UseCase() {
 
+    // TODO: If I add to pantry the ingredient I'm missing, it won't update
     operator fun invoke(): Flow<List<ShoppingListIngredient>> {
         println("[OnHand] GetShoppingListUseCase.invoke()")
         return combine(
@@ -32,14 +33,34 @@ class GetShoppingListUseCase @Inject constructor(
                 recipes = savedRecipes
             )
         }.onEach {
-            shoppingListRepository.get().insertShoppingList(it)
+            // TODO: inserting the same ingredient from multiple recipes breaks primary key
+            //  constraint for Room and throws exception
+            //shoppingListRepository.get().insertShoppingList(it)
         }.flowOn(ioDispatcher)
     }
 
+    // TODO: Use pantry to determine if we actually have enough quantity of item later. Can do simple math in this function
     private fun getShoppingList(
         pantry: List<Ingredient>,
         recipes: List<CompositeRecipe>
     ): List<ShoppingListIngredient> {
-        return emptyList()
+        println("[OnHand] getShoppingList($pantry, $recipes)")
+
+        val shoppingList = mutableListOf<ShoppingListIngredient>()
+
+        for(recipe in recipes) {
+            shoppingList.addAll(recipe.missedIngredients.map {
+                ShoppingListIngredient(
+                    id = it.id,
+                    name = it.name,
+                    quantity = 1,
+                    unitOfMeasure = "oz",
+                    // TODO: multi recipe mappings
+                    mappedRecipes = mutableListOf(recipe)
+                )
+            })
+        }
+
+        return shoppingList
     }
 }
