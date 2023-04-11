@@ -10,6 +10,9 @@ plugins {
     id 'kotlin-kapt'
     // TODO: change the rest of the plugins in toml to follow this structure
     alias(libs.plugins.ksp)
+    // https://github.com/Kotlin/kotlinx.serialization
+    // Applies plugin we aliased in top level project buildscript (OnHand build.gradle)
+    id 'kotlinx-serialization'
 }
 
 android {
@@ -57,6 +60,7 @@ dependencies {
     ksp libs.room.compiler
     implementation libs.room.ktx
     implementation libs.room.runtime
+    implementation libs.kotlinx.serialization.json
 
     testImplementation libs.junit4
     androidTestImplementation libs.androidx.test.ext

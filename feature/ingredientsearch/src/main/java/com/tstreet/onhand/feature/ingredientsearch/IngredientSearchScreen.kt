@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.tstreet.onhand.core.model.Ingredient
+import com.tstreet.onhand.core.model.PantryIngredient
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
 import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
 
@@ -157,7 +158,7 @@ private fun IngredientSearchListItem(
 
 @Composable
 fun IngredientSearchCardList(
-    ingredients: List<Ingredient>,
+    ingredients: List<PantryIngredient>,
     onItemClick: (Int) -> Unit
 ) {
     LazyColumn(
@@ -166,11 +167,11 @@ fun IngredientSearchCardList(
     ) {
         itemsIndexed(
             items = ingredients
-        ) { index, ingredient ->
+        ) { index, item ->
             IngredientSearchListItem(
                 card = IngredientSearchCard(
-                    name = ingredient.name,
-                    inPantry = ingredient.inPantry
+                    name = item.ingredient.name,
+                    inPantry = item.inPantry
                 ),
                 index,
                 onItemClicked = onItemClick
@@ -219,7 +220,7 @@ private fun PantryListItem(
 
 @Composable
 private fun PantryCardList(
-    pantry: List<Ingredient>,
+    pantry: List<PantryIngredient>,
     onItemClick: (Int) -> Unit
 ) {
     LazyVerticalGrid(
@@ -229,11 +230,11 @@ private fun PantryCardList(
             .padding(bottom = 16.dp),
         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
     ) {
-        itemsIndexed(pantry) { index, ingredient ->
+        itemsIndexed(pantry) { index, item ->
             PantryListItem(
                 card = PantryItemCard(
-                    ingredient.name,
-                    ingredient.inPantry
+                    item.ingredient.name,
+                    item.inPantry
                 ),
                 index = index,
                 onItemClicked = onItemClick

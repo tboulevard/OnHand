@@ -1,11 +1,10 @@
 package com.tstreet.onhand.core.data.repository
 
 import com.tstreet.onhand.core.common.FetchStrategy
-import com.tstreet.onhand.core.database.model.SavedRecipeEntity
-import com.tstreet.onhand.core.model.Recipe
-import com.tstreet.onhand.core.model.RecipeDetail
+import com.tstreet.onhand.core.model.*
 import com.tstreet.onhand.core.network.model.NetworkRecipe
 import com.tstreet.onhand.core.network.model.NetworkRecipeDetail
+import com.tstreet.onhand.core.network.model.NetworkRecipeIngredient
 import kotlinx.coroutines.flow.Flow
 
 interface RecipeRepository {
@@ -15,37 +14,42 @@ interface RecipeRepository {
     fun getRecipeDetail(id: Int): Flow<RecipeDetail>
 
     // TODO: model `Saveable`RecipeDetail or similar
-    suspend fun saveRecipe(recipeDetail: RecipeDetail)
+    suspend fun saveRecipe(recipe: Recipe)
 
     suspend fun unsaveRecipe(id: Int)
 
     suspend fun isRecipeSaved(id: Int): Boolean
+
+    fun getSavedRecipes(): Flow<List<Recipe>>
 }
 
 // TODO: move to more appropriate spot
-fun NetworkRecipe.asExternalModel() =
-    Recipe(
+fun NetworkRecipe.asExternalModel() = Recipe(
+    id = id,
+    title = title,
+    image = image,
+    imageType = imageType,
+    usedIngredientCount = usedIngredientCount,
+    usedIngredients = usedIngredients.map { it.asExternalModel() },
+    missedIngredientCount = missedIngredientCount,
+    missedIngredients = missedIngredients.map { it.asExternalModel() },
+    likes = likes
+)
+
+// TODO: move to more appropriate spot
+fun NetworkRecipeIngredient.asExternalModel() = RecipeIngredient(
+    Ingredient(
         id = id,
-        title = title,
-        image = image,
-        imageType = imageType,
-        usedIngredientCount = usedIngredientCount,
-        missedIngredientCount = missedIngredientCount,
-        likes = likes
-    )
+        name = name,
+    ),
+    image = image,
+    amount = amount,
+    unit = unit,
+)
 
 // TODO: move to more appropriate spot
 fun NetworkRecipeDetail.asExternalModel() = RecipeDetail(
     id = id,
     // TODO: Determine whether it's best to just transmit an empty src url or some other state
-    sourceUrl = sourceUrl ?: EMPTY_SOURCE_URL
+    sourceUrl = sourceUrl ?: ""
 )
-
-// TODO: move to more appropriate spot
-fun SavedRecipeEntity.asExternalModel() = RecipeDetail(
-    id = id,
-    // TODO: Determine whether it's best to just transmit an empty src url or some other state
-    sourceUrl = sourceUrl ?: EMPTY_SOURCE_URL
-)
-
-private const val EMPTY_SOURCE_URL = ""

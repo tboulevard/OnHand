@@ -143,7 +143,7 @@ fun RecipeSearchCardList(
             .padding(8.dp)
     ) {
         itemsIndexed(recipes) { index, item ->
-            val recipe = item.saveableRecipe.recipe
+            val recipe = item.recipe
             RecipeSearchCardItem(
                 card = RecipeSearchCard(
                     // TODO: clean this up

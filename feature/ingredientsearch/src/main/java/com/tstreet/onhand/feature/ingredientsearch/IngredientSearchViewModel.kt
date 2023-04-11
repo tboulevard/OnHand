@@ -8,7 +8,7 @@ import com.tstreet.onhand.core.domain.AddToPantryUseCase
 import com.tstreet.onhand.core.domain.GetIngredientsUseCase
 import com.tstreet.onhand.core.domain.GetPantryUseCase
 import com.tstreet.onhand.core.domain.RemoveFromPantryUseCase
-import com.tstreet.onhand.core.model.Ingredient
+import com.tstreet.onhand.core.model.PantryIngredient
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -31,8 +31,8 @@ class IngredientSearchViewModel @Inject constructor(
     @Named(IO) private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
-    val pantry = mutableStateListOf<Ingredient>()
-    val ingredients = mutableStateListOf<Ingredient>()
+    val pantry = mutableStateListOf<PantryIngredient>()
+    val ingredients = mutableStateListOf<PantryIngredient>()
 
     init {
         println("[OnHand] ${this.javaClass.simpleName} created")
@@ -44,7 +44,7 @@ class IngredientSearchViewModel @Inject constructor(
         .debounce(500L)
         .onEach {
             // Only search and update listed ingredients if we have a valid search query
-            if(it.isNotBlank()) {
+            if (it.isNotBlank()) {
                 _isSearching.update { true }
                 ingredients.clearAndReplaceWith(getIngredients.get().invoke(it))
             } else if (ingredients.isNotEmpty()) {
@@ -80,13 +80,13 @@ class IngredientSearchViewModel @Inject constructor(
 
             when (inPantry) {
                 true -> {
-                    removeFromPantry.get().invoke(item)
+                    removeFromPantry.get().invoke(item.ingredient)
                     // TODO: messy double seek to remove one item
                     // TODO: only do this if DB update successful
-                    pantry.remove(pantry.find { it.id == item.id })
+                    pantry.remove(pantry.find { it.ingredient.id == item.ingredient.id })
                 }
                 false -> {
-                    addToPantry.get().invoke(item)
+                    addToPantry.get().invoke(item.ingredient)
                     // TODO: only do this if DB update successful
                     pantry.add(item.copy(inPantry = true))
                 }
@@ -103,12 +103,12 @@ class IngredientSearchViewModel @Inject constructor(
 
             // TODO: probably an unnecessary check, but put here to make sure we didn't somehow
             // get an ingredient in the pantry that isn't marked as such
-            if(item.inPantry) {
-                removeFromPantry.get().invoke(item)
+            if (item.inPantry) {
+                removeFromPantry.get().invoke(item.ingredient)
                 // TODO: Only do this step if DB change is successful in future
                 pantry.removeAt(index)
                 // TODO: remove ingredient if shown in ingredients list. messy though...
-                ingredients.find { it.id == item.id }?.let {
+                ingredients.find { it.ingredient.id == item.ingredient.id }?.let {
                     ingredients[ingredients.indexOf(it)] = it.copy(inPantry = false)
                 }
             }
@@ -122,7 +122,7 @@ class IngredientSearchViewModel @Inject constructor(
         }
     }
 
-    private fun <T> MutableList<T>.clearAndReplaceWith(newListItems : List<T>) {
+    private fun <T> MutableList<T>.clearAndReplaceWith(newListItems: List<T>) {
         this.clear()
         this.addAll(newListItems)
     }

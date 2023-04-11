@@ -4,7 +4,7 @@ import com.tstreet.onhand.core.network.OnHandNetworkDataSource
 import com.tstreet.onhand.core.network.model.NetworkIngredient
 import com.tstreet.onhand.core.network.model.NetworkRecipe
 import com.tstreet.onhand.core.network.model.NetworkRecipeDetail
-import com.tstreet.onhand.core.network.model.NetworkRecipeSearchIngredient
+import com.tstreet.onhand.core.network.model.NetworkRecipeIngredient
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -41,7 +41,7 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
                 usedIngredientCount = 2,
                 missedIngredientCount = 1,
                 usedIngredients = listOf(
-                    NetworkRecipeSearchIngredient(
+                    NetworkRecipeIngredient(
                         id = 12,
                         amount = 8.0,
                         unit = "oz",
@@ -53,7 +53,7 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
                         originalName = "",
                         meta = emptyList(),
                         image = "cheddar.jpg"
-                    ), NetworkRecipeSearchIngredient(
+                    ), NetworkRecipeIngredient(
                         id = 13,
                         amount = 16.0,
                         unit = "oz",
@@ -68,7 +68,7 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
                     )
                 ),
                 missedIngredients = listOf(
-                    NetworkRecipeSearchIngredient(
+                    NetworkRecipeIngredient(
                         id = 20,
                         amount = 2.0,
                         unit = "oz",
@@ -83,7 +83,7 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
                     )
                 ),
                 unusedIngredients = listOf(
-                    NetworkRecipeSearchIngredient(
+                    NetworkRecipeIngredient(
                         id = 999,
                         amount = 200.0,
                         unit = "g",
@@ -106,7 +106,7 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
                 usedIngredientCount = 1,
                 missedIngredientCount = 2,
                 usedIngredients = listOf(
-                    NetworkRecipeSearchIngredient(
+                    NetworkRecipeIngredient(
                         id = 120,
                         amount = 1.0,
                         unit = "serving",
@@ -121,7 +121,7 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
                     )
                 ),
                 missedIngredients = listOf(
-                    NetworkRecipeSearchIngredient(
+                    NetworkRecipeIngredient(
                         id = 200,
                         amount = 4.0,
                         unit = "cup",
@@ -145,7 +145,7 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
                 usedIngredientCount = 4,
                 missedIngredientCount = 3,
                 usedIngredients = listOf(
-                    NetworkRecipeSearchIngredient(
+                    NetworkRecipeIngredient(
                         id = 12,
                         amount = 8.0,
                         unit = "oz",
@@ -157,7 +157,7 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
                         originalName = "",
                         meta = emptyList(),
                         image = "cheddar.jpg"
-                    ), NetworkRecipeSearchIngredient(
+                    ), NetworkRecipeIngredient(
                         id = 13,
                         amount = 16.0,
                         unit = "oz",
@@ -172,7 +172,7 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
                     )
                 ),
                 missedIngredients = listOf(
-                    NetworkRecipeSearchIngredient(
+                    NetworkRecipeIngredient(
                         id = 45,
                         amount = 16.0,
                         unit = "oz",

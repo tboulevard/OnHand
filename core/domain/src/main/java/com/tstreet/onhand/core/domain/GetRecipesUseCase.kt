@@ -55,6 +55,8 @@ class GetRecipesUseCase @Inject constructor(
             //  Also - this is retriggered when we sort for each element in list; unnecessary
             //  if list contents haven't changed. Look into caching the results to re-use
             //  specifically for sorting
+            //  Have this function return a list of [SaveableRecipes] where we mark each one
+            //  on whether it was saved
             val isRecipeSaved = recipeRepository.get().isRecipeSaved(recipe.id)
             SaveableRecipe(
                 recipe = recipe,
@@ -69,8 +71,8 @@ class GetRecipesUseCase @Inject constructor(
             .listPantry()
             .map { ingredientList ->
                 ingredientList
-                    .map { ingredient ->
-                        ingredient.name
+                    .map { item ->
+                        item.ingredient.name
                     }
             }
     }

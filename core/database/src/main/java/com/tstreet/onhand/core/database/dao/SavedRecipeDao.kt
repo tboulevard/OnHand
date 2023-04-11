@@ -21,5 +21,9 @@ interface SavedRecipeDao {
 
     @Query("SELECT * from saved_recipes WHERE id = :id")
     @Transaction
-    fun getRecipe(id: Int) : Flow<SavedRecipeEntity>
+    fun getRecipe(id: Int): Flow<SavedRecipeEntity>
+
+    @Query("SELECT * from saved_recipes")
+    @Transaction
+    fun getSavedRecipes(): Flow<List<SavedRecipeEntity>>
 }

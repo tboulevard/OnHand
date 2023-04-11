@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.tstreet.onhand.core.model.Ingredient
+import com.tstreet.onhand.core.model.PantryIngredient
 
 // TODO: Think about reusing this entity for stuff in the pantry, just add `isSaved`
 @Entity(
@@ -15,8 +16,10 @@ data class IngredientCatalogEntity(
     @ColumnInfo(name = "inPantry") val inPantry: Boolean
 )
 
-fun IngredientCatalogEntity.asExternalModel() = Ingredient(
-    id = id,
-    name = name,
+fun IngredientCatalogEntity.asExternalModel() = PantryIngredient(
+    ingredient = Ingredient(
+        id = id,
+        name = name
+    ),
     inPantry = inPantry
 )

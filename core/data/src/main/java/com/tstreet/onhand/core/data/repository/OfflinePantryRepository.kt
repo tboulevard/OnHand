@@ -4,6 +4,7 @@ import com.tstreet.onhand.core.database.dao.IngredientCatalogDao
 import com.tstreet.onhand.core.database.model.IngredientCatalogEntity
 import com.tstreet.onhand.core.database.model.asExternalModel
 import com.tstreet.onhand.core.model.Ingredient
+import com.tstreet.onhand.core.model.PantryIngredient
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -29,7 +30,7 @@ class OfflinePantryRepository @Inject constructor(
             )
     }
 
-    override fun listPantry(): Flow<List<Ingredient>> {
+    override fun listPantry(): Flow<List<PantryIngredient>> {
         return ingredientCatalogDao
             .get()
             .getAllFromPantry()

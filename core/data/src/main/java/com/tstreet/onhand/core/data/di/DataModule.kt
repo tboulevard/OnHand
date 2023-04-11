@@ -41,4 +41,12 @@ interface DataModule {
     fun bindsPantryRepository(
         pantryRepository: OfflinePantryRepository
     ): PantryRepository
+
+    @Binds
+    // TODO: scope annotations at the module level seems to do nothing and are only
+    //  needed at the class level? Look into later
+    @Singleton
+    fun bindsShoppingListRepository(
+        shoppingListRepository: ShoppingListRepositoryImpl
+    ): ShoppingListRepository
 }
