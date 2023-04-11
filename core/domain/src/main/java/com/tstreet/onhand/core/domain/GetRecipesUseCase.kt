@@ -69,8 +69,8 @@ class GetRecipesUseCase @Inject constructor(
             .listPantry()
             .map { ingredientList ->
                 ingredientList
-                    .map { ingredient ->
-                        ingredient.name
+                    .map { item ->
+                        item.ingredient.name
                     }
             }
     }

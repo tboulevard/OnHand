@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import com.tstreet.onhand.core.model.CompositeRecipe
 import com.tstreet.onhand.core.model.Ingredient
+import com.tstreet.onhand.core.model.RecipeIngredient
 import com.tstreet.onhand.core.model.ShoppingListIngredient
 import com.tstreet.onhand.core.ui.FullScreenErrorMessage
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
@@ -47,7 +48,7 @@ fun ShoppingListScreen(
 
 class ShoppingListCard(
     val ingredientName: String,
-    val amount: Int,
+    val amount: Double,
     val unit: String,
     // TODO: what if two recipes request same ingredient
     val mappedRecipes: List<CompositeRecipe>,
@@ -68,8 +69,8 @@ fun ShoppingListCards(ingredients: List<ShoppingListIngredient>) {
                 ShoppingListCard(
                     // TODO: clean this up
                     ingredientName = ingredient.name,
-                    amount = ingredient.quantity,
-                    unit = ingredient.unitOfMeasure,
+                    amount = ingredient.amount,
+                    unit = ingredient.unit,
                     mappedRecipes = ingredient.mappedRecipes,
                     index = index
                 )
@@ -120,7 +121,7 @@ class RecipeSearchCardPreviewParamProvider : PreviewParameterProvider<ShoppingLi
     override val values: Sequence<ShoppingListCard> = sequenceOf(
         ShoppingListCard(
             "ingredient",
-            1,
+            1.0,
             "oz",
             listOf(
                 CompositeRecipe(
@@ -129,21 +130,9 @@ class RecipeSearchCardPreviewParamProvider : PreviewParameterProvider<ShoppingLi
                     image = "image",
                     imageType = "imageType",
                     missedIngredientCount = 2,
-                    missedIngredients = listOf(Ingredient(4, "cheese"), Ingredient(10, "tomato")),
+                    missedIngredients = listOf(RecipeIngredient(Ingredient(4, "cheese"), amount = 2.0 , unit = "oz")),
                     usedIngredientCount = 1,
-                    usedIngredients = listOf(Ingredient(5, "garlic")),
-                    likes = 100,
-                    sourceUrl = "www.recipe.com"
-                ),
-                CompositeRecipe(
-                    id = 2,
-                    title = "Recipe title2",
-                    image = "image",
-                    imageType = "imageType",
-                    missedIngredientCount = 2,
-                    missedIngredients = listOf(Ingredient(4, "cheese"), Ingredient(10, "tomato")),
-                    usedIngredientCount = 1,
-                    usedIngredients = listOf(Ingredient(5, "garlic")),
+                    usedIngredients = listOf(RecipeIngredient(Ingredient(5, "garlic"), amount = 1.0 , unit = "clove")),
                     likes = 100,
                     sourceUrl = "www.recipe.com"
                 )

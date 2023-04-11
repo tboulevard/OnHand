@@ -11,9 +11,9 @@ data class CompositeRecipe(
     val title: String,
     val image: String,
     val imageType: String,
-    val missedIngredients: List<Ingredient>,
+    val missedIngredients: List<RecipeIngredient>,
     val missedIngredientCount: Int,
-    val usedIngredients: List<Ingredient>,
+    val usedIngredients: List<RecipeIngredient>,
     val usedIngredientCount: Int,
     val likes: Int,
 

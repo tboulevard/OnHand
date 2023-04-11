@@ -11,8 +11,8 @@ import com.tstreet.onhand.core.model.ShoppingListIngredient
 data class ShoppingListEntity(
     @PrimaryKey val id: Int,
     @ColumnInfo val name: String,
-    @ColumnInfo val quantity: Int,
-    @ColumnInfo val unitOfMeasure: String,
+    @ColumnInfo val amount: Double,
+    @ColumnInfo val unit: String,
     //@ColumnInfo val mappedRecipes: List<Recipe>
 )
 
@@ -21,8 +21,8 @@ fun ShoppingListEntity.toExternalModel(): ShoppingListIngredient {
         id = id,
         name = name,
         // TODO: Revisit, quantity/unit of measure later
-        quantity = quantity,
-        unitOfMeasure = unitOfMeasure,
+        amount = amount,
+        unit = unit,
         //mappedRecipes  = mappedRecipes
     )
 }
@@ -32,8 +32,8 @@ fun ShoppingListIngredient.asEntity(): ShoppingListEntity {
         id = id,
         name = name,
         // TODO: Revisit, quantity/unit of measure later
-        quantity = quantity,
-        unitOfMeasure = unitOfMeasure,
+        amount = amount,
+        unit = unit,
         //mappedRecipes  = mappedRecipes
     )
 }

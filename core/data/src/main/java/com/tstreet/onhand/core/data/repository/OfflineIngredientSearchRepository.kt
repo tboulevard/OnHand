@@ -4,6 +4,7 @@ import com.tstreet.onhand.core.database.dao.IngredientCatalogDao
 import com.tstreet.onhand.core.database.model.IngredientCatalogEntity
 import com.tstreet.onhand.core.database.model.asExternalModel
 import com.tstreet.onhand.core.model.Ingredient
+import com.tstreet.onhand.core.model.PantryIngredient
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -18,7 +19,7 @@ class OfflineIngredientSearchRepository @Inject constructor(
         println("[OnHand] Creating ${this.javaClass.simpleName}")
     }
 
-    override suspend fun searchIngredients(query: String): List<Ingredient> {
+    override suspend fun searchIngredients(query: String): List<PantryIngredient> {
         return ingredientCatalogDao.get()
             .search(query)
             .map(IngredientCatalogEntity::asExternalModel)
