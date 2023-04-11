@@ -15,7 +15,6 @@ class GetIngredientsUseCase @Inject constructor(
     private val repository: Provider<IngredientSearchRepository>
 ) : UseCase() {
 
-    // TODO: Utilize the flow type (flow { ... }) for
     // TODO: error and intermediate state handling here
     suspend operator fun invoke(query: String): List<PantryIngredient> =
         repository

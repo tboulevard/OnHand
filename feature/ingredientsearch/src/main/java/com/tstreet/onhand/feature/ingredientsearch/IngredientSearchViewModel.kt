@@ -44,7 +44,7 @@ class IngredientSearchViewModel @Inject constructor(
         .debounce(500L)
         .onEach {
             // Only search and update listed ingredients if we have a valid search query
-            if(it.isNotBlank()) {
+            if (it.isNotBlank()) {
                 _isSearching.update { true }
                 ingredients.clearAndReplaceWith(getIngredients.get().invoke(it))
             } else if (ingredients.isNotEmpty()) {
@@ -103,7 +103,7 @@ class IngredientSearchViewModel @Inject constructor(
 
             // TODO: probably an unnecessary check, but put here to make sure we didn't somehow
             // get an ingredient in the pantry that isn't marked as such
-            if(item.inPantry) {
+            if (item.inPantry) {
                 removeFromPantry.get().invoke(item.ingredient)
                 // TODO: Only do this step if DB change is successful in future
                 pantry.removeAt(index)
@@ -122,7 +122,7 @@ class IngredientSearchViewModel @Inject constructor(
         }
     }
 
-    private fun <T> MutableList<T>.clearAndReplaceWith(newListItems : List<T>) {
+    private fun <T> MutableList<T>.clearAndReplaceWith(newListItems: List<T>) {
         this.clear()
         this.addAll(newListItems)
     }

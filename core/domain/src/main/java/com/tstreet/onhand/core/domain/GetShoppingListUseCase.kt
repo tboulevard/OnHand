@@ -34,7 +34,7 @@ class GetShoppingListUseCase @Inject constructor(
             )
         }.onEach {
             // TODO: inserting the same ingredient from multiple recipes breaks primary key
-            //  constraint for Room and throws exception
+            //  constraint for Room and throws exception - revisit in next PR
             //shoppingListRepository.get().insertShoppingList(it)
         }.flowOn(ioDispatcher)
     }

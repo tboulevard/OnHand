@@ -23,7 +23,6 @@ class ShoppingListViewModel @Inject constructor(
         .invoke()
         .map(ShoppingListUiState::Success)
         .stateIn(
-            // TODO: revisit scoping since we're doing network operations behind the scenes
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = RecipeDetailUiState.Loading

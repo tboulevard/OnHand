@@ -78,7 +78,6 @@ fun ShoppingListCards(ingredients: List<ShoppingListIngredient>) {
         itemsIndexed(ingredients) { index, ingredient ->
             ShoppingListCardItem(
                 ShoppingListCard(
-                    // TODO: clean this up
                     ingredientName = ingredient.name,
                     amount = ingredient.amount,
                     unit = ingredient.unit,

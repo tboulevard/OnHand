@@ -20,7 +20,6 @@ fun ShoppingListEntity.toExternalModel(): ShoppingListIngredient {
     return ShoppingListIngredient(
         id = id,
         name = name,
-        // TODO: Revisit, quantity/unit of measure later
         amount = amount,
         unit = unit,
         //mappedRecipes  = mappedRecipes
@@ -31,7 +30,6 @@ fun ShoppingListIngredient.asEntity(): ShoppingListEntity {
     return ShoppingListEntity(
         id = id,
         name = name,
-        // TODO: Revisit, quantity/unit of measure later
         amount = amount,
         unit = unit,
         //mappedRecipes  = mappedRecipes

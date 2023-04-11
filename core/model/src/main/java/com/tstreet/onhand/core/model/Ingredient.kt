@@ -14,7 +14,9 @@ data class Ingredient(
 )
 
 /**
- * Representation for an ingredient in the pantry - for now, no amounts are stored.
+ * Ingredient that tells us whether its stored in the pantry.
+ *
+ * NOTE: For now, amounts/unit not stored
  */
 data class PantryIngredient(
     val ingredient: Ingredient,
