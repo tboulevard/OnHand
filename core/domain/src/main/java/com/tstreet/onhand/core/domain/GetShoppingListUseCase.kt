@@ -5,8 +5,8 @@ import com.tstreet.onhand.core.common.UseCase
 import com.tstreet.onhand.core.data.repository.PantryRepository
 import com.tstreet.onhand.core.data.repository.RecipeRepository
 import com.tstreet.onhand.core.data.repository.ShoppingListRepository
-import com.tstreet.onhand.core.model.CompositeRecipe
 import com.tstreet.onhand.core.model.PantryIngredient
+import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.model.ShoppingListIngredient
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
@@ -42,7 +42,7 @@ class GetShoppingListUseCase @Inject constructor(
     // TODO: Use pantry to determine if we actually have enough quantity of item later. Can do simple math in this function
     private fun getShoppingList(
         pantry: List<PantryIngredient>,
-        recipes: List<CompositeRecipe>
+        recipes: List<Recipe>
     ): List<ShoppingListIngredient> {
         println("[OnHand] getShoppingList($pantry, $recipes)")
 

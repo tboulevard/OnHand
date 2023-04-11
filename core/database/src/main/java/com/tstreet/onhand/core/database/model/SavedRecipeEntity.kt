@@ -3,9 +3,7 @@ package com.tstreet.onhand.core.database.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.tstreet.onhand.core.model.CompositeRecipe
-import com.tstreet.onhand.core.model.RecipeDetail
-import com.tstreet.onhand.core.model.RecipeIngredient
+import com.tstreet.onhand.core.model.*
 
 @Entity(
     tableName = "saved_recipes"
@@ -19,11 +17,23 @@ data class SavedRecipeEntity(
     @ColumnInfo(name = "missedIngredientCount") val missedIngredientCount: Int,
     @ColumnInfo(name = "usedIngredients") val usedIngredients: List<RecipeIngredient>,
     @ColumnInfo(name = "usedIngredientCount") val usedIngredientCount: Int,
-    @ColumnInfo(name = "likes") val likes: Int,
-    @ColumnInfo(name = "sourceUrl") val sourceUrl: String,
+    @ColumnInfo(name = "likes") val likes: Int
 )
 
-fun SavedRecipeEntity.asExternalModel() = CompositeRecipe(
+fun SavedRecipeEntity.asExternalModel() =
+    Recipe(
+        id = id,
+        title = title,
+        image = image,
+        imageType = imageType,
+        missedIngredients = missedIngredients,
+        missedIngredientCount = missedIngredientCount,
+        usedIngredients = usedIngredients,
+        usedIngredientCount = usedIngredientCount,
+        likes = likes
+    )
+
+fun Recipe.toSavedRecipeEntity() = SavedRecipeEntity(
     id = id,
     title = title,
     image = image,
@@ -32,25 +42,5 @@ fun SavedRecipeEntity.asExternalModel() = CompositeRecipe(
     missedIngredientCount = missedIngredientCount,
     usedIngredients = usedIngredients,
     usedIngredientCount = usedIngredientCount,
-    likes = likes,
-    sourceUrl = sourceUrl
-)
-
-fun CompositeRecipe.toEntity() = SavedRecipeEntity(
-    id = id,
-    title = title,
-    image = image,
-    imageType = imageType,
-    missedIngredients = missedIngredients,
-    missedIngredientCount = missedIngredientCount,
-    usedIngredients = usedIngredients,
-    usedIngredientCount = usedIngredientCount,
-    likes = likes,
-    sourceUrl = sourceUrl
-)
-
-//TODO: cleanup, just to get mvp working
-fun SavedRecipeEntity.toRecipeDetail() = RecipeDetail(
-    id = id,
-    sourceUrl = sourceUrl
+    likes = likes
 )

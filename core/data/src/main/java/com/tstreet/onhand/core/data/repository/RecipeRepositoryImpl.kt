@@ -5,16 +5,12 @@ import com.tstreet.onhand.core.database.dao.RecipeSearchCacheDao
 import com.tstreet.onhand.core.database.dao.SavedRecipeDao
 import com.tstreet.onhand.core.database.model.*
 import com.tstreet.onhand.core.database.model.asExternalModel
-import com.tstreet.onhand.core.model.CompositeRecipe
 import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.model.RecipeDetail
 import com.tstreet.onhand.core.network.OnHandNetworkDataSource
 import com.tstreet.onhand.core.network.model.NetworkRecipe
 import com.tstreet.onhand.core.network.model.NetworkRecipeDetail
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Provider
@@ -56,7 +52,7 @@ class RecipeRepositoryImpl @Inject constructor(
                 recipeSearchCacheDao
                     .get()
                     .addRecipeSearchResult(
-                        result.map(Recipe::toEntity)
+                        result.map(Recipe::toSearchCacheEntity)
                     )
 
                 result
@@ -64,35 +60,19 @@ class RecipeRepositoryImpl @Inject constructor(
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     override fun getRecipeDetail(id: Int): Flow<RecipeDetail> {
-        return flow {
-            emit(savedRecipeDao.get().isRecipeSaved(id) == 1)
-        }.flatMapLatest { recipeSaved ->
-            when (recipeSaved) {
-                true -> {
-                    println("[OnHand] getRecipeDetail($id) - from DB")
-                    savedRecipeDao
-                        .get()
-                        .getRecipe(id)
-                        .map(SavedRecipeEntity::toRecipeDetail)
-                }
-                false -> {
-                    println("[OnHand] getRecipeDetail($id) - from Network")
-                    onHandNetworkDataSource
-                        .get()
-                        .getRecipeDetail(id)
-                        .map(NetworkRecipeDetail::asExternalModel)
-                }
-            }
-        }
+        println("[OnHand] getRecipeDetail($id) - from Network")
+        return onHandNetworkDataSource
+            .get()
+            .getRecipeDetail(id)
+            .map(NetworkRecipeDetail::asExternalModel)
     }
 
-    override suspend fun saveRecipe(compositeRecipe: CompositeRecipe) {
-        println("[OnHand] saveRecipe($compositeRecipe)")
+    override suspend fun saveRecipe(recipe: Recipe) {
+        println("[OnHand] saveRecipe($recipe)")
         savedRecipeDao
             .get()
-            .addRecipe(compositeRecipe.toEntity())
+            .addRecipe(recipe.toSavedRecipeEntity())
     }
 
     override suspend fun unsaveRecipe(id: Int) {
@@ -109,7 +89,7 @@ class RecipeRepositoryImpl @Inject constructor(
             .isRecipeSaved(id) == 1
     }
 
-    override fun getSavedRecipes(): Flow<List<CompositeRecipe>> {
+    override fun getSavedRecipes(): Flow<List<Recipe>> {
         println("[OnHand] getSavedRecipes()")
         return savedRecipeDao
             .get()

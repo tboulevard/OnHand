@@ -61,7 +61,7 @@ class RecipeSearchViewModel @Inject constructor(
             // Mark the recipe as saving
             _recipes[index] = item.copy(recipeSaveState = SAVING)
             // Save the recipe
-            saveRecipe.get().invoke(item.saveableRecipe).collect {
+            saveRecipe.get().invoke(item.recipe).collect {
                 when (it) {
                     // When save is successful, update UI state
                     true -> {
@@ -89,7 +89,7 @@ class RecipeSearchViewModel @Inject constructor(
         viewModelScope.launch {
             val item = _recipes[index]
             // Just unsave the recipe - no loading indicator
-            unsaveRecipe.get().invoke(item.saveableRecipe).collect {
+            unsaveRecipe.get().invoke(item.recipe).collect {
                 when (it) {
                     // When the unsave is successful, update UI state
                     true -> {

@@ -36,7 +36,7 @@ fun RecipeSearchCacheEntity.asExternalModel(): Recipe {
     )
 }
 
-fun Recipe.toEntity(): RecipeSearchCacheEntity {
+fun Recipe.toSearchCacheEntity(): RecipeSearchCacheEntity {
     return RecipeSearchCacheEntity(
         id = id,
         title = title,

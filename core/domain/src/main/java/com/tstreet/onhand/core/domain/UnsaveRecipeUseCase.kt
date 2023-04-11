@@ -4,7 +4,7 @@ import com.tstreet.onhand.core.common.CommonModule
 import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.common.UseCase
 import com.tstreet.onhand.core.data.repository.RecipeRepository
-import com.tstreet.onhand.core.model.SaveableRecipe
+import com.tstreet.onhand.core.model.Recipe
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -21,15 +21,15 @@ class UnsaveRecipeUseCase @Inject constructor(
 ) : UseCase() {
 
     // TODO: Model state using an object (Success/Failure) rather than boolean?
-    operator fun invoke(saveableRecipe: SaveableRecipe): Flow<Boolean> {
+    operator fun invoke(recipe: Recipe): Flow<Boolean> {
         val unsaveRecipeFlow = flow {
             repository
                 .get()
-                .unsaveRecipe(saveableRecipe.recipe.id)
+                .unsaveRecipe(recipe.id)
             emit(true)
         }.catch {
             // TODO: better error handling, and make sure this actually works.
-            println("[OnHand] Error removing $saveableRecipe from database. Error=${it.message}")
+            println("[OnHand] Error removing $recipe from database. Error=${it.message}")
             emit(false)
         }
 

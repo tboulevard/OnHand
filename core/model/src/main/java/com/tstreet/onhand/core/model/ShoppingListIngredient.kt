@@ -6,5 +6,5 @@ class ShoppingListIngredient(
     // TODO: Revisit, quantity/unit of measure later
     val amount : Double,
     val unit : String,
-    val mappedRecipes : List<CompositeRecipe> = emptyList() // TODO:
+    val mappedRecipes : List<Recipe> = emptyList() // TODO:
 )

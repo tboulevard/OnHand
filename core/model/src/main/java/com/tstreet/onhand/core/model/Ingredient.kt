@@ -10,9 +10,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Ingredient(
     val id: Int,
-    val name: String,
-    // TODO: Path only, refactor once we need images
-    val childIngredient: ChildIngredient? = null,
+    val name: String
 )
 
 /**

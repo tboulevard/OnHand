@@ -1,11 +1,10 @@
 package com.tstreet.onhand.core.data.repository
 
 import com.tstreet.onhand.core.common.FetchStrategy
-import com.tstreet.onhand.core.database.model.SavedRecipeEntity
 import com.tstreet.onhand.core.model.*
 import com.tstreet.onhand.core.network.model.NetworkRecipe
 import com.tstreet.onhand.core.network.model.NetworkRecipeDetail
-import com.tstreet.onhand.core.network.model.NetworkRecipeSearchIngredient
+import com.tstreet.onhand.core.network.model.NetworkRecipeIngredient
 import kotlinx.coroutines.flow.Flow
 
 interface RecipeRepository {
@@ -15,13 +14,13 @@ interface RecipeRepository {
     fun getRecipeDetail(id: Int): Flow<RecipeDetail>
 
     // TODO: model `Saveable`RecipeDetail or similar
-    suspend fun saveRecipe(compositeRecipe: CompositeRecipe)
+    suspend fun saveRecipe(recipe: Recipe)
 
     suspend fun unsaveRecipe(id: Int)
 
     suspend fun isRecipeSaved(id: Int): Boolean
 
-    fun getSavedRecipes(): Flow<List<CompositeRecipe>>
+    fun getSavedRecipes(): Flow<List<Recipe>>
 }
 
 // TODO: move to more appropriate spot
@@ -38,7 +37,7 @@ fun NetworkRecipe.asExternalModel() = Recipe(
 )
 
 // TODO: move to more appropriate spot
-fun NetworkRecipeSearchIngredient.asExternalModel() = RecipeIngredient(
+fun NetworkRecipeIngredient.asExternalModel() = RecipeIngredient(
     Ingredient(
         id = id,
         name = name,
@@ -52,14 +51,5 @@ fun NetworkRecipeSearchIngredient.asExternalModel() = RecipeIngredient(
 fun NetworkRecipeDetail.asExternalModel() = RecipeDetail(
     id = id,
     // TODO: Determine whether it's best to just transmit an empty src url or some other state
-    sourceUrl = sourceUrl ?: EMPTY_SOURCE_URL
+    sourceUrl = sourceUrl ?: ""
 )
-
-// TODO: move to more appropriate spot
-fun SavedRecipeEntity.asExternalModel() = RecipeDetail(
-    id = id,
-    // TODO: Determine whether it's best to just transmit an empty src url or some other state
-    sourceUrl = sourceUrl ?: EMPTY_SOURCE_URL
-)
-
-private const val EMPTY_SOURCE_URL = ""

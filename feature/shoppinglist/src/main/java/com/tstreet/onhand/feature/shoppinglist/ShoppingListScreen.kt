@@ -17,10 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
-import com.tstreet.onhand.core.model.CompositeRecipe
-import com.tstreet.onhand.core.model.Ingredient
-import com.tstreet.onhand.core.model.RecipeIngredient
-import com.tstreet.onhand.core.model.ShoppingListIngredient
+import com.tstreet.onhand.core.model.*
 import com.tstreet.onhand.core.ui.FullScreenErrorMessage
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
 import com.tstreet.onhand.core.ui.ShoppingListUiState
@@ -36,9 +33,23 @@ fun ShoppingListScreen(
             OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
         }
         is ShoppingListUiState.Success -> {
-            ShoppingListCards(
-                state.ingredients
-            )
+
+            when(state.ingredients.isNotEmpty()) {
+                true -> {
+                    ShoppingListCards(
+                        state.ingredients
+                    )
+                }
+                false -> {
+                    Text(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        text = "Shopping list empty - either because you have all ingredients " +
+                                "for all saved recipes or because you haven't saved any recipes",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            }
         }
         is ShoppingListUiState.Error -> {
             FullScreenErrorMessage(message = state.message)
@@ -51,7 +62,7 @@ class ShoppingListCard(
     val amount: Double,
     val unit: String,
     // TODO: what if two recipes request same ingredient
-    val mappedRecipes: List<CompositeRecipe>,
+    val mappedRecipes: List<Recipe>,
     val index: Int
 )
 
@@ -124,7 +135,7 @@ class RecipeSearchCardPreviewParamProvider : PreviewParameterProvider<ShoppingLi
             1.0,
             "oz",
             listOf(
-                CompositeRecipe(
+                Recipe(
                     id = 1,
                     title = "Recipe title1",
                     image = "image",
@@ -133,8 +144,7 @@ class RecipeSearchCardPreviewParamProvider : PreviewParameterProvider<ShoppingLi
                     missedIngredients = listOf(RecipeIngredient(Ingredient(4, "cheese"), amount = 2.0 , unit = "oz")),
                     usedIngredientCount = 1,
                     usedIngredients = listOf(RecipeIngredient(Ingredient(5, "garlic"), amount = 1.0 , unit = "clove")),
-                    likes = 100,
-                    sourceUrl = "www.recipe.com"
+                    likes = 100
                 )
             ),
             1
