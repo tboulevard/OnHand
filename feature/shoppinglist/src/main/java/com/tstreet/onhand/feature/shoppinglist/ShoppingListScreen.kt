@@ -59,10 +59,10 @@ fun ShoppingListScreen(
 
 class ShoppingListCard(
     val ingredientName: String,
-    val amount: Double,
+    val amount: String,
     val unit: String,
     // TODO: what if two recipes request same ingredient
-    val mappedRecipe: Recipe,
+    val mappedRecipes: List<Recipe>,
     val index: Int
 )
 
@@ -79,9 +79,9 @@ fun ShoppingListCards(ingredients: List<ShoppingListIngredient>) {
             ShoppingListCardItem(
                 ShoppingListCard(
                     ingredientName = ingredient.name,
-                    amount = ingredient.amount,
-                    unit = ingredient.unit,
-                    mappedRecipe = ingredient.mappedRecipe,
+                    amount = ingredient.amount.invoke(),
+                    unit = ingredient.unit.invoke(),
+                    mappedRecipes = ingredient.mappedRecipes.invoke(),
                     index = index
                 )
             )
@@ -114,11 +114,11 @@ fun ShoppingListCardItem(
                 // TODO: probably makes more sense to list amount total at top, then do breakdown for all recipes within
                 Text(text = card.ingredientName, style = MaterialTheme.typography.headlineMedium)
                 Text(
-                    text = "${card.amount} ${card.unit}",
+                    text = "Quantities: ${card.amount} ${card.unit}",
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Text(
-                    text = "Recipe: ${card.mappedRecipe.title}",
+                    text = "Recipes: ${card.mappedRecipes.map { it.title }}",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -131,30 +131,32 @@ class RecipeSearchCardPreviewParamProvider : PreviewParameterProvider<ShoppingLi
     override val values: Sequence<ShoppingListCard> = sequenceOf(
         ShoppingListCard(
             "ingredient",
-            1.0,
+            "1.0",
             "oz",
-            Recipe(
-                id = 1,
-                title = "Recipe title1",
-                image = "image",
-                imageType = "imageType",
-                missedIngredientCount = 2,
-                missedIngredients = listOf(
-                    RecipeIngredient(
-                        Ingredient(4, "cheese"),
-                        amount = 2.0,
-                        unit = "oz"
-                    )
-                ),
-                usedIngredientCount = 1,
-                usedIngredients = listOf(
-                    RecipeIngredient(
-                        Ingredient(5, "garlic"),
-                        amount = 1.0,
-                        unit = "clove"
-                    )
-                ),
-                likes = 100
+            listOf(
+                Recipe(
+                    id = 1,
+                    title = "Recipe title1",
+                    image = "image",
+                    imageType = "imageType",
+                    missedIngredientCount = 2,
+                    missedIngredients = listOf(
+                        RecipeIngredient(
+                            Ingredient(4, "cheese"),
+                            amount = 2.0,
+                            unit = "oz"
+                        )
+                    ),
+                    usedIngredientCount = 1,
+                    usedIngredients = listOf(
+                        RecipeIngredient(
+                            Ingredient(5, "garlic"),
+                            amount = 1.0,
+                            unit = "clove"
+                        )
+                    ),
+                    likes = 100
+                )
             ),
             1
         )

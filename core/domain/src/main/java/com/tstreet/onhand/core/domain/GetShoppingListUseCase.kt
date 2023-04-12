@@ -62,15 +62,39 @@ class GetShoppingListUseCase @Inject constructor(
         // 4. Create shopping list
 
         // 1)
-        val allRecipeIngredients = mutableMapOf<Ingredient, RecipeMeasure>()
+        val allRecipeIngredients = mutableMapOf<Int, MutableList<RecipeMeasure>>()
         recipes.forEach { recipe ->
             recipe.usedIngredients.forEach { recipeIngredient ->
-                allRecipeIngredients[recipeIngredient.ingredient] =
-                    RecipeMeasure(recipe, recipeIngredient.unit, recipeIngredient.amount)
+                if (allRecipeIngredients.containsKey(recipeIngredient.ingredient.id)) {
+                    allRecipeIngredients[recipeIngredient.ingredient.id]!!.add(
+                        RecipeMeasure(recipe, recipeIngredient.unit, recipeIngredient.amount)
+                    )
+                } else {
+                    allRecipeIngredients[recipeIngredient.ingredient.id] =
+                        mutableListOf(
+                            RecipeMeasure(
+                                recipe,
+                                recipeIngredient.unit,
+                                recipeIngredient.amount
+                            )
+                        )
+                }
             }
             recipe.missedIngredients.forEach { recipeIngredient ->
-                allRecipeIngredients[recipeIngredient.ingredient] =
-                    RecipeMeasure(recipe, recipeIngredient.unit, recipeIngredient.amount)
+                if (allRecipeIngredients.containsKey(recipeIngredient.ingredient.id)) {
+                    allRecipeIngredients[recipeIngredient.ingredient.id]!!.add(
+                        RecipeMeasure(recipe, recipeIngredient.unit, recipeIngredient.amount)
+                    )
+                } else {
+                    allRecipeIngredients[recipeIngredient.ingredient.id] =
+                        mutableListOf(
+                            RecipeMeasure(
+                                recipe,
+                                recipeIngredient.unit,
+                                recipeIngredient.amount
+                            )
+                        )
+                }
             }
         }
 
@@ -78,29 +102,50 @@ class GetShoppingListUseCase @Inject constructor(
         //  deal with quantities later...
         // TODO 3)
         pantry.forEach {
-            if (allRecipeIngredients.keys.contains(it.ingredient)) {
-                allRecipeIngredients.remove(it.ingredient)
+            if (allRecipeIngredients.keys.contains(it.ingredient.id)) {
+                allRecipeIngredients.remove(it.ingredient.id)
             }
         }
 
+        // TODO: figure out a way to interleave amounts and units
+        //  e.g.: instead of: 1.25 + 4 cup, oz -> 1.25 cup, 4 oz
         // 4)
-        val shoppingList = allRecipeIngredients.map {
+        val shoppingList = allRecipeIngredients.map { curr ->
             ShoppingListIngredient(
-                id = it.key.id,
-                name = it.key.name,
-                amount = it.value.amount,
-                unit = it.value.unit,
-                mappedRecipe = it.value.recipe
+                id = curr.key,
+                name = curr.key.toString(),
+                amount = {
+                    var str = ""
+                    curr.value.forEachIndexed { index, measure ->
+                        str += measure.amount.toString()
+
+                        if (index != (curr.value.size - 1)) {
+                            str += " + "
+                        }
+                    }
+                    str
+                },
+                mappedRecipes = { curr.value.map { it.recipe } },
+                unit = {
+                    var str = ""
+                    curr.value.forEachIndexed { index, measure ->
+                        str += measure.unit
+
+                        if (index != (curr.value.size - 1)) {
+                            str += ", "
+                        }
+                    }
+                    str
+                }
             )
         }
-
 
         return shoppingList
     }
 }
 
 class RecipeMeasure(
-    val recipe : Recipe,
+    val recipe: Recipe,
     val unit: String,
     val amount: Double
 )

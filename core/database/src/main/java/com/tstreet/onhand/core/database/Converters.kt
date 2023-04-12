@@ -29,4 +29,26 @@ class Converters {
     fun toRecipe(str: String): Recipe {
         return Json.decodeFromString(str)
     }
+
+    //// cleanup later...
+
+    @TypeConverter
+    fun toLambdaString(lambdaString: () -> String): String {
+        return Json.encodeToString(lambdaString)
+    }
+
+    @TypeConverter
+    fun fromLambdaString(str: String): () -> String {
+        return Json.decodeFromString(str)
+    }
+
+    @TypeConverter
+    fun toLambdaRecipe(lambdaString: () -> List<Recipe>): String {
+        return Json.encodeToString(lambdaString)
+    }
+
+    @TypeConverter
+    fun fromLambdaRecipe(str: String): () -> List<Recipe> {
+        return Json.decodeFromString(str)
+    }
 }

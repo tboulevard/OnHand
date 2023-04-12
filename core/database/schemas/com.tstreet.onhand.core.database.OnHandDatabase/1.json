@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "6ae2485b0173002c9c2e4f24b6a1549d",
+    "identityHash": "13b64680442bc94fae0ac72dcd5223ff",
     "entities": [
       {
         "tableName": "ingredient_catalog",
@@ -174,7 +174,7 @@
       },
       {
         "tableName": "shopping_list",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `amount` REAL NOT NULL, `unit` TEXT NOT NULL, `mappedRecipe` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `amount` TEXT NOT NULL, `unit` TEXT NOT NULL, `mappedRecipes` TEXT NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -191,7 +191,7 @@
           {
             "fieldPath": "amount",
             "columnName": "amount",
-            "affinity": "REAL",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -201,8 +201,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "mappedRecipe",
-            "columnName": "mappedRecipe",
+            "fieldPath": "mappedRecipes",
+            "columnName": "mappedRecipes",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -220,7 +220,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6ae2485b0173002c9c2e4f24b6a1549d')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '13b64680442bc94fae0ac72dcd5223ff')"
     ]
   }
 }
