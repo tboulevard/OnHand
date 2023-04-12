@@ -33,7 +33,6 @@ fun ShoppingListScreen(
             OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
         }
         is ShoppingListUiState.Success -> {
-
             when (state.ingredients.isNotEmpty()) {
                 true -> {
                     ShoppingListCards(
@@ -82,7 +81,6 @@ fun ShoppingListCards(ingredients: List<ShoppingListIngredient>) {
             )
         }
     }
-
 }
 
 @Preview
@@ -106,15 +104,12 @@ fun ShoppingListCardItem(
                     .padding(20.dp)
                     .weight(1f)
             ) {
-                // TODO: probably makes more sense to list amount total at top, then do breakdown for all recipes within
                 Text(text = card.ingredientName, style = MaterialTheme.typography.headlineMedium)
                 Text(
-                    // TODO: trailing stuff
-                    text = "Quantities: ${card.measures.map { "${it.amount} " + it.unit }}",
+                    text = "Quantities: ${card.measures.map { "${it.amount} ${it.unit}" }}",
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Text(
-                    // TODO: trailing stuff
                     text = "Recipes: ${card.measures.map { it.recipe.title }}",
                     style = MaterialTheme.typography.bodyMedium
                 )

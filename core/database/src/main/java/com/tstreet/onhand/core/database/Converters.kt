@@ -22,16 +22,6 @@ class Converters {
     }
 
     @TypeConverter
-    fun fromRecipe(recipe: Recipe): String {
-        return Json.encodeToString(recipe)
-    }
-
-    @TypeConverter
-    fun toRecipe(str: String): Recipe {
-        return Json.decodeFromString(str)
-    }
-
-    @TypeConverter
     fun toRecipeMeasureList(str: String): List<RecipeMeasure> {
         return Json.decodeFromString(str)
     }

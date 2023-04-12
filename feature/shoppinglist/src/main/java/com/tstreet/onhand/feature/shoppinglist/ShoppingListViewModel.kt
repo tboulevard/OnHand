@@ -3,7 +3,6 @@ package com.tstreet.onhand.feature.shoppinglist
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.domain.GetShoppingListUseCase
-import com.tstreet.onhand.core.model.ShoppingListIngredient
 import com.tstreet.onhand.core.ui.RecipeDetailUiState
 import com.tstreet.onhand.core.ui.ShoppingListUiState
 import kotlinx.coroutines.flow.*
@@ -27,6 +26,4 @@ class ShoppingListViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = RecipeDetailUiState.Loading
         )
-
-
 }

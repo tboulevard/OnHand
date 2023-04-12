@@ -19,12 +19,6 @@ class GetShoppingListUseCase @Inject constructor(
     @Named(IO) private val ioDispatcher: CoroutineDispatcher,
 ) : UseCase() {
 
-    // TODO: If I add to pantry the ingredient I'm missing, it won't update
-    // TODO: cache shopping list if saved recipes haven't changed
-    // TODO: are we handling flow of
-    //  1. add ingredients to pantry
-    //  2. save recipe shown bc we have the ingredients
-    //  3. remove ingredient from pantry (but still have recipe saved)
     operator fun invoke(): Flow<List<ShoppingListIngredient>> {
         println("[OnHand] GetShoppingListUseCase.invoke()")
         return combine(
@@ -36,40 +30,31 @@ class GetShoppingListUseCase @Inject constructor(
                 recipes = savedRecipes
             )
         }.onEach {
-            // TODO: inserting the same ingredient from multiple recipes breaks primary key
-            //  constraint for Room and throws exception - revisit in next PR
+            // TODO: Cache shopping list depending on pantry state to save on work
             //shoppingListRepository.get().insertShoppingList(it)
         }.flowOn(ioDispatcher)
     }
 
-    // TODO: Use pantry to determine if we actually have enough quantity of item later. Can do simple math in this function
     private fun getShoppingList(
         pantry: List<PantryIngredient>,
         recipes: List<Recipe>
     ): List<ShoppingListIngredient> {
         println("[OnHand] getShoppingList($pantry, $recipes)")
 
-        // Determine shopping list from ingredients + saved recipes
-        // 1. Collect all ingredients in all saved recipes (used and missed), totaling amounts. We collect
+        //  Collect all ingredients in all saved recipes (used and missed), totaling amounts. We collect
         //  used and missed in case pantry state no longer reflects the saved recipe ingredient state
         //  (i.e. pantry state changes since the recipe was saved with what ingredients were missing at
         //  the time...)
-        // 2. Double for loop over ^ list, outer loop on pantry ingredients
-        // TODO: 3. subtract amounts (just remove the ingredient initially since we don't store quantities)
-        // 4. Create shopping list, interleaving amounts and units if an ingredient is a member of
-        //  multiple recipes
-
-        // 1)
-        val allRecipeIngredients = mutableMapOf<Ingredient, MutableList<RecipeMeasure>>()
+        val recipeMeasureMap = mutableMapOf<Ingredient, MutableList<RecipeMeasure>>()
         recipes.forEach { recipe ->
             recipe.usedIngredients.forEach { recipeIngredient ->
                 // If we already created a list in the map, add to it
-                if (allRecipeIngredients.containsKey(recipeIngredient.ingredient)) {
-                    allRecipeIngredients[recipeIngredient.ingredient]!!.add(
+                if (recipeMeasureMap.containsKey(recipeIngredient.ingredient)) {
+                    recipeMeasureMap[recipeIngredient.ingredient]!!.add(
                         RecipeMeasure(recipe, recipeIngredient.unit, recipeIngredient.amount)
                     )
                 } else { // Otherwise, create it
-                    allRecipeIngredients[recipeIngredient.ingredient] =
+                    recipeMeasureMap[recipeIngredient.ingredient] =
                         mutableListOf(
                             RecipeMeasure(
                                 recipe,
@@ -80,12 +65,12 @@ class GetShoppingListUseCase @Inject constructor(
                 }
             }
             recipe.missedIngredients.forEach { recipeIngredient ->
-                if (allRecipeIngredients.containsKey(recipeIngredient.ingredient)) {
-                    allRecipeIngredients[recipeIngredient.ingredient]!!.add(
+                if (recipeMeasureMap.containsKey(recipeIngredient.ingredient)) {
+                    recipeMeasureMap[recipeIngredient.ingredient]!!.add(
                         RecipeMeasure(recipe, recipeIngredient.unit, recipeIngredient.amount)
                     )
                 } else {
-                    allRecipeIngredients[recipeIngredient.ingredient] =
+                    recipeMeasureMap[recipeIngredient.ingredient] =
                         mutableListOf(
                             RecipeMeasure(
                                 recipe,
@@ -97,30 +82,23 @@ class GetShoppingListUseCase @Inject constructor(
             }
         }
 
-        // 2) - For first iteration just entirely remove the item if we have it in the pantry.
-        //  deal with quantities later...
-        // TODO 3)
+        // Iterate over items in pantry and ingredients in all recipes. For first iteration we
+        // just entirely remove the item if we have it in the pantry - TODO deal with quantities
+        // later by subtraction. Issue right now is that ingredients are measures using different
+        // units.
         pantry.forEach {
-            if (allRecipeIngredients.keys.contains(it.ingredient)) {
-                allRecipeIngredients.remove(it.ingredient)
+            if (recipeMeasureMap.keys.contains(it.ingredient)) {
+                recipeMeasureMap.remove(it.ingredient)
             }
         }
 
-        // 4)
-        val shoppingList = allRecipeIngredients.map { curr ->
+        // Create shopping list by flattening the recipeMeasureMap
+        return recipeMeasureMap.map {
             ShoppingListIngredient(
-                id = curr.key.id,
-                name = curr.key.name,
-                recipeMeasures = curr.value.map {
-                    RecipeMeasure(
-                        recipe = it.recipe,
-                        unit = it.unit,
-                        amount = it.amount
-                    )
-                }
+                id = it.key.id,
+                name = it.key.name,
+                recipeMeasures = it.value
             )
         }
-
-        return shoppingList
     }
 }
