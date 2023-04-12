@@ -5,6 +5,7 @@ import com.tstreet.onhand.core.common.UseCase
 import com.tstreet.onhand.core.data.repository.PantryRepository
 import com.tstreet.onhand.core.data.repository.RecipeRepository
 import com.tstreet.onhand.core.data.repository.ShoppingListRepository
+import com.tstreet.onhand.core.model.Ingredient
 import com.tstreet.onhand.core.model.PantryIngredient
 import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.model.ShoppingListIngredient
@@ -22,6 +23,11 @@ class GetShoppingListUseCase @Inject constructor(
 ) : UseCase() {
 
     // TODO: If I add to pantry the ingredient I'm missing, it won't update
+    // TODO: cache shopping list if saved recipes haven't changed
+    // TODO: are we handling flow of
+    //  1. add ingredients to pantry
+    //  2. save recipe shown bc we have the ingredients
+    //  3. remove ingredient from pantry (but still have recipe saved)
     operator fun invoke(): Flow<List<ShoppingListIngredient>> {
         println("[OnHand] GetShoppingListUseCase.invoke()")
         return combine(
@@ -46,21 +52,55 @@ class GetShoppingListUseCase @Inject constructor(
     ): List<ShoppingListIngredient> {
         println("[OnHand] getShoppingList($pantry, $recipes)")
 
-        val shoppingList = mutableListOf<ShoppingListIngredient>()
+        // Determine shopping list from ingredients + saved recipes
+        // 1. Collect all ingredients in all saved recipes (used and missed), totaling amounts. We collect
+        //  used and missed in case pantry state no longer reflects the saved recipe ingredient state
+        //  (i.e. pantry state changes since the recipe was saved with what ingredients were missing at
+        //  the time...)
+        // 2. Double for loop over ^ list, outer loop on pantry ingredients
+        // TODO: 3. subtract amounts (just remove the ingredient initially since we don't store quantities)
+        // 4. Create shopping list
 
-        for(recipe in recipes) {
-            shoppingList.addAll(recipe.missedIngredients.map {
-                ShoppingListIngredient(
-                    id = it.ingredient.id,
-                    name = it.ingredient.name,
-                    amount = it.amount,
-                    unit = it.unit,
-                    // TODO: multi recipe mappings
-                    mappedRecipes = mutableListOf(recipe)
-                )
-            })
+        // 1)
+        val allRecipeIngredients = mutableMapOf<Ingredient, RecipeMeasure>()
+        recipes.forEach { recipe ->
+            recipe.usedIngredients.forEach { recipeIngredient ->
+                allRecipeIngredients[recipeIngredient.ingredient] =
+                    RecipeMeasure(recipe, recipeIngredient.unit, recipeIngredient.amount)
+            }
+            recipe.missedIngredients.forEach { recipeIngredient ->
+                allRecipeIngredients[recipeIngredient.ingredient] =
+                    RecipeMeasure(recipe, recipeIngredient.unit, recipeIngredient.amount)
+            }
         }
+
+        // 2) - For first iteration just entirely remove the item if we have it in the pantry.
+        //  deal with quantities later...
+        // TODO 3)
+        pantry.forEach {
+            if (allRecipeIngredients.keys.contains(it.ingredient)) {
+                allRecipeIngredients.remove(it.ingredient)
+            }
+        }
+
+        // 4)
+        val shoppingList = allRecipeIngredients.map {
+            ShoppingListIngredient(
+                id = it.key.id,
+                name = it.key.name,
+                amount = it.value.amount,
+                unit = it.value.unit,
+                mappedRecipe = it.value.recipe
+            )
+        }
+
 
         return shoppingList
     }
 }
+
+class RecipeMeasure(
+    val recipe : Recipe,
+    val unit: String,
+    val amount: Double
+)

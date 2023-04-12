@@ -3,6 +3,7 @@ package com.tstreet.onhand.core.database.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.model.ShoppingListIngredient
 
 @Entity(
@@ -13,7 +14,8 @@ data class ShoppingListEntity(
     @ColumnInfo val name: String,
     @ColumnInfo val amount: Double,
     @ColumnInfo val unit: String,
-    //@ColumnInfo val mappedRecipes: List<Recipe>
+    // TODO: Make it a list a mapped recipes as ingredients can be part of multiple
+    @ColumnInfo val mappedRecipe: Recipe
 )
 
 fun ShoppingListEntity.toExternalModel(): ShoppingListIngredient {
@@ -22,7 +24,7 @@ fun ShoppingListEntity.toExternalModel(): ShoppingListIngredient {
         name = name,
         amount = amount,
         unit = unit,
-        //mappedRecipes  = mappedRecipes
+        mappedRecipe = mappedRecipe
     )
 }
 
@@ -32,6 +34,6 @@ fun ShoppingListIngredient.asEntity(): ShoppingListEntity {
         name = name,
         amount = amount,
         unit = unit,
-        //mappedRecipes  = mappedRecipes
+        mappedRecipe = mappedRecipe
     )
 }
