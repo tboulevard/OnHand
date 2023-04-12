@@ -24,6 +24,8 @@ import com.tstreet.onhand.feature.recipedetail.RecipeDetailScreen
 import com.tstreet.onhand.feature.recipedetail.di.DaggerRecipeDetailComponent
 import com.tstreet.onhand.feature.recipesearch.RecipeSearchScreen
 import com.tstreet.onhand.feature.recipesearch.di.DaggerRecipeSearchComponent
+import com.tstreet.onhand.feature.savedrecipes.SavedRecipesScreen
+import com.tstreet.onhand.feature.savedrecipes.di.DaggerSavedRecipesComponent
 import com.tstreet.onhand.feature.shoppinglist.ShoppingListScreen
 import com.tstreet.onhand.feature.shoppinglist.di.DaggerShoppingListComponent
 
@@ -104,6 +106,19 @@ private fun NavigationConfiguration(
                 }
             )
         }
+        composable(route = BottomNavigationScreen.SavedRecipes.route) {
+            SavedRecipesScreen(
+                navController,
+                injectedViewModel {
+                    DaggerSavedRecipesComponent
+                        .builder()
+                        .dataComponentProvider(dataProvider)
+                        .commonComponentProvider(commonProvider)
+                        .build()
+                        .viewModel
+                }
+            )
+        }
         composable(route = BottomNavigationScreen.ShoppingList.route) {
             ShoppingListScreen(
                 injectedViewModel {
@@ -116,6 +131,7 @@ private fun NavigationConfiguration(
                 }
             )
         }
+
     }
 }
 
