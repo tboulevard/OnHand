@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "faf29d7c6e6bbb160a63046cb87e46bb",
+    "identityHash": "f9baa942b77a636385ff01a6cd02d18e",
     "entities": [
       {
         "tableName": "ingredient_catalog",
@@ -106,7 +106,7 @@
       },
       {
         "tableName": "recipe_search_cache",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `title` TEXT NOT NULL, `image` TEXT NOT NULL, `imageType` TEXT NOT NULL, `missedIngredients` TEXT NOT NULL, `missedIngredientCount` INTEGER NOT NULL, `usedIngredients` TEXT NOT NULL, `usedIngredientCount` INTEGER NOT NULL, `sourceUrl` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `title` TEXT NOT NULL, `image` TEXT NOT NULL, `imageType` TEXT NOT NULL, `missedIngredients` TEXT NOT NULL, `missedIngredientCount` INTEGER NOT NULL, `usedIngredients` TEXT NOT NULL, `usedIngredientCount` INTEGER NOT NULL, `likes` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -158,7 +158,7 @@
           },
           {
             "fieldPath": "likes",
-            "columnName": "sourceUrl",
+            "columnName": "likes",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -174,7 +174,7 @@
       },
       {
         "tableName": "shopping_list",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `amount` REAL NOT NULL, `unit` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `recipeMeasures` TEXT NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -189,14 +189,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "amount",
-            "columnName": "amount",
-            "affinity": "REAL",
-            "notNull": true
-          },
-          {
-            "fieldPath": "unit",
-            "columnName": "unit",
+            "fieldPath": "recipeMeasures",
+            "columnName": "recipeMeasures",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -214,7 +208,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'faf29d7c6e6bbb160a63046cb87e46bb')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f9baa942b77a636385ff01a6cd02d18e')"
     ]
   }
 }

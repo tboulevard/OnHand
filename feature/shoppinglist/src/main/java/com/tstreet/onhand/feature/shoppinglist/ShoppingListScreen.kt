@@ -33,8 +33,7 @@ fun ShoppingListScreen(
             OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
         }
         is ShoppingListUiState.Success -> {
-
-            when(state.ingredients.isNotEmpty()) {
+            when (state.ingredients.isNotEmpty()) {
                 true -> {
                     ShoppingListCards(
                         state.ingredients
@@ -59,10 +58,7 @@ fun ShoppingListScreen(
 
 class ShoppingListCard(
     val ingredientName: String,
-    val amount: Double,
-    val unit: String,
-    // TODO: what if two recipes request same ingredient
-    val mappedRecipes: List<Recipe>,
+    val measures: List<RecipeMeasure>,
     val index: Int
 )
 
@@ -79,15 +75,12 @@ fun ShoppingListCards(ingredients: List<ShoppingListIngredient>) {
             ShoppingListCardItem(
                 ShoppingListCard(
                     ingredientName = ingredient.name,
-                    amount = ingredient.amount,
-                    unit = ingredient.unit,
-                    mappedRecipes = ingredient.mappedRecipes,
+                    measures = ingredient.recipeMeasures,
                     index = index
                 )
             )
         }
     }
-
 }
 
 @Preview
@@ -111,14 +104,13 @@ fun ShoppingListCardItem(
                     .padding(20.dp)
                     .weight(1f)
             ) {
-                // TODO: probably makes more sense to list amount total at top, then do breakdown for all recipes within
                 Text(text = card.ingredientName, style = MaterialTheme.typography.headlineMedium)
                 Text(
-                    text = "${card.amount}${card.unit} (total)",
+                    text = "Quantities: ${card.measures.map { "${it.amount} ${it.unit}" }}",
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Text(
-                    text = "Recipes: ${card.mappedRecipes.map { it.title }}",
+                    text = "Recipes: ${card.measures.map { it.recipe.title }}",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -130,23 +122,64 @@ fun ShoppingListCardItem(
 class RecipeSearchCardPreviewParamProvider : PreviewParameterProvider<ShoppingListCard> {
     override val values: Sequence<ShoppingListCard> = sequenceOf(
         ShoppingListCard(
-            "ingredient",
-            1.0,
-            "oz",
-            listOf(
-                Recipe(
-                    id = 1,
-                    title = "Recipe title1",
-                    image = "image",
-                    imageType = "imageType",
-                    missedIngredientCount = 2,
-                    missedIngredients = listOf(RecipeIngredient(Ingredient(4, "cheese"), amount = 2.0 , unit = "oz")),
-                    usedIngredientCount = 1,
-                    usedIngredients = listOf(RecipeIngredient(Ingredient(5, "garlic"), amount = 1.0 , unit = "clove")),
-                    likes = 100
+            ingredientName = "ingredient",
+            measures = listOf(
+                RecipeMeasure(
+                    recipe = Recipe(
+                        id = 1,
+                        title = "Recipe title1",
+                        image = "image",
+                        imageType = "imageType",
+                        missedIngredientCount = 2,
+                        missedIngredients = listOf(
+                            RecipeIngredient(
+                                Ingredient(4, "cheese"),
+                                amount = 2.0,
+                                unit = "oz"
+                            )
+                        ),
+                        usedIngredientCount = 1,
+                        usedIngredients = listOf(
+                            RecipeIngredient(
+                                Ingredient(5, "garlic"),
+                                amount = 1.0,
+                                unit = "clove"
+                            )
+                        ),
+                        likes = 100
+                    ),
+                    amount = 10.5,
+                    unit = "cups"
+                ),
+                RecipeMeasure(
+                    recipe = Recipe(
+                        id = 2,
+                        title = "Recipe title2",
+                        image = "image",
+                        imageType = "imageType",
+                        missedIngredientCount = 2,
+                        missedIngredients = listOf(
+                            RecipeIngredient(
+                                Ingredient(40, "tomato"),
+                                amount = 2.0,
+                                unit = "oz"
+                            )
+                        ),
+                        usedIngredientCount = 1,
+                        usedIngredients = listOf(
+                            RecipeIngredient(
+                                Ingredient(50, "onion"),
+                                amount = 1.0,
+                                unit = "unit"
+                            )
+                        ),
+                        likes = 100
+                    ),
+                    amount = 2.0,
+                    unit = "oz"
                 )
             ),
-            1
+            index = 0
         )
     )
 }
