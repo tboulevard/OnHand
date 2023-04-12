@@ -5,10 +5,7 @@ import com.tstreet.onhand.core.common.UseCase
 import com.tstreet.onhand.core.data.repository.PantryRepository
 import com.tstreet.onhand.core.data.repository.RecipeRepository
 import com.tstreet.onhand.core.data.repository.ShoppingListRepository
-import com.tstreet.onhand.core.model.Ingredient
-import com.tstreet.onhand.core.model.PantryIngredient
-import com.tstreet.onhand.core.model.Recipe
-import com.tstreet.onhand.core.model.ShoppingListIngredient
+import com.tstreet.onhand.core.model.*
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
@@ -59,18 +56,20 @@ class GetShoppingListUseCase @Inject constructor(
         //  the time...)
         // 2. Double for loop over ^ list, outer loop on pantry ingredients
         // TODO: 3. subtract amounts (just remove the ingredient initially since we don't store quantities)
-        // 4. Create shopping list
+        // 4. Create shopping list, interleaving amounts and units if an ingredient is a member of
+        //  multiple recipes
 
         // 1)
-        val allRecipeIngredients = mutableMapOf<Int, MutableList<RecipeMeasure>>()
+        val allRecipeIngredients = mutableMapOf<Ingredient, MutableList<RecipeMeasure>>()
         recipes.forEach { recipe ->
             recipe.usedIngredients.forEach { recipeIngredient ->
-                if (allRecipeIngredients.containsKey(recipeIngredient.ingredient.id)) {
-                    allRecipeIngredients[recipeIngredient.ingredient.id]!!.add(
+                // If we already created a list in the map, add to it
+                if (allRecipeIngredients.containsKey(recipeIngredient.ingredient)) {
+                    allRecipeIngredients[recipeIngredient.ingredient]!!.add(
                         RecipeMeasure(recipe, recipeIngredient.unit, recipeIngredient.amount)
                     )
-                } else {
-                    allRecipeIngredients[recipeIngredient.ingredient.id] =
+                } else { // Otherwise, create it
+                    allRecipeIngredients[recipeIngredient.ingredient] =
                         mutableListOf(
                             RecipeMeasure(
                                 recipe,
@@ -81,12 +80,12 @@ class GetShoppingListUseCase @Inject constructor(
                 }
             }
             recipe.missedIngredients.forEach { recipeIngredient ->
-                if (allRecipeIngredients.containsKey(recipeIngredient.ingredient.id)) {
-                    allRecipeIngredients[recipeIngredient.ingredient.id]!!.add(
+                if (allRecipeIngredients.containsKey(recipeIngredient.ingredient)) {
+                    allRecipeIngredients[recipeIngredient.ingredient]!!.add(
                         RecipeMeasure(recipe, recipeIngredient.unit, recipeIngredient.amount)
                     )
                 } else {
-                    allRecipeIngredients[recipeIngredient.ingredient.id] =
+                    allRecipeIngredients[recipeIngredient.ingredient] =
                         mutableListOf(
                             RecipeMeasure(
                                 recipe,
@@ -102,40 +101,22 @@ class GetShoppingListUseCase @Inject constructor(
         //  deal with quantities later...
         // TODO 3)
         pantry.forEach {
-            if (allRecipeIngredients.keys.contains(it.ingredient.id)) {
-                allRecipeIngredients.remove(it.ingredient.id)
+            if (allRecipeIngredients.keys.contains(it.ingredient)) {
+                allRecipeIngredients.remove(it.ingredient)
             }
         }
 
-        // TODO: figure out a way to interleave amounts and units
-        //  e.g.: instead of: 1.25 + 4 cup, oz -> 1.25 cup, 4 oz
         // 4)
         val shoppingList = allRecipeIngredients.map { curr ->
             ShoppingListIngredient(
-                id = curr.key,
-                name = curr.key.toString(),
-                amount = {
-                    var str = ""
-                    curr.value.forEachIndexed { index, measure ->
-                        str += measure.amount.toString()
-
-                        if (index != (curr.value.size - 1)) {
-                            str += " + "
-                        }
-                    }
-                    str
-                },
-                mappedRecipes = { curr.value.map { it.recipe } },
-                unit = {
-                    var str = ""
-                    curr.value.forEachIndexed { index, measure ->
-                        str += measure.unit
-
-                        if (index != (curr.value.size - 1)) {
-                            str += ", "
-                        }
-                    }
-                    str
+                id = curr.key.id,
+                name = curr.key.name,
+                recipeMeasures = curr.value.map {
+                    RecipeMeasure(
+                        recipe = it.recipe,
+                        unit = it.unit,
+                        amount = it.amount
+                    )
                 }
             )
         }
@@ -143,9 +124,3 @@ class GetShoppingListUseCase @Inject constructor(
         return shoppingList
     }
 }
-
-class RecipeMeasure(
-    val recipe: Recipe,
-    val unit: String,
-    val amount: Double
-)

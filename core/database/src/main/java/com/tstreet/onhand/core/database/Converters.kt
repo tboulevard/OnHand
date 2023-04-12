@@ -3,6 +3,7 @@ package com.tstreet.onhand.core.database
 import androidx.room.TypeConverter
 import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.model.RecipeIngredient
+import com.tstreet.onhand.core.model.RecipeMeasure
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.decodeFromString
@@ -30,25 +31,13 @@ class Converters {
         return Json.decodeFromString(str)
     }
 
-    //// cleanup later...
-
     @TypeConverter
-    fun toLambdaString(lambdaString: () -> String): String {
-        return Json.encodeToString(lambdaString)
-    }
-
-    @TypeConverter
-    fun fromLambdaString(str: String): () -> String {
+    fun toRecipeMeasureList(str: String): List<RecipeMeasure> {
         return Json.decodeFromString(str)
     }
 
     @TypeConverter
-    fun toLambdaRecipe(lambdaString: () -> List<Recipe>): String {
-        return Json.encodeToString(lambdaString)
-    }
-
-    @TypeConverter
-    fun fromLambdaRecipe(str: String): () -> List<Recipe> {
-        return Json.decodeFromString(str)
+    fun fromRecipeMeasureList(list: List<RecipeMeasure>): String {
+        return Json.encodeToString(list)
     }
 }

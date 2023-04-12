@@ -1,9 +1,12 @@
 package com.tstreet.onhand.core.model
 
+import kotlinx.serialization.Serializable
+
 /**
  * General purpose representation of a recipe, containing identifying information and ingredients
  * to make it.
  */
+@Serializable
 class Recipe(
     val id: Int,
     val title: String,

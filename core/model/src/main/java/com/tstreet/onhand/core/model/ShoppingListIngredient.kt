@@ -1,11 +1,21 @@
 package com.tstreet.onhand.core.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 class ShoppingListIngredient(
     val id: Int,
-    val name : String,
-    // TODO: Revisit, quantity/unit of measure later
-    val amount : () -> String,
-    val unit : () -> String,
-    // TODO: make this a list, as ingredients can be members of multiple recipes
-    val mappedRecipes : () -> List<Recipe>
+    val name: String,
+    // Because ingredients can be members of multiple recipes, with different units of measurement
+    val recipeMeasures: List<RecipeMeasure>
+)
+
+/**
+ * The measurements associated with an ingredient to satisfy the given [Recipe].
+ */
+@Serializable
+data class RecipeMeasure(
+    val recipe: Recipe,
+    val unit: String,
+    val amount: Double
 )
