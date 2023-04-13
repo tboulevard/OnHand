@@ -7,6 +7,7 @@ import com.tstreet.onhand.core.database.model.*
 import com.tstreet.onhand.core.database.model.asExternalModel
 import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.model.RecipeDetail
+import com.tstreet.onhand.core.model.SaveableRecipe
 import com.tstreet.onhand.core.network.OnHandNetworkDataSource
 import com.tstreet.onhand.core.network.model.NetworkRecipe
 import com.tstreet.onhand.core.network.model.NetworkRecipeDetail
@@ -89,7 +90,7 @@ class RecipeRepositoryImpl @Inject constructor(
             .isRecipeSaved(id) == 1
     }
 
-    override fun getSavedRecipes(): Flow<List<Recipe>> {
+    override fun getSavedRecipes(): Flow<List<SaveableRecipe>> {
         println("[OnHand] getSavedRecipes()")
         return savedRecipeDao
             .get()

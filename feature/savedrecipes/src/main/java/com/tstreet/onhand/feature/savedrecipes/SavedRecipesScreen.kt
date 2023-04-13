@@ -97,6 +97,7 @@ fun SavedRecipeCards(
                     likes = item.recipe.likes,
                     saveState = RecipeSaveState.SAVED
                 ),
+                index = index,
                 onItemClick = onItemClick,
                 onSaveClick = onSaveClick,
                 onUnSaveClick = onUnSaveClick

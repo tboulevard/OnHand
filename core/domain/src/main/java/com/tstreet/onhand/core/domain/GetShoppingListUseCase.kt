@@ -27,7 +27,7 @@ class GetShoppingListUseCase @Inject constructor(
         ) { pantryIngredients, savedRecipes ->
             getShoppingList(
                 pantry = pantryIngredients,
-                recipes = savedRecipes
+                recipes = savedRecipes.map { it.recipe }
             )
         }.onEach {
             // TODO: Cache shopping list depending on pantry state to save on work

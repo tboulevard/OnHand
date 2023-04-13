@@ -1,14 +1,11 @@
 package com.tstreet.onhand.feature.savedrecipes
 
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.domain.GetSavedRecipesUseCase
-import com.tstreet.onhand.core.domain.GetShoppingListUseCase
 import com.tstreet.onhand.core.domain.SaveRecipeUseCase
 import com.tstreet.onhand.core.domain.UnsaveRecipeUseCase
-import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.ui.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -32,6 +29,9 @@ class SavedRecipesViewModel @Inject constructor(
         .invoke()
         .map {
             _recipes = it.toRecipeSearchItemList()
+            // TODO NOTE: By passing this here and making mutations on _recipes in this class, we
+            //  trigger a recomposition each time. This is causing uiState to retrigger (and call
+            //  getSavedRecipes each time an item is added/removed from the list.
             _recipes
         }
         .map(SavedRecipesUiState::Success)

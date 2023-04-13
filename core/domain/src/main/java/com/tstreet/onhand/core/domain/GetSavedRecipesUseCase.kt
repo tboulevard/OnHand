@@ -1,31 +1,28 @@
 package com.tstreet.onhand.core.domain
 
+import com.tstreet.onhand.core.common.CommonModule.IO
+import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.common.UseCase
 import com.tstreet.onhand.core.data.repository.RecipeRepository
-import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.model.SaveableRecipe
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
+import javax.inject.Named
 import javax.inject.Provider
 
+@FeatureScope
 class GetSavedRecipesUseCase @Inject constructor(
-    private val recipeRepository: Provider<RecipeRepository>
+    private val recipeRepository: Provider<RecipeRepository>,
+    @Named(IO) private val ioDispatcher: CoroutineDispatcher,
 ) : UseCase() {
 
     operator fun invoke(): Flow<List<SaveableRecipe>> {
-        return recipeRepository
+        println("[OnHand] GetSavedRecipesUseCase.invoke()")
+        val savedRecipeFlow = recipeRepository
             .get()
             .getSavedRecipes()
-            .map {
-                it.map { recipe ->
-                    SaveableRecipe(
-                        recipe,
-                        isSaved = true // TODO: refactor, for now assume true
-                    )
-                }
-            }
+
+        return savedRecipeFlow.flowOn(ioDispatcher)
     }
 }
