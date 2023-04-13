@@ -21,16 +21,19 @@ data class SavedRecipeEntity(
 )
 
 fun SavedRecipeEntity.asExternalModel() =
-    Recipe(
-        id = id,
-        title = title,
-        image = image,
-        imageType = imageType,
-        missedIngredients = missedIngredients,
-        missedIngredientCount = missedIngredientCount,
-        usedIngredients = usedIngredients,
-        usedIngredientCount = usedIngredientCount,
-        likes = likes
+    SaveableRecipe(
+        Recipe(
+            id = id,
+            title = title,
+            image = image,
+            imageType = imageType,
+            missedIngredients = missedIngredients,
+            missedIngredientCount = missedIngredientCount,
+            usedIngredients = usedIngredients,
+            usedIngredientCount = usedIngredientCount,
+            likes = likes
+        ),
+        isSaved = true // TODO: refactor, for now assume true - all recipes in this table are saved
     )
 
 fun Recipe.toSavedRecipeEntity() = SavedRecipeEntity(

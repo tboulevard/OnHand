@@ -1,6 +1,7 @@
 package com.tstreet.onhand.core.domain
 
 import com.tstreet.onhand.core.common.CommonModule
+import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.common.UseCase
 import com.tstreet.onhand.core.data.repository.RecipeRepository
@@ -17,11 +18,12 @@ import javax.inject.Provider
 @FeatureScope
 class UnsaveRecipeUseCase @Inject constructor(
     private val repository: Provider<RecipeRepository>,
-    @Named(CommonModule.IO) private val ioDispatcher: CoroutineDispatcher,
+    @Named(IO) private val ioDispatcher: CoroutineDispatcher,
 ) : UseCase() {
 
     // TODO: Model state using an object (Success/Failure) rather than boolean?
     operator fun invoke(recipe: Recipe): Flow<Boolean> {
+        println("[OnHand] UnsaveRecipeUseCase.invoke()")
         val unsaveRecipeFlow = flow {
             repository
                 .get()

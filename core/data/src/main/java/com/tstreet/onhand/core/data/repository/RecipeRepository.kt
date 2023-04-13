@@ -20,7 +20,7 @@ interface RecipeRepository {
 
     suspend fun isRecipeSaved(id: Int): Boolean
 
-    fun getSavedRecipes(): Flow<List<Recipe>>
+    fun getSavedRecipes(): Flow<List<SaveableRecipe>>
 }
 
 // TODO: move to more appropriate spot
