@@ -1,6 +1,10 @@
 package com.tstreet.onhand.feature.ingredientsearch
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.Interaction
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -9,19 +13,21 @@ import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.tstreet.onhand.core.model.Ingredient
 import com.tstreet.onhand.core.model.PantryIngredient
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
 import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
 
 // TODO: use @PreviewParameter + create module with fake models to populate composables
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IngredientSearchScreen(
     navController: NavController,
@@ -29,30 +35,121 @@ fun IngredientSearchScreen(
 ) {
     val searchText by viewModel.searchText.collectAsState()
     val isSearching by viewModel.isSearching.collectAsState()
+    var expanded by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+    val interactions = remember { mutableStateListOf<Interaction>() }
 
+    LaunchedEffect(interactionSource) {
+        interactionSource.interactions.collect { interaction ->
+            when (interaction) {
+                is PressInteraction.Press -> {
+                    interactions.add(interaction)
+                }
+                is PressInteraction.Release -> {
+                    interactions.remove(interaction.press)
+                }
+                is PressInteraction.Cancel -> {
+                    interactions.remove(interaction.press)
+                }
+            }
+        }
+    }
+
+    println("[OnHand] expanded=$expanded")
     Column(
         modifier = Modifier
             .fillMaxSize(),
         verticalArrangement = Arrangement.Top
     ) {
-        IngredientSearchBar(searchText, viewModel::onSearchTextChange)
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = {
+                expanded = true
+                println("[OnHand] onExpandedChanged()")
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(4.dp)
+        ) {
+            TextField(
+                modifier = Modifier
+                    .menuAnchor()
+                    .fillMaxWidth(),
+                value = searchText,
+                onValueChange = { viewModel.onSearchTextChange(it) },
+                label = { Text("Search Ingredients") },
+                trailingIcon = {
+                    if (searchText.isNotEmpty()) {
+                        Icon(
+                            modifier = Modifier.clickable {
+                                viewModel.onSearchTextChange("")
+                            },
+                            imageVector = Icons.Filled.Close,
+                            contentDescription = "close"
+                        )
+                    }
+                },
+                leadingIcon = {
+                    if (isSearching) {
+                        OnHandProgressIndicator(modifier = Modifier.size(24.dp))
+                    } else {
+                        Icon(
+                            imageVector = Icons.Filled.Search,
+                            contentDescription = "search"
+                        )
+                    }
+                },
+                textStyle = MaterialTheme.typography.bodyMedium
+            )
+            ExposedDropdownMenu(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp),
+                expanded = expanded,
+                onDismissRequest = {
 
-        when {
-            isSearching -> {
-                OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
-            }
-            else -> {
-                IngredientSearchCardList(
-                    ingredients = viewModel.ingredients,
-                    onItemClick = viewModel::onToggleFromSearch
-                )
+                }
+            ) {
+                viewModel.ingredients.forEachIndexed { index, item ->
+                    DropdownMenuItem(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                if (item.inPantry) {
+                                    MATTE_GREEN
+                                } else {
+                                    MaterialTheme.colorScheme.surfaceVariant
+                                }
+                            )
+                            .padding(8.dp),
+                        onClick = {
+                            viewModel.onToggleFromSearch(index)
+                        },
+                        text = {
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = item.ingredient.name
+                            )
+                        },
+                        trailingIcon = {
+                            if (item.inPantry) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = "Added to pantry",
+                                    tint = MaterialTheme.colorScheme.inverseOnSurface,
+                                    modifier = Modifier.align(Alignment.End)
+                                )
+                            }
+                        },
+                    )
+                }
             }
         }
 
         // Pantry Header
         Text(
             modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 8.dp),
-            text = "Your Pantry",
+            text = "Pantry",
             style = MaterialTheme.typography.displayMedium
         )
 
@@ -62,8 +159,8 @@ fun IngredientSearchScreen(
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                         .padding(16.dp),
-                    text = "(empty)",
-                    style = MaterialTheme.typography.displaySmall
+                    text = "Your pantry is empty.",
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
             else -> {
@@ -74,35 +171,6 @@ fun IngredientSearchScreen(
             }
         }
     }
-}
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-private fun IngredientSearchBar(
-    searchText: String,
-    onTextChanged: (String) -> Unit,
-) {
-    OutlinedTextField(
-        value = searchText,
-        onValueChange = onTextChanged,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp, horizontal = 16.dp),
-        leadingIcon = {
-            Icon(
-                Icons.Default.Search,
-                contentDescription = "search",
-                modifier = Modifier.size(24.dp)
-            )
-        },
-        label = {
-            Text(
-                text = "Search Ingredients",
-                style = MaterialTheme.typography.bodyMedium
-            )
-        },
-        textStyle = MaterialTheme.typography.bodyMedium
-    )
 }
 
 private class IngredientSearchCard(
@@ -116,44 +184,68 @@ private fun IngredientSearchListItem(
     index: Int,
     onItemClicked: (Int) -> Unit
 ) {
-    Card(
-        shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(
-            containerColor = if (card.inPantry) {
-                MATTE_GREEN
-            } else {
-                MaterialTheme.colorScheme.surfaceVariant
-            },
-        ),
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(72.dp)
-            .padding(vertical = 2.dp, horizontal = 4.dp)
-            .clickable(onClick = { onItemClicked(index) })
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(end = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
+
+    println("[OnHand] Creating dropdown menu item: ${card.name}")
+    DropdownMenuItem(
+        text = {
             Text(
                 text = card.name,
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier
-                    .align(Alignment.CenterVertically)
                     .padding(horizontal = 8.dp)
             )
+        },
+        onClick = { onItemClicked(index) },
+        trailingIcon = {
             if (card.inPantry) {
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = "Added to pantry",
                     tint = MaterialTheme.colorScheme.inverseOnSurface,
-                    modifier = Modifier.align(Alignment.CenterVertically)
                 )
             }
-        }
-    }
+        },
+    )
+
+
+//    Card(
+//        shape = MaterialTheme.shapes.medium,
+//        colors = CardDefaults.cardColors(
+//            containerColor = if (card.inPantry) {
+//                MATTE_GREEN
+//            } else {
+//                MaterialTheme.colorScheme.surfaceVariant
+//            },
+//        ),
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .height(72.dp)
+//            .padding(vertical = 2.dp, horizontal = 4.dp)
+//            .clickable(onClick = { onItemClicked(index) })
+//    ) {
+//        Row(
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .padding(end = 16.dp),
+//            horizontalArrangement = Arrangement.SpaceBetween
+//        ) {
+//            Text(
+//                text = card.name,
+//                style = MaterialTheme.typography.bodyMedium,
+//                modifier = Modifier
+//                    .align(Alignment.CenterVertically)
+//                    .padding(horizontal = 8.dp)
+//            )
+//            if (card.inPantry) {
+//                Icon(
+//                    imageVector = Icons.Default.Check,
+//                    contentDescription = "Added to pantry",
+//                    tint = MaterialTheme.colorScheme.inverseOnSurface,
+//                    modifier = Modifier.align(Alignment.CenterVertically)
+//                )
+//            }
+//        }
+//    }
 }
 
 @Composable
@@ -161,22 +253,16 @@ fun IngredientSearchCardList(
     ingredients: List<PantryIngredient>,
     onItemClick: (Int) -> Unit
 ) {
-    LazyColumn(
-        modifier = Modifier.padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        itemsIndexed(
-            items = ingredients
-        ) { index, item ->
-            IngredientSearchListItem(
-                card = IngredientSearchCard(
-                    name = item.ingredient.name,
-                    inPantry = item.inPantry
-                ),
-                index,
-                onItemClicked = onItemClick
-            )
-        }
+    ingredients.forEachIndexed { index, item ->
+        println("[OnHand] ingredients.forEachIndexed (${item.ingredient.name})")
+        IngredientSearchListItem(
+            card = IngredientSearchCard(
+                name = item.ingredient.name,
+                inPantry = item.inPantry
+            ),
+            index,
+            onItemClicked = onItemClick
+        )
     }
 }
 

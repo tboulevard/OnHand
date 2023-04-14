@@ -10,11 +10,14 @@ import com.tstreet.onhand.core.domain.GetPantryUseCase
 import com.tstreet.onhand.core.domain.RemoveFromPantryUseCase
 import com.tstreet.onhand.core.model.PantryIngredient
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Provider
+import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 
 //TODO: Encapsulates ingredient search and pantry logic...think about renaming this
@@ -46,6 +49,7 @@ class IngredientSearchViewModel @Inject constructor(
             // Only search and update listed ingredients if we have a valid search query
             if (it.isNotBlank()) {
                 _isSearching.update { true }
+                delay(Random.nextLong(300,600).milliseconds)
                 ingredients.clearAndReplaceWith(getIngredients.get().invoke(it))
             } else if (ingredients.isNotEmpty()) {
                 // Clear the list if search query is blank and we already have listed ingredients
@@ -70,6 +74,7 @@ class IngredientSearchViewModel @Inject constructor(
     val isSearching = _isSearching.asStateFlow()
 
     fun onSearchTextChange(text: String) {
+        println("[OnHand] onSearchTextChange=$text")
         _searchText.value = text
     }
 
