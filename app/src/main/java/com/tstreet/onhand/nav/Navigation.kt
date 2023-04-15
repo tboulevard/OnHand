@@ -65,7 +65,6 @@ private fun NavigationConfiguration(
         // often each new frame). Revisit whether this is a performance issue later.
         composable(route = BottomNavigationScreen.IngredientSearch.route) {
             IngredientSearchScreen(
-                navController,
                 injectedViewModel {
                     DaggerIngredientSearchComponent
                         .builder()

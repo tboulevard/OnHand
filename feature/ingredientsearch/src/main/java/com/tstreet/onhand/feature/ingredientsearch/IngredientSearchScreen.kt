@@ -7,25 +7,17 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.semantics.SemanticsProperties.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.tstreet.onhand.core.model.PantryIngredient
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
 import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
@@ -33,95 +25,59 @@ import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
 // TODO: use @PreviewParameter + create module with fake models to populate composables
 @Composable
 fun IngredientSearchScreen(
-    navController: NavController,
     viewModel: IngredientSearchViewModel
 ) {
     val searchText by viewModel.searchText.collectAsState()
     val isSearching by viewModel.isSearching.collectAsState()
-    var usingSearchBar = remember { mutableStateOf(false) }
+    val isSearchBarFocused by viewModel.isSearchBarFocused.collectAsState()
 
     Column(
-        modifier = Modifier
-            .fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Top
     ) {
-        IngredientSearchBar(searchText, viewModel::onSearchTextChange, usingSearchBar)
-
+        IngredientSearchBar(
+            searchText = searchText,
+            onTextChanged = viewModel::onSearchTextChanged,
+            onFocusChanged = viewModel::onSearchBarFocusChanged,
+            isFocused = isSearchBarFocused
+        )
         when {
             isSearching -> {
                 OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
             }
-            usingSearchBar.value -> {
+            isSearchBarFocused -> {
                 IngredientSearchCardList(
                     ingredients = viewModel.ingredients,
                     onItemClick = viewModel::onToggleFromSearch
                 )
             }
             else -> {
-                // Pantry Header
-                Text(
-                    modifier = Modifier.padding(
-                        start = 16.dp,
-                        top = 16.dp,
-                        end = 16.dp,
-                        bottom = 8.dp
-                    ),
-                    text = "Your Pantry",
-                    style = MaterialTheme.typography.displayMedium
+                PantryItemList(
+                    viewModel.pantry,
+                    viewModel::onToggleFromPantry
                 )
-
-                when {
-                    viewModel.pantry.isEmpty() -> {
-                        Text(
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .padding(16.dp),
-                            text = "(empty)",
-                            style = MaterialTheme.typography.displaySmall
-                        )
-                    }
-                    else -> {
-                        PantryCardList(
-                            pantry = viewModel.pantry,
-                            onItemClick = viewModel::onToggleFromPantry
-                        )
-                    }
-                }
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 private fun IngredientSearchBar(
     searchText: String,
     onTextChanged: (String) -> Unit,
-    usingSearchBar: MutableState<Boolean>,
+    onFocusChanged: (Boolean) -> Unit,
+    isFocused: Boolean,
 ) {
-    val focusRequester = remember { FocusRequester() }
-    var isFocused by remember { mutableStateOf(false) }
-    val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
 
     TextField(
         modifier = Modifier
             .fillMaxWidth()
-            .focusTarget()
-            .focusRequester(focusRequester)
             .padding(8.dp)
-            .onFocusEvent {
-                println("[OnHand] onFocusEvent($it)")
-            }
-            .onFocusChanged {
-                println("[OnHand] onFocusChanged($it)")
-                isFocused = it.isFocused
-                usingSearchBar.value = it.isFocused
-            },
+            .onFocusChanged { onFocusChanged(it.isFocused) },
         value = searchText,
-        onValueChange = {
-            onTextChanged(it)
-        },
+        onValueChange = { onTextChanged(it) },
         placeholder = { Text("Search Ingredients") },
         trailingIcon = {
             if (searchText.isNotEmpty()) {
@@ -142,8 +98,8 @@ private fun IngredientSearchBar(
                 )
             } else {
                 IconButton(onClick = {
-                    isFocused = false
-                    usingSearchBar.value = false
+                    onTextChanged("")
+                    onFocusChanged(false)
                     focusManager.clearFocus()
                 }) {
                     Icon(
@@ -184,14 +140,12 @@ private fun IngredientSearchListItem(
         ),
         modifier = Modifier
             .fillMaxWidth()
-            .height(72.dp)
-            .padding(vertical = 2.dp, horizontal = 4.dp)
-            .clickable(onClick = { onItemClicked(index) })
+            .clickable(onClick = { onItemClicked(index) }),
     ) {
         Row(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(end = 16.dp),
+                .padding(16.dp)
+                .fillMaxSize(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
@@ -199,12 +153,18 @@ private fun IngredientSearchListItem(
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
-                    .padding(horizontal = 8.dp)
             )
             if (card.inPantry) {
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = "Added to pantry",
+                    tint = MaterialTheme.colorScheme.inverseOnSurface,
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.AddCircle,
+                    contentDescription = "Not in pantry",
                     tint = MaterialTheme.colorScheme.inverseOnSurface,
                     modifier = Modifier.align(Alignment.CenterVertically)
                 )
@@ -237,9 +197,37 @@ fun IngredientSearchCardList(
     }
 }
 
+@Composable
+private fun PantryItemList(
+    pantry: SnapshotStateList<PantryIngredient>,
+    onToggleFromPantry: (Int) -> Unit
+) {
+    Text(
+        modifier = Modifier.padding(12.dp),
+        text = "Your Pantry",
+        style = MaterialTheme.typography.displayMedium
+    )
+
+    when {
+        pantry.isEmpty() -> {
+            Text(
+                modifier = Modifier.padding(16.dp),
+                text = "Your pantry is empty. You can add items by searching for " +
+                        "ingredients.",
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
+        else -> {
+            PantryCardList(
+                pantry = pantry,
+                onItemClick = onToggleFromPantry
+            )
+        }
+    }
+}
+
 private class PantryItemCard(
-    val ingredientName: String,
-    val inPantry: Boolean
+    val ingredientName: String
 )
 
 @Composable
@@ -291,7 +279,6 @@ private fun PantryCardList(
             PantryListItem(
                 card = PantryItemCard(
                     item.ingredient.name,
-                    item.inPantry
                 ),
                 index = index,
                 onItemClicked = onItemClick
