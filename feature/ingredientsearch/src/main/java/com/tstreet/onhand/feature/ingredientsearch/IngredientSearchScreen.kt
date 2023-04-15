@@ -12,12 +12,14 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -36,24 +38,6 @@ fun IngredientSearchScreen(
     val searchText by viewModel.searchText.collectAsState()
     val isSearching by viewModel.isSearching.collectAsState()
     var expanded by remember { mutableStateOf(false) }
-    val interactionSource = remember { MutableInteractionSource() }
-    val interactions = remember { mutableStateListOf<Interaction>() }
-
-    LaunchedEffect(interactionSource) {
-        interactionSource.interactions.collect { interaction ->
-            when (interaction) {
-                is PressInteraction.Press -> {
-                    interactions.add(interaction)
-                }
-                is PressInteraction.Release -> {
-                    interactions.remove(interaction.press)
-                }
-                is PressInteraction.Cancel -> {
-                    interactions.remove(interaction.press)
-                }
-            }
-        }
-    }
 
     println("[OnHand] expanded=$expanded")
     Column(
@@ -64,25 +48,28 @@ fun IngredientSearchScreen(
         ExposedDropdownMenuBox(
             expanded = expanded,
             onExpandedChange = {
-                expanded = true
-                println("[OnHand] onExpandedChanged()")
+                expanded = !expanded
+                println("[OnHand] onExpandedChanged($expanded)")
             },
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(4.dp)
+                .padding(8.dp)
         ) {
             TextField(
                 modifier = Modifier
                     .menuAnchor()
                     .fillMaxWidth(),
                 value = searchText,
-                onValueChange = { viewModel.onSearchTextChange(it) },
-                label = { Text("Search Ingredients") },
+                onValueChange = {
+                    viewModel.onSearchTextChange(it)
+                    expanded = it.isNotEmpty()
+                },
+                placeholder = { Text("Search Ingredients") },
                 trailingIcon = {
                     if (searchText.isNotEmpty()) {
                         Icon(
                             modifier = Modifier.clickable {
                                 viewModel.onSearchTextChange("")
+                                expanded = true
                             },
                             imageVector = Icons.Filled.Close,
                             contentDescription = "close"
@@ -90,65 +77,85 @@ fun IngredientSearchScreen(
                     }
                 },
                 leadingIcon = {
-                    if (isSearching) {
-                        OnHandProgressIndicator(modifier = Modifier.size(24.dp))
-                    } else {
+                    if (!expanded) {
                         Icon(
                             imageVector = Icons.Filled.Search,
                             contentDescription = "search"
                         )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = "arrow_back"
+                        )
                     }
                 },
-                textStyle = MaterialTheme.typography.bodyMedium
+                textStyle = MaterialTheme.typography.bodyMedium,
+                shape = RoundedCornerShape(50),
+                colors = TextFieldDefaults.textFieldColors(
+                    //disabledTextColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    //disabledIndicatorColor = Color.Transparent
+                )
             )
             ExposedDropdownMenu(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(4.dp),
+                    .exposedDropdownSize(),
                 expanded = expanded,
                 onDismissRequest = {
-
+                    println("[OnHand] onDismissRequest($expanded)")
                 }
             ) {
-                viewModel.ingredients.forEachIndexed { index, item ->
-                    DropdownMenuItem(
+                if (isSearching) {
+                    OnHandProgressIndicator(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                if (item.inPantry) {
-                                    MATTE_GREEN
-                                } else {
-                                    MaterialTheme.colorScheme.surfaceVariant
-                                }
-                            )
-                            .padding(8.dp),
-                        onClick = {
-                            viewModel.onToggleFromSearch(index)
-                        },
-                        text = {
-                            Text(
-                                modifier = Modifier.fillMaxWidth(),
-                                text = item.ingredient.name
-                            )
-                        },
-                        trailingIcon = {
-                            if (item.inPantry) {
-                                Icon(
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = "Added to pantry",
-                                    tint = MaterialTheme.colorScheme.inverseOnSurface,
-                                    modifier = Modifier.align(Alignment.End)
-                                )
-                            }
-                        },
+                            .size(24.dp)
+                            .align(CenterHorizontally)
                     )
+                } else {
+                    viewModel.ingredients.forEachIndexed { index, item ->
+                        DropdownMenuItem(
+                            modifier = Modifier
+                                .background(
+                                    if (item.inPantry) {
+                                        MATTE_GREEN
+                                    } else {
+                                        MaterialTheme.colorScheme.surfaceVariant
+                                    }
+                                ),
+                            contentPadding = PaddingValues(4.dp),
+                            onClick = {
+                                viewModel.onToggleFromSearch(index)
+                            },
+                            text = {
+                                Text(
+                                    text = item.ingredient.name
+                                )
+                            },
+                            trailingIcon = {
+                                if (item.inPantry) {
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = "Added to pantry",
+                                        tint = MaterialTheme.colorScheme.inverseOnSurface,
+                                        modifier = Modifier.align(Alignment.End)
+                                    )
+                                }
+                            },
+                        )
+                    }
                 }
             }
         }
 
         // Pantry Header
         Text(
-            modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 8.dp),
+            modifier = Modifier.padding(
+                start = 16.dp,
+                top = 16.dp,
+                end = 16.dp,
+                bottom = 8.dp
+            ),
             text = "Pantry",
             style = MaterialTheme.typography.displayMedium
         )
