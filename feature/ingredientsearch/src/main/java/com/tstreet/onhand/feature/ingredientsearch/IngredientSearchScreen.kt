@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,9 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.tstreet.onhand.core.model.Ingredient
 import com.tstreet.onhand.core.model.PantryIngredient
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
 import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
@@ -33,6 +34,7 @@ fun IngredientSearchScreen(
     val searchText by viewModel.searchText.collectAsState()
     val isSearching by viewModel.isSearching.collectAsState()
     val isSearchBarFocused by viewModel.isSearchBarFocused.collectAsState()
+    val isPreSearchDebouncing by viewModel.isPreSearchDebounce.collectAsState()
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -51,7 +53,9 @@ fun IngredientSearchScreen(
             isSearchBarFocused -> {
                 IngredientSearchCardList(
                     ingredients = viewModel.ingredients,
-                    onItemClick = viewModel::onToggleFromSearch
+                    onItemClick = viewModel::onToggleFromSearch,
+                    isPreSearchDebouncing,
+                    searchText
                 )
             }
             else -> {
@@ -77,7 +81,7 @@ private fun IngredientSearchBar(
     TextField(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(start = 8.dp, top = 16.dp, end = 8.dp, bottom = 8.dp)
             .onFocusChanged { onFocusChanged(it.isFocused) },
         value = searchText,
         onValueChange = { onTextChanged(it) },
@@ -159,7 +163,7 @@ private fun IngredientSearchListItem(
             )
             if (card.inPantry) {
                 Icon(
-                    imageVector = Icons.Default.Check,
+                    imageVector = Icons.Default.Clear,
                     contentDescription = "Added to pantry",
                     tint = MaterialTheme.colorScheme.inverseOnSurface,
                     modifier = Modifier.align(Alignment.CenterVertically)
@@ -179,23 +183,42 @@ private fun IngredientSearchListItem(
 @Composable
 fun IngredientSearchCardList(
     ingredients: List<PantryIngredient>,
-    onItemClick: (Int) -> Unit
-) {
-    LazyColumn(
-        modifier = Modifier.padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+    onItemClick: (Int) -> Unit,
+    isPreDebounce: Boolean,
+    searchText: String,
+
     ) {
-        itemsIndexed(
-            items = ingredients
-        ) { index, item ->
-            IngredientSearchListItem(
-                card = IngredientSearchCard(
-                    name = item.ingredient.name,
-                    inPantry = item.inPantry
-                ),
-                index,
-                onItemClicked = onItemClick
-            )
+    when (ingredients.isEmpty() && !isPreDebounce && searchText.isNotEmpty()) {
+        true -> {
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "No results.",
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+            }
+        }
+        else -> {
+            LazyColumn(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                itemsIndexed(
+                    items = ingredients
+                ) { index, item ->
+                    IngredientSearchListItem(
+                        card = IngredientSearchCard(
+                            name = item.ingredient.name,
+                            inPantry = item.inPantry
+                        ),
+                        index,
+                        onItemClicked = onItemClick
+                    )
+                }
+            }
         }
     }
 }
@@ -241,11 +264,9 @@ private fun PantryListItem(
 ) {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
             .clickable {
                 onItemClicked(index)
             }
-            .height(56.dp)
             .padding(2.dp),
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.tertiary),
@@ -253,14 +274,22 @@ private fun PantryListItem(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceAround,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp)
+                .padding(8.dp)
+                .align(Alignment.End)
         ) {
             Text(
                 text = card.ingredientName,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.weight(1f)
+            )
+            Icon(
+                imageVector = Icons.Default.Clear,
+                contentDescription = "Clear from pantry",
+                tint = MaterialTheme.colorScheme.inverseOnSurface,
+                modifier = Modifier.size(18.dp)
             )
         }
     }
@@ -272,11 +301,13 @@ private fun PantryCardList(
     onItemClick: (Int) -> Unit
 ) {
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 96.dp),
+        columns = GridCells.Adaptive(96.dp),
         modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .padding(bottom = 16.dp),
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+            .padding(horizontal = 8.dp)
+            .padding(bottom = 8.dp),
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.Top),
+        horizontalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.Start),
     ) {
         itemsIndexed(pantry) { index, item ->
             PantryListItem(

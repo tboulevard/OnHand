@@ -32,8 +32,10 @@ class IngredientSearchViewModel @Inject constructor(
 
     private val _searchText = MutableStateFlow("")
     val searchText: StateFlow<String> = _searchText
-        .debounce(500L)
+        .onEach { _isPreSearchDebounce.update { true } }
+        .debounce(250L)
         .onEach {
+            _isPreSearchDebounce.update { false }
             // Only search and update listed ingredients if we have a valid search query
             if (it.isNotBlank()) {
                 _isSearching.update { true }
@@ -62,6 +64,10 @@ class IngredientSearchViewModel @Inject constructor(
 
     private val _isSearchBarFocused = MutableStateFlow(false)
     val isSearchBarFocused = _isSearchBarFocused.asStateFlow()
+
+    private val _isPreSearchDebounce = MutableStateFlow(false)
+    val isPreSearchDebounce = _isPreSearchDebounce.asStateFlow()
+
 
     fun onSearchTextChanged(text: String) {
         println("[OnHand] onSearchTextChange=$text")
