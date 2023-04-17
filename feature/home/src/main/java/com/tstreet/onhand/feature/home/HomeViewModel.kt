@@ -1,34 +1,25 @@
-package com.tstreet.onhand.feature.ingredientsearch
+package com.tstreet.onhand.feature.home
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.domain.AddToPantryUseCase
 import com.tstreet.onhand.core.domain.GetIngredientsUseCase
 import com.tstreet.onhand.core.domain.GetPantryUseCase
 import com.tstreet.onhand.core.domain.RemoveFromPantryUseCase
 import com.tstreet.onhand.core.model.PantryIngredient
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Named
 import javax.inject.Provider
-
 
 //TODO: Encapsulates ingredient search and pantry logic...think about renaming this
 @OptIn(kotlinx.coroutines.FlowPreview::class)
-class IngredientSearchViewModel @Inject constructor(
+class HomeViewModel @Inject constructor(
     private val getIngredients: Provider<GetIngredientsUseCase>,
     private val addToPantry: Provider<AddToPantryUseCase>,
     private val removeFromPantry: Provider<RemoveFromPantryUseCase>,
     private val getPantry: Provider<GetPantryUseCase>,
-    // TODO: leaving around as an example...
-    // Use these dispatchers for things like DB operations that we want to outlive this viewmodel's
-    // context.
-    // viewModelScope only used for UI related stuff? Research
-    @Named(IO) private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     val pantry = mutableStateListOf<PantryIngredient>()
@@ -41,8 +32,10 @@ class IngredientSearchViewModel @Inject constructor(
 
     private val _searchText = MutableStateFlow("")
     val searchText: StateFlow<String> = _searchText
-        .debounce(500L)
+        .onEach { _isPreSearchDebounce.update { true } }
+        .debounce(250L)
         .onEach {
+            _isPreSearchDebounce.update { false }
             // Only search and update listed ingredients if we have a valid search query
             if (it.isNotBlank()) {
                 _isSearching.update { true }
@@ -69,7 +62,14 @@ class IngredientSearchViewModel @Inject constructor(
     private val _isSearching = MutableStateFlow(false)
     val isSearching = _isSearching.asStateFlow()
 
-    fun onSearchTextChange(text: String) {
+    private val _isSearchBarFocused = MutableStateFlow(false)
+    val isSearchBarFocused = _isSearchBarFocused.asStateFlow()
+
+    private val _isPreSearchDebounce = MutableStateFlow(false)
+    val isPreSearchDebounce = _isPreSearchDebounce.asStateFlow()
+
+
+    fun onSearchTextChanged(text: String) {
         _searchText.value = text
     }
 
@@ -107,12 +107,12 @@ class IngredientSearchViewModel @Inject constructor(
                 removeFromPantry.get().invoke(item.ingredient)
                 // TODO: Only do this step if DB change is successful in future
                 pantry.removeAt(index)
-                // TODO: remove ingredient if shown in ingredients list. messy though...
-                ingredients.find { it.ingredient.id == item.ingredient.id }?.let {
-                    ingredients[ingredients.indexOf(it)] = it.copy(inPantry = false)
-                }
             }
         }
+    }
+
+    fun onSearchBarFocusChanged(isFocused: Boolean) {
+        _isSearchBarFocused.update { isFocused }
     }
 
     private fun refreshPantry() {

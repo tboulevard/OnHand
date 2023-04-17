@@ -1,4 +1,4 @@
-package com.tstreet.onhand.feature.ingredientsearch
+package com.tstreet.onhand.feature.home
 
 import org.junit.Test
 
