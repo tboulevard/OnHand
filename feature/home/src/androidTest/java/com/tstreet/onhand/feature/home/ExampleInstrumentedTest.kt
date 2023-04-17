@@ -1,4 +1,4 @@
-package com.tstreet.onhand.feature.ingredientsearch
+package com.tstreet.onhand.feature.home
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

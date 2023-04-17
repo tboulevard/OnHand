@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace 'com.tstreet.onhand.feature.ingredientsearch'
+    namespace 'com.tstreet.onhand.feature.home'
     compileSdk 33
 
     defaultConfig {

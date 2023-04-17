@@ -9,13 +9,10 @@ import com.tstreet.onhand.core.ui.RecipeSearchItem
 import com.tstreet.onhand.core.ui.RecipeSearchUiState
 import com.tstreet.onhand.core.ui.toRecipeSearchItemList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Provider
-import kotlin.random.Random
-import kotlin.time.Duration.Companion.milliseconds
 
 class RecipeSearchViewModel @Inject constructor(
     getRecipes: Provider<GetRecipesUseCase>,
@@ -68,7 +65,6 @@ class RecipeSearchViewModel @Inject constructor(
                 when (it) {
                     // When save is successful, update UI state
                     true -> {
-                        delay(Random.nextLong(300,600).milliseconds)
                         _recipes[index] = item.copy(
                             recipeSaveState = SAVED
                         )

@@ -58,9 +58,9 @@ android {
 }
 
 dependencies {
+    implementation project(path: ':feature:home')
     // TODO: revisit if app module should depend on feature module
     // Feature modules we want to take a dependency on
-    implementation project(path: ':feature:ingredientsearch')
     implementation project(path: ':feature:recipesearch')
     implementation project(path: ':feature:recipedetail')
     implementation project(path: ':feature:shoppinglist')

@@ -1,4 +1,4 @@
-package com.tstreet.onhand.feature.ingredientsearch
+package com.tstreet.onhand.feature.home
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
@@ -15,7 +15,7 @@ import javax.inject.Provider
 
 //TODO: Encapsulates ingredient search and pantry logic...think about renaming this
 @OptIn(kotlinx.coroutines.FlowPreview::class)
-class IngredientSearchViewModel @Inject constructor(
+class HomeViewModel @Inject constructor(
     private val getIngredients: Provider<GetIngredientsUseCase>,
     private val addToPantry: Provider<AddToPantryUseCase>,
     private val removeFromPantry: Provider<RemoveFromPantryUseCase>,
@@ -70,7 +70,6 @@ class IngredientSearchViewModel @Inject constructor(
 
 
     fun onSearchTextChanged(text: String) {
-        println("[OnHand] onSearchTextChange=$text")
         _searchText.value = text
     }
 
@@ -113,7 +112,6 @@ class IngredientSearchViewModel @Inject constructor(
     }
 
     fun onSearchBarFocusChanged(isFocused: Boolean) {
-        println("[OnHand] onSearchBarFocusChanged=$isFocused")
         _isSearchBarFocused.update { isFocused }
     }
 

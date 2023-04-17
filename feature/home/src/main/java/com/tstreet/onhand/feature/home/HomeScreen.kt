@@ -1,10 +1,9 @@
-package com.tstreet.onhand.feature.ingredientsearch
+package com.tstreet.onhand.feature.home
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,18 +17,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.tstreet.onhand.core.model.Ingredient
 import com.tstreet.onhand.core.model.PantryIngredient
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
 import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
 
 // TODO: use @PreviewParameter + create module with fake models to populate composables
 // TODO: screen rotation wipes `isSearchBarFocused` -> look into used collectAsStateWithLifecycle
+// TODO: Using the hardware back/swipe back while in search doesn't nav back to pantry. Eventually
+//  we'll probably want IngredientSearch as a separate screen so we can add it to the nav backstack
 @Composable
-fun IngredientSearchScreen(
-    viewModel: IngredientSearchViewModel
+fun HomeScreen(
+    viewModel: HomeViewModel
 ) {
     val searchText by viewModel.searchText.collectAsState()
     val isSearching by viewModel.isSearching.collectAsState()

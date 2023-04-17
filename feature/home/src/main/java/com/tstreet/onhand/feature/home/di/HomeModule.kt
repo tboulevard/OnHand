@@ -1,4 +1,4 @@
-package com.tstreet.onhand.feature.ingredientsearch.di
+package com.tstreet.onhand.feature.home.di
 
 import com.tstreet.onhand.core.common.UseCase
 import com.tstreet.onhand.core.domain.AddToPantryUseCase
@@ -8,7 +8,7 @@ import dagger.Binds
 import dagger.Module
 
 @Module
-interface IngredientSearchModule {
+interface HomeModule {
 
     @Binds
     fun bindsGetIngredientsUseCase(

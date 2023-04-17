@@ -1,9 +1,9 @@
-package com.tstreet.onhand.feature.ingredientsearch.di
+package com.tstreet.onhand.feature.home.di
 
 import com.tstreet.onhand.core.common.CommonComponentProvider
 import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.data.di.DataComponentProvider
-import com.tstreet.onhand.feature.ingredientsearch.IngredientSearchViewModel
+import com.tstreet.onhand.feature.home.HomeViewModel
 import dagger.Component
 
 @Component(
@@ -11,10 +11,10 @@ import dagger.Component
         DataComponentProvider::class,
         CommonComponentProvider::class
     ],
-    modules = [IngredientSearchModule::class]
+    modules = [HomeModule::class]
 )
 @FeatureScope
-interface IngredientSearchComponent {
+interface HomeComponent {
 
-    val viewModel: IngredientSearchViewModel
+    val viewModel: HomeViewModel
 }
