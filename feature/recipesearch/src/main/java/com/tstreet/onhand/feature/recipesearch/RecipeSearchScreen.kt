@@ -211,19 +211,27 @@ fun RecipeSearchCardItem(
 
                 when (card.missedIngredients > 0) {
                     true -> {
+                        val usedIngredientString =
+                            if (card.usedIngredients > 1) "${card.usedIngredients} ingredients" else "1 ingredient"
+                        val missedIngredientString =
+                            if (card.missedIngredients > 1) "${card.missedIngredients} ingredients" else "1 ingredient"
+
                         Text(
-                            text = "${card.usedIngredients} ingredients used",
+                            text = "$usedIngredientString used",
                             modifier = Modifier.padding(4.dp),
                             style = MaterialTheme.typography.bodyMedium
                         )
 
                         Text(
-                            text = "${card.missedIngredients} ingredients missing",
+                            text = "$missedIngredientString missing",
                             modifier = Modifier.padding(4.dp),
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
                     else -> {
+                        val correctedSuffix =
+                            if (card.usedIngredients > 1) "all ${card.usedIngredients} ingredients" else "the 1 ingredient"
+
                         Row(modifier = Modifier.padding(4.dp)) {
                             Icon(
                                 Icons.Default.Check,
@@ -234,7 +242,7 @@ fun RecipeSearchCardItem(
                                 tint = MaterialTheme.colorScheme.inverseOnSurface
                             )
                             Text(
-                                text = "You have all ${card.usedIngredients} ingredients",
+                                text = "You have $correctedSuffix",
                                 style = MaterialTheme.typography.bodyMedium
                             )
                         }
