@@ -22,13 +22,13 @@ class SavedRecipesViewModel @Inject constructor(
         println("[OnHand] ${this.javaClass.simpleName} created")
     }
 
-    private var _recipes = mutableStateListOf<RecipeSearchItem>()
+    private var _recipes = mutableStateListOf<RecipeWithSaveState>()
 
     val uiState = getSavedRecipes
         .get()
         .invoke()
         .map {
-            _recipes = it.toRecipeSearchItemList()
+            _recipes = it.toRecipeWithSaveStateItemList()
             // TODO NOTE: By passing this here and making mutations on _recipes in this class, we
             //  trigger a recomposition each time. This is causing uiState to retrigger (and call
             //  getSavedRecipes each time an item is added/removed from the list.
