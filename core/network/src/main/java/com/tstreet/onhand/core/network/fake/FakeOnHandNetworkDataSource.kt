@@ -103,8 +103,8 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
                 title = "Tomato Soup",
                 image = "tomato-soup.jpg",
                 imageType = "jpg",
-                usedIngredientCount = 1,
-                missedIngredientCount = 2,
+                usedIngredientCount = 2,
+                missedIngredientCount = 0,
                 usedIngredients = listOf(
                     NetworkRecipeIngredient(
                         id = 120,

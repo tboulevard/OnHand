@@ -23,6 +23,7 @@ class NetworkRecipeDetail(
     val sourceName: String?,
     val pricePerServing: Double,
     val title: String?,
+    // TODO: use this in PR when hooking up time to recipe search cards
     val readyInMinutes: Int,
     val servings: Int,
     val sourceUrl: String?,
