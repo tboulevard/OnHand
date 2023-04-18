@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -28,30 +29,39 @@ fun ShoppingListScreen(
 ) {
     val uiState by viewModel.shoppingListUiState.collectAsState()
 
-    when (val state = uiState) {
-        is ShoppingListUiState.Loading -> {
-            OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
-        }
-        is ShoppingListUiState.Success -> {
-            when (state.ingredients.isNotEmpty()) {
-                true -> {
-                    ShoppingListCards(
-                        state.ingredients
-                    )
-                }
-                false -> {
-                    Text(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        text = "Shopping list empty - either because you have all ingredients " +
-                                "for all saved recipes or because you haven't saved any recipes",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+    Column(verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()) {
+        Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            text = "Shopping List",
+            style = MaterialTheme.typography.displayMedium
+        )
+        when (val state = uiState) {
+            is ShoppingListUiState.Loading -> {
+                OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
+            }
+            is ShoppingListUiState.Success -> {
+                when (state.ingredients.isNotEmpty()) {
+                    true -> {
+                        ShoppingListCards(
+                            state.ingredients
+                        )
+                    }
+                    false -> {
+                        Text(
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            text = "Shopping list empty - either because you have all ingredients " +
+                                    "for all saved recipes or because you haven't saved any recipes",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
                 }
             }
-        }
-        is ShoppingListUiState.Error -> {
-            FullScreenErrorMessage(message = state.message)
+            is ShoppingListUiState.Error -> {
+                FullScreenErrorMessage(message = state.message)
+            }
         }
     }
 }
@@ -68,7 +78,6 @@ fun ShoppingListCards(ingredients: List<ShoppingListIngredient>) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
             .padding(8.dp)
     ) {
         itemsIndexed(ingredients) { index, ingredient ->
@@ -99,20 +108,34 @@ fun ShoppingListCardItem(
             modifier = Modifier.clickable { /* TODO */ },
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            Checkbox(
+                // below line we are setting
+                // the state of checkbox.
+                checked = true,
+                // below line is use to add padding
+                // to our checkbox.
+                modifier = Modifier.padding(16.dp),
+                // below line is use to add on check
+                // change to our checkbox.
+                onCheckedChange = { /* TODO */ },
+            )
             Column(
                 modifier = Modifier
                     .padding(20.dp)
                     .weight(1f)
             ) {
-                Text(text = card.ingredientName, style = MaterialTheme.typography.headlineMedium)
                 Text(
-                    text = "Quantities: ${card.measures.map { "${it.amount} ${it.unit}" }}",
-                    style = MaterialTheme.typography.bodyMedium
+                    modifier = Modifier.padding(8.dp),
+                    text = card.ingredientName,
+                    style = MaterialTheme.typography.headlineMedium
                 )
-                Text(
-                    text = "Recipes: ${card.measures.map { it.recipe.title }}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                card.measures.forEach {
+                    return@forEach Text(
+                        modifier = Modifier.padding(start = 12.dp, top = 2.dp, bottom = 2.dp),
+                        text = "${it.amount} ${it.unit} for: ${it.recipe.title}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             }
         }
     }
