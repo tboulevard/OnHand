@@ -5,7 +5,7 @@ sealed interface SavedRecipesUiState {
     object Loading : SavedRecipesUiState
 
     data class Success(
-        val recipes: List<RecipeSearchItem>
+        val recipes: List<RecipeWithSaveState>
     ) : SavedRecipesUiState
 
     data class Error(

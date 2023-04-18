@@ -1,29 +1,19 @@
 package com.tstreet.onhand.feature.recipesearch
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.tstreet.onhand.core.domain.DEFAULT_SORTING
 import com.tstreet.onhand.core.domain.SortBy
-import com.tstreet.onhand.core.ui.FullScreenErrorMessage
-import com.tstreet.onhand.core.ui.OnHandProgressIndicator
-import com.tstreet.onhand.core.ui.RecipeSaveState
+import com.tstreet.onhand.core.ui.*
 import com.tstreet.onhand.core.ui.RecipeSaveState.*
-import com.tstreet.onhand.core.ui.RecipeSearchItem
 import com.tstreet.onhand.core.ui.RecipeSearchUiState.*
-import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
 
 @Composable
 fun RecipeSearchScreen(
@@ -47,7 +37,7 @@ fun RecipeSearchScreen(
                             sortOrder,
                             viewModel::onSortOrderChanged
                         )
-                        RecipeSearchCardList(
+                        RecipeCardList(
                             recipes = state.recipes,
                             onItemClick = navController::navigate,
                             onSaveClick = viewModel::onRecipeSaved,
@@ -70,15 +60,6 @@ fun RecipeSearchScreen(
         }
     }
 }
-
-class RecipeSearchCard(
-    val id: Int,
-    val title: String,
-    val usedIngredients: Int,
-    val missedIngredients: Int,
-    val likes: Int,
-    val saveState: RecipeSaveState
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -124,200 +105,4 @@ fun SortBySpinner(
             }
         }
     }
-}
-
-@Composable
-fun RecipeSearchCardList(
-    recipes: List<RecipeSearchItem>,
-    onItemClick: (String) -> Unit,
-    onSaveClick: (Int) -> Unit,
-    onUnSaveClick: (Int) -> Unit
-) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp)
-    ) {
-        itemsIndexed(recipes) { index, item ->
-            val recipe = item.recipe
-            RecipeSearchCardItem(
-                card = RecipeSearchCard(
-                    // TODO: clean this up
-                    id = recipe.id,
-                    title = recipe.title,
-                    usedIngredients = recipe.usedIngredientCount,
-                    missedIngredients = recipe.missedIngredientCount,
-                    likes = recipe.likes,
-                    saveState = item.recipeSaveState
-                ),
-                index = index,
-                onItemClick = onItemClick,
-                onSaveClick = onSaveClick,
-                onUnSaveClick = onUnSaveClick
-            )
-        }
-    }
-}
-
-@Preview
-@Composable
-fun RecipeSearchCardItem(
-    @PreviewParameter(RecipeSearchCardPreviewParamProvider::class) card: RecipeSearchCard,
-    index: Int = 0,
-    onItemClick: (String) -> Unit = { },
-    onSaveClick: (Int) -> Unit = { },
-    onUnSaveClick: (Int) -> Unit = { }
-) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                vertical = 8.dp, horizontal = 16.dp
-            ), shadowElevation = 8.dp, shape = MaterialTheme.shapes.medium,
-        color = if (card.saveState == SAVED) {
-            MATTE_GREEN
-        } else {
-            MaterialTheme.colorScheme.surfaceTint
-        }
-    ) {
-        Row(
-            // TODO: pretty unclear we are passing in a function to navigate here, might be worth
-            // refactoring later
-            // TODO: hardcoding recipe_detail route not ideal. Not easy to fix b/c it would require
-            // this module to rely on :app, refactor later...
-            modifier = Modifier.clickable { onItemClick("recipe_detail/${card.id}") },
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-
-
-            Column(
-                modifier = Modifier
-                    .padding(12.dp)
-                    .weight(1f)
-            ) {
-                Text(
-                    text = card.title,
-                    modifier = Modifier.padding(4.dp),
-                    style = MaterialTheme.typography.headlineMedium
-                )
-
-                when (card.missedIngredients > 0) {
-                    true -> {
-                        val usedIngredientString =
-                            if (card.usedIngredients > 1) "${card.usedIngredients} ingredients" else "1 ingredient"
-                        val missedIngredientString =
-                            if (card.missedIngredients > 1) "${card.missedIngredients} ingredients" else "1 ingredient"
-
-                        Text(
-                            text = "$usedIngredientString used",
-                            modifier = Modifier.padding(4.dp),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-
-                        Text(
-                            text = "$missedIngredientString missing",
-                            modifier = Modifier.padding(4.dp),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                    else -> {
-                        val correctedSuffix =
-                            if (card.usedIngredients > 1) "all ${card.usedIngredients} ingredients" else "the 1 ingredient"
-
-                        Row(modifier = Modifier.padding(4.dp)) {
-                            Icon(
-                                Icons.Default.Check,
-                                contentDescription = "ingredients used",
-                                modifier = Modifier
-                                    .size(18.dp)
-                                    .padding(end = 4.dp),
-                                tint = MaterialTheme.colorScheme.inverseOnSurface
-                            )
-                            Text(
-                                text = "You have $correctedSuffix",
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
-                    }
-                }
-                Row(modifier = Modifier.padding(4.dp)) {
-                    Icon(
-                        Icons.Default.Favorite,
-                        contentDescription = "likes",
-                        modifier = Modifier
-                            .size(18.dp)
-                            .padding(end = 4.dp),
-                        tint = MaterialTheme.colorScheme.inverseOnSurface
-                    )
-                    Text(
-                        text = "${card.likes} likes",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-// TODO: where to put time if we decide to send through later
-//                Row(modifier = Modifier.padding(4.dp)) {
-//                    Icon(
-//                        painterResource(com.tstreet.onhand.core.ui.R.drawable.timer),
-//                        contentDescription = "time",
-//                        modifier = Modifier
-//                            .size(18.dp)
-//                            .padding(end = 4.dp),
-//                        tint = MaterialTheme.colorScheme.inverseOnSurface
-//                    )
-//                    Text(
-//                        text = "-- minutes",
-//                        style = MaterialTheme.typography.bodyMedium
-//                    )
-//                }
-
-            }
-            Column(
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .padding(16.dp)
-            ) {
-
-                when (card.saveState) {
-                    SAVED -> {
-                        Icon(
-                            Icons.Default.Clear,
-                            contentDescription = "saved",
-                            modifier = Modifier
-                                .size(36.dp)
-                                .clickable { onUnSaveClick(index) },
-                            tint = MaterialTheme.colorScheme.inverseOnSurface
-                        )
-                    }
-                    NOT_SAVED -> {
-                        Icon(
-                            Icons.Default.AddCircle,
-                            contentDescription = "save",
-                            modifier = Modifier
-                                .size(36.dp)
-                                .clickable { onSaveClick(index) },
-                            tint = MaterialTheme.colorScheme.inverseOnSurface
-                        )
-                    }
-                    SAVING -> {
-                        OnHandProgressIndicator(modifier = Modifier.size(36.dp))
-                    }
-                }
-
-            }
-        }
-    }
-}
-
-// TODO: move all below to a better location...
-class RecipeSearchCardPreviewParamProvider : PreviewParameterProvider<RecipeSearchCard> {
-    override val values: Sequence<RecipeSearchCard> = sequenceOf(
-        RecipeSearchCard(
-            id = 1,
-            title = "A very long recipe name that is very long",
-            usedIngredients = 10,
-            missedIngredients = 3,
-            likes = 100,
-            saveState = NOT_SAVED
-        )
-    )
 }

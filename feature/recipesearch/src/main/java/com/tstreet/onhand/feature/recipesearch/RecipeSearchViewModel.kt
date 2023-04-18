@@ -5,9 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.domain.*
 import com.tstreet.onhand.core.ui.RecipeSaveState.*
-import com.tstreet.onhand.core.ui.RecipeSearchItem
+import com.tstreet.onhand.core.ui.RecipeWithSaveState
 import com.tstreet.onhand.core.ui.RecipeSearchUiState
-import com.tstreet.onhand.core.ui.toRecipeSearchItemList
+import com.tstreet.onhand.core.ui.toRecipeWithSaveStateItemList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -25,7 +25,7 @@ class RecipeSearchViewModel @Inject constructor(
     }
 
     private val _sortOrder = MutableStateFlow(DEFAULT_SORTING)
-    private var _recipes = mutableStateListOf<RecipeSearchItem>()
+    private var _recipes = mutableStateListOf<RecipeWithSaveState>()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val sortOrder: StateFlow<SortBy> = _sortOrder
@@ -33,7 +33,7 @@ class RecipeSearchViewModel @Inject constructor(
             getRecipes.get().invoke(it)
         }
         .combine(_sortOrder) { recipes, sortBy ->
-            _recipes = recipes.toRecipeSearchItemList()
+            _recipes = recipes.toRecipeWithSaveStateItemList()
             // We pass the snapshot state list by reference to allow mutations within the ViewModel
             _uiState.update { RecipeSearchUiState.Success(_recipes) }
             sortBy
