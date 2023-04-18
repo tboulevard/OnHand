@@ -1,54 +1,47 @@
 package com.tstreet.onhand.feature.shoppinglist
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tstreet.onhand.core.model.*
 import com.tstreet.onhand.core.ui.FullScreenErrorMessage
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
+import com.tstreet.onhand.core.ui.OnHandScreenHeader
 import com.tstreet.onhand.core.ui.ShoppingListUiState
 
 @Composable
 fun ShoppingListScreen(
     viewModel: ShoppingListViewModel
 ) {
-    val uiState by viewModel.shoppingListUiState.collectAsState()
+    val uiState by viewModel.shoppingListUiState.collectAsStateWithLifecycle()
 
     Column(verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()) {
-        Text(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            text = "Shopping List",
-            style = MaterialTheme.typography.displayMedium
-        )
+        OnHandScreenHeader("Shopping List")
         when (val state = uiState) {
             is ShoppingListUiState.Loading -> {
                 OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
             }
             is ShoppingListUiState.Success -> {
-                when (state.ingredients.isNotEmpty()) {
-                    true -> {
+                when {
+                    state.ingredients.isNotEmpty() -> {
                         ShoppingListCards(
-                            state.ingredients
+                            state.ingredients,
+                            viewModel::onMarkShoppingIngredient,
+                            viewModel::onUnmarkShoppingIngredient
                         )
                     }
-                    false -> {
+                    else -> {
                         Text(
                             modifier = Modifier
                                 .fillMaxSize(),
@@ -66,15 +59,12 @@ fun ShoppingListScreen(
     }
 }
 
-class ShoppingListCard(
-    val ingredientName: String,
-    val measures: List<RecipeMeasure>,
-    val index: Int
-)
-
-
 @Composable
-fun ShoppingListCards(ingredients: List<ShoppingListIngredient>) {
+fun ShoppingListCards(
+    ingredients: List<ShoppingListIngredient>,
+    onMarkIngredient: (Int) -> Unit,
+    onUnmarkIngredient: (Int) -> Unit
+) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -85,8 +75,11 @@ fun ShoppingListCards(ingredients: List<ShoppingListIngredient>) {
                 ShoppingListCard(
                     ingredientName = ingredient.name,
                     measures = ingredient.recipeMeasures,
+                    isIngredientChecked = ingredient.isPurchased,
                     index = index
-                )
+                ),
+                onMarkIngredient,
+                onUnmarkIngredient
             )
         }
     }
@@ -95,14 +88,19 @@ fun ShoppingListCards(ingredients: List<ShoppingListIngredient>) {
 @Preview
 @Composable
 fun ShoppingListCardItem(
-    @PreviewParameter(RecipeSearchCardPreviewParamProvider::class) card: ShoppingListCard
+    @PreviewParameter(RecipeSearchCardPreviewParamProvider::class) card: ShoppingListCard,
+    onMarkIngredient: (Int) -> Unit = { },
+    onUnmarkIngredient: (Int) -> Unit = { }
 ) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
                 vertical = 8.dp, horizontal = 16.dp
-            ), shadowElevation = 8.dp, shape = MaterialTheme.shapes.medium
+            ),
+        shadowElevation = 8.dp,
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surfaceTint
     ) {
         Row(
             modifier = Modifier.clickable { /* TODO */ },
@@ -111,13 +109,27 @@ fun ShoppingListCardItem(
             Checkbox(
                 // below line we are setting
                 // the state of checkbox.
-                checked = true,
+                checked = card.isIngredientChecked,
                 // below line is use to add padding
                 // to our checkbox.
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier
+                    .padding(start = 24.dp)
+                    .align(Alignment.CenterVertically)
+                    .size(24.dp),
                 // below line is use to add on check
                 // change to our checkbox.
-                onCheckedChange = { /* TODO */ },
+                onCheckedChange = {
+                    if (card.isIngredientChecked) {
+                        onUnmarkIngredient(card.index)
+                    } else {
+                        onMarkIngredient(card.index)
+                    }
+                },
+                colors = CheckboxDefaults.colors(
+                    checkmarkColor = MaterialTheme.colorScheme.inverseOnSurface,
+                    checkedColor = MaterialTheme.colorScheme.inverseSurface,
+                    uncheckedColor = MaterialTheme.colorScheme.inverseSurface
+                )
             )
             Column(
                 modifier = Modifier
@@ -140,6 +152,13 @@ fun ShoppingListCardItem(
         }
     }
 }
+
+class ShoppingListCard(
+    val ingredientName: String,
+    val measures: List<RecipeMeasure>,
+    val isIngredientChecked: Boolean,
+    val index: Int
+)
 
 // TODO: move all below to a better location...
 class RecipeSearchCardPreviewParamProvider : PreviewParameterProvider<ShoppingListCard> {
@@ -202,7 +221,8 @@ class RecipeSearchCardPreviewParamProvider : PreviewParameterProvider<ShoppingLi
                     unit = "oz"
                 )
             ),
-            index = 0
+            index = 0,
+            isIngredientChecked = true
         )
     )
 }

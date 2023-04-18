@@ -30,12 +30,16 @@ class GetShoppingListUseCase @Inject constructor(
                 recipes = savedRecipes.map { it.recipe }
             )
         }.onEach {
-            // TODO: Cache shopping list depending on pantry state to save on work
-            //shoppingListRepository.get().insertShoppingList(it)
+            shoppingListRepository.get().clear()
+            // TODO: Cache shopping list depending on pantry state OR saved recipe state to save
+            //  on work
+            shoppingListRepository
+                .get()
+                .insertShoppingList(it)
         }.flowOn(ioDispatcher)
     }
 
-    private fun getShoppingList(
+    private suspend fun getShoppingList(
         pantry: List<PantryIngredient>,
         recipes: List<Recipe>
     ): List<ShoppingListIngredient> {
@@ -97,7 +101,8 @@ class GetShoppingListUseCase @Inject constructor(
             ShoppingListIngredient(
                 id = it.key.id,
                 name = it.key.name,
-                recipeMeasures = it.value
+                recipeMeasures = it.value,
+                isPurchased = shoppingListRepository.get().isIngredientPurchased(it.key.id)
             )
         }
     }

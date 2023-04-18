@@ -14,17 +14,39 @@ class ShoppingListRepositoryImpl @Inject constructor(
     private val shoppingListDao: Provider<ShoppingListDao>
 ) : ShoppingListRepository {
 
+    override fun getShoppingList(): Flow<List<ShoppingListIngredient>> {
+        return shoppingListDao
+            .get()
+            .getShoppingList()
+            .map { it.map(ShoppingListEntity::toExternalModel) }
+    }
+
     override suspend fun insertShoppingList(shoppingList: List<ShoppingListIngredient>) {
         shoppingListDao
             .get()
             .insertShoppingList(shoppingList.map(ShoppingListIngredient::asEntity))
     }
 
-    override fun getShoppingList(): Flow<List<ShoppingListIngredient>> {
+    override suspend fun markIngredientPurchased(ingredient: ShoppingListIngredient) {
+        shoppingListDao
+            .get()
+            .markIngredientPurchased(ingredient.id)
+    }
+
+    override suspend fun unmarkIngredientPurchased(ingredient: ShoppingListIngredient) {
+        shoppingListDao
+            .get()
+            .unmarkIngredientPurchased(ingredient.id)
+    }
+
+    override suspend fun isIngredientPurchased(id: Int): Boolean {
         return shoppingListDao
             .get()
-            .getShoppingList()
-            .map { it.map(ShoppingListEntity::toExternalModel) }
+            .isShoppingListIngredientPurchased(id)
+    }
+
+    override suspend fun clear() {
+        shoppingListDao.get().clear()
     }
 
     override fun getShoppingListByRecipe(): List<ShoppingListIngredient> {

@@ -23,13 +23,7 @@ fun SavedRecipesScreen(
     Column(
         verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()
     ) {
-        Text(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            text = "Saved Recipes",
-            style = MaterialTheme.typography.displayMedium
-        )
+        OnHandScreenHeader("Saved Recipes")
         when (val state = uiState) {
             is SavedRecipesUiState.Loading -> {
                 OnHandProgressIndicator(modifier = Modifier.fillMaxSize())

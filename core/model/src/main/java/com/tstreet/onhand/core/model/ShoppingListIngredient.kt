@@ -3,11 +3,12 @@ package com.tstreet.onhand.core.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-class ShoppingListIngredient(
+data class ShoppingListIngredient(
     val id: Int,
     val name: String,
     // Because ingredients can be members of multiple recipes, with different units of measurement
-    val recipeMeasures: List<RecipeMeasure>
+    val recipeMeasures: List<RecipeMeasure>,
+    val isPurchased : Boolean
 )
 
 /**
