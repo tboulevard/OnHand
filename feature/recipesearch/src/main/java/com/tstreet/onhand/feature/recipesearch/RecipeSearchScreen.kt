@@ -1,5 +1,6 @@
 package com.tstreet.onhand.feature.recipesearch
 
+import android.graphics.drawable.VectorDrawable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -14,6 +15,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role.Companion.Image
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -254,7 +257,7 @@ fun RecipeSearchCardItem(
 
                 Row(modifier = Modifier.padding(4.dp)) {
                     Icon(
-                        Icons.Default.Build,
+                        painterResource(com.tstreet.onhand.core.ui.R.drawable.timer),
                         contentDescription = "time",
                         modifier = Modifier
                             .size(18.dp)
