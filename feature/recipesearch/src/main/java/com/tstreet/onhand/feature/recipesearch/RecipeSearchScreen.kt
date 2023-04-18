@@ -4,10 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -80,6 +81,7 @@ class RecipeSearchCard(
     val usedIngredients: Int,
     val missedIngredients: Int,
     val likes: Int,
+    val readyTime: Int = 30,
     val saveState: RecipeSaveState
 )
 
@@ -139,7 +141,6 @@ fun RecipeSearchCardList(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
             .padding(8.dp)
     ) {
         itemsIndexed(recipes) { index, item ->
@@ -177,7 +178,12 @@ fun RecipeSearchCardItem(
             .fillMaxWidth()
             .padding(
                 vertical = 8.dp, horizontal = 16.dp
-            ), shadowElevation = 8.dp, shape = MaterialTheme.shapes.medium
+            ), shadowElevation = 8.dp, shape = MaterialTheme.shapes.medium,
+        color = if (card.saveState == SAVED) {
+            MATTE_GREEN
+        } else {
+            MaterialTheme.colorScheme.surfaceTint
+        }
     ) {
         Row(
             // TODO: pretty unclear we are passing in a function to navigate here, might be worth
@@ -187,47 +193,106 @@ fun RecipeSearchCardItem(
             modifier = Modifier.clickable { onItemClick("recipe_detail/${card.id}") },
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+
+
             Column(
                 modifier = Modifier
-                    .padding(20.dp)
+                    .padding(12.dp)
                     .weight(1f)
             ) {
-                Text(text = card.title, style = MaterialTheme.typography.headlineMedium)
                 Text(
-                    text = "${card.usedIngredients} ingredients used",
-                    style = MaterialTheme.typography.bodyMedium
+                    text = card.title,
+                    modifier = Modifier.padding(4.dp),
+                    style = MaterialTheme.typography.headlineMedium
                 )
-                Text(
-                    text = "${card.missedIngredients} ingredients missed",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Text(
-                    text = "${card.likes} likes",
-                    style = MaterialTheme.typography.bodySmall
-                )
+
+                when (card.missedIngredients > 0) {
+                    true -> {
+                        Text(
+                            text = "${card.usedIngredients} ingredients used",
+                            modifier = Modifier.padding(4.dp),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+
+                        Text(
+                            text = "${card.missedIngredients} ingredients missing",
+                            modifier = Modifier.padding(4.dp),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                    else -> {
+                        Row(modifier = Modifier.padding(4.dp)) {
+                            Icon(
+                                Icons.Default.Check,
+                                contentDescription = "ingredients used",
+                                modifier = Modifier
+                                    .size(18.dp)
+                                    .padding(end = 4.dp),
+                                tint = MaterialTheme.colorScheme.inverseOnSurface
+                            )
+                            Text(
+                                text = "You have all ${card.usedIngredients} ingredients",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                    }
+                }
+                Row(modifier = Modifier.padding(4.dp)) {
+                    Icon(
+                        Icons.Default.Favorite,
+                        contentDescription = "likes",
+                        modifier = Modifier
+                            .size(18.dp)
+                            .padding(end = 4.dp),
+                        tint = MaterialTheme.colorScheme.inverseOnSurface
+                    )
+                    Text(
+                        text = "${card.likes} likes",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+
+                Row(modifier = Modifier.padding(4.dp)) {
+                    Icon(
+                        Icons.Default.Build,
+                        contentDescription = "time",
+                        modifier = Modifier
+                            .size(18.dp)
+                            .padding(end = 4.dp),
+                        tint = MaterialTheme.colorScheme.inverseOnSurface
+                    )
+                    Text(
+                        text = "${card.readyTime} minutes",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+
             }
             Column(
-                modifier = Modifier.align(Alignment.CenterVertically)
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .padding(16.dp)
             ) {
 
                 when (card.saveState) {
                     SAVED -> {
                         Icon(
-                            Icons.Default.Check,
+                            Icons.Default.Clear,
                             contentDescription = "saved",
                             modifier = Modifier
                                 .size(36.dp)
                                 .clickable { onUnSaveClick(index) },
-                            tint = MATTE_GREEN
+                            tint = MaterialTheme.colorScheme.inverseOnSurface
                         )
                     }
                     NOT_SAVED -> {
                         Icon(
-                            Icons.Default.Add,
+                            Icons.Default.AddCircle,
                             contentDescription = "save",
                             modifier = Modifier
                                 .size(36.dp)
                                 .clickable { onSaveClick(index) },
+                            tint = MaterialTheme.colorScheme.inverseOnSurface
                         )
                     }
                     SAVING -> {
@@ -244,12 +309,12 @@ fun RecipeSearchCardItem(
 class RecipeSearchCardPreviewParamProvider : PreviewParameterProvider<RecipeSearchCard> {
     override val values: Sequence<RecipeSearchCard> = sequenceOf(
         RecipeSearchCard(
-            1,
-            "A very long recipe name that is very long",
-            10,
+            id = 1,
+            title = "A very long recipe name that is very long",
+            usedIngredients = 10,
             3,
             100,
-            NOT_SAVED
+            saveState = NOT_SAVED
         )
     )
 }

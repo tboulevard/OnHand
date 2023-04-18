@@ -23,6 +23,7 @@ class NetworkRecipeDetail(
     val sourceName: String?,
     val pricePerServing: Double,
     val title: String?,
+    // TODO: use this before merge
     val readyInMinutes: Int,
     val servings: Int,
     val sourceUrl: String?,
