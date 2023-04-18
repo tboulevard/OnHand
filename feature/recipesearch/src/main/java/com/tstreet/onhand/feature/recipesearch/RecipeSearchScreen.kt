@@ -84,7 +84,7 @@ class RecipeSearchCard(
     val usedIngredients: Int,
     val missedIngredients: Int,
     val likes: Int,
-    val readyTime: Int = 30,
+    val readyTime: Int = 30, //TODO: remove default value when we pass through real value
     val saveState: RecipeSaveState
 )
 
@@ -323,8 +323,8 @@ class RecipeSearchCardPreviewParamProvider : PreviewParameterProvider<RecipeSear
             id = 1,
             title = "A very long recipe name that is very long",
             usedIngredients = 10,
-            3,
-            100,
+            missedIngredients = 3,
+            likes = 100,
             saveState = NOT_SAVED
         )
     )
