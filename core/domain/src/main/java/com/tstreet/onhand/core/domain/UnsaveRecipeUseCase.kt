@@ -3,6 +3,7 @@ package com.tstreet.onhand.core.domain
 import com.tstreet.onhand.core.common.CommonModule
 import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.FeatureScope
+import com.tstreet.onhand.core.common.SavedRecipeStateManager
 import com.tstreet.onhand.core.common.UseCase
 import com.tstreet.onhand.core.data.repository.RecipeRepository
 import com.tstreet.onhand.core.model.Recipe
@@ -18,6 +19,7 @@ import javax.inject.Provider
 @FeatureScope
 class UnsaveRecipeUseCase @Inject constructor(
     private val repository: Provider<RecipeRepository>,
+    private val savedRecipeStateManager: Provider<SavedRecipeStateManager>,
     @Named(IO) private val ioDispatcher: CoroutineDispatcher,
 ) : UseCase() {
 
@@ -28,6 +30,10 @@ class UnsaveRecipeUseCase @Inject constructor(
             repository
                 .get()
                 .unsaveRecipe(recipe.id)
+
+            // Only invoke state change is the recipe was unsaved successfully
+            savedRecipeStateManager.get().onSavedRecipeStateChange()
+
             emit(true)
         }.catch {
             // TODO: better error handling, and make sure this actually works.

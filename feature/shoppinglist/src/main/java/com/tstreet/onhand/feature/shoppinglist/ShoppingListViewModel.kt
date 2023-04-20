@@ -4,9 +4,9 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.tstreet.onhand.core.domain.GetShoppingListUseCase
-import com.tstreet.onhand.core.domain.MarkShoppingIngredientUseCase
-import com.tstreet.onhand.core.domain.UnmarkShoppingIngredientUseCase
+import com.tstreet.onhand.core.domain.shoppinglist.GetShoppingListUseCase
+import com.tstreet.onhand.core.domain.shoppinglist.CheckOffIngredientUseCase
+import com.tstreet.onhand.core.domain.shoppinglist.UncheckIngredientUseCase
 import com.tstreet.onhand.core.model.ShoppingListIngredient
 import com.tstreet.onhand.core.ui.RecipeDetailUiState
 import com.tstreet.onhand.core.ui.ShoppingListUiState
@@ -17,8 +17,8 @@ import javax.inject.Provider
 
 class ShoppingListViewModel @Inject constructor(
     getShoppingListUseCase: Provider<GetShoppingListUseCase>,
-    private val markShoppingIngredientUseCase: Provider<MarkShoppingIngredientUseCase>,
-    private val unmarkShoppingIngredientUseCase: Provider<UnmarkShoppingIngredientUseCase>
+    private val checkIngredientUseCase: Provider<CheckOffIngredientUseCase>,
+    private val uncheckIngredientUseCase: Provider<UncheckIngredientUseCase>
 ) : ViewModel() {
 
     init {
@@ -49,7 +49,7 @@ class ShoppingListViewModel @Inject constructor(
             // Mark the recipe as saving
             _shoppingList[index] = item.copy(isPurchased = isPurchased)
             // Save the recipe
-            markShoppingIngredientUseCase.get().invoke(item).collect {
+            checkIngredientUseCase.get().invoke(item).collect {
                 when (it) {
                     // When save is successful, update UI state
                     true -> {
@@ -80,7 +80,7 @@ class ShoppingListViewModel @Inject constructor(
             // Mark the recipe as saving
             _shoppingList[index] = item.copy(isPurchased = isPurchased)
             // Save the recipe
-            unmarkShoppingIngredientUseCase.get().invoke(item).collect {
+            uncheckIngredientUseCase.get().invoke(item).collect {
                 when (it) {
                     // When save is successful, update UI state
                     true -> {

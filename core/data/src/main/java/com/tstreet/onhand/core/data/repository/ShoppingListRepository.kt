@@ -7,16 +7,17 @@ interface ShoppingListRepository {
 
     fun getShoppingList(): Flow<List<ShoppingListIngredient>>
 
-    suspend fun insertShoppingList(shoppingList: List<ShoppingListIngredient>)
+    suspend fun insertIngredients(shoppingList: List<ShoppingListIngredient>)
 
-    suspend fun markIngredientPurchased(ingredient: ShoppingListIngredient)
+    suspend fun checkOffIngredient(ingredient: ShoppingListIngredient)
 
-    suspend fun unmarkIngredientPurchased(ingredient: ShoppingListIngredient)
+    suspend fun uncheckIngredient(ingredient: ShoppingListIngredient)
 
-    suspend fun isIngredientPurchased(id: Int): Boolean
+    suspend fun isIngredientCheckedOff(id: Int): Boolean
 
-    // TODO:
     fun getShoppingListByRecipe(): List<ShoppingListIngredient>
+
+    suspend fun isEmpty(): Boolean
 
     suspend fun clear()
 }

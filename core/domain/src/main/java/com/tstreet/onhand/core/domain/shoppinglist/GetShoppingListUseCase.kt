@@ -1,12 +1,15 @@
-package com.tstreet.onhand.core.domain
+package com.tstreet.onhand.core.domain.shoppinglist
 
 import com.tstreet.onhand.core.common.CommonModule.IO
+import com.tstreet.onhand.core.common.PantryStateManager
+import com.tstreet.onhand.core.common.SavedRecipeStateManager
 import com.tstreet.onhand.core.common.UseCase
 import com.tstreet.onhand.core.data.repository.PantryRepository
 import com.tstreet.onhand.core.data.repository.RecipeRepository
 import com.tstreet.onhand.core.data.repository.ShoppingListRepository
 import com.tstreet.onhand.core.model.*
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 import javax.inject.Named
@@ -16,27 +19,51 @@ class GetShoppingListUseCase @Inject constructor(
     private val shoppingListRepository: Provider<ShoppingListRepository>,
     private val pantryRepository: Provider<PantryRepository>,
     private val recipeRepository: Provider<RecipeRepository>,
+    private val pantryStateManager: Provider<PantryStateManager>,
+    private val savedRecipeStateManager: Provider<SavedRecipeStateManager>,
     @Named(IO) private val ioDispatcher: CoroutineDispatcher,
 ) : UseCase() {
 
+    @OptIn(FlowPreview::class)
     operator fun invoke(): Flow<List<ShoppingListIngredient>> {
         println("[OnHand] GetShoppingListUseCase.invoke()")
-        return combine(
-            pantryRepository.get().listPantry(),
-            recipeRepository.get().getSavedRecipes()
-        ) { pantryIngredients, savedRecipes ->
-            getShoppingList(
-                pantry = pantryIngredients,
-                recipes = savedRecipes.map { it.recipe }
+        // TODO: logic here is a bit wasteful since pantry state won't be reset until we navigate
+        //  to the recipe search screen. Also doesn't make sense to reset pantry state here as
+        //  that would prevent recipe search listings from updating. So: We only retrieve cached
+        //  results if recipe search screen has been visited and cache is not empty. Not ideal but
+        //  it works
+        val getShoppingListFlow = flow {
+            emit(
+                shoppingListRepository.get().isEmpty() ||
+                        pantryStateManager.get().hasPantryStateChanged() ||
+                        savedRecipeStateManager.get().hasSavedRecipeStateChanged()
             )
-        }.onEach {
-            shoppingListRepository.get().clear()
-            // TODO: Cache shopping list depending on pantry state OR saved recipe state to save
-            //  on work
-            shoppingListRepository
-                .get()
-                .insertShoppingList(it)
-        }.flowOn(ioDispatcher)
+        }.flatMapConcat { shouldRefreshShoppingList ->
+            if (shouldRefreshShoppingList) {
+                println("[OnHand] Generating new shopping list")
+                combine(
+                    pantryRepository.get().listPantry(),
+                    recipeRepository.get().getSavedRecipes()
+                ) { pantryIngredients, savedRecipes ->
+                    getShoppingList(
+                        pantry = pantryIngredients,
+                        recipes = savedRecipes.map { it.recipe }
+                    )
+                }.onEach {
+                    println("[OnHand] Generating new shopping list, then caching it")
+                    shoppingListRepository.get().clear()
+                    shoppingListRepository
+                        .get()
+                        .insertIngredients(it)
+                    savedRecipeStateManager.get().onResetSavedRecipeState()
+                }
+            } else {
+                println("[OnHand] Retrieving cached shopping list")
+                shoppingListRepository.get().getShoppingList()
+            }
+        }
+
+        return getShoppingListFlow.flowOn(ioDispatcher)
     }
 
     private suspend fun getShoppingList(
@@ -102,7 +129,7 @@ class GetShoppingListUseCase @Inject constructor(
                 id = it.key.id,
                 name = it.key.name,
                 recipeMeasures = it.value,
-                isPurchased = shoppingListRepository.get().isIngredientPurchased(it.key.id)
+                isPurchased = shoppingListRepository.get().isIngredientCheckedOff(it.key.id)
             )
         }
     }

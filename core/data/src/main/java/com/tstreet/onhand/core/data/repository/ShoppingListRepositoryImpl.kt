@@ -21,25 +21,25 @@ class ShoppingListRepositoryImpl @Inject constructor(
             .map { it.map(ShoppingListEntity::toExternalModel) }
     }
 
-    override suspend fun insertShoppingList(shoppingList: List<ShoppingListIngredient>) {
+    override suspend fun insertIngredients(shoppingList: List<ShoppingListIngredient>) {
         shoppingListDao
             .get()
             .insertShoppingList(shoppingList.map(ShoppingListIngredient::asEntity))
     }
 
-    override suspend fun markIngredientPurchased(ingredient: ShoppingListIngredient) {
+    override suspend fun checkOffIngredient(ingredient: ShoppingListIngredient) {
         shoppingListDao
             .get()
             .markIngredientPurchased(ingredient.id)
     }
 
-    override suspend fun unmarkIngredientPurchased(ingredient: ShoppingListIngredient) {
+    override suspend fun uncheckIngredient(ingredient: ShoppingListIngredient) {
         shoppingListDao
             .get()
             .unmarkIngredientPurchased(ingredient.id)
     }
 
-    override suspend fun isIngredientPurchased(id: Int): Boolean {
+    override suspend fun isIngredientCheckedOff(id: Int): Boolean {
         return shoppingListDao
             .get()
             .isShoppingListIngredientPurchased(id)
@@ -47,6 +47,12 @@ class ShoppingListRepositoryImpl @Inject constructor(
 
     override suspend fun clear() {
         shoppingListDao.get().clear()
+    }
+
+    override suspend fun isEmpty(): Boolean {
+        return shoppingListDao
+            .get()
+            .isEmpty()
     }
 
     override fun getShoppingListByRecipe(): List<ShoppingListIngredient> {

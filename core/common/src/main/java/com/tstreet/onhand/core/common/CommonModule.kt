@@ -33,4 +33,12 @@ object CommonModule {
     ): PantryStateManager {
         return PantryStateManagerImpl(sharedPreferences)
     }
+
+    @Provides
+    @Singleton
+    fun provideSavedRecipeStateManager(
+        @Named(SHARED_PREF_FILE) sharedPreferences: SharedPreferences
+    ): SavedRecipeStateManager {
+        return SavedRecipeStateManagerImpl(sharedPreferences)
+    }
 }

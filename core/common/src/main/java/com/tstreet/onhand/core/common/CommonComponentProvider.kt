@@ -10,12 +10,16 @@ import javax.inject.Named
 
 interface CommonComponentProvider {
 
-    val context : Context
+    val context: Context
+
     @get:Named(IO)
     val ioDispatcher: CoroutineDispatcher
+
     @get:Named(SHARED_PREF_FILE)
-    val sharedPreferences : SharedPreferences
-    val pantryStateManager : PantryStateManager
+    val sharedPreferences: SharedPreferences
+    val pantryStateManager: PantryStateManager
+    val savedRecipeStateManager: SavedRecipeStateManager
 }
 
-val LocalCommonProvider = compositionLocalOf<CommonComponentProvider> { error("No common provider found!") }
+val LocalCommonProvider =
+    compositionLocalOf<CommonComponentProvider> { error("No common provider found!") }

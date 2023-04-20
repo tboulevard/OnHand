@@ -1,4 +1,4 @@
-package com.tstreet.onhand.core.domain
+package com.tstreet.onhand.core.domain.shoppinglist
 
 import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.FeatureScope
@@ -15,8 +15,7 @@ import javax.inject.Named
 import javax.inject.Provider
 
 @FeatureScope
-// TODO: redo naming for everything related to this use case
-class MarkShoppingIngredientUseCase @Inject constructor(
+class CheckOffIngredientUseCase @Inject constructor(
     private val shoppingListRepository: Provider<ShoppingListRepository>,
     @Named(IO) private val ioDispatcher: CoroutineDispatcher
 ) : UseCase() {
@@ -26,12 +25,12 @@ class MarkShoppingIngredientUseCase @Inject constructor(
         return flow {
             shoppingListRepository
                 .get()
-                .markIngredientPurchased(shoppingListIngredient)
+                .checkOffIngredient(shoppingListIngredient)
             emit(true)
         }.flowOn(ioDispatcher)
             .catch {
                 // TODO: better error handling
-                println("[OnHand] Error marking $shoppingListIngredient to database. Error=${it.message}")
+                println("[OnHand] Error checking off $shoppingListIngredient to database. Error=${it.message}")
                 emit(false)
             }
     }

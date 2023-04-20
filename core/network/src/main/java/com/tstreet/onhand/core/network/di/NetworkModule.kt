@@ -12,7 +12,7 @@ import javax.inject.Singleton
 object NetworkModule {
 
     // TODO: extract to build config later
-    private const val USE_FAKE_DATASOURCE = true
+    private const val USE_FAKE_DATASOURCE = false
 
     @Provides
     @Singleton

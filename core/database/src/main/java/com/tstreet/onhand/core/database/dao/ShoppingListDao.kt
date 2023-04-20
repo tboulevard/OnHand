@@ -26,6 +26,9 @@ interface ShoppingListDao {
     @Query("UPDATE shopping_list SET isPurchased = 0 WHERE id = :id AND isPurchased = 1")
     fun unmarkIngredientPurchased(id: Int)
 
+    @Query("SELECT (SELECT COUNT(*) FROM shopping_list) == 0")
+    suspend fun isEmpty(): Boolean
+
     @Query("DELETE from shopping_list")
     suspend fun clear()
 }
