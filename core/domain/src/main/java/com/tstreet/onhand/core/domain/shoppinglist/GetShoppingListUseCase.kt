@@ -55,13 +55,18 @@ class GetShoppingListUseCase @Inject constructor(
                     shoppingListRepository
                         .get()
                         .insertIngredients(it)
-                    savedRecipeStateManager.get().onResetSavedRecipeState()
+
                 }
             } else {
                 println("[OnHand] Retrieving cached shopping list")
                 shoppingListRepository.get().getShoppingList()
             }
-        }
+        }.onEach { savedRecipeStateManager.get().onResetSavedRecipeState() }
+            .catch {
+                // TODO: better error handling, and make sure this actually works.
+                println("[OnHand] Error retrieving shopping list. Error=${it.message}")
+                emit(emptyList())
+            }
 
         return getShoppingListFlow.flowOn(ioDispatcher)
     }
@@ -76,39 +81,51 @@ class GetShoppingListUseCase @Inject constructor(
         //  used and missed in case pantry state no longer reflects the saved recipe ingredient state
         //  (i.e. pantry state changes since the recipe was saved with what ingredients were missing at
         //  the time...)
-        val recipeMeasureMap = mutableMapOf<Ingredient, MutableList<RecipeMeasure>>()
+
+        // TODO: use id for all mappings because some ingredients have same id diff string, causing the
+        //  containtskey constraint to fail
+        val recipeMeasureMap = mutableMapOf<Int, IngredientMappedToRecipes>()
         recipes.forEach { recipe ->
             recipe.usedIngredients.forEach { recipeIngredient ->
+                // TODO: revisit if this is all necessary given that class contains empty mutable list
                 // If we already created a list in the map, add to it
-                if (recipeMeasureMap.containsKey(recipeIngredient.ingredient)) {
-                    recipeMeasureMap[recipeIngredient.ingredient]!!.add(
+                if (recipeMeasureMap.containsKey(recipeIngredient.ingredient.id)) {
+                    recipeMeasureMap[recipeIngredient.ingredient.id]!!.recipeMeasures.add(
                         RecipeMeasure(recipe, recipeIngredient.unit, recipeIngredient.amount)
                     )
                 } else { // Otherwise, create it
-                    recipeMeasureMap[recipeIngredient.ingredient] =
-                        mutableListOf(
+                    recipeMeasureMap[recipeIngredient.ingredient.id] = IngredientMappedToRecipes(
+                        id = recipeIngredient.ingredient.id,
+                        name = recipeIngredient.ingredient.name,
+                    ).also {
+                        it.recipeMeasures.add(
                             RecipeMeasure(
                                 recipe,
                                 recipeIngredient.unit,
                                 recipeIngredient.amount
                             )
                         )
+                    }
                 }
             }
             recipe.missedIngredients.forEach { recipeIngredient ->
-                if (recipeMeasureMap.containsKey(recipeIngredient.ingredient)) {
-                    recipeMeasureMap[recipeIngredient.ingredient]!!.add(
+                if (recipeMeasureMap.containsKey(recipeIngredient.ingredient.id)) {
+                    recipeMeasureMap[recipeIngredient.ingredient.id]!!.recipeMeasures.add(
                         RecipeMeasure(recipe, recipeIngredient.unit, recipeIngredient.amount)
                     )
-                } else {
-                    recipeMeasureMap[recipeIngredient.ingredient] =
-                        mutableListOf(
+                } else { // Otherwise, create it
+                    recipeMeasureMap[recipeIngredient.ingredient.id] = IngredientMappedToRecipes(
+                        id = recipeIngredient.ingredient.id,
+                        name = recipeIngredient.ingredient.name,
+                    ).also {
+                        it.recipeMeasures.add(
                             RecipeMeasure(
                                 recipe,
                                 recipeIngredient.unit,
                                 recipeIngredient.amount
                             )
                         )
+                    }
                 }
             }
         }
@@ -118,19 +135,25 @@ class GetShoppingListUseCase @Inject constructor(
         // later by subtraction. Issue right now is that ingredients are measures using different
         // units.
         pantry.forEach {
-            if (recipeMeasureMap.keys.contains(it.ingredient)) {
-                recipeMeasureMap.remove(it.ingredient)
+            if (recipeMeasureMap.keys.contains(it.ingredient.id)) {
+                recipeMeasureMap.remove(it.ingredient.id)
             }
         }
 
         // Create shopping list by flattening the recipeMeasureMap
         return recipeMeasureMap.map {
             ShoppingListIngredient(
-                id = it.key.id,
-                name = it.key.name,
-                recipeMeasures = it.value,
-                isPurchased = shoppingListRepository.get().isIngredientCheckedOff(it.key.id)
+                id = it.key,
+                name = it.value.name,
+                recipeMeasures = it.value.recipeMeasures,
+                isPurchased = shoppingListRepository.get().isIngredientCheckedOff(it.key)
             )
         }
     }
 }
+
+class IngredientMappedToRecipes(
+    val id: Int,
+    val name: String,
+    val recipeMeasures: MutableList<RecipeMeasure> = mutableListOf()
+)

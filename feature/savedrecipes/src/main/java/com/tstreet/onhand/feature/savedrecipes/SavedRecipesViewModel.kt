@@ -74,6 +74,7 @@ class SavedRecipesViewModel @Inject constructor(
         }
     }
 
+    // TODO: screen flashes when we do this, look into as an improvement
     fun onRecipeUnsaved(index: Int) {
         viewModelScope.launch {
             val item = _recipes[index]
