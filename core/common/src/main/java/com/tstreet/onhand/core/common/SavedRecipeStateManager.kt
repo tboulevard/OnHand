@@ -57,7 +57,7 @@ class SavedRecipeStateManagerImpl @Inject constructor(
                 putBoolean(SAVED_RECIPE_STATE_KEY, savedRecipeStateChanged.get())
                 commit()
             }
-            println("[OnHand] Saved recipe state changed")
+            println("[OnHand] Saved recipe state changed, savedRecipeStateChanged=${true}")
         }
     }
 
@@ -68,7 +68,7 @@ class SavedRecipeStateManagerImpl @Inject constructor(
                 putBoolean(SAVED_RECIPE_STATE_KEY, savedRecipeStateChanged.get())
                 commit()
             }
-            println("[OnHand] Saved recipe state reset")
+            println("[OnHand] Saved recipe state reset, savedRecipeStateChanged=${false}")
         }
     }
 }

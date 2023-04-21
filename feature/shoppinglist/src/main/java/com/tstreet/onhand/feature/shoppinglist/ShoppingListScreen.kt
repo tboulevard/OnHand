@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -37,18 +38,26 @@ fun ShoppingListScreen(
                     state.ingredients.isNotEmpty() -> {
                         ShoppingListCards(
                             state.ingredients,
-                            viewModel::onMarkShoppingIngredient,
-                            viewModel::onUnmarkShoppingIngredient
+                            viewModel::onCheckOffShoppingIngredient,
+                            viewModel::onUncheckShoppingIngredient
                         )
                     }
                     else -> {
-                        Text(
+                        Row(
                             modifier = Modifier
-                                .fillMaxSize(),
-                            text = "Shopping list empty - either because you have all ingredients " +
-                                    "for all saved recipes or because you haven't saved any recipes",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
+                                .fillMaxSize()
+                        ) {
+                            Text(
+                                modifier = Modifier
+                                    .align(Alignment.CenterVertically)
+                                    .padding(8.dp),
+                                text = "No shopping list to show - either because you have all " +
+                                        "ingredients for all saved recipes or because you " +
+                                        "haven't saved any recipes.",
+                                style = MaterialTheme.typography.titleLarge,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
                     }
                 }
             }
@@ -107,17 +116,11 @@ fun ShoppingListCardItem(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Checkbox(
-                // below line we are setting
-                // the state of checkbox.
                 checked = card.isIngredientChecked,
-                // below line is use to add padding
-                // to our checkbox.
                 modifier = Modifier
                     .padding(start = 24.dp)
                     .align(Alignment.CenterVertically)
                     .size(24.dp),
-                // below line is use to add on check
-                // change to our checkbox.
                 onCheckedChange = {
                     if (card.isIngredientChecked) {
                         onUnmarkIngredient(card.index)

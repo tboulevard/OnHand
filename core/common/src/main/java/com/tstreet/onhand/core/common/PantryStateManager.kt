@@ -53,7 +53,7 @@ class PantryStateManagerImpl @Inject constructor(
                 putBoolean(PANTRY_STATE_KEY, pantryStateChanged.get())
                 commit()
             }
-            println("[OnHand] Pantry state changed")
+            println("[OnHand] Pantry state changed, pantryStateChanged=${true}")
         }
     }
 
@@ -64,7 +64,7 @@ class PantryStateManagerImpl @Inject constructor(
                 putBoolean(PANTRY_STATE_KEY, pantryStateChanged.get())
                 commit()
             }
-            println("[OnHand] Pantry state reset")
+            println("[OnHand] Pantry state reset, pantryStateChanged=${false}")
         }
     }
 }

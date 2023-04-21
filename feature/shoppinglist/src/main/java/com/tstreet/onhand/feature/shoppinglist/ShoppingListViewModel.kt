@@ -42,7 +42,7 @@ class ShoppingListViewModel @Inject constructor(
             initialValue = RecipeDetailUiState.Loading
         )
 
-    fun onMarkShoppingIngredient(index: Int) {
+    fun onCheckOffShoppingIngredient(index: Int) {
         viewModelScope.launch {
             val item = _shoppingList[index]
             val isPurchased = item.isPurchased
@@ -73,7 +73,7 @@ class ShoppingListViewModel @Inject constructor(
         }
     }
 
-    fun onUnmarkShoppingIngredient(index: Int) {
+    fun onUncheckShoppingIngredient(index: Int) {
         viewModelScope.launch {
             val item = _shoppingList[index]
             val isPurchased = item.isPurchased
