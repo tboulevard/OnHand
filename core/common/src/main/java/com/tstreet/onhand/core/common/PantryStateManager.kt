@@ -35,9 +35,12 @@ class PantryStateManagerImpl @Inject constructor(
         println("[OnHand] ${this.javaClass.simpleName} created")
     }
 
-    // Default to true to eagerly say pantry state has updated in case of error
+    // Default to true to eagerly say state has changed in case of error
     private val pantryStateChanged =
         AtomicBoolean(sharedPreferences.getBoolean(PANTRY_STATE_KEY, true))
+            .also {
+                println("[OnHand] pantryStateChanged init, value=${it.get()}")
+            }
 
     override fun hasPantryStateChanged(): Boolean {
         return pantryStateChanged.get()
@@ -50,7 +53,7 @@ class PantryStateManagerImpl @Inject constructor(
                 putBoolean(PANTRY_STATE_KEY, pantryStateChanged.get())
                 commit()
             }
-            println("[OnHand] Pantry state changed")
+            println("[OnHand] Pantry state changed, pantryStateChanged=${true}")
         }
     }
 
@@ -61,7 +64,7 @@ class PantryStateManagerImpl @Inject constructor(
                 putBoolean(PANTRY_STATE_KEY, pantryStateChanged.get())
                 commit()
             }
-            println("[OnHand] Pantry state reset")
+            println("[OnHand] Pantry state reset, pantryStateChanged=${false}")
         }
     }
 }

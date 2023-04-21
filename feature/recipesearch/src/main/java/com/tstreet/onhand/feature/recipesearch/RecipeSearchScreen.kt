@@ -1,6 +1,8 @@
 package com.tstreet.onhand.feature.recipesearch
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,10 +24,56 @@ fun RecipeSearchScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val sortOrder by viewModel.sortOrder.collectAsState()
+    val openDialog = remember { mutableStateOf(false) }
+
+    if (openDialog.value) {
+        AlertDialog(
+            onDismissRequest = {
+                // Dismiss the dialog when the user clicks outside the dialog or on the back
+                // button. If you want to disable that functionality, simply use an empty
+                // onDismissRequest.
+                openDialog.value = false
+            },
+            title = {
+                Text("Search Recipes")
+            },
+            text = {
+                Text(
+                    "Recipes shown here are based on ingredients from your pantry. By " +
+                            "default we'll only show recipes where you're missing at most 3 " +
+                            "ingredients."
+                )
+            },
+            dismissButton = {
+                Button(
+                    onClick = {
+                        openDialog.value = false
+                    }) {
+                    Text("Got it \uD83D\uDC4C")
+                }
+            },
+            confirmButton = { },
+        )
+    }
 
     Column(
         verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()
     ) {
+        Row(modifier = Modifier.fillMaxWidth()) {
+            OnHandScreenHeader("Search Recipes")
+            Icon(
+                Icons.Default.Info,
+                contentDescription = "recipe search info",
+                modifier = Modifier
+                    .size(32.dp)
+                    .padding(4.dp)
+                    .align(Alignment.CenterVertically)
+                    .clickable {
+                        openDialog.value = true
+                    },
+                tint = MaterialTheme.colorScheme.surfaceTint
+            )
+        }
         when (val state = uiState) {
             Loading -> {
                 OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
