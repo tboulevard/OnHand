@@ -27,9 +27,13 @@ android {
 
     buildTypes {
         debug {
-            // TODO: figure out build variant to properly place this in...
             applicationIdSuffix ".debug"
             debuggable true
+        }
+        debugFake {
+            applicationIdSuffix ".debugFake"
+            debuggable true
+            matchingFallbacks = ['debug']
         }
         release {
             applicationIdSuffix ".release"

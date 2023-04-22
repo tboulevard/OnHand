@@ -24,6 +24,15 @@ android {
     }
 
     buildTypes {
+        debug {
+            debuggable true
+        }
+        debugFake {
+            debuggable true
+            buildConfigField "boolean", "useFakeDataSource", "true"
+            // So debugImplementation still works in this build type...
+            matchingFallbacks = ['debug']
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'

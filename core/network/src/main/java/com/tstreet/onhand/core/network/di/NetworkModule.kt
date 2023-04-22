@@ -1,5 +1,6 @@
 package com.tstreet.onhand.core.network.di
 
+import com.tstreet.onhand.core.network.BuildConfig
 import com.tstreet.onhand.core.network.OnHandNetworkDataSource
 import com.tstreet.onhand.core.network.fake.FakeOnHandNetworkDataSource
 import com.tstreet.onhand.core.network.retrofit.RetrofitOnHandNetwork
@@ -12,7 +13,7 @@ import javax.inject.Singleton
 object NetworkModule {
 
     // TODO: extract to build config later
-    private const val USE_FAKE_DATASOURCE = true
+    private const val USE_FAKE_DATASOURCE = BuildConfig.useFakeDataSource
 
     @Provides
     @Singleton
