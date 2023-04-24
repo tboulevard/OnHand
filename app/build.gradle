@@ -25,10 +25,13 @@ android {
     }
 
     buildTypes {
-        debugFake {
-            applicationIdSuffix ".debugFake"
+        debug {
             debuggable true
-            matchingFallbacks = ['debug']
+            applicationIdSuffix ".debug"
+        }
+        mock {
+            initWith(debug)
+            applicationIdSuffix ".mock"
         }
         release {
             applicationIdSuffix ".release"
@@ -93,8 +96,4 @@ dependencies {
     androidTestImplementation libs.androidx.test.ext
     androidTestImplementation libs.androidx.test.espresso.core
     androidTestImplementation libs.androidx.compose.ui.test
-
-    debugImplementation libs.androidx.compose.ui.tooling
-    debugImplementation libs.androidx.compose.ui.tooling.preview
-    debugImplementation libs.androidx.compose.ui.test.manifest
 }

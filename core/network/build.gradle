@@ -21,21 +21,20 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
+
+        buildConfigField "boolean", "useFakeDataSource", "false"
     }
 
     buildTypes {
         debug {
             debuggable true
-            buildConfigField "boolean", "useFakeDataSource", "false"
         }
-        debugFake {
-            debuggable true
+        mock {
+            initWith(debug)
             buildConfigField "boolean", "useFakeDataSource", "true"
-            // So debugImplementation still works in this build type...
             matchingFallbacks = ['debug']
         }
         release {
-            buildConfigField "boolean", "useFakeDataSource", "false"
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
