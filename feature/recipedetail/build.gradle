@@ -17,12 +17,9 @@ android {
     }
 
     buildTypes {
-        debug {
-            debuggable true
-        }
         debugFake {
             debuggable true
-            matchingFallbacks = ['debug', 'debugFake']
+            matchingFallbacks = ['debug']
         }
         release {
             minifyEnabled false
@@ -70,7 +67,7 @@ dependencies {
     androidTestImplementation libs.androidx.test.espresso.core
     androidTestImplementation libs.androidx.compose.ui.test
 
-    debugFakeImplementation libs.androidx.compose.ui.tooling
-    debugFakeImplementation libs.androidx.compose.ui.tooling.preview
-    debugFakeImplementation libs.androidx.compose.ui.test.manifest
+    debugImplementation libs.androidx.compose.ui.tooling
+    debugImplementation libs.androidx.compose.ui.tooling.preview
+    debugImplementation libs.androidx.compose.ui.test.manifest
 }

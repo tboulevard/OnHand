@@ -36,9 +36,6 @@ android {
     }
 
     buildTypes {
-        debug {
-            debuggable true
-        }
         debugFake {
             debuggable true
             matchingFallbacks = ['debug']

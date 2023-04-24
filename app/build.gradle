@@ -22,14 +22,9 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
-
     }
 
     buildTypes {
-        debug {
-            applicationIdSuffix ".debug"
-            debuggable true
-        }
         debugFake {
             applicationIdSuffix ".debugFake"
             debuggable true
