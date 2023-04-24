@@ -12,7 +12,6 @@ import javax.inject.Singleton
 @Module
 object NetworkModule {
 
-    // TODO: extract to build config later
     private const val USE_FAKE_DATASOURCE = BuildConfig.useFakeDataSource
 
     @Provides

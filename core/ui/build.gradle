@@ -19,10 +19,6 @@ android {
         debug {
             debuggable true
         }
-        debugFake {
-            debuggable true
-            matchingFallbacks = ['debug']
-        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
