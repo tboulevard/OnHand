@@ -20,6 +20,12 @@ android {
     }
 
     buildTypes {
+        debug {
+            debuggable true
+        }
+        mockDebug {
+            initWith(debug)
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -67,7 +73,9 @@ dependencies {
     androidTestImplementation libs.androidx.test.espresso.core
     androidTestImplementation libs.androidx.compose.ui.test
 
-    debugImplementation libs.androidx.compose.ui.tooling
-    debugImplementation libs.androidx.compose.ui.tooling.preview
-    debugImplementation libs.androidx.compose.ui.test.manifest
+    // TODO: Due to a bug with matchingFallbacks, debugImplementation doesn't work here. Look
+    //  into later. We use implementation to circumvent the bug for now.
+    implementation libs.androidx.compose.ui.tooling
+    implementation libs.androidx.compose.ui.tooling.preview
+    implementation libs.androidx.compose.ui.test.manifest
 }

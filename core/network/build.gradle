@@ -21,9 +21,19 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
+
+        buildConfigField "boolean", "useFakeDataSource", "false"
     }
 
     buildTypes {
+        debug {
+            debuggable true
+        }
+        mockDebug {
+            initWith(debug)
+            matchingFallbacks = ['debug']
+            buildConfigField "boolean", "useFakeDataSource", "true"
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'

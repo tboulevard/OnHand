@@ -22,14 +22,17 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
-
     }
 
     buildTypes {
         debug {
-            // TODO: figure out build variant to properly place this in...
-            applicationIdSuffix ".debug"
             debuggable true
+            applicationIdSuffix ".debug"
+        }
+        mockDebug {
+            initWith(debug)
+            matchingFallbacks = ['debug']
+            applicationIdSuffix ".mock"
         }
         release {
             applicationIdSuffix ".release"
@@ -94,8 +97,4 @@ dependencies {
     androidTestImplementation libs.androidx.test.ext
     androidTestImplementation libs.androidx.test.espresso.core
     androidTestImplementation libs.androidx.compose.ui.test
-
-    debugImplementation libs.androidx.compose.ui.tooling
-    debugImplementation libs.androidx.compose.ui.tooling.preview
-    debugImplementation libs.androidx.compose.ui.test.manifest
 }
