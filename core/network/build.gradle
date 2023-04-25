@@ -29,10 +29,10 @@ android {
         debug {
             debuggable true
         }
-        mock {
+        mockDebug {
             initWith(debug)
-            buildConfigField "boolean", "useFakeDataSource", "true"
             matchingFallbacks = ['debug']
+            buildConfigField "boolean", "useFakeDataSource", "true"
         }
         release {
             minifyEnabled false

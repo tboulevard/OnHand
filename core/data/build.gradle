@@ -25,7 +25,7 @@ android {
         debug {
             debuggable true
         }
-        mock {
+        mockDebug {
             initWith(debug)
             matchingFallbacks = ['debug']
         }

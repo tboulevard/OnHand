@@ -23,7 +23,7 @@ android {
         debug {
             debuggable true
         }
-        mock {
+        mockDebug {
             initWith(debug)
             matchingFallbacks = ['debug']
         }
@@ -74,6 +74,8 @@ dependencies {
     androidTestImplementation libs.androidx.test.espresso.core
     androidTestImplementation libs.androidx.compose.ui.test
 
+    // TODO: Due to a bug with matchingFallbacks, debugImplementation doesn't work here. Look
+    //  into later. We use implementation to circumvent the bug for now.
     implementation libs.androidx.compose.ui.tooling
     implementation libs.androidx.compose.ui.tooling.preview
     implementation libs.androidx.compose.ui.test.manifest

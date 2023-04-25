@@ -29,8 +29,9 @@ android {
             debuggable true
             applicationIdSuffix ".debug"
         }
-        mock {
+        mockDebug {
             initWith(debug)
+            matchingFallbacks = ['debug']
             applicationIdSuffix ".mock"
         }
         release {

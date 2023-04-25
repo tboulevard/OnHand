@@ -20,7 +20,10 @@ android {
     }
 
     buildTypes {
-        mock {
+        debug {
+            debuggable true
+        }
+        mockDebug {
             initWith(debug)
             matchingFallbacks = ['debug']
         }
