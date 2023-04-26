@@ -1,0 +1,25 @@
+plugins {
+    id 'groovy-gradle-plugin'
+    alias(libs.plugins.kotlin.dslPlugin)
+}
+
+group = "com.tstreet.onhand.buildlogic"
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+dependencies {
+    compileOnly libs.android.gradlePlugin
+    compileOnly libs.kotlin.gradlePlugin
+}
+
+gradlePlugin {
+    plugins {
+        androidFeature {
+            id = "onhand.android.feature"
+            implementationClass = "AndroidFeatureConventionPlugin"
+        }
+    }
+}
