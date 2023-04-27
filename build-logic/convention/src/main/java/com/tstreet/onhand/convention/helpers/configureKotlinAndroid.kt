@@ -45,12 +45,6 @@ internal fun Project.configureKotlinAndroid(
             jvmTarget = JavaVersion.VERSION_1_8.toString()
         }
     }
-
-//    val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
-
-//    dependencies {
-//        add("coreLibraryDesugaring", libs.findLibrary("android.desugarJdkLibs").get())
-//    }
 }
 
 fun CommonExtension<*, *, *, *>.kotlinOptions(block: KotlinJvmOptions.() -> Unit) {

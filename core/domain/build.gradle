@@ -1,18 +1,11 @@
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.kapt)
+    id 'onhand.android.library'
 }
 
 android {
     namespace 'com.tstreet.onhand.core.domain'
-    // TODO: move everything below in android { } to separate build module for less redundancy
-    compileSdk 33
 
     defaultConfig {
-        minSdk 23
-        targetSdk 33
-
         consumerProguardFiles "consumer-rules.pro"
     }
 
@@ -28,17 +21,6 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-    }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = '1.8'
-        // For DaggerViewModel error:
-        // Inheritance from an interface with '@JvmDefault' members is only allowed with
-        // -Xjvm-default option
-        freeCompilerArgs = ["-Xjvm-default=all"]
     }
 }
 

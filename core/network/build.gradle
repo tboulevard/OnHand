@@ -1,21 +1,13 @@
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
+    id 'onhand.android.library'
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.kotlin.kapt)
 }
 
 android {
     namespace 'com.tstreet.onhand.core.network'
-    // TODO: move everything below in android { } to separate build module for less redundancy
-    compileSdk 33
 
     defaultConfig {
-        minSdk 23
-        targetSdk 33
-
         consumerProguardFiles "consumer-rules.pro"
-
         buildConfigField "boolean", "useFakeDataSource", "false"
     }
 
@@ -32,13 +24,6 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-    }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = '1.8'
     }
 }
 
