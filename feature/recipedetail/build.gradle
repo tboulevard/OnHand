@@ -1,18 +1,12 @@
 plugins {
-    id 'com.android.library'
-    id 'kotlin-android'
-    id 'kotlin-kapt'
+    id 'onhand.android.feature'
+    id 'onhand.android.library.compose'
 }
 
 android {
     namespace 'com.tstreet.onhand.feature.recipedetail'
-    compileSdk 33
 
     defaultConfig {
-        minSdk 23
-        targetSdk 33
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
 
@@ -29,50 +23,4 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = '1.8'
-        // For DaggerViewModel error:
-        // Inheritance from an interface with '@JvmDefault' members is only allowed with
-        // -Xjvm-default option
-        freeCompilerArgs = ["-Xjvm-default=all"]
-    }
-    buildFeatures {
-        compose true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion '1.4.0'
-    }
-}
-
-dependencies {
-    implementation project(path: ':core:model')
-    implementation project(path: ':core:data')
-    implementation project(path: ':core:network')
-    implementation project(path: ':core:ui')
-    implementation project(path: ':core:common')
-    implementation project(path: ':core:domain')
-
-    implementation libs.androidx.core.ktx
-    implementation libs.androidx.activity.compose
-    implementation libs.androidx.compose.ui
-    implementation libs.androidx.compose.material
-    implementation libs.androidx.navigation.compose
-    implementation libs.androidx.compose.material3
-    implementation libs.dagger
-    kapt libs.dagger.compiler
-
-    testImplementation libs.junit4
-    androidTestImplementation libs.androidx.test.ext
-    androidTestImplementation libs.androidx.test.espresso.core
-    androidTestImplementation libs.androidx.compose.ui.test
-
-    debugImplementation libs.androidx.compose.ui.tooling
-    debugImplementation libs.androidx.compose.ui.test.manifest
-    // TODO: debugImplementation doesn't work for this dependency for some reason...look
-    //  into later. We use implementation to circumvent the bug for now.
-    implementation libs.androidx.compose.ui.tooling.preview
 }
