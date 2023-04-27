@@ -49,7 +49,7 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
                 add("debugImplementation", libs.findLibrary("androidx.compose.ui.test.manifest").get())
                 // TODO: debugImplementation doesn't work for this dependency for some reason...look
                 //  into later. We use implementation to circumvent the bug for now.
-                add("implementation", libs.findLibrary("androidx.core.ktx").get())
+                add("implementation", libs.findLibrary("androidx.compose.ui.tooling.preview").get())
             }
         }
     }
