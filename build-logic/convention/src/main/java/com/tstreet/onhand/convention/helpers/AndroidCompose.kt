@@ -6,7 +6,7 @@ import org.gradle.kotlin.dsl.getByType
 import java.io.File
 
 /**
- * Configure Compose-specific options
+ * Configures Compose-specific options
  */
 internal fun Project.configureAndroidCompose(
     commonExtension: CommonExtension<*, *, *, *>,
@@ -23,6 +23,7 @@ internal fun Project.configureAndroidCompose(
         }
 
         kotlinOptions {
+            // TODO: research later...
             //freeCompilerArgs = freeCompilerArgs + buildComposeMetricsParameters()
         }
 

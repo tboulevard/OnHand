@@ -1,5 +1,4 @@
 plugins {
-    id 'groovy-gradle-plugin'
     alias(libs.plugins.kotlin.dslPlugin)
 }
 
@@ -28,6 +27,14 @@ gradlePlugin {
         androidLibraryCompose {
             id = "onhand.android.library.compose"
             implementationClass = "AndroidLibraryComposeConventionPlugin"
+        }
+        androidApplication {
+            id = "onhand.android.application"
+            implementationClass = "AndroidApplicationConventionPlugin"
+        }
+        androidApplicationCompose {
+            id = "onhand.android.application.compose"
+            implementationClass = "AndroidApplicationComposeConventionPlugin"
         }
     }
 }

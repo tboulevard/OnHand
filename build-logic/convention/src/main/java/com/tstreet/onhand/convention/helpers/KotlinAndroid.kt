@@ -1,4 +1,6 @@
 import com.android.build.api.dsl.CommonExtension
+import com.tstreet.onhand.convention.COMPILE_ANDROID_SDK
+import com.tstreet.onhand.convention.MIN_ANDROID_SDK
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
@@ -6,23 +8,24 @@ import org.gradle.kotlin.dsl.provideDelegate
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmOptions
 
 /**
- * Configure base Kotlin with Android options
+ * Configures base Kotlin with Android options
  */
 internal fun Project.configureKotlinAndroid(
     commonExtension: CommonExtension<*, *, *, *>,
 ) {
     commonExtension.apply {
-        compileSdk = 33
+        compileSdk = COMPILE_ANDROID_SDK
 
         defaultConfig {
-            minSdk = 23
+            minSdk = MIN_ANDROID_SDK
         }
 
         compileOptions {
             sourceCompatibility = JavaVersion.VERSION_1_8
             targetCompatibility = JavaVersion.VERSION_1_8
-            // allows developers to use more APIs without requiring a minimum API level for app
-            isCoreLibraryDesugaringEnabled = true
+            // TODO: look into later...
+            //  allows developers to use more APIs without requiring a minimum API level for app
+            // isCoreLibraryDesugaringEnabled = true
         }
 
         kotlinOptions {
