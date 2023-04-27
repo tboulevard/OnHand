@@ -7,7 +7,7 @@ androidxAppCompat = "1.5.1"
 # All compose libs use versions from this BOM. Guaranteed to be compatible.
 # NOTE: androidxNavigation, androidxLifecycle not included in BOM
 androidxComposeBom = "2023.01.00"
-# Be sure this maps appropriately to the kotlin version as well
+# When changing this be sure it maps appropriately to Kotlin version
 # More info: https://developer.android.com/jetpack/androidx/releases/compose-kotlin
 # e.g.: kotlin = "1.8.0", androidxComposeCompiler = "1.4.1" should work
 androidxComposeCompiler = "1.4.4"
