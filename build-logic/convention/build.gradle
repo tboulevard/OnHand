@@ -21,9 +21,13 @@ gradlePlugin {
             id = "onhand.android.feature"
             implementationClass = "AndroidFeatureConventionPlugin"
         }
-        register("androidLibrary") {
+        androidLibrary {
             id = "onhand.android.library"
             implementationClass = "AndroidLibraryConventionPlugin"
+        }
+        androidLibraryCompose {
+            id = "onhand.android.library.compose"
+            implementationClass = "AndroidLibraryComposeConventionPlugin"
         }
     }
 }

@@ -1,6 +1,5 @@
 plugins {
-    // TODO: this actually needs to be a compose lib
-    id 'onhand.android.library'
+    id 'onhand.android.library.compose'
 }
 
 android {
@@ -22,14 +21,6 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-    }
-
-    buildFeatures {
-        compose true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion '1.4.0'
     }
 }
 

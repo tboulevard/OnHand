@@ -1,5 +1,3 @@
-package com.tstreet.onhand.convention.helpers
-
 import com.android.build.api.dsl.CommonExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
