@@ -1,10 +1,7 @@
 plugins {
-    // TODO: Does referencing via dot notation circumvent declaration for version catalog?
-    // TODO: or is it using the version we declare in top level build script via:
-    // TODO: `alias(libs.plugins.android.application)`?
-    id 'com.android.application'
-    id 'kotlin-android'
-    id 'kotlin-kapt'
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.kapt)
 }
 
 android {

@@ -1,18 +1,12 @@
 plugins {
-    id 'com.android.library'
-    id 'kotlin-android'
-    id 'kotlin-kapt'
+    // TODO: this actually needs to be a compose lib
+    id 'onhand.android.library'
 }
 
 android {
     namespace 'com.tstreet.onhand.core.common'
-    compileSdk 33
 
     defaultConfig {
-        minSdk 23
-        targetSdk 33
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
 
@@ -29,17 +23,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = '1.8'
-        // For DaggerViewModel error:
-        // Inheritance from an interface with '@JvmDefault' members is only allowed with
-        // -Xjvm-default option
-        freeCompilerArgs = ["-Xjvm-default=all"]
-    }
     buildFeatures {
         compose true
     }
@@ -49,7 +32,6 @@ android {
 }
 
 dependencies {
-
     implementation libs.androidx.core.ktx
     implementation libs.androidx.activity.compose
     implementation libs.androidx.compose.ui

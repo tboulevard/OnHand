@@ -1,9 +1,7 @@
 plugins {
-    id 'com.android.library'
-    id 'kotlin-android'
-    // https://github.com/Kotlin/kotlinx.serialization
-    // Applies plugin we aliased in top level project buildscript (OnHand build.gradle)
-    id 'kotlinx-serialization'
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -15,7 +13,6 @@ android {
         minSdk 23
         targetSdk 33
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
 
