@@ -12,8 +12,8 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                 // TODO: Are we using the version library for these? Probably a gradle task that
                 //  can help here...
                 apply("com.android.application")
-                apply("kotlin-android")
-                apply("kotlin-kapt")
+                apply("org.jetbrains.kotlin.android")
+                apply("org.jetbrains.kotlin.kapt")
             }
 
             extensions.configure<ApplicationExtension> {

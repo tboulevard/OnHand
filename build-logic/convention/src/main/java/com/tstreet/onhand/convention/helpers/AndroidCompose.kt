@@ -22,10 +22,10 @@ internal fun Project.configureAndroidCompose(
             kotlinCompilerExtensionVersion = libs.findVersion("androidxComposeCompiler").get().toString()
         }
 
-        kotlinOptions {
-            // TODO: research later...
-            //freeCompilerArgs = freeCompilerArgs + buildComposeMetricsParameters()
-        }
+//        kotlinOptions {
+//            // TODO: research later...
+//            //freeCompilerArgs = freeCompilerArgs + buildComposeMetricsParameters()
+//        }
 
         dependencies {
             // TODO: since we're using BOM, look into removing dependencies in some of the libraries

@@ -14,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tstreet.onhand.core.model.*
 import com.tstreet.onhand.core.ui.FullScreenErrorMessage
@@ -21,6 +22,7 @@ import com.tstreet.onhand.core.ui.OnHandProgressIndicator
 import com.tstreet.onhand.core.ui.OnHandScreenHeader
 import com.tstreet.onhand.core.ui.ShoppingListUiState
 
+@OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun ShoppingListScreen(
     viewModel: ShoppingListViewModel

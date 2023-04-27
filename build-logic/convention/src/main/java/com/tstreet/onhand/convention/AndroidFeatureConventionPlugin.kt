@@ -11,8 +11,8 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
         with(target) {
             pluginManager.apply {
                 apply("com.android.library")
-                apply("kotlin-android")
-                apply("kotlin-kapt")
+                apply("org.jetbrains.kotlin.android")
+                apply("org.jetbrains.kotlin.kapt")
             }
             extensions.configure<LibraryExtension> {
                 defaultConfig {
