@@ -1,20 +1,24 @@
 [versions]
-androidGradlePlugin = "7.3.1"
+androidGradlePlugin = "7.4.1"
 androidxCore = "1.9.0"
 androidxActivity = "1.6.1"
 androidxAppCompat = "1.5.1"
-androidxComposeBom = "2022.12.00"
+# For more information: https://developer.android.com/jetpack/compose/bom
+# All compose libs use versions from this BOM. Guaranteed to be compatible.
+# NOTE: androidxNavigation, androidxLifecycle not included in BOM
+androidxComposeBom = "2023.01.00"
 # Be sure this maps appropriately to the kotlin version as well
 # More info: https://developer.android.com/jetpack/androidx/releases/compose-kotlin
 # e.g.: kotlin = "1.8.0", androidxComposeCompiler = "1.4.1" should work
-androidxComposeCompiler = "1.4.0-alpha02"
+androidxComposeCompiler = "1.4.4"
 androidxNavigation = '2.5.3'
-androidxLifecycle = "2.6.0-alpha03"
-kotlin = "1.7.21"
-kotlinDsl = "2.1.7"
-kotlinxSerializationJson = "1.4.1"
+androidxLifecycle = "2.6.0-alpha05"
+# NOTE: Change ksp version with this
+kotlin = "1.8.10"
+kotlinDsl = "4.0.6"
+kotlinxSerializationJson = "1.5.0"
 retrofit = "2.9.0"
-retrofitKotlinxSerializationJson = "0.8.0"
+retrofitKotlinxSerializationJson = "1.0.0"
 okhttp = "4.10.0"
 junit4 = "4.13.2"
 androidxTestCore = "1.5.0"
@@ -24,15 +28,14 @@ androidxTestRunner = "1.5.1"
 androidxEspresso = "3.5.0"
 dagger = "2.44.2"
 room = "2.5.0-rc01"
-ksp = "1.7.21-1.0.8"
+# NOTE: Keep this in sync with Kotlin version
+ksp = "1.8.10-1.0.9"
 test = "1.3.3"
 
 [libraries]
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidxAppCompat" }
-# For more information: https://developer.android.com/jetpack/compose/bom
-# All compose libs use versions from this BOM. Guaranteed to be compatible.
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "androidxComposeBom" }
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
