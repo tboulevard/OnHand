@@ -7,12 +7,11 @@ import com.tstreet.onhand.core.model.SaveableRecipe
 import kotlinx.coroutines.flow.Flow
 
 interface RecipeRepository {
-    // TODO: look into whether API can accept list of ids instead of strings
+
     suspend fun findRecipes(fetchStrategy: FetchStrategy, ingredients: List<String>): List<Recipe>
 
     fun getRecipeDetail(id: Int): Flow<RecipeDetail>
 
-    // TODO: model `Saveable`RecipeDetail or similar
     suspend fun saveRecipe(recipe: Recipe)
 
     suspend fun unsaveRecipe(id: Int)

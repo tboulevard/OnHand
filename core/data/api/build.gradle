@@ -1,6 +1,5 @@
 plugins {
     id 'onhand.android.library'
-    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -27,12 +26,9 @@ android {
 
 dependencies {
     implementation project(path: ':core:model')
-    implementation project(path: ':core:network')
     implementation project(path: ':core:common')
 
-    implementation libs.androidx.navigation.compose
-    implementation libs.androidx.core.ktx
-    implementation libs.androidx.appcompat
+    implementation libs.androidx.compose.runtime
 }
 
 println 'Executing core/data/api build.gradle - configuration phase'

@@ -2,7 +2,7 @@ package com.tstreet.onhand.feature.shoppinglist.di
 
 import com.tstreet.onhand.core.common.CommonComponentProvider
 import com.tstreet.onhand.core.common.FeatureScope
-import com.tstreet.onhand.core.data.api.DataComponentProvider
+import com.tstreet.onhand.core.data.api.di.DataComponentProvider
 import com.tstreet.onhand.feature.shoppinglist.ShoppingListViewModel
 import dagger.Component
 

@@ -1,4 +1,4 @@
-package com.tstreet.onhand.core.data.impl
+package com.tstreet.onhand.core.data.impl.di
 
 import com.tstreet.onhand.core.data.api.repository.IngredientSearchRepository
 import com.tstreet.onhand.core.data.api.repository.PantryRepository

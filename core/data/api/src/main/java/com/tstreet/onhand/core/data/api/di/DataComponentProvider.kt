@@ -1,4 +1,4 @@
-package com.tstreet.onhand.core.data.api
+package com.tstreet.onhand.core.data.api.di
 
 import androidx.compose.runtime.compositionLocalOf
 import com.tstreet.onhand.core.data.api.repository.IngredientSearchRepository
