@@ -98,8 +98,8 @@ class RecipeRepositoryImpl @Inject constructor(
     }
 }
 
-// TODO: move to more appropriate spot
-fun NetworkRecipe.asExternalModel() = Recipe(
+// TODO: potentially move to more appropriate spot...
+private fun NetworkRecipe.asExternalModel() = Recipe(
     id = id,
     title = title,
     image = image,
@@ -111,8 +111,7 @@ fun NetworkRecipe.asExternalModel() = Recipe(
     likes = likes
 )
 
-// TODO: move to more appropriate spot
-fun NetworkRecipeIngredient.asExternalModel() = RecipeIngredient(
+private fun NetworkRecipeIngredient.asExternalModel() = RecipeIngredient(
     Ingredient(
         id = id,
         name = name,
@@ -122,8 +121,7 @@ fun NetworkRecipeIngredient.asExternalModel() = RecipeIngredient(
     unit = unit,
 )
 
-// TODO: move to more appropriate spot
-fun NetworkRecipeDetail.asExternalModel() = RecipeDetail(
+private fun NetworkRecipeDetail.asExternalModel() = RecipeDetail(
     id = id,
     // TODO: Determine whether it's best to just transmit an empty src url or some other state
     sourceUrl = sourceUrl ?: ""
