@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace 'com.tstreet.onhand.core.domain'
+    namespace 'com.tstreet.onhand.core.data.api'
 
     defaultConfig {
         consumerProguardFiles "consumer-rules.pro"
@@ -25,17 +25,10 @@ android {
 }
 
 dependencies {
-    implementation project(path: ':core:data:api')
-    implementation project(path: ':core:network')
     implementation project(path: ':core:model')
     implementation project(path: ':core:common')
 
-    implementation libs.androidx.core.ktx
-    implementation libs.androidx.appcompat
-    implementation libs.dagger
-    kapt libs.dagger.compiler
-    
-    testImplementation libs.junit4
-    androidTestImplementation libs.androidx.test.ext
-    androidTestImplementation libs.androidx.test.espresso.core
+    implementation libs.androidx.compose.runtime
 }
+
+println 'Executing core/data/api build.gradle - configuration phase'

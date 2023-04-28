@@ -4,7 +4,7 @@ import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.common.SavedRecipeStateManager
 import com.tstreet.onhand.core.common.UseCase
-import com.tstreet.onhand.core.data.repository.RecipeRepository
+import com.tstreet.onhand.core.data.api.repository.RecipeRepository
 import com.tstreet.onhand.core.model.Recipe
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*

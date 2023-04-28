@@ -45,7 +45,7 @@ dependencies {
     implementation project(path: ':feature:savedrecipes')
 
     // Core modules we want to be retained for entire Application lifecycle
-    implementation project(path: ':core:data')
+    implementation project(path: ':core:data:impl')
     implementation project(path: ':core:common')
     implementation project(path: ':core:ui')
 

@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.core.content.ContextCompat
 import com.tstreet.onhand.core.common.LocalCommonProvider
-import com.tstreet.onhand.core.data.di.LocalDataProvider
+import com.tstreet.onhand.core.data.api.di.LocalDataProvider
 import com.tstreet.onhand.core.ui.theming.OnHandTheme
 import com.tstreet.onhand.nav.Navigation
 

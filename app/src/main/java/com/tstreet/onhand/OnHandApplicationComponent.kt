@@ -1,7 +1,7 @@
 package com.tstreet.onhand
 
 import com.tstreet.onhand.core.common.CommonComponentProvider
-import com.tstreet.onhand.core.data.di.DataComponentProvider
+import com.tstreet.onhand.core.data.api.di.DataComponentProvider
 import dagger.Component
 import javax.inject.Singleton
 

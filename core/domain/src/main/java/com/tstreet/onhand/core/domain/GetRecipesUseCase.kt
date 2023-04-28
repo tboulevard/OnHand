@@ -5,8 +5,8 @@ import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.common.FetchStrategy
 import com.tstreet.onhand.core.common.PantryStateManager
 import com.tstreet.onhand.core.common.UseCase
-import com.tstreet.onhand.core.data.repository.PantryRepository
-import com.tstreet.onhand.core.data.repository.RecipeRepository
+import com.tstreet.onhand.core.data.api.repository.PantryRepository
+import com.tstreet.onhand.core.data.api.repository.RecipeRepository
 import com.tstreet.onhand.core.domain.SortBy.*
 import com.tstreet.onhand.core.model.SaveableRecipe
 import kotlinx.coroutines.CoroutineDispatcher
