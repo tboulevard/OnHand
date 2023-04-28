@@ -3,10 +3,10 @@ package com.tstreet.onhand.feature.home
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.tstreet.onhand.core.domain.AddToPantryUseCase
-import com.tstreet.onhand.core.domain.GetIngredientsUseCase
-import com.tstreet.onhand.core.domain.GetPantryUseCase
-import com.tstreet.onhand.core.domain.RemoveFromPantryUseCase
+import com.tstreet.onhand.core.domain.ingredients.GetIngredientsUseCase
+import com.tstreet.onhand.core.domain.pantry.AddToPantryUseCase
+import com.tstreet.onhand.core.domain.pantry.GetPantryUseCase
+import com.tstreet.onhand.core.domain.pantry.RemoveFromPantryUseCase
 import com.tstreet.onhand.core.model.PantryIngredient
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch

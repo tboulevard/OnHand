@@ -1,9 +1,9 @@
 package com.tstreet.onhand.feature.home.di
 
 import com.tstreet.onhand.core.common.UseCase
-import com.tstreet.onhand.core.domain.AddToPantryUseCase
-import com.tstreet.onhand.core.domain.GetIngredientsUseCase
-import com.tstreet.onhand.core.domain.RemoveFromPantryUseCase
+import com.tstreet.onhand.core.domain.ingredients.GetIngredientsUseCase
+import com.tstreet.onhand.core.domain.pantry.AddToPantryUseCase
+import com.tstreet.onhand.core.domain.pantry.RemoveFromPantryUseCase
 import dagger.Binds
 import dagger.Module
 

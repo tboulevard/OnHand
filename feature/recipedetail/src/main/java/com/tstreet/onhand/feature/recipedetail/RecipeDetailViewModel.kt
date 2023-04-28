@@ -2,7 +2,7 @@ package com.tstreet.onhand.feature.recipedetail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.tstreet.onhand.core.domain.GetRecipeDetailUseCase
+import com.tstreet.onhand.core.domain.recipes.GetRecipeDetailUseCase
 import com.tstreet.onhand.core.ui.RecipeDetailUiState
 import com.tstreet.onhand.feature.recipedetail.di.RecipeId
 import kotlinx.coroutines.flow.*

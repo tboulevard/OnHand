@@ -1,7 +1,7 @@
 package com.tstreet.onhand.feature.savedrecipes.di
 
 import com.tstreet.onhand.core.common.UseCase
-import com.tstreet.onhand.core.domain.GetSavedRecipesUseCase
+import com.tstreet.onhand.core.domain.recipes.GetSavedRecipesUseCase
 import dagger.Binds
 import dagger.Module
 

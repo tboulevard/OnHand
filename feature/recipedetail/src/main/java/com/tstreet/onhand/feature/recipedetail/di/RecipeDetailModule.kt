@@ -1,7 +1,7 @@
 package com.tstreet.onhand.feature.recipedetail.di
 
 import com.tstreet.onhand.core.common.UseCase
-import com.tstreet.onhand.core.domain.GetRecipeDetailUseCase
+import com.tstreet.onhand.core.domain.recipes.GetRecipeDetailUseCase
 import dagger.Binds
 import dagger.Module
 

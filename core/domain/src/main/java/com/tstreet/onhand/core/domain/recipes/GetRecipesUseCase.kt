@@ -1,4 +1,4 @@
-package com.tstreet.onhand.core.domain
+package com.tstreet.onhand.core.domain.recipes
 
 import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.FeatureScope
@@ -7,7 +7,7 @@ import com.tstreet.onhand.core.common.PantryStateManager
 import com.tstreet.onhand.core.common.UseCase
 import com.tstreet.onhand.core.data.api.repository.PantryRepository
 import com.tstreet.onhand.core.data.api.repository.RecipeRepository
-import com.tstreet.onhand.core.domain.SortBy.*
+import com.tstreet.onhand.core.domain.recipes.SortBy.*
 import com.tstreet.onhand.core.model.SaveableRecipe
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*

@@ -1,4 +1,4 @@
-package com.tstreet.onhand.core.domain
+package com.tstreet.onhand.core.domain.ingredients
 
 import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.common.UseCase

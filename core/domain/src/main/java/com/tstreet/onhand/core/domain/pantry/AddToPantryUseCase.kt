@@ -1,4 +1,4 @@
-package com.tstreet.onhand.core.domain
+package com.tstreet.onhand.core.domain.pantry
 
 import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.common.PantryStateManager
@@ -9,7 +9,7 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 @FeatureScope
-class RemoveFromPantryUseCase @Inject constructor(
+class AddToPantryUseCase @Inject constructor(
     private val repository: Provider<PantryRepository>,
     private val pantryStateManager: Provider<PantryStateManager>,
 ) : UseCase() {
@@ -19,6 +19,6 @@ class RemoveFromPantryUseCase @Inject constructor(
 
         repository
             .get()
-            .removeIngredient(ingredient)
+            .addIngredient(ingredient)
     }
 }
