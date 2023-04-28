@@ -1,9 +1,9 @@
 package com.tstreet.onhand.feature.recipesearch.di
 
 import com.tstreet.onhand.core.common.UseCase
-import com.tstreet.onhand.core.domain.GetRecipesUseCase
-import com.tstreet.onhand.core.domain.SaveRecipeUseCase
-import com.tstreet.onhand.core.domain.UnsaveRecipeUseCase
+import com.tstreet.onhand.core.domain.recipes.GetRecipesUseCase
+import com.tstreet.onhand.core.domain.recipes.SaveRecipeUseCase
+import com.tstreet.onhand.core.domain.recipes.UnsaveRecipeUseCase
 import dagger.Binds
 import dagger.Module
 

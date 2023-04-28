@@ -3,9 +3,9 @@ package com.tstreet.onhand.feature.savedrecipes
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.tstreet.onhand.core.domain.GetSavedRecipesUseCase
-import com.tstreet.onhand.core.domain.SaveRecipeUseCase
-import com.tstreet.onhand.core.domain.UnsaveRecipeUseCase
+import com.tstreet.onhand.core.domain.recipes.GetSavedRecipesUseCase
+import com.tstreet.onhand.core.domain.recipes.SaveRecipeUseCase
+import com.tstreet.onhand.core.domain.recipes.UnsaveRecipeUseCase
 import com.tstreet.onhand.core.ui.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch

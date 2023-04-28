@@ -11,8 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.tstreet.onhand.core.domain.DEFAULT_SORTING
-import com.tstreet.onhand.core.domain.SortBy
+import com.tstreet.onhand.core.domain.recipes.DEFAULT_SORTING
+import com.tstreet.onhand.core.domain.recipes.SortBy
 import com.tstreet.onhand.core.ui.*
 import com.tstreet.onhand.core.ui.RecipeSaveState.*
 import com.tstreet.onhand.core.ui.RecipeSearchUiState.*
