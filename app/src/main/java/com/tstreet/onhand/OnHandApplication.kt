@@ -2,7 +2,7 @@ package com.tstreet.onhand
 
 import android.app.Application
 import com.tstreet.onhand.core.common.DaggerCommonComponent
-import com.tstreet.onhand.core.data.api.DaggerDataComponent
+import com.tstreet.onhand.core.data.impl.DaggerDataComponent
 
 class OnHandApplication : Application() {
 

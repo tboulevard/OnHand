@@ -1,10 +1,9 @@
 package com.tstreet.onhand.core.data.api.repository
 
 import com.tstreet.onhand.core.common.FetchStrategy
-import com.tstreet.onhand.core.model.*
-import com.tstreet.onhand.core.network.model.NetworkRecipe
-import com.tstreet.onhand.core.network.model.NetworkRecipeDetail
-import com.tstreet.onhand.core.network.model.NetworkRecipeIngredient
+import com.tstreet.onhand.core.model.Recipe
+import com.tstreet.onhand.core.model.RecipeDetail
+import com.tstreet.onhand.core.model.SaveableRecipe
 import kotlinx.coroutines.flow.Flow
 
 interface RecipeRepository {
@@ -22,34 +21,3 @@ interface RecipeRepository {
 
     fun getSavedRecipes(): Flow<List<SaveableRecipe>>
 }
-
-// TODO: move to more appropriate spot
-fun NetworkRecipe.asExternalModel() = Recipe(
-    id = id,
-    title = title,
-    image = image,
-    imageType = imageType,
-    usedIngredientCount = usedIngredientCount,
-    usedIngredients = usedIngredients.map { it.asExternalModel() },
-    missedIngredientCount = missedIngredientCount,
-    missedIngredients = missedIngredients.map { it.asExternalModel() },
-    likes = likes
-)
-
-// TODO: move to more appropriate spot
-fun NetworkRecipeIngredient.asExternalModel() = RecipeIngredient(
-    Ingredient(
-        id = id,
-        name = name,
-    ),
-    image = image,
-    amount = amount,
-    unit = unit,
-)
-
-// TODO: move to more appropriate spot
-fun NetworkRecipeDetail.asExternalModel() = RecipeDetail(
-    id = id,
-    // TODO: Determine whether it's best to just transmit an empty src url or some other state
-    sourceUrl = sourceUrl ?: ""
-)

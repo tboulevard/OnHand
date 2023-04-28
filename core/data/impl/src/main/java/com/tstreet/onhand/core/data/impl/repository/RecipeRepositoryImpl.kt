@@ -2,16 +2,14 @@ package com.tstreet.onhand.core.data.impl.repository
 
 import com.tstreet.onhand.core.common.FetchStrategy
 import com.tstreet.onhand.core.data.api.repository.RecipeRepository
-import com.tstreet.onhand.core.data.api.repository.asExternalModel
 import com.tstreet.onhand.core.database.dao.RecipeSearchCacheDao
 import com.tstreet.onhand.core.database.dao.SavedRecipeDao
 import com.tstreet.onhand.core.database.model.*
-import com.tstreet.onhand.core.model.Recipe
-import com.tstreet.onhand.core.model.RecipeDetail
-import com.tstreet.onhand.core.model.SaveableRecipe
+import com.tstreet.onhand.core.model.*
 import com.tstreet.onhand.core.network.OnHandNetworkDataSource
 import com.tstreet.onhand.core.network.model.NetworkRecipe
 import com.tstreet.onhand.core.network.model.NetworkRecipeDetail
+import com.tstreet.onhand.core.network.model.NetworkRecipeIngredient
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -99,3 +97,34 @@ class RecipeRepositoryImpl @Inject constructor(
             .map { it.map(SavedRecipeEntity::asExternalModel) }
     }
 }
+
+// TODO: move to more appropriate spot
+fun NetworkRecipe.asExternalModel() = Recipe(
+    id = id,
+    title = title,
+    image = image,
+    imageType = imageType,
+    usedIngredientCount = usedIngredientCount,
+    usedIngredients = usedIngredients.map { it.asExternalModel() },
+    missedIngredientCount = missedIngredientCount,
+    missedIngredients = missedIngredients.map { it.asExternalModel() },
+    likes = likes
+)
+
+// TODO: move to more appropriate spot
+fun NetworkRecipeIngredient.asExternalModel() = RecipeIngredient(
+    Ingredient(
+        id = id,
+        name = name,
+    ),
+    image = image,
+    amount = amount,
+    unit = unit,
+)
+
+// TODO: move to more appropriate spot
+fun NetworkRecipeDetail.asExternalModel() = RecipeDetail(
+    id = id,
+    // TODO: Determine whether it's best to just transmit an empty src url or some other state
+    sourceUrl = sourceUrl ?: ""
+)
