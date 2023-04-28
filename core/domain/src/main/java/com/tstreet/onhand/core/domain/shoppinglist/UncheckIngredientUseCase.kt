@@ -3,7 +3,7 @@ package com.tstreet.onhand.core.domain.shoppinglist
 import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.common.UseCase
-import com.tstreet.onhand.core.data.repository.ShoppingListRepository
+import com.tstreet.onhand.core.data.api.repository.ShoppingListRepository
 import com.tstreet.onhand.core.model.ShoppingListIngredient
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow

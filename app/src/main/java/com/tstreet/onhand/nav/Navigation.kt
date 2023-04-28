@@ -15,7 +15,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.tstreet.onhand.core.common.LocalCommonProvider
 import com.tstreet.onhand.core.common.injectedViewModel
-import com.tstreet.onhand.core.data.di.LocalDataProvider
+import com.tstreet.onhand.core.data.api.LocalDataProvider
 import com.tstreet.onhand.core.ui.RECIPE_ID_NAV_KEY
 import com.tstreet.onhand.feature.home.HomeScreen
 import com.tstreet.onhand.feature.home.di.DaggerHomeComponent

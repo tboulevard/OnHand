@@ -4,9 +4,9 @@ import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.PantryStateManager
 import com.tstreet.onhand.core.common.SavedRecipeStateManager
 import com.tstreet.onhand.core.common.UseCase
-import com.tstreet.onhand.core.data.repository.PantryRepository
-import com.tstreet.onhand.core.data.repository.RecipeRepository
-import com.tstreet.onhand.core.data.repository.ShoppingListRepository
+import com.tstreet.onhand.core.data.api.repository.PantryRepository
+import com.tstreet.onhand.core.data.api.repository.RecipeRepository
+import com.tstreet.onhand.core.data.api.repository.ShoppingListRepository
 import com.tstreet.onhand.core.model.*
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.FlowPreview

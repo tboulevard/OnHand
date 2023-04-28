@@ -3,7 +3,7 @@ package com.tstreet.onhand.core.domain
 import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.common.UseCase
-import com.tstreet.onhand.core.data.repository.RecipeRepository
+import com.tstreet.onhand.core.data.api.repository.RecipeRepository
 import com.tstreet.onhand.core.model.SaveableRecipe
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*

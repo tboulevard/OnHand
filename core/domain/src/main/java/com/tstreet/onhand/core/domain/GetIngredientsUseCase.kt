@@ -2,7 +2,7 @@ package com.tstreet.onhand.core.domain
 
 import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.common.UseCase
-import com.tstreet.onhand.core.data.repository.IngredientSearchRepository
+import com.tstreet.onhand.core.data.api.repository.IngredientSearchRepository
 import com.tstreet.onhand.core.model.PantryIngredient
 import javax.inject.Inject
 import javax.inject.Provider
