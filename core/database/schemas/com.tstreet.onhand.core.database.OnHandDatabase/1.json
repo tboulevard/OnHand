@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "ba57e03b10a868def29beab9add51a03",
+    "identityHash": "17c6569d226618197d3cd0ea74ecd56a",
     "entities": [
       {
         "tableName": "ingredient_catalog",
@@ -174,14 +174,8 @@
       },
       {
         "tableName": "shopping_list",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `recipeMeasures` TEXT NOT NULL, `isPurchased` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `mappedRecipes` TEXT NOT NULL, `isPurchased` INTEGER NOT NULL, PRIMARY KEY(`name`))",
         "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
           {
             "fieldPath": "name",
             "columnName": "name",
@@ -189,8 +183,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "recipeMeasures",
-            "columnName": "recipeMeasures",
+            "fieldPath": "mappedRecipes",
+            "columnName": "mappedRecipes",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -204,7 +198,7 @@
         "primaryKey": {
           "autoGenerate": false,
           "columnNames": [
-            "id"
+            "name"
           ]
         },
         "indices": [],
@@ -214,7 +208,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ba57e03b10a868def29beab9add51a03')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '17c6569d226618197d3cd0ea74ecd56a')"
     ]
   }
 }

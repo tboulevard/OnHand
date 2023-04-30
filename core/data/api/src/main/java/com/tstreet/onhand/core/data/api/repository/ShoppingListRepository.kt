@@ -13,7 +13,7 @@ interface ShoppingListRepository {
 
     suspend fun uncheckIngredient(ingredient: ShoppingListIngredient)
 
-    suspend fun isIngredientCheckedOff(id: Int): Boolean
+    suspend fun isIngredientCheckedOff(name: String): Boolean
 
     fun getShoppingListByRecipe(): List<ShoppingListIngredient>
 
