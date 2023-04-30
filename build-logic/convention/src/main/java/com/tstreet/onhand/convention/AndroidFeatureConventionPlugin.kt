@@ -47,7 +47,7 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
 
                 // TODO: Tooling preview doesn't work under the `mockDebug` variant, look into later...
                 add("debugImplementation", libs.findLibrary("androidx.compose.ui.tooling").get())
-                // TODO: debugApi doesn't work for this dependency for some reason...look
+                // TODO: debugImplementation doesn't work for this dependency for some reason...look
                 //  into later. We use implementation to circumvent the bug for now.
                 add("implementation", libs.findLibrary("androidx.compose.ui.tooling.preview").get())
             }
