@@ -31,19 +31,19 @@ class ShoppingListRepositoryImpl @Inject constructor(
     override suspend fun checkOffIngredient(ingredient: ShoppingListIngredient) {
         shoppingListDao
             .get()
-            .markIngredientPurchased(ingredient.id)
+            .markIngredientPurchased(ingredient.name)
     }
 
     override suspend fun uncheckIngredient(ingredient: ShoppingListIngredient) {
         shoppingListDao
             .get()
-            .unmarkIngredientPurchased(ingredient.id)
+            .unmarkIngredientPurchased(ingredient.name)
     }
 
-    override suspend fun isIngredientCheckedOff(id: Int): Boolean {
+    override suspend fun isIngredientCheckedOff(name: String): Boolean {
         return shoppingListDao
             .get()
-            .isShoppingListIngredientPurchased(id)
+            .isShoppingListIngredientPurchased(name)
     }
 
     override suspend fun clear() {
