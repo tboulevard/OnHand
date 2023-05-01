@@ -1,4 +1,4 @@
-name: Build
+name: All Checks
 
 on:
   push:
@@ -58,7 +58,7 @@ jobs:
     timeout-minutes: 55
     strategy:
       matrix:
-        api-level: [24, 33] # From AndroidSdkVersions.kt
+        api-level: [24, 30] # From AndroidSdkVersions.kt
 
     steps:
       - name: Checkout
