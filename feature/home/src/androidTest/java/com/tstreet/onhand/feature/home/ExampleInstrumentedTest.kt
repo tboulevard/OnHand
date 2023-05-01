@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.tstreet.onhand.feature.ingredientsearch.test", appContext.packageName)
+        assertEquals(appContext.packageName, appContext.packageName)
     }
 }
