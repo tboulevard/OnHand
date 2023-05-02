@@ -24,8 +24,8 @@ sealed class NetworkResponse<out T : Any, out U : Any> {
     data class NetworkError(val error: IOException) : NetworkResponse<Nothing, Nothing>()
 
     /**
-     * Unexpected exceptions while creating the request or processing the response, e.g.: parsing
-     * issues
+     * Unexpected (non-network) exceptions while creating the request or processing the response,
+     * e.g.: parsing issues
      */
     data class UnknownError(val error: Throwable?) : NetworkResponse<Nothing, Nothing>()
 }

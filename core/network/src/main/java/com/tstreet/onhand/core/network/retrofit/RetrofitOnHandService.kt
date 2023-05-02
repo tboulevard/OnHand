@@ -96,26 +96,20 @@ class RetrofitOnHandNetwork @Inject constructor(
         return flow { emit(networkApi.getRecipeDetail(id)) }
     }
 
-    private fun <T : Any, U : Any> handleResponse(response: NetworkResponse<T, U>): Resource<T> {
+    private fun <T : Any> handleResponse(response: NetworkResponse<T, *>): Resource<T> {
         return when (response) {
             is NetworkResponse.Success -> {
-                println("[OnHand] Success: ${response.body}")
                 Resource.success(data = response.body)
             }
             is NetworkResponse.ApiError -> {
-                println("[OnHand] Non 2xx error: ${response.body}")
-                Resource.error(msg = "Non 2xx error: " + response.body.toString())
+                // TODO: handle different status codes
+                Resource.error(msg = "HTTP ${response.code} error: " + response.body)
             }
             is NetworkResponse.NetworkError -> {
-                println("[OnHand] Network connectivity error: ${response.error.message}")
-                Resource.error(
-                    msg = "Device does not appear to have network connectivity. " +
-                            "Please check and try again."
-                )
+                Resource.error(msg = "Device does not appear to have network connectivity.")
             }
             is NetworkResponse.UnknownError -> {
-                println("[OnHand] Unknown network error: ${response.error?.message}")
-                Resource.error(msg = "Unknown network error: " + response.error?.message.toString())
+                Resource.error(msg = "Unknown non-network error: " + response.error?.message)
             }
         }
     }
