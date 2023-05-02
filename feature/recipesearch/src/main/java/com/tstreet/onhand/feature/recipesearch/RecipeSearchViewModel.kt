@@ -43,8 +43,8 @@ class RecipeSearchViewModel @Inject constructor(
                     _uiState.update { RecipeSearchUiState.Success(_recipes) }
                 }
                 Status.ERROR -> {
+                    _showErrorDialog.update { true }
                     _uiState.update { RecipeSearchUiState.Error(recipes.message.toString()) }
-
                 }
             }
             sortBy
@@ -61,6 +61,14 @@ class RecipeSearchViewModel @Inject constructor(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = _uiState.value
+        )
+
+    private val _showErrorDialog = MutableStateFlow(false)
+    val showErrorDialog = _showErrorDialog
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = _showErrorDialog.value
         )
 
     fun onRecipeSaved(index: Int) {
@@ -122,5 +130,9 @@ class RecipeSearchViewModel @Inject constructor(
 
     fun onSortOrderChanged(sortingOrder: SortBy) {
         _sortOrder.update { sortingOrder }
+    }
+
+    fun dismissErrorDialog() {
+        _showErrorDialog.update { false }
     }
 }

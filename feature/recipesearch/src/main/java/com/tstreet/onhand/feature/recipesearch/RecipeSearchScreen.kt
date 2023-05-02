@@ -25,6 +25,7 @@ fun RecipeSearchScreen(
     val uiState by viewModel.uiState.collectAsState()
     val sortOrder by viewModel.sortOrder.collectAsState()
     val openInfoDialog = remember { mutableStateOf(false) }
+    val openErrorDialog = viewModel.showErrorDialog.collectAsState()
 
     if (openInfoDialog.value) {
         AlertDialog(
@@ -103,21 +104,25 @@ fun RecipeSearchScreen(
                 }
             }
             is Error -> {
-                AlertDialog(
-                    onDismissRequest = { },
-                    title = {
-                        Text("Error")
-                    },
-                    text = {
-                        Text(state.message)
-                    },
-                    dismissButton = {
-                        Button(onClick = { }) {
-                            Text("Dismiss")
-                        }
-                    },
-                    confirmButton = { },
-                )
+                if (openErrorDialog.value) {
+                    AlertDialog(
+                        onDismissRequest = {
+                            viewModel.dismissErrorDialog()
+                        },
+                        title = {
+                            Text("Error")
+                        },
+                        text = {
+                            Text(state.message)
+                        },
+                        dismissButton = {
+                            Button(onClick = { viewModel.dismissErrorDialog() }) {
+                                Text("Dismiss")
+                            }
+                        },
+                        confirmButton = { },
+                    )
+                }
             }
         }
     }

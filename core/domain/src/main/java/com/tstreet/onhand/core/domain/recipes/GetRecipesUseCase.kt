@@ -30,13 +30,22 @@ class GetRecipesUseCase @Inject constructor(
             .map { ingredients ->
                 if (ingredients.isNotEmpty()) {
                     val recipes = findSaveableRecipes(ingredients)
-                    when (sortBy) {
-                        POPULARITY ->
-                            Resource.success(recipes.data?.sortedByDescending { it.recipe.likes })
-                        MISSING_INGREDIENTS ->
-                            Resource.success(recipes.data?.sortedBy { it.recipe.missedIngredientCount })
-                    }.also {
+                    if (recipes.status == Status.SUCCESS) {
+                        val result = Resource.success(
+                            data = when (sortBy) {
+                                POPULARITY ->
+                                    recipes.data?.sortedByDescending { it.recipe.likes }
+                                MISSING_INGREDIENTS ->
+                                    recipes.data?.sortedBy { it.recipe.missedIngredientCount }
+                            })
                         pantryStateManager.get().onResetPantryState()
+                        result
+                    } else {
+                        println(
+                            "[OnHand] Pantry state not reset because there was an error" +
+                                    "retrieving recipes."
+                        )
+                        Resource.error(msg = recipes.message.toString())
                     }
                 } else {
                     Resource.success(emptyList())

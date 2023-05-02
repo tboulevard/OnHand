@@ -89,27 +89,34 @@ class RetrofitOnHandNetwork @Inject constructor(
     override suspend fun findRecipesFromIngredients(
         ingredients: List<String>
     ): Resource<List<NetworkRecipe>> {
-        return when (val response = networkApi.getRecipesFromIngredients(ingredients)) {
+        return handleResponse(networkApi.getRecipesFromIngredients(ingredients))
+    }
+
+    override fun getRecipeDetail(id: Int): Flow<NetworkRecipeDetail> {
+        return flow { emit(networkApi.getRecipeDetail(id)) }
+    }
+
+    private fun <T : Any, U : Any> handleResponse(response: NetworkResponse<T, U>): Resource<T> {
+        return when (response) {
             is NetworkResponse.Success -> {
                 println("[OnHand] Success: ${response.body}")
                 Resource.success(data = response.body)
             }
             is NetworkResponse.ApiError -> {
-                println("[OnHand] Non 2xx error: ${response.body.message}")
-                Resource.error(msg = "Non 2xx error: " + response.body.message.toString())
+                println("[OnHand] Non 2xx error: ${response.body}")
+                Resource.error(msg = "Non 2xx error: " + response.body.toString())
             }
             is NetworkResponse.NetworkError -> {
                 println("[OnHand] Network connectivity error: ${response.error.message}")
-                Resource.error(msg = "Network connectivity error: " + response.error.message.toString())
+                Resource.error(
+                    msg = "Device does not appear to have network connectivity. " +
+                            "Please check and try again."
+                )
             }
             is NetworkResponse.UnknownError -> {
                 println("[OnHand] Unknown network error: ${response.error?.message}")
                 Resource.error(msg = "Unknown network error: " + response.error?.message.toString())
             }
         }
-    }
-
-    override fun getRecipeDetail(id: Int): Flow<NetworkRecipeDetail> {
-        return flow { emit(networkApi.getRecipeDetail(id)) }
     }
 }
