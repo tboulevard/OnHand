@@ -2,14 +2,13 @@ package com.tstreet.onhand.core.network.retrofit
 
 import com.tstreet.onhand.core.network.OnHandNetworkDataSource
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import com.tstreet.onhand.core.common.Resource
 import com.tstreet.onhand.core.network.model.NetworkIngredient
 import com.tstreet.onhand.core.network.model.NetworkIngredientSearchResult
 import com.tstreet.onhand.core.network.model.NetworkRecipe
 import com.tstreet.onhand.core.network.model.NetworkRecipeDetail
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.Serializable
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -39,9 +38,7 @@ private interface RetrofitOnHandService {
     @GET("recipes/findByIngredients")
     suspend fun getRecipesFromIngredients(
         @Query("ingredients") ingredients: List<String>,
-        // TODO: note, need to look into custom call adapter factory to make it so we don't have
-        // to unfurl Call<> types...
-    ): List<NetworkRecipe>
+    ): NetworkResponse<List<NetworkRecipe>, GenericError>
 
     // TODO: sort by number of likes to show more relevant recipes potentially
     @GET("recipes/{id}/information")
@@ -54,16 +51,6 @@ private const val BASE_URL = "https://spoonacular-recipe-food-nutrition-v1.p.rap
 private const val HOST = "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com"
 private const val API_KEY = "3749218b77mshea638b2be581548p186f46jsn90edcd6e1d2c"
 
-/**
- * Wrapper for data provided from the [BASE_URL]
- *
- * TODO: for some reason wrapping this around the [RetrofitOnHandService] throws an error...
- */
-@Serializable
-private data class NetworkResponse<T>(
-    val data: T
-)
-
 @Singleton
 class RetrofitOnHandNetwork @Inject constructor(
     networkJson: Json
@@ -71,6 +58,7 @@ class RetrofitOnHandNetwork @Inject constructor(
 
     private val networkApi = Retrofit.Builder()
         .baseUrl(BASE_URL)
+        .addCallAdapterFactory(NetworkResponseAdapterFactory())
         .client(
             OkHttpClient.Builder()
                 .addInterceptor(
@@ -88,8 +76,6 @@ class RetrofitOnHandNetwork @Inject constructor(
                 .build()
         )
         .addConverterFactory(
-            // TODO: deep dive why we need the serialization api
-            @OptIn(ExperimentalSerializationApi::class)
             networkJson.asConverterFactory("application/json".toMediaType())
         )
         .build()
@@ -100,11 +86,27 @@ class RetrofitOnHandNetwork @Inject constructor(
         return networkApi.getIngredients(prefix).execute().body()!!.results
     }
 
-    // TODO: is immediately returning a flow that emits the right way to handle this?
-    // TODO: upstream can use flownOn(dispatcher) to change to appropriate coroutine context, may
-    // want to take advantage of this later
-    override suspend fun findRecipesFromIngredients(ingredients: List<String>): List<NetworkRecipe> {
-        return networkApi.getRecipesFromIngredients(ingredients)
+    override suspend fun findRecipesFromIngredients(
+        ingredients: List<String>
+    ): Resource<List<NetworkRecipe>> {
+        return when (val response = networkApi.getRecipesFromIngredients(ingredients)) {
+            is NetworkResponse.Success -> {
+                println("[OnHand] Success: ${response.body}")
+                Resource.success(data = response.body)
+            }
+            is NetworkResponse.ApiError -> {
+                println("[OnHand] Non 2xx error: ${response.body.message}")
+                Resource.error(msg = "Non 2xx error: " + response.body.message.toString())
+            }
+            is NetworkResponse.NetworkError -> {
+                println("[OnHand] Network connectivity error: ${response.error.message}")
+                Resource.error(msg = "Network connectivity error: " + response.error.message.toString())
+            }
+            is NetworkResponse.UnknownError -> {
+                println("[OnHand] Unknown network error: ${response.error?.message}")
+                Resource.error(msg = "Unknown network error: " + response.error?.message.toString())
+            }
+        }
     }
 
     override fun getRecipeDetail(id: Int): Flow<NetworkRecipeDetail> {

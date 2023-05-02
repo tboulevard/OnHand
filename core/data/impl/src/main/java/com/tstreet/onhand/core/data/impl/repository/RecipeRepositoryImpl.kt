@@ -1,6 +1,8 @@
 package com.tstreet.onhand.core.data.impl.repository
 
 import com.tstreet.onhand.core.common.FetchStrategy
+import com.tstreet.onhand.core.common.Resource
+import com.tstreet.onhand.core.common.Status
 import com.tstreet.onhand.core.data.api.repository.RecipeRepository
 import com.tstreet.onhand.core.database.dao.RecipeSearchCacheDao
 import com.tstreet.onhand.core.database.dao.SavedRecipeDao
@@ -28,34 +30,52 @@ class RecipeRepositoryImpl @Inject constructor(
     override suspend fun findRecipes(
         fetchStrategy: FetchStrategy,
         ingredients: List<String>
-    ): List<Recipe> {
+    ): Resource<List<Recipe>> {
         println("[OnHand] findRecipes($fetchStrategy, $ingredients)")
 
         // TODO: this might be cleaner if we deal with just Flows here
         return when (fetchStrategy) {
             FetchStrategy.DATABASE -> {
-                recipeSearchCacheDao
-                    .get()
-                    .getRecipeSearchResult()
-                    .map(RecipeSearchCacheEntity::asExternalModel)
+                Resource.success(
+                    recipeSearchCacheDao
+                        .get()
+                        .getRecipeSearchResult()
+                        .map(RecipeSearchCacheEntity::asExternalModel)
+                )
             }
             FetchStrategy.NETWORK -> {
-                val result: List<Recipe> = onHandNetworkDataSource
-                    .get()
-                    .findRecipesFromIngredients(ingredients)
-                    .map(NetworkRecipe::asExternalModel)
+                val networkResult =
+                    onHandNetworkDataSource
+                        .get()
+                        .findRecipesFromIngredients(ingredients)
 
-                // TODO: this is getting kind of business logic-y too...refactor
-                //  Potentially expose each of these actions as a method and allow use case to call?
-                recipeSearchCacheDao.get().clear()
+                when (networkResult.status) {
+                    Status.ERROR -> {
+                        Resource.error(
+                            msg = networkResult.message.toString()
+                        )
+                    }
+                    else -> {
+                        // TODO: this is getting kind of business logic-y too...refactor
+                        //  Potentially expose each of these actions as a method and allow use case to call?
+                        val result = Resource.success(
+                            data = networkResult.data?.map(NetworkRecipe::asExternalModel)
+                        )
 
-                recipeSearchCacheDao
-                    .get()
-                    .addRecipeSearchResult(
-                        result.map(Recipe::toSearchCacheEntity)
-                    )
+                        recipeSearchCacheDao.get().clear()
 
-                result
+                        // Cache result search result if we got valid data back
+                        result.data?.let {
+                            recipeSearchCacheDao
+                                .get()
+                                .addRecipeSearchResult(
+                                    it.map(Recipe::toSearchCacheEntity)
+                                )
+                        }
+
+                        result
+                    }
+                }
             }
         }
     }

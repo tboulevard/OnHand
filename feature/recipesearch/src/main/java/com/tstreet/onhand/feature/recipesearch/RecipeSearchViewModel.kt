@@ -3,6 +3,7 @@ package com.tstreet.onhand.feature.recipesearch
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tstreet.onhand.core.common.Status
 import com.tstreet.onhand.core.domain.*
 import com.tstreet.onhand.core.domain.recipes.*
 import com.tstreet.onhand.core.ui.RecipeSaveState.*
@@ -34,9 +35,18 @@ class RecipeSearchViewModel @Inject constructor(
             getRecipes.get().invoke(it)
         }
         .combine(_sortOrder) { recipes, sortBy ->
-            _recipes = recipes.toRecipeWithSaveStateItemList()
-            // We pass the snapshot state list by reference to allow mutations within the ViewModel
-            _uiState.update { RecipeSearchUiState.Success(_recipes) }
+            when (recipes.status) {
+                Status.SUCCESS -> {
+                    // TODO: handle null here...
+                    _recipes = recipes.data!!.toRecipeWithSaveStateItemList()
+                    // We pass the snapshot state list by reference to allow mutations within the ViewModel
+                    _uiState.update { RecipeSearchUiState.Success(_recipes) }
+                }
+                Status.ERROR -> {
+                    _uiState.update { RecipeSearchUiState.Error(recipes.message.toString()) }
+
+                }
+            }
             sortBy
         }
         .stateIn(
