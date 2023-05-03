@@ -2,7 +2,6 @@ package com.tstreet.onhand.core.network.retrofit
 
 import com.tstreet.onhand.core.network.OnHandNetworkDataSource
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import com.tstreet.onhand.core.common.Resource
 import com.tstreet.onhand.core.network.model.NetworkIngredient
 import com.tstreet.onhand.core.network.model.NetworkIngredientSearchResult
 import com.tstreet.onhand.core.network.model.NetworkRecipe
@@ -88,28 +87,29 @@ class RetrofitOnHandNetwork @Inject constructor(
 
     override suspend fun findRecipesFromIngredients(
         ingredients: List<String>
-    ): Resource<List<NetworkRecipe>> {
-        return handleResponse(networkApi.getRecipesFromIngredients(ingredients))
+    ): NetworkResponse<List<NetworkRecipe>, GenericError> { // TODO: utilize `GenericError` somehow?
+        val response = networkApi.getRecipesFromIngredients(ingredients)
+        logInfo(response)
+        return response
     }
 
     override fun getRecipeDetail(id: Int): Flow<NetworkRecipeDetail> {
         return flow { emit(networkApi.getRecipeDetail(id)) }
     }
 
-    private fun <T : Any> handleResponse(response: NetworkResponse<T, *>): Resource<T> {
+    private fun <T : Any> logInfo(response: NetworkResponse<T, *>) {
         return when (response) {
             is NetworkResponse.Success -> {
-                Resource.success(data = response.body)
+                println("[OnHand] Success: " + response.body)
             }
             is NetworkResponse.ApiError -> {
-                // TODO: handle different status codes
-                Resource.error(msg = "HTTP ${response.code} error: " + response.body)
+                println("[OnHand] ApiError: HTTP ${response.code} error: " + response.body)
             }
             is NetworkResponse.NetworkError -> {
-                Resource.error(msg = "Device does not appear to have network connectivity.")
+                println("[OnHand] NetworkError: Device does not appear to have network connectivity.")
             }
             is NetworkResponse.UnknownError -> {
-                Resource.error(msg = "Unknown non-network error: " + response.error?.message)
+                println("[OnHand] Unknown non-network error: " + response.error?.message)
             }
         }
     }

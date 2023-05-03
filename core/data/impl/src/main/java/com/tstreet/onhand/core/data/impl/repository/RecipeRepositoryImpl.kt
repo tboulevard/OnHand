@@ -12,6 +12,7 @@ import com.tstreet.onhand.core.network.OnHandNetworkDataSource
 import com.tstreet.onhand.core.network.model.NetworkRecipe
 import com.tstreet.onhand.core.network.model.NetworkRecipeDetail
 import com.tstreet.onhand.core.network.model.NetworkRecipeIngredient
+import com.tstreet.onhand.core.network.retrofit.NetworkResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -27,13 +28,18 @@ class RecipeRepositoryImpl @Inject constructor(
         println("[OnHand] Creating ${this.javaClass.simpleName}")
     }
 
+    /**
+     * TODO NOTE: even in case of error, we display results
+     *
+     * 1. success
+     * 2. error dialog + last cached state (if available)
+     */
     override suspend fun findRecipes(
         fetchStrategy: FetchStrategy,
         ingredients: List<String>
     ): Resource<List<Recipe>> {
         println("[OnHand] findRecipes($fetchStrategy, $ingredients)")
 
-        // TODO: this might be cleaner if we deal with just Flows here
         return when (fetchStrategy) {
             FetchStrategy.DATABASE -> {
                 Resource.success(
@@ -44,38 +50,43 @@ class RecipeRepositoryImpl @Inject constructor(
                 )
             }
             FetchStrategy.NETWORK -> {
-                val networkResult =
+                val response =
                     onHandNetworkDataSource
                         .get()
                         .findRecipesFromIngredients(ingredients)
 
-                when (networkResult.status) {
-                    Status.ERROR -> {
-                        Resource.error(
-                            msg = networkResult.message.toString()
-                        )
-                    }
-                    else -> {
+                val result = when (response) {
+                    is NetworkResponse.Success -> {
+                        // Translate to the external model
+                        val externalModel = response.body.map(NetworkRecipe::asExternalModel)
+
                         // TODO: this is getting kind of business logic-y too...refactor
                         //  Potentially expose each of these actions as a method and allow use case to call?
-                        val result = Resource.success(
-                            data = networkResult.data?.map(NetworkRecipe::asExternalModel)
-                        )
-
                         recipeSearchCacheDao.get().clear()
 
                         // Cache result search result if we got valid data back
-                        result.data?.let {
-                            recipeSearchCacheDao
-                                .get()
-                                .addRecipeSearchResult(
-                                    it.map(Recipe::toSearchCacheEntity)
-                                )
-                        }
+                        recipeSearchCacheDao
+                            .get()
+                            .addRecipeSearchResult(
+                                externalModel.map(Recipe::toSearchCacheEntity)
+                            )
 
-                        result
+                        Resource.success(data = externalModel)
+                    }
+                    is NetworkResponse.ApiError,
+                    is NetworkResponse.NetworkError,
+                    is NetworkResponse.UnknownError -> {
+                        Resource.error(
+                            msg = "${response::class.java} error, returning latest cached results",
+                            data = recipeSearchCacheDao
+                                .get()
+                                .getRecipeSearchResult()
+                                .map(RecipeSearchCacheEntity::asExternalModel)
+                        )
                     }
                 }
+
+                result
             }
         }
     }

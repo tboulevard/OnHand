@@ -38,11 +38,12 @@ class GetRecipesUseCase @Inject constructor(
                                 MISSING_INGREDIENTS ->
                                     recipes.data?.sortedBy { it.recipe.missedIngredientCount }
                             })
+                        // TODO: pantry reset logic messed up, look into before merging...
                         pantryStateManager.get().onResetPantryState()
                         result
                     } else {
                         println(
-                            "[OnHand] Pantry state not reset because there was an error" +
+                            "[OnHand] Pantry state not reset because there was an error " +
                                     "retrieving recipes."
                         )
                         Resource.error(msg = recipes.message.toString())
