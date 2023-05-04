@@ -2,10 +2,7 @@ package com.tstreet.onhand.core.network.retrofit
 
 import com.tstreet.onhand.core.network.OnHandNetworkDataSource
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import com.tstreet.onhand.core.network.model.NetworkIngredient
-import com.tstreet.onhand.core.network.model.NetworkIngredientSearchResult
-import com.tstreet.onhand.core.network.model.NetworkRecipe
-import com.tstreet.onhand.core.network.model.NetworkRecipeDetail
+import com.tstreet.onhand.core.network.model.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import okhttp3.MediaType.Companion.toMediaType

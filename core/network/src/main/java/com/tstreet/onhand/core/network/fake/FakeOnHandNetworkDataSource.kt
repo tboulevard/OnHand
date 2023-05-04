@@ -1,6 +1,5 @@
 package com.tstreet.onhand.core.network.fake
 
-import com.tstreet.onhand.core.common.Resource
 import com.tstreet.onhand.core.network.OnHandNetworkDataSource
 import com.tstreet.onhand.core.network.model.NetworkIngredient
 import com.tstreet.onhand.core.network.model.NetworkRecipe

@@ -4,7 +4,7 @@ import java.io.IOException
 
 /**
  * We use covariant (out) because we want to return (produce) [T] and [U] and their subtypes (all
- * subtype of [Any], i.e. any class type).
+ * subtypes of [Any], i.e. any class type).
  */
 sealed class NetworkResponse<out T : Any, out U : Any> {
 
