@@ -2,7 +2,6 @@ package com.tstreet.onhand.core.data.impl.repository
 
 import com.tstreet.onhand.core.common.FetchStrategy
 import com.tstreet.onhand.core.common.Resource
-import com.tstreet.onhand.core.common.Status
 import com.tstreet.onhand.core.data.api.repository.RecipeRepository
 import com.tstreet.onhand.core.database.dao.RecipeSearchCacheDao
 import com.tstreet.onhand.core.database.dao.SavedRecipeDao
@@ -12,7 +11,7 @@ import com.tstreet.onhand.core.network.OnHandNetworkDataSource
 import com.tstreet.onhand.core.network.model.NetworkRecipe
 import com.tstreet.onhand.core.network.model.NetworkRecipeDetail
 import com.tstreet.onhand.core.network.model.NetworkRecipeIngredient
-import com.tstreet.onhand.core.network.retrofit.NetworkResponse
+import com.tstreet.onhand.core.network.retrofit.NetworkResponse.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -28,12 +27,6 @@ class RecipeRepositoryImpl @Inject constructor(
         println("[OnHand] Creating ${this.javaClass.simpleName}")
     }
 
-    /**
-     * TODO NOTE: even in case of error, we display results
-     *
-     * 1. success
-     * 2. error dialog + last cached state (if available)
-     */
     override suspend fun findRecipes(
         fetchStrategy: FetchStrategy,
         ingredients: List<String>
@@ -42,51 +35,34 @@ class RecipeRepositoryImpl @Inject constructor(
 
         return when (fetchStrategy) {
             FetchStrategy.DATABASE -> {
-                Resource.success(
-                    recipeSearchCacheDao
-                        .get()
-                        .getRecipeSearchResult()
-                        .map(RecipeSearchCacheEntity::asExternalModel)
-                )
+                Resource.success(data = getCachedRecipeSearchResults())
             }
             FetchStrategy.NETWORK -> {
-                val response =
+                val networkResponse =
                     onHandNetworkDataSource
                         .get()
                         .findRecipesFromIngredients(ingredients)
 
-                val result = when (response) {
-                    is NetworkResponse.Success -> {
-                        // Translate to the external model
-                        val externalModel = response.body.map(NetworkRecipe::asExternalModel)
-
+                return when (networkResponse) {
+                    is Success -> {
+                        val externalModel = networkResponse.body.map(NetworkRecipe::asExternalModel)
                         // TODO: this is getting kind of business logic-y too...refactor
                         //  Potentially expose each of these actions as a method and allow use case to call?
                         recipeSearchCacheDao.get().clear()
-
-                        // Cache result search result if we got valid data back
-                        recipeSearchCacheDao
-                            .get()
-                            .addRecipeSearchResult(
-                                externalModel.map(Recipe::toSearchCacheEntity)
-                            )
-
+                        cacheRecipeSearchResults(externalModel)
                         Resource.success(data = externalModel)
                     }
-                    is NetworkResponse.ApiError,
-                    is NetworkResponse.NetworkError,
-                    is NetworkResponse.UnknownError -> {
+                    is ApiError,
+                    is NetworkError,
+                    is UnknownError -> {
                         Resource.error(
-                            msg = "${response::class.java} error, returning latest cached results",
-                            data = recipeSearchCacheDao
-                                .get()
-                                .getRecipeSearchResult()
-                                .map(RecipeSearchCacheEntity::asExternalModel)
+                            msg = "${networkResponse::class.java.simpleName}, please check your " +
+                                    "device's network connectivity.\n\nShowing last calculated " +
+                                    "search result.",
+                            data = getCachedRecipeSearchResults()
                         )
                     }
                 }
-
-                result
             }
         }
     }
@@ -126,6 +102,21 @@ class RecipeRepositoryImpl @Inject constructor(
             .get()
             .getSavedRecipes()
             .map { it.map(SavedRecipeEntity::asExternalModel) }
+    }
+
+    private suspend fun getCachedRecipeSearchResults(): List<Recipe> {
+        return recipeSearchCacheDao
+            .get()
+            .getRecipeSearchResult()
+            .map(RecipeSearchCacheEntity::asExternalModel)
+    }
+
+    private suspend fun cacheRecipeSearchResults(recipes: List<Recipe>) {
+        recipeSearchCacheDao
+            .get()
+            .addRecipeSearchResult(
+                recipes.map(Recipe::toSearchCacheEntity)
+            )
     }
 }
 

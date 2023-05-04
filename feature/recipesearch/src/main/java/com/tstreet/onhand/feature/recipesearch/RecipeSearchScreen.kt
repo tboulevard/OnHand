@@ -122,6 +122,17 @@ fun RecipeSearchScreen(
                         },
                         confirmButton = { },
                     )
+                } else {
+                    SortBySpinner(
+                        sortOrder,
+                        viewModel::onSortOrderChanged
+                    )
+                    RecipeCardList(
+                        recipes = state.recipes,
+                        onItemClick = navController::navigate,
+                        onSaveClick = viewModel::onRecipeSaved,
+                        onUnSaveClick = viewModel::onRecipeUnsaved
+                    )
                 }
             }
         }

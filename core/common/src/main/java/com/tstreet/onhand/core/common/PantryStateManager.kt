@@ -22,7 +22,7 @@ interface PantryStateManager {
 
     /**
      * Resets pantry state changed to false. For example, this is triggered when a recipe search
-     * query happens to avoid unncessary api calls.
+     * query happens to avoid unnecessary api calls.
      */
     fun onResetPantryState()
 }

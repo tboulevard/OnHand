@@ -44,7 +44,13 @@ class RecipeSearchViewModel @Inject constructor(
                 }
                 Status.ERROR -> {
                     _showErrorDialog.update { true }
-                    _uiState.update { RecipeSearchUiState.Error(recipes.message.toString()) }
+                    _recipes = recipes.data!!.toRecipeWithSaveStateItemList()
+                    _uiState.update {
+                        RecipeSearchUiState.Error(
+                            recipes.message.toString(),
+                            _recipes
+                        )
+                    }
                 }
             }
             sortBy
