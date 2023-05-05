@@ -1,6 +1,7 @@
 package com.tstreet.onhand.core.data.impl.repository
 
 import com.tstreet.onhand.core.common.FetchStrategy
+import com.tstreet.onhand.core.common.Resource
 import com.tstreet.onhand.core.data.api.repository.RecipeRepository
 import com.tstreet.onhand.core.database.dao.RecipeSearchCacheDao
 import com.tstreet.onhand.core.database.dao.SavedRecipeDao
@@ -10,6 +11,7 @@ import com.tstreet.onhand.core.network.OnHandNetworkDataSource
 import com.tstreet.onhand.core.network.model.NetworkRecipe
 import com.tstreet.onhand.core.network.model.NetworkRecipeDetail
 import com.tstreet.onhand.core.network.model.NetworkRecipeIngredient
+import com.tstreet.onhand.core.network.retrofit.NetworkResponse.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -28,34 +30,36 @@ class RecipeRepositoryImpl @Inject constructor(
     override suspend fun findRecipes(
         fetchStrategy: FetchStrategy,
         ingredients: List<String>
-    ): List<Recipe> {
+    ): Resource<List<Recipe>> {
         println("[OnHand] findRecipes($fetchStrategy, $ingredients)")
 
-        // TODO: this might be cleaner if we deal with just Flows here
         return when (fetchStrategy) {
             FetchStrategy.DATABASE -> {
-                recipeSearchCacheDao
-                    .get()
-                    .getRecipeSearchResult()
-                    .map(RecipeSearchCacheEntity::asExternalModel)
+                Resource.success(data = getCachedRecipeSearchResults())
             }
             FetchStrategy.NETWORK -> {
-                val result: List<Recipe> = onHandNetworkDataSource
-                    .get()
-                    .findRecipesFromIngredients(ingredients)
-                    .map(NetworkRecipe::asExternalModel)
+                val networkResponse =
+                    onHandNetworkDataSource
+                        .get()
+                        .findRecipesFromIngredients(ingredients)
 
-                // TODO: this is getting kind of business logic-y too...refactor
-                //  Potentially expose each of these actions as a method and allow use case to call?
-                recipeSearchCacheDao.get().clear()
-
-                recipeSearchCacheDao
-                    .get()
-                    .addRecipeSearchResult(
-                        result.map(Recipe::toSearchCacheEntity)
-                    )
-
-                result
+                return when (networkResponse) {
+                    is Success -> {
+                        val externalModel = networkResponse.body.map(NetworkRecipe::asExternalModel)
+                        cacheRecipeSearchResults(externalModel)
+                        Resource.success(data = externalModel)
+                    }
+                    is ApiError,
+                    is NetworkError,
+                    is UnknownError -> {
+                        Resource.error(
+                            msg = "${networkResponse::class.java.simpleName}, please check your " +
+                                    "device's network connectivity.\n\nShowing last calculated " +
+                                    "search result.",
+                            data = getCachedRecipeSearchResults()
+                        )
+                    }
+                }
             }
         }
     }
@@ -95,6 +99,25 @@ class RecipeRepositoryImpl @Inject constructor(
             .get()
             .getSavedRecipes()
             .map { it.map(SavedRecipeEntity::asExternalModel) }
+    }
+
+    private suspend fun getCachedRecipeSearchResults(): List<Recipe> {
+        return recipeSearchCacheDao
+            .get()
+            .getRecipeSearchResult()
+            .map(RecipeSearchCacheEntity::asExternalModel)
+    }
+
+    // TODO: this is getting kind of business logic-y too...refactor
+    //  Potentially expose each of these actions as a method and allow use case to call?
+    private suspend fun cacheRecipeSearchResults(recipes: List<Recipe>) {
+        // Clear the cache
+        recipeSearchCacheDao.get().clear()
+        recipeSearchCacheDao
+            .get()
+            .addRecipeSearchResult(
+                recipes.map(Recipe::toSearchCacheEntity)
+            )
     }
 }
 

@@ -3,7 +3,7 @@ package com.tstreet.onhand.core.network.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-class NetworkRecipe(
+data class NetworkRecipe(
     val id : Int,
     val title : String,
     val image : String,

@@ -1,5 +1,6 @@
 package com.tstreet.onhand.core.ui
 
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import com.tstreet.onhand.core.model.SaveableRecipe
@@ -13,7 +14,8 @@ sealed interface RecipeSearchUiState {
     ) : RecipeSearchUiState
 
     data class Error(
-        val message: String
+        val message: String,
+        val recipes: SnapshotStateList<RecipeWithSaveState>
     ) : RecipeSearchUiState
 }
 
@@ -23,13 +25,13 @@ enum class RecipeSaveState {
     SAVING
 }
 
-fun List<SaveableRecipe>.toRecipeWithSaveStateItemList(): SnapshotStateList<RecipeWithSaveState> {
-    return this.map {
+fun List<SaveableRecipe>?.toRecipeWithSaveStateItemList(): SnapshotStateList<RecipeWithSaveState> {
+    return this?.map {
         RecipeWithSaveState(
             recipe = it.recipe,
             recipeSaveState =
-            when (it.isSaved) {
-                true -> {
+            when {
+                it.isSaved -> {
                     RecipeSaveState.SAVED
                 }
                 else -> {
@@ -37,5 +39,5 @@ fun List<SaveableRecipe>.toRecipeWithSaveStateItemList(): SnapshotStateList<Reci
                 }
             }
         )
-    }.toMutableStateList()
+    }?.toMutableStateList() ?: mutableStateListOf()
 }

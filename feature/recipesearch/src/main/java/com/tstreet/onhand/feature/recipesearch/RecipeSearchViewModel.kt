@@ -3,6 +3,7 @@ package com.tstreet.onhand.feature.recipesearch
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tstreet.onhand.core.common.Status
 import com.tstreet.onhand.core.domain.*
 import com.tstreet.onhand.core.domain.recipes.*
 import com.tstreet.onhand.core.ui.RecipeSaveState.*
@@ -34,14 +35,32 @@ class RecipeSearchViewModel @Inject constructor(
             getRecipes.get().invoke(it)
         }
         .combine(_sortOrder) { recipes, sortBy ->
-            _recipes = recipes.toRecipeWithSaveStateItemList()
-            // We pass the snapshot state list by reference to allow mutations within the ViewModel
-            _uiState.update { RecipeSearchUiState.Success(_recipes) }
+            when (recipes.status) {
+                Status.SUCCESS -> {
+                    // TODO: Log analytics if data is null somehow. We fallback to emitting an
+                    //  empty list.
+                    _recipes = recipes.data.toRecipeWithSaveStateItemList()
+                    // We pass the snapshot state list by reference to allow mutations within the ViewModel
+                    _uiState.update { RecipeSearchUiState.Success(_recipes) }
+                }
+                Status.ERROR -> {
+                    _showErrorDialog.update { true }
+                    // TODO: Log analytics if data is null somehow. We fallback to emitting an
+                    //  empty list.
+                    _recipes = recipes.data.toRecipeWithSaveStateItemList()
+                    _uiState.update {
+                        RecipeSearchUiState.Error(
+                            recipes.message.toString(),
+                            _recipes
+                        )
+                    }
+                }
+            }
             sortBy
         }
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
+            started = SharingStarted.WhileSubscribed(),
             initialValue = _sortOrder.value
         )
 
@@ -51,6 +70,14 @@ class RecipeSearchViewModel @Inject constructor(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = _uiState.value
+        )
+
+    private val _showErrorDialog = MutableStateFlow(false)
+    val showErrorDialog = _showErrorDialog
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = _showErrorDialog.value
         )
 
     fun onRecipeSaved(index: Int) {
@@ -112,5 +139,9 @@ class RecipeSearchViewModel @Inject constructor(
 
     fun onSortOrderChanged(sortingOrder: SortBy) {
         _sortOrder.update { sortingOrder }
+    }
+
+    fun dismissErrorDialog() {
+        _showErrorDialog.update { false }
     }
 }

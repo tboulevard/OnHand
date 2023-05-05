@@ -5,6 +5,8 @@ import com.tstreet.onhand.core.network.model.NetworkIngredient
 import com.tstreet.onhand.core.network.model.NetworkRecipe
 import com.tstreet.onhand.core.network.model.NetworkRecipeDetail
 import com.tstreet.onhand.core.network.model.NetworkRecipeIngredient
+import com.tstreet.onhand.core.network.retrofit.NetworkResponse
+import com.tstreet.onhand.core.network.retrofit.OnHandNetworkResponse
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -29,165 +31,169 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
         )
     }
 
-    override suspend fun findRecipesFromIngredients(ingredients: List<String>): List<NetworkRecipe> {
+    override suspend fun findRecipesFromIngredients(
+        ingredients: List<String>
+    ): OnHandNetworkResponse<List<NetworkRecipe>> {
         // For testing purposes (progress indicators, etc)
         delay(ARTIFICIAL_DELAY_MILLIS)
-        return listOf(
-            NetworkRecipe(
-                id = 10,
-                title = "Grilled Cheese",
-                image = "grilled-cheese.jpg",
-                imageType = "jpg",
-                usedIngredientCount = 2,
-                missedIngredientCount = 1,
-                usedIngredients = listOf(
-                    NetworkRecipeIngredient(
-                        id = 12,
-                        amount = 8.0,
-                        unit = "oz",
-                        unitLong = "ounces",
-                        unitShort = "oz",
-                        aisle = "Dairy",
-                        name = "Cheddar Cheese",
-                        original = "",
-                        originalName = "",
-                        meta = emptyList(),
-                        image = "cheddar.jpg"
-                    ), NetworkRecipeIngredient(
-                        id = 13,
-                        amount = 16.0,
-                        unit = "oz",
-                        unitLong = "ounces",
-                        unitShort = "oz",
-                        aisle = "Bread",
-                        name = "White Bread",
-                        original = "",
-                        originalName = "",
-                        meta = emptyList(),
-                        image = "white-bread.jpg"
-                    )
-                ),
-                missedIngredients = listOf(
-                    NetworkRecipeIngredient(
-                        id = 20,
-                        amount = 2.0,
-                        unit = "oz",
-                        unitLong = "ounces",
-                        unitShort = "oz",
-                        aisle = "Condiments",
-                        name = "Mayo",
-                        original = "",
-                        originalName = "",
-                        meta = emptyList(),
-                        image = "mayo.jpg"
-                    )
-                ),
-                unusedIngredients = listOf(
-                    NetworkRecipeIngredient(
-                        id = 999,
-                        amount = 200.0,
-                        unit = "g",
-                        unitLong = "grams",
-                        unitShort = "g",
-                        aisle = "Vegetables",
-                        name = "Green Beans",
-                        original = "",
-                        originalName = "",
-                        meta = emptyList(),
-                        image = "green-beans.jpg"
-                    )
-                ),
-                likes = 9999
-            ), NetworkRecipe(
-                id = 100,
-                title = "Tomato Soup",
-                image = "tomato-soup.jpg",
-                imageType = "jpg",
-                usedIngredientCount = 2,
-                missedIngredientCount = 0,
-                usedIngredients = listOf(
-                    NetworkRecipeIngredient(
-                        id = 120,
-                        amount = 1.0,
-                        unit = "serving",
-                        unitLong = "serving",
-                        unitShort = "s",
-                        aisle = "Vegetables",
-                        name = "Roma Tomato",
-                        original = "",
-                        originalName = "",
-                        meta = emptyList(),
-                        image = "roma-tomato.jpg"
-                    )
-                ),
-                missedIngredients = listOf(
-                    NetworkRecipeIngredient(
-                        id = 200,
-                        amount = 4.0,
-                        unit = "cup",
-                        unitLong = "cups",
-                        unitShort = "c",
-                        aisle = "Soup",
-                        name = "Vegetable Broth",
-                        original = "",
-                        originalName = "",
-                        meta = emptyList(),
-                        image = "vegetable-broth.jpg"
-                    )
-                ),
-                unusedIngredients = listOf(),
-                likes = 20
-            ), NetworkRecipe(
-                id = 1000,
-                title = "Cheese Steak",
-                image = "cheese-steak.jpg",
-                imageType = "jpg",
-                usedIngredientCount = 4,
-                missedIngredientCount = 3,
-                usedIngredients = listOf(
-                    NetworkRecipeIngredient(
-                        id = 12,
-                        amount = 8.0,
-                        unit = "oz",
-                        unitLong = "ounces",
-                        unitShort = "oz",
-                        aisle = "Dairy",
-                        name = "Cheddar Cheese",
-                        original = "",
-                        originalName = "",
-                        meta = emptyList(),
-                        image = "cheddar.jpg"
-                    ), NetworkRecipeIngredient(
-                        id = 13,
-                        amount = 16.0,
-                        unit = "oz",
-                        unitLong = "ounces",
-                        unitShort = "oz",
-                        aisle = "Bread",
-                        name = "White Bread",
-                        original = "",
-                        originalName = "",
-                        meta = emptyList(),
-                        image = "white-bread.jpg"
-                    )
-                ),
-                missedIngredients = listOf(
-                    NetworkRecipeIngredient(
-                        id = 45,
-                        amount = 16.0,
-                        unit = "oz",
-                        unitLong = "ounces",
-                        unitShort = "oz",
-                        aisle = "Bread",
-                        name = "Ribeye Steak",
-                        original = "",
-                        originalName = "",
-                        meta = emptyList(),
-                        image = "ribeye-steak.jpg"
-                    )
-                ),
-                unusedIngredients = listOf(),
-                likes = 333
+        return NetworkResponse.Success(
+            body = listOf(
+                NetworkRecipe(
+                    id = 10,
+                    title = "Grilled Cheese",
+                    image = "grilled-cheese.jpg",
+                    imageType = "jpg",
+                    usedIngredientCount = 2,
+                    missedIngredientCount = 1,
+                    usedIngredients = listOf(
+                        NetworkRecipeIngredient(
+                            id = 12,
+                            amount = 8.0,
+                            unit = "oz",
+                            unitLong = "ounces",
+                            unitShort = "oz",
+                            aisle = "Dairy",
+                            name = "Cheddar Cheese",
+                            original = "",
+                            originalName = "",
+                            meta = emptyList(),
+                            image = "cheddar.jpg"
+                        ), NetworkRecipeIngredient(
+                            id = 13,
+                            amount = 16.0,
+                            unit = "oz",
+                            unitLong = "ounces",
+                            unitShort = "oz",
+                            aisle = "Bread",
+                            name = "White Bread",
+                            original = "",
+                            originalName = "",
+                            meta = emptyList(),
+                            image = "white-bread.jpg"
+                        )
+                    ),
+                    missedIngredients = listOf(
+                        NetworkRecipeIngredient(
+                            id = 20,
+                            amount = 2.0,
+                            unit = "oz",
+                            unitLong = "ounces",
+                            unitShort = "oz",
+                            aisle = "Condiments",
+                            name = "Mayo",
+                            original = "",
+                            originalName = "",
+                            meta = emptyList(),
+                            image = "mayo.jpg"
+                        )
+                    ),
+                    unusedIngredients = listOf(
+                        NetworkRecipeIngredient(
+                            id = 999,
+                            amount = 200.0,
+                            unit = "g",
+                            unitLong = "grams",
+                            unitShort = "g",
+                            aisle = "Vegetables",
+                            name = "Green Beans",
+                            original = "",
+                            originalName = "",
+                            meta = emptyList(),
+                            image = "green-beans.jpg"
+                        )
+                    ),
+                    likes = 9999
+                ), NetworkRecipe(
+                    id = 100,
+                    title = "Tomato Soup",
+                    image = "tomato-soup.jpg",
+                    imageType = "jpg",
+                    usedIngredientCount = 2,
+                    missedIngredientCount = 0,
+                    usedIngredients = listOf(
+                        NetworkRecipeIngredient(
+                            id = 120,
+                            amount = 1.0,
+                            unit = "serving",
+                            unitLong = "serving",
+                            unitShort = "s",
+                            aisle = "Vegetables",
+                            name = "Roma Tomato",
+                            original = "",
+                            originalName = "",
+                            meta = emptyList(),
+                            image = "roma-tomato.jpg"
+                        )
+                    ),
+                    missedIngredients = listOf(
+                        NetworkRecipeIngredient(
+                            id = 200,
+                            amount = 4.0,
+                            unit = "cup",
+                            unitLong = "cups",
+                            unitShort = "c",
+                            aisle = "Soup",
+                            name = "Vegetable Broth",
+                            original = "",
+                            originalName = "",
+                            meta = emptyList(),
+                            image = "vegetable-broth.jpg"
+                        )
+                    ),
+                    unusedIngredients = listOf(),
+                    likes = 20
+                ), NetworkRecipe(
+                    id = 1000,
+                    title = "Cheese Steak",
+                    image = "cheese-steak.jpg",
+                    imageType = "jpg",
+                    usedIngredientCount = 4,
+                    missedIngredientCount = 3,
+                    usedIngredients = listOf(
+                        NetworkRecipeIngredient(
+                            id = 12,
+                            amount = 8.0,
+                            unit = "oz",
+                            unitLong = "ounces",
+                            unitShort = "oz",
+                            aisle = "Dairy",
+                            name = "Cheddar Cheese",
+                            original = "",
+                            originalName = "",
+                            meta = emptyList(),
+                            image = "cheddar.jpg"
+                        ), NetworkRecipeIngredient(
+                            id = 13,
+                            amount = 16.0,
+                            unit = "oz",
+                            unitLong = "ounces",
+                            unitShort = "oz",
+                            aisle = "Bread",
+                            name = "White Bread",
+                            original = "",
+                            originalName = "",
+                            meta = emptyList(),
+                            image = "white-bread.jpg"
+                        )
+                    ),
+                    missedIngredients = listOf(
+                        NetworkRecipeIngredient(
+                            id = 45,
+                            amount = 16.0,
+                            unit = "oz",
+                            unitLong = "ounces",
+                            unitShort = "oz",
+                            aisle = "Bread",
+                            name = "Ribeye Steak",
+                            original = "",
+                            originalName = "",
+                            meta = emptyList(),
+                            image = "ribeye-steak.jpg"
+                        )
+                    ),
+                    unusedIngredients = listOf(),
+                    likes = 333
+                )
             )
         )
     }

@@ -24,15 +24,16 @@ fun RecipeSearchScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val sortOrder by viewModel.sortOrder.collectAsState()
-    val openDialog = remember { mutableStateOf(false) }
+    val openInfoDialog = remember { mutableStateOf(false) }
+    val openErrorDialog = viewModel.showErrorDialog.collectAsState()
 
-    if (openDialog.value) {
+    if (openInfoDialog.value) {
         AlertDialog(
             onDismissRequest = {
                 // Dismiss the dialog when the user clicks outside the dialog or on the back
                 // button. If you want to disable that functionality, simply use an empty
                 // onDismissRequest.
-                openDialog.value = false
+                openInfoDialog.value = false
             },
             title = {
                 Text("Search Recipes")
@@ -47,7 +48,7 @@ fun RecipeSearchScreen(
             dismissButton = {
                 Button(
                     onClick = {
-                        openDialog.value = false
+                        openInfoDialog.value = false
                     }) {
                     Text("Got it \uD83D\uDC4C")
                 }
@@ -69,7 +70,7 @@ fun RecipeSearchScreen(
                     .padding(4.dp)
                     .align(Alignment.CenterVertically)
                     .clickable {
-                        openDialog.value = true
+                        openInfoDialog.value = true
                     },
                 tint = MaterialTheme.colorScheme.surfaceTint
             )
@@ -103,7 +104,36 @@ fun RecipeSearchScreen(
                 }
             }
             is Error -> {
-                FullScreenErrorMessage(message = state.message)
+                if (openErrorDialog.value) {
+                    AlertDialog(
+                        onDismissRequest = {
+                            viewModel.dismissErrorDialog()
+                        },
+                        title = {
+                            Text("Error")
+                        },
+                        text = {
+                            Text(state.message)
+                        },
+                        dismissButton = {
+                            Button(onClick = { viewModel.dismissErrorDialog() }) {
+                                Text("Dismiss")
+                            }
+                        },
+                        confirmButton = { },
+                    )
+                } else {
+                    SortBySpinner(
+                        sortOrder,
+                        viewModel::onSortOrderChanged
+                    )
+                    RecipeCardList(
+                        recipes = state.recipes,
+                        onItemClick = navController::navigate,
+                        onSaveClick = viewModel::onRecipeSaved,
+                        onUnSaveClick = viewModel::onRecipeUnsaved
+                    )
+                }
             }
         }
     }
