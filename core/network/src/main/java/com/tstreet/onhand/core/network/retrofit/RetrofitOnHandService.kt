@@ -34,7 +34,7 @@ private interface RetrofitOnHandService {
     @GET("recipes/findByIngredients")
     suspend fun getRecipesFromIngredients(
         @Query("ingredients") ingredients: List<String>,
-    ): NetworkResponse<List<NetworkRecipe>, GenericError>
+    ): OnHandNetworkResponse<List<NetworkRecipe>>
 
     // TODO: sort by number of likes to show more relevant recipes potentially
     @GET("recipes/{id}/information")
@@ -84,7 +84,7 @@ class RetrofitOnHandNetwork @Inject constructor(
 
     override suspend fun findRecipesFromIngredients(
         ingredients: List<String>
-    ): NetworkResponse<List<NetworkRecipe>, GenericError> { // TODO: utilize `GenericError` somehow?
+    ): OnHandNetworkResponse<List<NetworkRecipe>> {
         val response = networkApi.getRecipesFromIngredients(ingredients)
         logInfo(response)
         return response
@@ -94,7 +94,7 @@ class RetrofitOnHandNetwork @Inject constructor(
         return flow { emit(networkApi.getRecipeDetail(id)) }
     }
 
-    private fun <T : Any> logInfo(response: NetworkResponse<T, *>) {
+    private fun <T : Any> logInfo(response: OnHandNetworkResponse<T>) {
         return when (response) {
             is NetworkResponse.Success -> {
                 println("[OnHand] Success: " + response.body)

@@ -5,8 +5,8 @@ import com.tstreet.onhand.core.network.model.NetworkIngredient
 import com.tstreet.onhand.core.network.model.NetworkRecipe
 import com.tstreet.onhand.core.network.model.NetworkRecipeDetail
 import com.tstreet.onhand.core.network.model.NetworkRecipeIngredient
-import com.tstreet.onhand.core.network.retrofit.GenericError
 import com.tstreet.onhand.core.network.retrofit.NetworkResponse
+import com.tstreet.onhand.core.network.retrofit.OnHandNetworkResponse
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -31,7 +31,9 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
         )
     }
 
-    override suspend fun findRecipesFromIngredients(ingredients: List<String>): NetworkResponse<List<NetworkRecipe>, GenericError> {
+    override suspend fun findRecipesFromIngredients(
+        ingredients: List<String>
+    ): OnHandNetworkResponse<List<NetworkRecipe>> {
         // For testing purposes (progress indicators, etc)
         delay(ARTIFICIAL_DELAY_MILLIS)
         return NetworkResponse.Success(

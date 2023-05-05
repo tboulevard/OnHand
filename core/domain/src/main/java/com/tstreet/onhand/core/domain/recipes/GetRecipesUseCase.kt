@@ -68,14 +68,13 @@ class GetRecipesUseCase @Inject constructor(
             fetchStrategy = getFetchStrategy(),
             ingredients = ingredientNames
         )
+
         val saveableRecipeResource = recipeResource.data?.let {
             it.map { recipe ->
                 // TODO: make this a bulk operation -- many segmented DB reads this way
                 //  Also - this is retriggered when we sort for each element in list; unnecessary
                 //  if list contents haven't changed. Look into caching the results to re-use
                 //  specifically for sorting
-                //  Have this function return a list of [SaveableRecipes] where we mark each one
-                //  on whether it was saved
                 val isRecipeSaved = recipeRepository.get().isRecipeSaved(recipe.id)
                 SaveableRecipe(
                     recipe = recipe,
@@ -84,9 +83,6 @@ class GetRecipesUseCase @Inject constructor(
             }
         }
 
-
-        // UseCase handles success/error state
-        // TODO: duplicate when block with same conditions
         return when (recipeResource.status) {
             SUCCESS -> {
                 Resource.success(data = saveableRecipeResource)
@@ -113,7 +109,7 @@ class GetRecipesUseCase @Inject constructor(
     }
 
     private fun getFetchStrategy() =
-        // TODO: Think about adding `&& networkDialogShownForRecipesTab` or similar to prevent
+    // TODO: Think about adding centralized network check logic or similar to prevent
         //  network error dialog from showing every time sort order is changed
         when (pantryStateManager.get().hasPantryStateChanged()) {
             true -> FetchStrategy.NETWORK

@@ -29,3 +29,6 @@ sealed class NetworkResponse<out T : Any, out U : Any> {
      */
     data class UnknownError(val error: Throwable?) : NetworkResponse<Nothing, Nothing>()
 }
+
+// TODO: utilize `GenericError`, currently unused
+typealias OnHandNetworkResponse<T> = NetworkResponse<T, GenericError>

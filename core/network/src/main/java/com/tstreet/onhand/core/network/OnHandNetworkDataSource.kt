@@ -3,8 +3,7 @@ package com.tstreet.onhand.core.network
 import com.tstreet.onhand.core.network.model.NetworkIngredient
 import com.tstreet.onhand.core.network.model.NetworkRecipe
 import com.tstreet.onhand.core.network.model.NetworkRecipeDetail
-import com.tstreet.onhand.core.network.retrofit.GenericError
-import com.tstreet.onhand.core.network.retrofit.NetworkResponse
+import com.tstreet.onhand.core.network.retrofit.OnHandNetworkResponse
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -15,7 +14,7 @@ interface OnHandNetworkDataSource {
 
     suspend fun findRecipesFromIngredients(
         ingredients: List<String>
-    ): NetworkResponse<List<NetworkRecipe>, GenericError>
+    ): OnHandNetworkResponse<List<NetworkRecipe>>
 
     fun getRecipeDetail(id: Int): Flow<NetworkRecipeDetail>
 }
