@@ -60,7 +60,7 @@ class RecipeSearchViewModel @Inject constructor(
         }
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
+            started = SharingStarted.WhileSubscribed(),
             initialValue = _sortOrder.value
         )
 
