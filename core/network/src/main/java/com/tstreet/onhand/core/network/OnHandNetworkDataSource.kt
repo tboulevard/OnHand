@@ -16,5 +16,5 @@ interface OnHandNetworkDataSource {
         ingredients: List<String>
     ): OnHandNetworkResponse<List<NetworkRecipe>>
 
-    fun getRecipeDetail(id: Int): Flow<NetworkRecipeDetail>
+    suspend fun getRecipeDetail(id: Int): OnHandNetworkResponse<NetworkRecipeDetail>
 }

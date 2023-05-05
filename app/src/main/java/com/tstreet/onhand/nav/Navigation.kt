@@ -96,6 +96,7 @@ private fun NavigationConfiguration(
         ) {
             val recipeId = it.arguments?.getInt(RECIPE_ID_NAV_KEY) ?: INVALID_RECIPE_ID
             RecipeDetailScreen(
+                navController,
                 injectedViewModel {
                     DaggerRecipeDetailComponent.factory().create(
                         dataComponentProvider = dataProvider,

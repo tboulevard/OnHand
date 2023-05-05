@@ -14,7 +14,7 @@ interface RecipeRepository {
         ingredients: List<String>
     ): Resource<List<Recipe>>
 
-    fun getRecipeDetail(id: Int): Flow<RecipeDetail>
+    suspend fun getRecipeDetail(id: Int): Resource<RecipeDetail>
 
     suspend fun saveRecipe(recipe: Recipe)
 

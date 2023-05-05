@@ -40,7 +40,7 @@ private interface RetrofitOnHandService {
     @GET("recipes/{id}/information")
     suspend fun getRecipeDetail(
         @Path("id") id: Int,
-    ): NetworkRecipeDetail
+    ): OnHandNetworkResponse<NetworkRecipeDetail>
 }
 
 private const val BASE_URL = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/"
@@ -90,8 +90,12 @@ class RetrofitOnHandNetwork @Inject constructor(
         return response
     }
 
-    override fun getRecipeDetail(id: Int): Flow<NetworkRecipeDetail> {
-        return flow { emit(networkApi.getRecipeDetail(id)) }
+    override suspend fun getRecipeDetail(
+        id: Int
+    ): OnHandNetworkResponse<NetworkRecipeDetail> {
+        val response = networkApi.getRecipeDetail(id)
+        logInfo(response)
+        return response
     }
 
     private fun <T : Any> logInfo(response: OnHandNetworkResponse<T>) {
