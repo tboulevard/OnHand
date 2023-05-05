@@ -46,9 +46,6 @@ class RecipeRepositoryImpl @Inject constructor(
                 return when (networkResponse) {
                     is Success -> {
                         val externalModel = networkResponse.body.map(NetworkRecipe::asExternalModel)
-                        // TODO: this is getting kind of business logic-y too...refactor
-                        //  Potentially expose each of these actions as a method and allow use case to call?
-                        recipeSearchCacheDao.get().clear()
                         cacheRecipeSearchResults(externalModel)
                         Resource.success(data = externalModel)
                     }
@@ -112,6 +109,10 @@ class RecipeRepositoryImpl @Inject constructor(
     }
 
     private suspend fun cacheRecipeSearchResults(recipes: List<Recipe>) {
+        // TODO: this is getting kind of business logic-y too...refactor
+        //  Potentially expose each of these actions as a method and allow use case to call?
+        // Clear the cache
+        recipeSearchCacheDao.get().clear()
         recipeSearchCacheDao
             .get()
             .addRecipeSearchResult(

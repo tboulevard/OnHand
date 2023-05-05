@@ -32,19 +32,17 @@ class GetRecipesUseCase @Inject constructor(
             .map { ingredients ->
                 if (ingredients.isNotEmpty()) {
                     val recipes = findSaveableRecipes(ingredients)
+                    val sortedRecipes = when (sortBy) {
+                        POPULARITY ->
+                            recipes.data?.sortedByDescending { it.recipe.likes }
+                        MISSING_INGREDIENTS ->
+                            recipes.data?.sortedBy { it.recipe.missedIngredientCount }
+                    }
                     when (recipes.status) {
                         SUCCESS -> {
-                            val result = Resource.success(
-                                data = when (sortBy) {
-                                    POPULARITY ->
-                                        recipes.data?.sortedByDescending { it.recipe.likes }
-                                    MISSING_INGREDIENTS ->
-                                        recipes.data?.sortedBy { it.recipe.missedIngredientCount }
-                                }
-                            )
                             // TODO: pantry reset logic messed up, look into before merging...
                             pantryStateManager.get().onResetPantryState()
-                            result
+                            Resource.success(data = sortedRecipes)
                         }
                         ERROR -> {
                             println(
@@ -53,12 +51,7 @@ class GetRecipesUseCase @Inject constructor(
                             )
                             Resource.error(
                                 msg = recipes.message.toString(),
-                                data = when (sortBy) {
-                                    POPULARITY ->
-                                        recipes.data?.sortedByDescending { it.recipe.likes }
-                                    MISSING_INGREDIENTS ->
-                                        recipes.data?.sortedBy { it.recipe.missedIngredientCount }
-                                }
+                                data = sortedRecipes
                             )
                         }
                     }
@@ -71,56 +64,41 @@ class GetRecipesUseCase @Inject constructor(
     }
 
     private suspend fun findSaveableRecipes(ingredientNames: List<String>): Resource<List<SaveableRecipe>> {
-        val recipes = recipeRepository.get().findRecipes(
+        val recipeResource = recipeRepository.get().findRecipes(
             fetchStrategy = getFetchStrategy(),
             ingredients = ingredientNames
         )
+        val saveableRecipeResource = recipeResource.data?.let {
+            it.map { recipe ->
+                // TODO: make this a bulk operation -- many segmented DB reads this way
+                //  Also - this is retriggered when we sort for each element in list; unnecessary
+                //  if list contents haven't changed. Look into caching the results to re-use
+                //  specifically for sorting
+                //  Have this function return a list of [SaveableRecipes] where we mark each one
+                //  on whether it was saved
+                val isRecipeSaved = recipeRepository.get().isRecipeSaved(recipe.id)
+                SaveableRecipe(
+                    recipe = recipe,
+                    isSaved = isRecipeSaved
+                )
+            }
+        }
+
 
         // UseCase handles success/error state
         // TODO: duplicate when block with same conditions
-        return when (recipes.status) {
+        return when (recipeResource.status) {
             SUCCESS -> {
-                Resource.success(
-                    data = recipes.data?.let {
-                        it.map { recipe ->
-                            // TODO: make this a bulk operation -- many segmented DB reads this way
-                            //  Also - this is retriggered when we sort for each element in list; unnecessary
-                            //  if list contents haven't changed. Look into caching the results to re-use
-                            //  specifically for sorting
-                            //  Have this function return a list of [SaveableRecipes] where we mark each one
-                            //  on whether it was saved
-                            val isRecipeSaved = recipeRepository.get().isRecipeSaved(recipe.id)
-                            SaveableRecipe(
-                                recipe = recipe,
-                                isSaved = isRecipeSaved
-                            )
-                        }
-                    }
-                )
+                Resource.success(data = saveableRecipeResource)
             }
             ERROR -> {
                 Resource.error(
-                    msg = recipes.message.toString(),
-                    data = recipes.data?.let {
-                        it.map { recipe ->
-                            // TODO: make this a bulk operation -- many segmented DB reads this way
-                            //  Also - this is retriggered when we sort for each element in list; unnecessary
-                            //  if list contents haven't changed. Look into caching the results to re-use
-                            //  specifically for sorting
-                            //  Have this function return a list of [SaveableRecipes] where we mark each one
-                            //  on whether it was saved
-                            val isRecipeSaved = recipeRepository.get().isRecipeSaved(recipe.id)
-                            SaveableRecipe(
-                                recipe = recipe,
-                                isSaved = isRecipeSaved
-                            )
-                        }
-                    }
+                    msg = recipeResource.message.toString(),
+                    data = saveableRecipeResource
                 )
             }
         }
     }
-
 
     private fun getPantryIngredients(): Flow<List<String>> {
         return pantryRepository

@@ -37,14 +37,17 @@ class RecipeSearchViewModel @Inject constructor(
         .combine(_sortOrder) { recipes, sortBy ->
             when (recipes.status) {
                 Status.SUCCESS -> {
-                    // TODO: handle null here...
-                    _recipes = recipes.data!!.toRecipeWithSaveStateItemList()
+                    // TODO: Log analytics if data is null somehow. We fallback to emitting an
+                    //  empty list.
+                    _recipes = recipes.data.toRecipeWithSaveStateItemList()
                     // We pass the snapshot state list by reference to allow mutations within the ViewModel
                     _uiState.update { RecipeSearchUiState.Success(_recipes) }
                 }
                 Status.ERROR -> {
                     _showErrorDialog.update { true }
-                    _recipes = recipes.data!!.toRecipeWithSaveStateItemList()
+                    // TODO: Log analytics if data is null somehow. We fallback to emitting an
+                    //  empty list.
+                    _recipes = recipes.data.toRecipeWithSaveStateItemList()
                     _uiState.update {
                         RecipeSearchUiState.Error(
                             recipes.message.toString(),
