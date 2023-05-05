@@ -21,7 +21,7 @@ fun RecipeDetailScreen(
     navController: NavHostController,
     viewModel: RecipeDetailViewModel
 ) {
-    // TODO: research collectAsstatewithlifecycle instead...
+    // TODO: research collectAsStateWithLifecycle instead...
     val uiState by viewModel.recipeDetailUiState.collectAsState()
     val openErrorDialog = viewModel.showErrorDialog.collectAsState()
 

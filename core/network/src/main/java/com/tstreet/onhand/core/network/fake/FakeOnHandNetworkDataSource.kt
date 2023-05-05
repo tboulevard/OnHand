@@ -1,10 +1,7 @@
 package com.tstreet.onhand.core.network.fake
 
 import com.tstreet.onhand.core.network.OnHandNetworkDataSource
-import com.tstreet.onhand.core.network.model.NetworkIngredient
-import com.tstreet.onhand.core.network.model.NetworkRecipe
-import com.tstreet.onhand.core.network.model.NetworkRecipeDetail
-import com.tstreet.onhand.core.network.model.NetworkRecipeIngredient
+import com.tstreet.onhand.core.network.model.*
 import com.tstreet.onhand.core.network.retrofit.NetworkResponse
 import com.tstreet.onhand.core.network.retrofit.OnHandNetworkResponse
 import kotlinx.coroutines.delay
@@ -17,14 +14,21 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
         println("[OnHand] Creating ${this.javaClass.simpleName}")
     }
 
-    override fun getIngredients(prefix: String): List<NetworkIngredient> {
-        return listOf(
-            NetworkIngredient(
-                id = 1, image = "potato.jpg", name = "potato"
-            ), NetworkIngredient(
-                id = 2, image = "carrot.jpg", name = "carrot"
-            ), NetworkIngredient(
-                id = 3, image = "tomato.jpg", name = "tomato"
+    override suspend fun getIngredients(prefix: String): OnHandNetworkResponse<NetworkIngredientSearchResult> {
+        return NetworkResponse.Success(
+            body = NetworkIngredientSearchResult(
+                results = listOf(
+                    NetworkIngredient(
+                        id = 1, image = "potato.jpg", name = "potato"
+                    ), NetworkIngredient(
+                        id = 2, image = "carrot.jpg", name = "carrot"
+                    ), NetworkIngredient(
+                        id = 3, image = "tomato.jpg", name = "tomato"
+                    )
+                ),
+                offset = 1,
+                number = 2,
+                totalResults = 3
             )
         )
     }
