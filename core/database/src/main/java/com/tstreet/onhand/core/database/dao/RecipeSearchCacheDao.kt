@@ -3,17 +3,24 @@ package com.tstreet.onhand.core.database.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import com.tstreet.onhand.core.database.model.RecipeSearchCacheEntity
 
 @Dao
-interface RecipeSearchCacheDao {
-
-    @Insert
-    suspend fun addRecipeSearchResult(recipes: List<RecipeSearchCacheEntity>)
+abstract class RecipeSearchCacheDao {
 
     @Query("SELECT * FROM recipe_search_cache")
-    suspend fun getRecipeSearchResult() : List<RecipeSearchCacheEntity>
+    abstract suspend fun getRecipeSearchResult() : List<RecipeSearchCacheEntity>
+
+    @Transaction
+    open suspend fun cacheRecipeSearchResult(recipes: List<RecipeSearchCacheEntity>) {
+        clear()
+        addRecipeSearchResult(recipes)
+    }
+
+    @Insert
+    abstract suspend fun addRecipeSearchResult(recipes: List<RecipeSearchCacheEntity>)
 
     @Query("DELETE FROM recipe_search_cache")
-    suspend fun clear()
+    abstract suspend fun clear()
 }
