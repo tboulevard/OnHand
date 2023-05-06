@@ -64,12 +64,27 @@ class RecipeRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getRecipeDetail(id: Int): Flow<RecipeDetail> {
-        println("[OnHand] getRecipeDetail($id) - from Network")
-        return onHandNetworkDataSource
+    override suspend fun getRecipeDetail(id: Int): Resource<RecipeDetail> {
+        println("[OnHand] getRecipeDetail($id)")
+        val networkResponse = onHandNetworkDataSource
             .get()
             .getRecipeDetail(id)
-            .map(NetworkRecipeDetail::asExternalModel)
+
+        return when (networkResponse) {
+            is Success -> {
+                Resource.success(
+                    data = networkResponse.body.asExternalModel()
+                )
+            }
+            is ApiError,
+            is NetworkError,
+            is UnknownError -> {
+                Resource.error(
+                    msg = "${networkResponse::class.java.simpleName}, please check your " +
+                            "device's network connectivity. Unable to view recipe.",
+                )
+            }
+        }
     }
 
     override suspend fun saveRecipe(recipe: Recipe) {

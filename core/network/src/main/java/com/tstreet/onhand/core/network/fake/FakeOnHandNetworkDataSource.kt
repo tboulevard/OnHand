@@ -1,15 +1,10 @@
 package com.tstreet.onhand.core.network.fake
 
 import com.tstreet.onhand.core.network.OnHandNetworkDataSource
-import com.tstreet.onhand.core.network.model.NetworkIngredient
-import com.tstreet.onhand.core.network.model.NetworkRecipe
-import com.tstreet.onhand.core.network.model.NetworkRecipeDetail
-import com.tstreet.onhand.core.network.model.NetworkRecipeIngredient
+import com.tstreet.onhand.core.network.model.*
 import com.tstreet.onhand.core.network.retrofit.NetworkResponse
 import com.tstreet.onhand.core.network.retrofit.OnHandNetworkResponse
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 // TODO: move fake models to separate debugImplementation-provided module
@@ -19,14 +14,21 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
         println("[OnHand] Creating ${this.javaClass.simpleName}")
     }
 
-    override fun getIngredients(prefix: String): List<NetworkIngredient> {
-        return listOf(
-            NetworkIngredient(
-                id = 1, image = "potato.jpg", name = "potato"
-            ), NetworkIngredient(
-                id = 2, image = "carrot.jpg", name = "carrot"
-            ), NetworkIngredient(
-                id = 3, image = "tomato.jpg", name = "tomato"
+    override suspend fun getIngredients(prefix: String): OnHandNetworkResponse<NetworkIngredientSearchResult> {
+        return NetworkResponse.Success(
+            body = NetworkIngredientSearchResult(
+                results = listOf(
+                    NetworkIngredient(
+                        id = 1, image = "potato.jpg", name = "potato"
+                    ), NetworkIngredient(
+                        id = 2, image = "carrot.jpg", name = "carrot"
+                    ), NetworkIngredient(
+                        id = 3, image = "tomato.jpg", name = "tomato"
+                    )
+                ),
+                offset = 1,
+                number = 2,
+                totalResults = 3
             )
         )
     }
@@ -198,55 +200,52 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
         )
     }
 
-    override fun getRecipeDetail(id: Int): Flow<NetworkRecipeDetail> {
-        return flow {
-            delay(ARTIFICIAL_DELAY_MILLIS)
-            emit(
-                NetworkRecipeDetail(
-                    vegetarian = false,
-                    vegan = false,
-                    glutenFree = true,
-                    dairyFree = false,
-                    veryHealthy = true,
-                    cheap = false,
-                    veryPopular = false,
-                    sustainable = true,
-                    lowFodmap = false,
-                    gaps = "yes",
-                    preparationMinutes = 20,
-                    cookingMinutes = 30,
-                    aggregateLikes = 500,
-                    healthScore = 90,
-                    creditsText = "Food Network",
-                    //license = "CC BY-SA 4.0", TODO:
-                    sourceName = "Food Network",
-                    pricePerServing = 2.5,
-                    id = 1234,
-                    title = "Grilled Chicken Salad",
-                    readyInMinutes = 50,
-                    servings = 4,
-                    sourceUrl = "https://www.foodnetwork.com/recipes/grilled-chicken-salad-" +
-                            "recipe-2103233",
-                    image = "https://spoonacular.com/recipeImages/1234-556x370.jpg",
-                    imageType = "jpg",
-                    summary = "This grilled chicken salad is a tasty and healthy option for " +
-                            "lunch or dinner. It's packed with protein and vegetables, and the " +
-                            "dressing is light and flavorful.",
-                    cuisines = listOf("American", "Mediterranean"),
-                    diets = listOf("Low Carb", "High Protein"),
-                    occasions = listOf("Summer", "Barbecue"),
-                    instructions = "1. Preheat grill to medium-high heat.\n2. Season chicken " +
-                            "breasts with salt and pepper and grill for 6-7 minutes per side, or " +
-                            "until cooked through.\n3. Let chicken rest for 5 minutes, then " +
-                            "slice into strips.\n4. In a large bowl, combine mixed greens, " +
-                            "cherry tomatoes, cucumber, and red onion.\n5. Whisk together olive " +
-                            "oil, red wine vinegar, Dijon mustard, honey, salt, and pepper to " +
-                            "make the dressing.\n6. Toss salad with dressing and top with sliced " +
-                            "chicken."
-                )
-
+    override suspend fun getRecipeDetail(id: Int): OnHandNetworkResponse<NetworkRecipeDetail> {
+        delay(ARTIFICIAL_DELAY_MILLIS)
+        return NetworkResponse.Success(
+            NetworkRecipeDetail(
+                vegetarian = false,
+                vegan = false,
+                glutenFree = true,
+                dairyFree = false,
+                veryHealthy = true,
+                cheap = false,
+                veryPopular = false,
+                sustainable = true,
+                lowFodmap = false,
+                gaps = "yes",
+                preparationMinutes = 20,
+                cookingMinutes = 30,
+                aggregateLikes = 500,
+                healthScore = 90,
+                creditsText = "Food Network",
+                //license = "CC BY-SA 4.0", TODO:
+                sourceName = "Food Network",
+                pricePerServing = 2.5,
+                id = 1234,
+                title = "Grilled Chicken Salad",
+                readyInMinutes = 50,
+                servings = 4,
+                sourceUrl = "https://www.foodnetwork.com/recipes/grilled-chicken-salad-" +
+                        "recipe-2103233",
+                image = "https://spoonacular.com/recipeImages/1234-556x370.jpg",
+                imageType = "jpg",
+                summary = "This grilled chicken salad is a tasty and healthy option for " +
+                        "lunch or dinner. It's packed with protein and vegetables, and the " +
+                        "dressing is light and flavorful.",
+                cuisines = listOf("American", "Mediterranean"),
+                diets = listOf("Low Carb", "High Protein"),
+                occasions = listOf("Summer", "Barbecue"),
+                instructions = "1. Preheat grill to medium-high heat.\n2. Season chicken " +
+                        "breasts with salt and pepper and grill for 6-7 minutes per side, or " +
+                        "until cooked through.\n3. Let chicken rest for 5 minutes, then " +
+                        "slice into strips.\n4. In a large bowl, combine mixed greens, " +
+                        "cherry tomatoes, cucumber, and red onion.\n5. Whisk together olive " +
+                        "oil, red wine vinegar, Dijon mustard, honey, salt, and pepper to " +
+                        "make the dressing.\n6. Toss salad with dressing and top with sliced " +
+                        "chicken."
             )
-        }
+        )
     }
 }
 
