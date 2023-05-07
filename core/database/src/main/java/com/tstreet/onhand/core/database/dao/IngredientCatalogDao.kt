@@ -12,18 +12,15 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface IngredientCatalogDao {
 
-    @Query("SELECT * FROM ingredient_catalog")
-    suspend fun getAll(): List<IngredientCatalogEntity>
-
     // TODO: LIMIT of 6 entries returned hardcoded for now, make it dynamic later
     @Query("SELECT * FROM ingredient_catalog WHERE name LIKE '%' || :query || '%' LIMIT 6")
     suspend fun search(query: String): List<IngredientCatalogEntity>
 
-    @Query("UPDATE ingredient_catalog SET inPantry = 1 WHERE id = :ingredientId AND inPantry = 0")
-    suspend fun addToPantry(ingredientId: Int) : Int
+    @Query("UPDATE ingredient_catalog SET inPantry = 1 WHERE name = :ingredientName AND inPantry = 0")
+    suspend fun addToPantry(ingredientName: String) : Int
 
-    @Query("UPDATE ingredient_catalog SET inPantry = 0 WHERE id = :ingredientId AND inPantry = 1")
-    suspend fun removeFromPantry(ingredientId: Int) : Int
+    @Query("UPDATE ingredient_catalog SET inPantry = 0 WHERE name = :ingredientName AND inPantry = 1")
+    suspend fun removeFromPantry(ingredientName: String) : Int
 
     @Query("SELECT * FROM ingredient_catalog WHERE inPantry = 1")
     @Transaction

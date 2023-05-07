@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import com.tstreet.onhand.core.model.PantryIngredient
+import com.tstreet.onhand.core.ui.OnHandAlertDialog
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
 import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
 
@@ -34,6 +35,14 @@ fun HomeScreen(
     val isSearching by viewModel.isSearching.collectAsState()
     val isSearchBarFocused by viewModel.isSearchBarFocused.collectAsState()
     val isPreSearchDebouncing by viewModel.isPreSearchDebounce.collectAsState()
+    val errorDialogState = viewModel.errorDialogState.collectAsState()
+
+    if (errorDialogState.value.shouldDisplay) {
+        OnHandAlertDialog(
+            onDismiss = { viewModel.dismissErrorDialog() },
+            bodyText = errorDialogState.value.message
+        )
+    }
 
     Column(
         modifier = Modifier.fillMaxSize(),

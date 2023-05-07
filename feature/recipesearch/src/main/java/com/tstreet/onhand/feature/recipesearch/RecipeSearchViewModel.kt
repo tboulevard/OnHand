@@ -4,6 +4,8 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.Status
+import com.tstreet.onhand.core.common.Status.ERROR
+import com.tstreet.onhand.core.common.Status.SUCCESS
 import com.tstreet.onhand.core.domain.*
 import com.tstreet.onhand.core.domain.recipes.*
 import com.tstreet.onhand.core.ui.RecipeSaveState.*
@@ -36,14 +38,14 @@ class RecipeSearchViewModel @Inject constructor(
         }
         .combine(_sortOrder) { recipes, sortBy ->
             when (recipes.status) {
-                Status.SUCCESS -> {
+                SUCCESS -> {
                     // TODO: Log analytics if data is null somehow. We fallback to emitting an
                     //  empty list.
                     _recipes = recipes.data.toRecipeWithSaveStateItemList()
                     // We pass the snapshot state list by reference to allow mutations within the ViewModel
                     _uiState.update { RecipeSearchUiState.Success(_recipes) }
                 }
-                Status.ERROR -> {
+                ERROR -> {
                     _showErrorDialog.update { true }
                     // TODO: Log analytics if data is null somehow. We fallback to emitting an
                     //  empty list.

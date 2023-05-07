@@ -15,19 +15,19 @@ class OfflinePantryRepository @Inject constructor(
     private val ingredientCatalogDao: Provider<IngredientCatalogDao>
 ) : PantryRepository {
 
-    override suspend fun addIngredient(ingredient: Ingredient) {
-        ingredientCatalogDao
+    override suspend fun addIngredient(ingredient: Ingredient) : Int {
+        return ingredientCatalogDao
             .get()
             .addToPantry(
-                ingredientId = ingredient.id
+                ingredientName = ingredient.name
             )
     }
 
-    override suspend fun removeIngredient(ingredient: Ingredient) {
-        ingredientCatalogDao
+    override suspend fun removeIngredient(ingredient: Ingredient) : Int {
+        return ingredientCatalogDao
             .get()
             .removeFromPantry(
-                ingredientId = ingredient.id
+                ingredientName = ingredient.name
             )
     }
 

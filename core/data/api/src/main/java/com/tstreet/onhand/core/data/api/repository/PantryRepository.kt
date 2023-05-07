@@ -6,9 +6,22 @@ import kotlinx.coroutines.flow.Flow
 
 interface PantryRepository {
 
-    suspend fun addIngredient(ingredient: Ingredient)
+    /**
+     * Adds the given [Ingredient] to pantry by marking inPantry=true
+     *
+     * @return the number of rows updates in DB
+     */
+    suspend fun addIngredient(ingredient: Ingredient) : Int
 
-    suspend fun removeIngredient(ingredient: Ingredient)
+    /**
+     * Removes the given [Ingredient] to pantry by marking inPantry=false
+     *
+     * @return the number of rows updates in DB
+     */
+    suspend fun removeIngredient(ingredient: Ingredient) : Int
 
+    /**
+     * Returns all [PantryIngredient]s where inPantry=true
+     */
     fun listPantry() : Flow<List<PantryIngredient>>
 }

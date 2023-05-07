@@ -3,6 +3,7 @@ package com.tstreet.onhand.feature.home
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tstreet.onhand.core.common.Status
 import com.tstreet.onhand.core.domain.ingredients.GetIngredientsUseCase
 import com.tstreet.onhand.core.domain.pantry.AddToPantryUseCase
 import com.tstreet.onhand.core.domain.pantry.GetPantryUseCase
@@ -13,7 +14,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Provider
 
-//TODO: Encapsulates ingredient search and pantry logic...think about renaming this
 @OptIn(kotlinx.coroutines.FlowPreview::class)
 class HomeViewModel @Inject constructor(
     private val getIngredients: Provider<GetIngredientsUseCase>,
@@ -68,6 +68,15 @@ class HomeViewModel @Inject constructor(
     private val _isPreSearchDebounce = MutableStateFlow(false)
     val isPreSearchDebounce = _isPreSearchDebounce.asStateFlow()
 
+    private val _showErrorDialog = MutableStateFlow(
+        ErrorDialogState(shouldDisplay = false)
+    )
+    val errorDialogState = _showErrorDialog
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = _showErrorDialog.value
+        )
 
     fun onSearchTextChanged(text: String) {
         _searchText.value = text
@@ -76,43 +85,74 @@ class HomeViewModel @Inject constructor(
     fun onToggleFromSearch(index: Int) {
         viewModelScope.launch {
             val item = ingredients[index]
-            val inPantry = item.inPantry
-
-            when (inPantry) {
-                true -> {
-                    removeFromPantry.get().invoke(item.ingredient)
-                    // TODO: messy double seek to remove one item
-                    // TODO: only do this if DB update successful
-                    pantry.remove(pantry.find { it.ingredient.id == item.ingredient.id })
+            when {
+                item.inPantry -> {
+                    when (removeFromPantry.get().invoke(item.ingredient).status) {
+                        Status.SUCCESS -> {
+                            // TODO: cleanup messy double seek to remove one item
+                            pantry.remove(pantry.find { it.ingredient.id == item.ingredient.id })
+                            ingredients[index] = item.copy(inPantry = false)
+                        }
+                        Status.ERROR -> {
+                            _showErrorDialog.update {
+                                ErrorDialogState(
+                                    shouldDisplay = true,
+                                    message = "Unable to remove item from pantry. Please try again."
+                                )
+                            }
+                        }
+                    }
                 }
-                false -> {
-                    addToPantry.get().invoke(item.ingredient)
-                    // TODO: only do this if DB update successful
-                    pantry.add(item.copy(inPantry = true))
+                else -> {
+                    when (addToPantry.get().invoke(item.ingredient).status) {
+                        Status.SUCCESS -> {
+                            // TODO: cleanup messy double seek to remove one item
+                            pantry.add(item.copy(inPantry = true))
+                            ingredients[index] = item.copy(inPantry = true)
+                        }
+                        Status.ERROR -> {
+                            _showErrorDialog.update {
+                                ErrorDialogState(
+                                    shouldDisplay = true,
+                                    message = "Unable to add item to pantry. Please try again."
+                                )
+                            }
+                        }
+                    }
                 }
             }
-
-            // TODO: Only do this step if DB change is successful in future
-            ingredients[index] = item.copy(inPantry = !inPantry)
         }
     }
 
     fun onToggleFromPantry(index: Int) {
         viewModelScope.launch {
             val item = pantry[index]
-
             // TODO: probably an unnecessary check, but put here to make sure we didn't somehow
-            // get an ingredient in the pantry that isn't marked as such
+            // get an ingredient in the pantry that isn't marked as in the pantry
             if (item.inPantry) {
-                removeFromPantry.get().invoke(item.ingredient)
-                // TODO: Only do this step if DB change is successful in future
-                pantry.removeAt(index)
+                when (removeFromPantry.get().invoke(item.ingredient).status) {
+                    Status.SUCCESS -> {
+                        pantry.removeAt(index)
+                    }
+                    Status.ERROR -> {
+                        _showErrorDialog.update {
+                            ErrorDialogState(
+                                shouldDisplay = true,
+                                message = "Unable to remove item from pantry. Please try again."
+                            )
+                        }
+                    }
+                }
             }
         }
     }
 
     fun onSearchBarFocusChanged(isFocused: Boolean) {
         _isSearchBarFocused.update { isFocused }
+    }
+
+    fun dismissErrorDialog() {
+        _showErrorDialog.update { ErrorDialogState(shouldDisplay = false) }
     }
 
     private fun refreshPantry() {
