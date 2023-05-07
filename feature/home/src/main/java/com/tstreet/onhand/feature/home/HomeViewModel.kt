@@ -1,6 +1,7 @@
 package com.tstreet.onhand.feature.home
 
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.Status
@@ -23,7 +24,9 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     val pantry = mutableStateListOf<PantryIngredient>()
-    val ingredients = mutableStateListOf<PantryIngredient>()
+    // TODO: refactor to work with keys for each item in LazyColumn
+    var ingredients = mutableStateListOf<PantryIngredient>()
+        private set
 
     init {
         println("[OnHand] ${this.javaClass.simpleName} created")
@@ -39,7 +42,7 @@ class HomeViewModel @Inject constructor(
             // Only search and update listed ingredients if we have a valid search query
             if (it.isNotBlank()) {
                 _isSearching.update { true }
-                ingredients.clearAndReplaceWith(getIngredients.get().invoke(it))
+                ingredients = getIngredients.get().invoke(it).toMutableStateList()
             } else if (ingredients.isNotEmpty()) {
                 // Clear the list if search query is blank and we already have listed ingredients
                 ingredients.clear()
@@ -53,7 +56,6 @@ class HomeViewModel @Inject constructor(
             _isSearching.update { false }
         }
         .stateIn(
-            // TODO: revisit scoping since we're doing database operations behind the scenes
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = _searchText.value
@@ -160,10 +162,5 @@ class HomeViewModel @Inject constructor(
             // TODO: refactor call using .first() once we move pantry to it's own tab
             pantry.addAll(getPantry.get().invoke().first())
         }
-    }
-
-    private fun <T> MutableList<T>.clearAndReplaceWith(newListItems: List<T>) {
-        this.clear()
-        this.addAll(newListItems)
     }
 }
