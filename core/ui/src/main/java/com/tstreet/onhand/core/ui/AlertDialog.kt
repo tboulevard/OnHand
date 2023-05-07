@@ -9,25 +9,28 @@ import androidx.compose.material3.AlertDialog
 fun OnHandAlertDialog(
     onDismiss: () -> Unit,
     bodyText: String,
-    buttonText: String = "Ok"
+    buttonText: String = "Ok",
+    shouldDisplay: Boolean = false
 ) {
-    AlertDialog(
-        onDismissRequest = {
-            onDismiss()
-        },
-        title = {
-            Text("Error")
-        },
-        text = {
-            Text(bodyText)
-        },
-        dismissButton = {
-            Button(
-                onClick = { onDismiss() }
-            ) {
-                Text(buttonText)
-            }
-        },
-        confirmButton = { },
-    )
+    if (shouldDisplay) {
+        AlertDialog(
+            onDismissRequest = {
+                onDismiss()
+            },
+            title = {
+                Text("Error")
+            },
+            text = {
+                Text(bodyText)
+            },
+            dismissButton = {
+                Button(
+                    onClick = { onDismiss() }
+                ) {
+                    Text(buttonText)
+                }
+            },
+            confirmButton = { },
+        )
+    }
 }

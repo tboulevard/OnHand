@@ -37,12 +37,11 @@ fun HomeScreen(
     val isPreSearchDebouncing by viewModel.isPreSearchDebounce.collectAsState()
     val errorDialogState = viewModel.errorDialogState.collectAsState()
 
-    if (errorDialogState.value.shouldDisplay) {
-        OnHandAlertDialog(
-            onDismiss = { viewModel.dismissErrorDialog() },
-            bodyText = errorDialogState.value.message
-        )
-    }
+    OnHandAlertDialog(
+        onDismiss = { viewModel.dismissErrorDialog() },
+        bodyText = errorDialogState.value.message,
+        shouldDisplay = errorDialogState.value.shouldDisplay
+    )
 
     Column(
         modifier = Modifier.fillMaxSize(),
