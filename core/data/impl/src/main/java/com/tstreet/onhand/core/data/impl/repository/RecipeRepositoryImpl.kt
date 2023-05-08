@@ -123,14 +123,10 @@ class RecipeRepositoryImpl @Inject constructor(
             .map(RecipeSearchCacheEntity::asExternalModel)
     }
 
-    // TODO: this is getting kind of business logic-y too...refactor
-    //  Potentially expose each of these actions as a method and allow use case to call?
     private suspend fun cacheRecipeSearchResults(recipes: List<Recipe>) {
-        // Clear the cache
-        recipeSearchCacheDao.get().clear()
         recipeSearchCacheDao
             .get()
-            .addRecipeSearchResult(
+            .cacheRecipeSearchResult(
                 recipes.map(Recipe::toSearchCacheEntity)
             )
     }

@@ -15,20 +15,29 @@ class OfflinePantryRepository @Inject constructor(
     private val ingredientCatalogDao: Provider<IngredientCatalogDao>
 ) : PantryRepository {
 
-    override suspend fun addIngredient(ingredient: Ingredient) {
-        ingredientCatalogDao
-            .get()
-            .addToPantry(
-                ingredientId = ingredient.id
-            )
+    override suspend fun addIngredient(ingredient: Ingredient): Int {
+        return try {
+            ingredientCatalogDao
+                .get()
+                .addToPantry(ingredient.name)
+        } catch (e: Exception) {
+            // TODO: rethrow in debug mode
+            println("[OnHand] Error adding ingredient to pantry: ${e.message}")
+            0 // For 0 rows affected
+        }
     }
 
-    override suspend fun removeIngredient(ingredient: Ingredient) {
-        ingredientCatalogDao
-            .get()
-            .removeFromPantry(
-                ingredientId = ingredient.id
-            )
+    override suspend fun removeIngredient(ingredient: Ingredient): Int {
+
+        return try {
+            ingredientCatalogDao
+                .get()
+                .removeFromPantry(ingredient.name)
+        } catch (e: Exception) {
+            // TODO: rethrow in debug mode
+            println("[OnHand] Error removing ingredient from pantry: ${e.message}")
+            0 // For 0 rows affected
+        }
     }
 
     override fun listPantry(): Flow<List<PantryIngredient>> {
