@@ -27,35 +27,15 @@ fun RecipeSearchScreen(
     val openInfoDialog = remember { mutableStateOf(false) }
     val openErrorDialog = viewModel.showErrorDialog.collectAsState()
 
-    if (openInfoDialog.value) {
-        AlertDialog(
-            onDismissRequest = {
-                // Dismiss the dialog when the user clicks outside the dialog or on the back
-                // button. If you want to disable that functionality, simply use an empty
-                // onDismissRequest.
-                openInfoDialog.value = false
-            },
-            title = {
-                Text("Search Recipes")
-            },
-            text = {
-                Text(
-                    "Recipes shown here are based on ingredients from your pantry. By " +
-                            "default we'll only show recipes where you're missing at most 3 " +
-                            "ingredients."
-                )
-            },
-            dismissButton = {
-                Button(
-                    onClick = {
-                        openInfoDialog.value = false
-                    }) {
-                    Text("Got it \uD83D\uDC4C")
-                }
-            },
-            confirmButton = { },
-        )
-    }
+    OnHandAlertDialog(
+        onDismiss = { openInfoDialog.value = false },
+        titleText = "Search Recipes",
+        bodyText = "Recipes shown here are based on ingredients from your pantry. By " +
+                "default we'll only show recipes where you're missing at most 3 " +
+                "ingredients.",
+        buttonText = "Got it \uD83D\uDC4C",
+        shouldDisplay = openInfoDialog.value
+    )
 
     Column(
         verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()
@@ -105,22 +85,11 @@ fun RecipeSearchScreen(
             }
             is Error -> {
                 if (openErrorDialog.value) {
-                    AlertDialog(
-                        onDismissRequest = {
-                            viewModel.dismissErrorDialog()
-                        },
-                        title = {
-                            Text("Error")
-                        },
-                        text = {
-                            Text(state.message)
-                        },
-                        dismissButton = {
-                            Button(onClick = { viewModel.dismissErrorDialog() }) {
-                                Text("Dismiss")
-                            }
-                        },
-                        confirmButton = { },
+                    OnHandAlertDialog(
+                        onDismiss = { viewModel.dismissErrorDialog() },
+                        titleText = "Error",
+                        bodyText = state.message,
+                        buttonText = "Dismiss"
                     )
                 } else {
                     SortBySpinner(

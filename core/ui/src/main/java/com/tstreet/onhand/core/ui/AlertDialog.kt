@@ -8,9 +8,10 @@ import androidx.compose.material3.AlertDialog
 @Composable
 fun OnHandAlertDialog(
     onDismiss: () -> Unit,
+    titleText : String,
     bodyText: String,
     buttonText: String = "Ok",
-    shouldDisplay: Boolean = false
+    shouldDisplay: Boolean = true
 ) {
     if (shouldDisplay) {
         AlertDialog(
@@ -18,7 +19,7 @@ fun OnHandAlertDialog(
                 onDismiss()
             },
             title = {
-                Text("Error")
+                Text(titleText)
             },
             text = {
                 Text(bodyText)
