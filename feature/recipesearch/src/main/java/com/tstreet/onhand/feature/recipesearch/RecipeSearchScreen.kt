@@ -70,7 +70,8 @@ fun RecipeSearchScreen(
                             recipes = state.recipes,
                             onItemClick = navController::navigate,
                             onSaveClick = viewModel::onRecipeSaved,
-                            onUnSaveClick = viewModel::onRecipeUnsaved
+                            onUnSaveClick = viewModel::onRecipeUnsaved,
+                            onAddToShoppingListClick = viewModel::onAddToShoppingList
                         )
                     }
                     else -> {
@@ -100,7 +101,8 @@ fun RecipeSearchScreen(
                         recipes = state.recipes,
                         onItemClick = navController::navigate,
                         onSaveClick = viewModel::onRecipeSaved,
-                        onUnSaveClick = viewModel::onRecipeUnsaved
+                        onUnSaveClick = viewModel::onRecipeUnsaved,
+                        onAddToShoppingListClick = viewModel::onAddToShoppingList
                     )
                 }
             }

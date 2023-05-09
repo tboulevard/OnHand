@@ -8,6 +8,7 @@ import com.tstreet.onhand.core.common.Status.ERROR
 import com.tstreet.onhand.core.common.Status.SUCCESS
 import com.tstreet.onhand.core.domain.*
 import com.tstreet.onhand.core.domain.recipes.*
+import com.tstreet.onhand.core.domain.shoppinglist.AddToShoppingListUseCase
 import com.tstreet.onhand.core.ui.RecipeSaveState.*
 import com.tstreet.onhand.core.ui.RecipeWithSaveState
 import com.tstreet.onhand.core.ui.RecipeSearchUiState
@@ -22,6 +23,7 @@ class RecipeSearchViewModel @Inject constructor(
     getRecipes: Provider<GetRecipesUseCase>,
     private val saveRecipe: Provider<SaveRecipeUseCase>,
     private val unsaveRecipe: Provider<UnsaveRecipeUseCase>,
+    private val addToShoppingList: Provider<AddToShoppingListUseCase>
 ) : ViewModel() {
 
     init {
@@ -145,5 +147,17 @@ class RecipeSearchViewModel @Inject constructor(
 
     fun dismissErrorDialog() {
         _showErrorDialog.update { false }
+    }
+
+    fun onAddToShoppingList(index: Int) {
+        viewModelScope.launch {
+            val item = _recipes[index]
+
+            addToShoppingList.get().invoke(item.recipe.missedIngredients)
+
+        }
+        val item = _recipes[index]
+        println("[OnHand] Adding missing ingredients for $item")
+        // TODO: implement
     }
 }

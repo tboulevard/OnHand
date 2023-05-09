@@ -22,7 +22,8 @@ fun RecipeCardList(
     recipes: List<RecipeWithSaveState>,
     onItemClick: (String) -> Unit,
     onSaveClick: (Int) -> Unit,
-    onUnSaveClick: (Int) -> Unit
+    onUnSaveClick: (Int) -> Unit,
+    onAddToShoppingListClick: (Int) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -50,7 +51,8 @@ fun RecipeCardList(
                 index = index,
                 onItemClick = onItemClick,
                 onSaveClick = onSaveClick,
-                onUnSaveClick = onUnSaveClick
+                onUnSaveClick = onUnSaveClick,
+                onAddToShoppingListClick = onAddToShoppingListClick
             )
         }
     }
@@ -63,7 +65,8 @@ fun RecipeCardItem(
     index: Int = 0,
     onItemClick: (String) -> Unit = { },
     onSaveClick: (Int) -> Unit = { },
-    onUnSaveClick: (Int) -> Unit = { }
+    onUnSaveClick: (Int) -> Unit = { },
+    onAddToShoppingListClick: (Int) -> Unit = { }
 ) {
     val recipe = recipeWithSaveState.recipe
 
@@ -123,7 +126,7 @@ fun RecipeCardItem(
                 }
                 Row(modifier = Modifier.padding(4.dp)) {
                     Button(
-                        onClick = { /* TODO */ },
+                        onClick = { onAddToShoppingListClick(index) },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.inverseOnSurface,
                             contentColor = MaterialTheme.colorScheme.inverseSurface
