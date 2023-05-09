@@ -3,11 +3,13 @@ package com.tstreet.onhand.feature.recipesearch
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.tstreet.onhand.core.common.Status
 import com.tstreet.onhand.core.common.Status.ERROR
 import com.tstreet.onhand.core.common.Status.SUCCESS
 import com.tstreet.onhand.core.domain.*
 import com.tstreet.onhand.core.domain.recipes.*
+import com.tstreet.onhand.core.domain.shoppinglist.AddToShoppingListUseCase
+import com.tstreet.onhand.core.ui.ErrorDialogState.Companion.dismissed
+import com.tstreet.onhand.core.ui.ErrorDialogState.Companion.displayed
 import com.tstreet.onhand.core.ui.RecipeSaveState.*
 import com.tstreet.onhand.core.ui.RecipeWithSaveState
 import com.tstreet.onhand.core.ui.RecipeSearchUiState
@@ -22,6 +24,7 @@ class RecipeSearchViewModel @Inject constructor(
     getRecipes: Provider<GetRecipesUseCase>,
     private val saveRecipe: Provider<SaveRecipeUseCase>,
     private val unsaveRecipe: Provider<UnsaveRecipeUseCase>,
+    private val addToShoppingList: Provider<AddToShoppingListUseCase>
 ) : ViewModel() {
 
     init {
@@ -46,14 +49,15 @@ class RecipeSearchViewModel @Inject constructor(
                     _uiState.update { RecipeSearchUiState.Success(_recipes) }
                 }
                 ERROR -> {
-                    _showErrorDialog.update { true }
                     // TODO: Log analytics if data is null somehow. We fallback to emitting an
                     //  empty list.
                     _recipes = recipes.data.toRecipeWithSaveStateItemList()
                     _uiState.update {
-                        RecipeSearchUiState.Error(
-                            recipes.message.toString(),
-                            _recipes
+                        RecipeSearchUiState.Error(_recipes)
+                    }
+                    _errorDialogState.update {
+                        displayed(
+                            message = recipes.message.toString()
                         )
                     }
                 }
@@ -74,12 +78,12 @@ class RecipeSearchViewModel @Inject constructor(
             initialValue = _uiState.value
         )
 
-    private val _showErrorDialog = MutableStateFlow(false)
-    val showErrorDialog = _showErrorDialog
+    private val _errorDialogState = MutableStateFlow(dismissed())
+    val errorDialogState = _errorDialogState
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = _showErrorDialog.value
+            initialValue = _errorDialogState.value
         )
 
     fun onRecipeSaved(index: Int) {
@@ -139,11 +143,35 @@ class RecipeSearchViewModel @Inject constructor(
         }
     }
 
+    fun onAddToShoppingList(index: Int) {
+        viewModelScope.launch {
+            val item = _recipes[index]
+            println("[OnHand] Adding missing ingredients for $item")
+
+            addToShoppingList.get().invoke(
+                // TODO: .map for getting from RecipeIngredient -> Ingredient
+                ingredients = item.recipe.missedIngredients.map { it.ingredient },
+                recipe = item.recipe
+            ).collect {
+                when (it.status) {
+                    SUCCESS -> {
+                        // TODO: implement logic to transmit state back to UI
+                    }
+                    ERROR -> {
+                        _errorDialogState.update {
+                            displayed("Unable to add ingredients to shopping list.")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     fun onSortOrderChanged(sortingOrder: SortBy) {
         _sortOrder.update { sortingOrder }
     }
 
     fun dismissErrorDialog() {
-        _showErrorDialog.update { false }
+        _errorDialogState.update { dismissed() }
     }
 }

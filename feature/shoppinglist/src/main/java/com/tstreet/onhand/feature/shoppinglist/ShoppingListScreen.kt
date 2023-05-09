@@ -16,16 +16,22 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tstreet.onhand.core.model.*
-import com.tstreet.onhand.core.ui.FullScreenErrorMessage
-import com.tstreet.onhand.core.ui.OnHandProgressIndicator
-import com.tstreet.onhand.core.ui.OnHandScreenHeader
-import com.tstreet.onhand.core.ui.ShoppingListUiState
+import com.tstreet.onhand.core.ui.*
 
 @Composable
 fun ShoppingListScreen(
     viewModel: ShoppingListViewModel
 ) {
     val uiState by viewModel.shoppingListUiState.collectAsStateWithLifecycle()
+    val errorDialogState by viewModel.errorDialogState.collectAsStateWithLifecycle()
+
+    // For general errors
+    OnHandAlertDialog(
+        onDismiss = { viewModel.dismissErrorDialog() },
+        titleText = "Error",
+        bodyText = errorDialogState.message,
+        shouldDisplay = errorDialogState.shouldDisplay
+    )
 
     Column(verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()) {
         OnHandScreenHeader("Shopping List")
@@ -62,6 +68,7 @@ fun ShoppingListScreen(
                 }
             }
             is ShoppingListUiState.Error -> {
+                // For errors retrieving shopping list itself
                 FullScreenErrorMessage(message = state.message)
             }
         }
@@ -83,7 +90,7 @@ fun ShoppingListCards(
             ShoppingListCardItem(
                 ShoppingListCard(
                     ingredientName = ingredient.name,
-                    recipes = ingredient.mappedRecipes,
+                    recipe = ingredient.mappedRecipe,
                     isIngredientChecked = ingredient.isPurchased,
                     index = index
                 ),
@@ -144,16 +151,11 @@ fun ShoppingListCardItem(
                     text = card.ingredientName,
                     style = MaterialTheme.typography.headlineMedium
                 )
-                Text(
-                    modifier = Modifier.padding(8.dp),
-                    text = "Recipes",
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                card.recipes.forEach {
-                    return@forEach Text(
-                        modifier = Modifier.padding(start = 12.dp, top = 2.dp, bottom = 2.dp),
-                        text = "- " + it.title,
-                        style = MaterialTheme.typography.bodyMedium
+                if (card.recipe != null) {
+                    Text(
+                        modifier = Modifier.padding(8.dp),
+                        text = "Recipe: ${card.recipe.title}",
+                        style = MaterialTheme.typography.bodyLarge
                     )
                 }
             }
@@ -163,7 +165,7 @@ fun ShoppingListCardItem(
 
 class ShoppingListCard(
     val ingredientName: String,
-    val recipes: List<Recipe>,
+    val recipe: Recipe?,
     val isIngredientChecked: Boolean,
     val index: Int
 )
@@ -173,53 +175,29 @@ class RecipeSearchCardPreviewParamProvider : PreviewParameterProvider<ShoppingLi
     override val values: Sequence<ShoppingListCard> = sequenceOf(
         ShoppingListCard(
             ingredientName = "ingredient",
-            recipes = listOf(
-                Recipe(
-                    id = 1,
-                    title = "Recipe title1",
-                    image = "image",
-                    imageType = "imageType",
-                    missedIngredientCount = 2,
-                    missedIngredients = listOf(
-                        RecipeIngredient(
-                            Ingredient(4, "cheese"),
-                            amount = 2.0,
-                            unit = "oz"
-                        )
-                    ),
-                    usedIngredientCount = 1,
-                    usedIngredients = listOf(
-                        RecipeIngredient(
-                            Ingredient(5, "garlic"),
-                            amount = 1.0,
-                            unit = "clove"
-                        )
-                    ),
-                    likes = 100
+            recipe =
+            Recipe(
+                id = 1,
+                title = "Recipe title1",
+                image = "image",
+                imageType = "imageType",
+                missedIngredientCount = 2,
+                missedIngredients = listOf(
+                    RecipeIngredient(
+                        Ingredient(4, "cheese"),
+                        amount = 2.0,
+                        unit = "oz"
+                    )
                 ),
-                Recipe(
-                    id = 2,
-                    title = "Recipe title2",
-                    image = "image",
-                    imageType = "imageType",
-                    missedIngredientCount = 2,
-                    missedIngredients = listOf(
-                        RecipeIngredient(
-                            Ingredient(40, "tomato"),
-                            amount = 2.0,
-                            unit = "oz"
-                        )
-                    ),
-                    usedIngredientCount = 1,
-                    usedIngredients = listOf(
-                        RecipeIngredient(
-                            Ingredient(50, "onion"),
-                            amount = 1.0,
-                            unit = "unit"
-                        )
-                    ),
-                    likes = 100
-                )
+                usedIngredientCount = 1,
+                usedIngredients = listOf(
+                    RecipeIngredient(
+                        Ingredient(5, "garlic"),
+                        amount = 1.0,
+                        unit = "clove"
+                    )
+                ),
+                likes = 100
             ),
             index = 0,
             isIngredientChecked = true

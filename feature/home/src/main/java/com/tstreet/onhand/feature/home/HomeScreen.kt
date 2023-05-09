@@ -39,6 +39,7 @@ fun HomeScreen(
 
     OnHandAlertDialog(
         onDismiss = { viewModel.dismissErrorDialog() },
+        titleText = "Error",
         bodyText = errorDialogState.value.message,
         shouldDisplay = errorDialogState.value.shouldDisplay
     )

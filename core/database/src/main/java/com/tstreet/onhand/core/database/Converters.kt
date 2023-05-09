@@ -21,12 +21,20 @@ class Converters {
     }
 
     @TypeConverter
-    fun toRecipeMeasureList(str: String): List<Recipe> {
-        return Json.decodeFromString(str)
+    fun toRecipe(str: String?): Recipe? {
+        return if (str != null) {
+            Json.decodeFromString(str)
+        } else {
+            null
+        }
     }
 
     @TypeConverter
-    fun fromRecipeMeasureList(list: List<Recipe>): String {
-        return Json.encodeToString(list)
+    fun fromRecipe(recipe: Recipe?): String? {
+        return if (recipe != null) {
+            Json.encodeToString(recipe)
+        } else {
+            null
+        }
     }
 }

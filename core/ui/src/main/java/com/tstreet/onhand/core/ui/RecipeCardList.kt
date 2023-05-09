@@ -5,14 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,7 +22,8 @@ fun RecipeCardList(
     recipes: List<RecipeWithSaveState>,
     onItemClick: (String) -> Unit,
     onSaveClick: (Int) -> Unit,
-    onUnSaveClick: (Int) -> Unit
+    onUnSaveClick: (Int) -> Unit,
+    onAddToShoppingListClick: (Int) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -56,7 +51,8 @@ fun RecipeCardList(
                 index = index,
                 onItemClick = onItemClick,
                 onSaveClick = onSaveClick,
-                onUnSaveClick = onUnSaveClick
+                onUnSaveClick = onUnSaveClick,
+                onAddToShoppingListClick = onAddToShoppingListClick
             )
         }
     }
@@ -69,7 +65,8 @@ fun RecipeCardItem(
     index: Int = 0,
     onItemClick: (String) -> Unit = { },
     onSaveClick: (Int) -> Unit = { },
-    onUnSaveClick: (Int) -> Unit = { }
+    onUnSaveClick: (Int) -> Unit = { },
+    onAddToShoppingListClick: (Int) -> Unit = { }
 ) {
     val recipe = recipeWithSaveState.recipe
 
@@ -101,44 +98,17 @@ fun RecipeCardItem(
                     modifier = Modifier.padding(4.dp),
                     style = MaterialTheme.typography.headlineMedium
                 )
-                when (recipe.missedIngredientCount > 0) {
-                    true -> {
-                        val usedIngredientString =
-                            if (recipe.usedIngredientCount > 1) "${recipe.usedIngredientCount} ingredients" else "1 ingredient"
-                        val missedIngredientString =
-                            if (recipe.missedIngredientCount > 1) "${recipe.missedIngredientCount} ingredients" else "1 ingredient"
-
-                        Text(
-                            text = "$usedIngredientString used",
-                            modifier = Modifier.padding(4.dp),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-
-                        Text(
-                            text = "$missedIngredientString missing",
-                            modifier = Modifier.padding(4.dp),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                    else -> {
-                        val correctedSuffix =
-                            if (recipe.usedIngredientCount > 1) "all ${recipe.usedIngredientCount} ingredients" else "the 1 ingredient"
-
-                        Row(modifier = Modifier.padding(4.dp)) {
-                            Icon(
-                                Icons.Default.Check,
-                                contentDescription = "ingredients used",
-                                modifier = Modifier
-                                    .size(18.dp)
-                                    .padding(end = 4.dp),
-                                tint = MaterialTheme.colorScheme.inverseOnSurface
-                            )
-                            Text(
-                                text = "You have $correctedSuffix",
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
-                    }
+                Text(
+                    text = "${if (recipe.usedIngredientCount > 1) "${recipe.usedIngredientCount} ingredients" else "1 ingredient"} used",
+                    modifier = Modifier.padding(4.dp),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                if (recipe.missedIngredientCount > 0) {
+                    Text(
+                        text = "${if (recipe.missedIngredientCount > 1) "${recipe.missedIngredientCount} ingredients" else "1 ingredient"} missing",
+                        modifier = Modifier.padding(4.dp),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
                 Row(modifier = Modifier.padding(4.dp)) {
                     Icon(
@@ -153,6 +123,36 @@ fun RecipeCardItem(
                         text = "${recipe.likes} likes",
                         style = MaterialTheme.typography.bodyMedium
                     )
+                }
+                Row(modifier = Modifier.padding(4.dp)) {
+                    Button(
+                        onClick = { onAddToShoppingListClick(index) },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.inverseOnSurface,
+                            contentColor = MaterialTheme.colorScheme.inverseSurface
+                        ),
+                        enabled = recipe.missedIngredientCount > 0
+                    ) {
+                        if (recipe.missedIngredientCount > 0) {
+                            Icon(
+                                Icons.Default.ShoppingCart,
+                                contentDescription = "shopping_cart",
+                                modifier = Modifier
+                                    .size(18.dp)
+                                    .padding(end = 4.dp)
+                            )
+                            Text("Add ${if (recipe.missedIngredientCount > 1) "${recipe.missedIngredientCount} missing ingredients" else "1 missing ingredient"}")
+                        } else {
+                            Icon(
+                                Icons.Default.Check,
+                                contentDescription = "check",
+                                modifier = Modifier
+                                    .size(18.dp)
+                                    .padding(end = 4.dp)
+                            )
+                            Text("You have all ingredients")
+                        }
+                    }
                 }
 // TODO: where to put time if we decide to send through later
 //                Row(modifier = Modifier.padding(4.dp)) {
@@ -202,7 +202,6 @@ fun RecipeCardItem(
                         OnHandProgressIndicator(modifier = Modifier.size(36.dp))
                     }
                 }
-
             }
         }
     }

@@ -35,7 +35,8 @@ fun SavedRecipesScreen(
                             recipes = state.recipes,
                             onItemClick = navController::navigate,
                             onSaveClick = viewModel::onRecipeSaved,
-                            onUnSaveClick = viewModel::onRecipeUnsaved
+                            onUnSaveClick = viewModel::onRecipeUnsaved,
+                            onAddToShoppingListClick = { /* TODO */ }
                         )
                     }
                     false -> {
@@ -47,9 +48,9 @@ fun SavedRecipesScreen(
                                 modifier = Modifier
                                     .align(Alignment.CenterVertically)
                                     .padding(8.dp),
-                                text = "Nothing saved \uD83E\uDEE0\n\n P.S.: We use these to " +
-                                        "curate your shopping list \uD83E\uDD0C",
+                                text = "Nothing saved \uD83E\uDEE0",
                                 style = MaterialTheme.typography.titleLarge,
+                                // TODO: this doesn't center the text, look into later
                                 textAlign = TextAlign.Center,
                             )
                         }

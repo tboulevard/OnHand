@@ -11,14 +11,14 @@ import com.tstreet.onhand.core.model.ShoppingListIngredient
 )
 data class ShoppingListEntity(
     @PrimaryKey val name: String,
-    @ColumnInfo val mappedRecipes: List<Recipe>,
+    @ColumnInfo val mappedRecipe: Recipe? = null,
     @ColumnInfo val isPurchased: Boolean
 )
 
 fun ShoppingListEntity.toExternalModel(): ShoppingListIngredient {
     return ShoppingListIngredient(
         name = name,
-        mappedRecipes = mappedRecipes,
+        mappedRecipe = mappedRecipe,
         isPurchased = isPurchased
     )
 }
@@ -26,7 +26,7 @@ fun ShoppingListEntity.toExternalModel(): ShoppingListIngredient {
 fun ShoppingListIngredient.asEntity(): ShoppingListEntity {
     return ShoppingListEntity(
         name = name,
-        mappedRecipes = mappedRecipes,
+        mappedRecipe = mappedRecipe,
         isPurchased = isPurchased
     )
 }

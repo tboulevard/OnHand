@@ -14,7 +14,6 @@ sealed interface RecipeSearchUiState {
     ) : RecipeSearchUiState
 
     data class Error(
-        val message: String,
         val recipes: SnapshotStateList<RecipeWithSaveState>
     ) : RecipeSearchUiState
 }

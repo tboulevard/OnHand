@@ -4,10 +4,14 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tstreet.onhand.core.common.Status.ERROR
+import com.tstreet.onhand.core.common.Status.SUCCESS
 import com.tstreet.onhand.core.domain.shoppinglist.GetShoppingListUseCase
 import com.tstreet.onhand.core.domain.shoppinglist.CheckOffIngredientUseCase
 import com.tstreet.onhand.core.domain.shoppinglist.UncheckIngredientUseCase
 import com.tstreet.onhand.core.model.ShoppingListIngredient
+import com.tstreet.onhand.core.ui.ErrorDialogState.Companion.dismissed
+import com.tstreet.onhand.core.ui.ErrorDialogState.Companion.displayed
 import com.tstreet.onhand.core.ui.RecipeDetailUiState
 import com.tstreet.onhand.core.ui.ShoppingListUiState
 import kotlinx.coroutines.flow.*
@@ -30,16 +34,31 @@ class ShoppingListViewModel @Inject constructor(
     val shoppingListUiState = getShoppingListUseCase
         .get()
         .invoke()
-        .map {
-            _shoppingList = it.toMutableStateList()
-            // We pass the snapshot state list by reference to allow mutations within the ViewModel
-            _shoppingList
+        .map { resource ->
+            when (resource.status) {
+                SUCCESS -> {
+                    // TODO: Log analytics if data is null somehow. We fallback to emitting an
+                    //  empty list.
+                    _shoppingList = resource.data?.toMutableStateList() ?: mutableStateListOf()
+                    ShoppingListUiState.Success(_shoppingList)
+                }
+                ERROR -> {
+                    ShoppingListUiState.Error(message = resource.message.toString())
+                }
+            }
         }
-        .map(ShoppingListUiState::Success)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = RecipeDetailUiState.Loading
+        )
+
+    private val _errorDialogState = MutableStateFlow(dismissed())
+    val errorDialogState = _errorDialogState
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = _errorDialogState.value
         )
 
     fun onCheckOffShoppingIngredient(index: Int) {
@@ -49,20 +68,20 @@ class ShoppingListViewModel @Inject constructor(
             // Mark the recipe as saving
             _shoppingList[index] = item.copy(isPurchased = isPurchased)
             // Save the recipe
-            checkIngredientUseCase.get().invoke(item).collect {
-                when (it) {
-                    // When save is successful, update UI state
-                    true -> {
+            checkIngredientUseCase.get().invoke(item).collect { resource ->
+                when (resource.status) {
+                    SUCCESS -> {
                         _shoppingList[index] = item.copy(
                             isPurchased = true
                         )
                     }
-                    else -> {
-                        // TODO: todo better error handling
-                        println(
-                            "[OnHand] Recipe save unsuccessful, there was an exception - " +
-                                    "recipe not saved"
-                        )
+                    ERROR -> {
+                        _errorDialogState.update {
+                            displayed(
+                                "There was a problem checking off the ingredient in your " +
+                                        "shopping list. Please try again."
+                            )
+                        }
                         // Retain the previous save state on error
                         _shoppingList[index] = item.copy(
                             isPurchased = isPurchased
@@ -80,20 +99,20 @@ class ShoppingListViewModel @Inject constructor(
             // Mark the recipe as saving
             _shoppingList[index] = item.copy(isPurchased = isPurchased)
             // Save the recipe
-            uncheckIngredientUseCase.get().invoke(item).collect {
-                when (it) {
-                    // When save is successful, update UI state
-                    true -> {
+            uncheckIngredientUseCase.get().invoke(item).collect { resource ->
+                when (resource.status) {
+                    SUCCESS -> {
                         _shoppingList[index] = item.copy(
                             isPurchased = false
                         )
                     }
-                    else -> {
-                        // TODO: todo better error handling
-                        println(
-                            "[OnHand] Recipe save unsuccessful, there was an exception - " +
-                                    "recipe not saved"
-                        )
+                    ERROR -> {
+                        _errorDialogState.update {
+                            displayed(
+                                "There was a problem unchecking the ingredient in your " +
+                                        "shopping list. Please try again."
+                            )
+                        }
                         // Retain the previous save state on error
                         _shoppingList[index] = item.copy(
                             isPurchased = isPurchased
@@ -102,5 +121,9 @@ class ShoppingListViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun dismissErrorDialog() {
+        _errorDialogState.update { dismissed() }
     }
 }
