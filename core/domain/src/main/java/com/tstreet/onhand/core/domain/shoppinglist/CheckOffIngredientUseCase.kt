@@ -22,8 +22,11 @@ class CheckOffIngredientUseCase @Inject constructor(
 ) : UseCase() {
 
     operator fun invoke(shoppingListIngredient: ShoppingListIngredient): Flow<Resource<Unit>> {
-        println("[OnHand] Marking shoppingListIngredient=${shoppingListIngredient}")
+        // TODO: using flow here is probably unnecessary - look into proper way to run suspending
+        // function on diff dispatcher (using flow API for now so we don't use ViewModel coroutine
+        // dispatcher)
         return flow {
+            println("[OnHand] Checking off shoppingListIngredient=${shoppingListIngredient}")
             val result = shoppingListRepository
                 .get()
                 .checkOffIngredient(shoppingListIngredient)
@@ -33,10 +36,11 @@ class CheckOffIngredientUseCase @Inject constructor(
                     emit(Resource.success(null))
                 }
                 Status.ERROR -> {
+                    // TODO: ViewModel layer ignores the full stacktrace - keeping here as reminder
+                    //  to transmit via analytics here
                     emit(
                         Resource.error(
-                            msg = "There was a problem checking off the ingredient in your " +
-                                    "shopping list. Please try again."
+                            msg = result.message.toString()
                         )
                     )
                 }

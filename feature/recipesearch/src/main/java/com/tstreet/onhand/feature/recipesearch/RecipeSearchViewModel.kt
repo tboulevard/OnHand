@@ -8,8 +8,6 @@ import com.tstreet.onhand.core.common.Status.SUCCESS
 import com.tstreet.onhand.core.domain.*
 import com.tstreet.onhand.core.domain.recipes.*
 import com.tstreet.onhand.core.domain.shoppinglist.AddToShoppingListUseCase
-import com.tstreet.onhand.core.model.Ingredient
-import com.tstreet.onhand.core.ui.ErrorDialogState
 import com.tstreet.onhand.core.ui.ErrorDialogState.Companion.dismissed
 import com.tstreet.onhand.core.ui.ErrorDialogState.Companion.displayed
 import com.tstreet.onhand.core.ui.RecipeSaveState.*

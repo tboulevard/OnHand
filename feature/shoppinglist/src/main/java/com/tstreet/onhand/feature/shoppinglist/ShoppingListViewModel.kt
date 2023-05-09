@@ -10,8 +10,8 @@ import com.tstreet.onhand.core.domain.shoppinglist.GetShoppingListUseCase
 import com.tstreet.onhand.core.domain.shoppinglist.CheckOffIngredientUseCase
 import com.tstreet.onhand.core.domain.shoppinglist.UncheckIngredientUseCase
 import com.tstreet.onhand.core.model.ShoppingListIngredient
-import com.tstreet.onhand.core.ui.ErrorDialogState
 import com.tstreet.onhand.core.ui.ErrorDialogState.Companion.dismissed
+import com.tstreet.onhand.core.ui.ErrorDialogState.Companion.displayed
 import com.tstreet.onhand.core.ui.RecipeDetailUiState
 import com.tstreet.onhand.core.ui.ShoppingListUiState
 import kotlinx.coroutines.flow.*
@@ -77,8 +77,9 @@ class ShoppingListViewModel @Inject constructor(
                     }
                     ERROR -> {
                         _errorDialogState.update {
-                            ErrorDialogState.displayed(
-                                message = resource.message.toString()
+                            displayed(
+                                "There was a problem checking off the ingredient in your " +
+                                        "shopping list. Please try again."
                             )
                         }
                         // Retain the previous save state on error
@@ -107,8 +108,9 @@ class ShoppingListViewModel @Inject constructor(
                     }
                     ERROR -> {
                         _errorDialogState.update {
-                            ErrorDialogState.displayed(
-                                message = resource.message.toString()
+                            displayed(
+                                "There was a problem unchecking the ingredient in your " +
+                                        "shopping list. Please try again."
                             )
                         }
                         // Retain the previous save state on error
