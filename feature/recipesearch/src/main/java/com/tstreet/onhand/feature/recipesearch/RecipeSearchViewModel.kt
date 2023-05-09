@@ -58,7 +58,7 @@ class RecipeSearchViewModel @Inject constructor(
                         RecipeSearchUiState.Error(_recipes)
                     }
                     _errorDialogState.update {
-                        ErrorDialogState.displayed(
+                        displayed(
                             message = recipes.message.toString()
                         )
                     }
@@ -150,15 +150,19 @@ class RecipeSearchViewModel @Inject constructor(
             val item = _recipes[index]
             println("[OnHand] Adding missing ingredients for $item")
 
-            when (addToShoppingList.get().invoke(
+            addToShoppingList.get().invoke(
                 // TODO: .map for getting from RecipeIngredient -> Ingredient
                 ingredients = item.recipe.missedIngredients.map { it.ingredient },
                 recipe = item.recipe
-            ).status) {
-                SUCCESS -> { /* TODO */ }
-                ERROR -> {
-                    _errorDialogState.update {
-                        displayed("Unable to add ingredients to shopping list.")
+            ).collect {
+                when (it.status) {
+                    SUCCESS -> {
+                        // TODO: implement logic to transmit state back to UI
+                    }
+                    ERROR -> {
+                        _errorDialogState.update {
+                            displayed("Unable to add ingredients to shopping list.")
+                        }
                     }
                 }
             }

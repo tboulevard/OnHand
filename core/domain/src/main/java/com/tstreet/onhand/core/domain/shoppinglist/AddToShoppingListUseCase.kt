@@ -21,30 +21,34 @@ class AddToShoppingListUseCase @Inject constructor(
     @Named(IO) private val ioDispatcher: CoroutineDispatcher,
 ) : UseCase() {
 
-    suspend operator fun invoke(
+    // TODO: using flow here is probably unncessary - look into proper way to run suspending
+    // function on diff dipatcher (using flow API for now so we don't use ViewModel coroutine
+    // dispatcher)
+    operator fun invoke(
         ingredients: List<Ingredient>,
         recipe: Recipe? = null
-    ): Resource<Unit> {
-        println("[OnHand] Adding $ingredients to shopping list")
+    ): Flow<Resource<Unit>> {
+        return flow {
+            println("[OnHand] Adding $ingredients to shopping list")
+            // TODO: this runs on viewmodel scope, fix later
+            val insertResult = shoppingListRepository.get().insertIngredients(
+                ingredients.map {
+                    ShoppingListIngredient(
+                        it.name,
+                        recipe,
+                        false
+                    )
+                }
+            )
 
-        // TODO: this runs on viewmodel scope, fix later
-        val insertResult = shoppingListRepository.get().insertIngredients(
-            ingredients.map {
-                ShoppingListIngredient(
-                    it.name,
-                    recipe,
-                    false
-                )
+            when (insertResult.status) {
+                Status.SUCCESS -> {
+                    emit(Resource.success(null))
+                }
+                Status.ERROR -> {
+                    emit(Resource.error(msg = insertResult.message.toString()))
+                }
             }
-        )
-
-        return when (insertResult.status) {
-            Status.SUCCESS -> {
-                Resource.success(null)
-            }
-            Status.ERROR -> {
-                Resource.error(msg = insertResult.message.toString())
-            }
-        }
+        }.flowOn(ioDispatcher)
     }
 }

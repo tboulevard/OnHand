@@ -146,18 +146,13 @@ fun ShoppingListCardItem(
                     text = card.ingredientName,
                     style = MaterialTheme.typography.headlineMedium
                 )
-                Text(
-                    modifier = Modifier.padding(8.dp),
-                    text = "Recipes",
-                    style = MaterialTheme.typography.bodyLarge
-                )
-//                card.recipes.forEach {
-//                    return@forEach Text(
-//                        modifier = Modifier.padding(start = 12.dp, top = 2.dp, bottom = 2.dp),
-//                        text = "- " + it.title,
-//                        style = MaterialTheme.typography.bodyMedium
-//                    )
-//                }
+                if (card.recipe != null) {
+                    Text(
+                        modifier = Modifier.padding(8.dp),
+                        text = "Recipe: ${card.recipe.title}",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
             }
         }
     }

@@ -31,20 +31,14 @@ class ShoppingListViewModel @Inject constructor(
 
     private var _shoppingList = mutableStateListOf<ShoppingListIngredient>()
 
-    private val _errorDialogState = MutableStateFlow(dismissed())
-    val errorDialogState = _errorDialogState
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = _errorDialogState.value
-        )
-
     val shoppingListUiState = getShoppingListUseCase
         .get()
         .invoke()
         .map { resource ->
             when (resource.status) {
                 SUCCESS -> {
+                    // TODO: Log analytics if data is null somehow. We fallback to emitting an
+                    //  empty list.
                     _shoppingList = resource.data?.toMutableStateList() ?: mutableStateListOf()
                     ShoppingListUiState.Success(_shoppingList)
                 }
@@ -57,6 +51,14 @@ class ShoppingListViewModel @Inject constructor(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = RecipeDetailUiState.Loading
+        )
+
+    private val _errorDialogState = MutableStateFlow(dismissed())
+    val errorDialogState = _errorDialogState
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = _errorDialogState.value
         )
 
     fun onCheckOffShoppingIngredient(index: Int) {
