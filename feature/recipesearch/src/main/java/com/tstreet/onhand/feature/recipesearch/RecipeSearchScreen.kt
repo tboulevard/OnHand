@@ -37,6 +37,15 @@ fun RecipeSearchScreen(
         shouldDisplay = openInfoDialog.value
     )
 
+    // TODO: duplicated alert dialogs, refactor
+    OnHandAlertDialog(
+        onDismiss = { viewModel.dismissErrorDialog() },
+        titleText = "Error",
+        bodyText = errorDialogState.value.message,
+        buttonText = "Dismiss",
+        shouldDisplay = errorDialogState.value.shouldDisplay
+    )
+
     Column(
         verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()
     ) {

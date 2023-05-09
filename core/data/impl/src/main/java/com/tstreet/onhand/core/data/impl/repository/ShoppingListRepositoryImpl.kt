@@ -41,16 +41,28 @@ class ShoppingListRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun checkOffIngredient(ingredient: ShoppingListIngredient) {
-        shoppingListDao
-            .get()
-            .markIngredientPurchased(ingredient.name)
+    override suspend fun checkOffIngredient(ingredient: ShoppingListIngredient): Resource<Unit> {
+        return try {
+            shoppingListDao
+                .get()
+                .markIngredientPurchased(ingredient.name)
+            Resource.success(null)
+        } catch (e: Exception) {
+            // TODO: rethrow in debug
+            Resource.error(msg = e.message.toString())
+        }
     }
 
-    override suspend fun uncheckIngredient(ingredient: ShoppingListIngredient) {
-        shoppingListDao
-            .get()
-            .unmarkIngredientPurchased(ingredient.name)
+    override suspend fun uncheckIngredient(ingredient: ShoppingListIngredient): Resource<Unit> {
+        return try {
+            shoppingListDao
+                .get()
+                .unmarkIngredientPurchased(ingredient.name)
+            Resource.success(null)
+        } catch (e: Exception) {
+            // TODO: rethrow in debug
+            Resource.error(msg = e.message.toString())
+        }
     }
 
     override suspend fun isIngredientCheckedOff(name: String): Boolean {

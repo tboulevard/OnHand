@@ -9,9 +9,9 @@ interface ShoppingListRepository {
 
     suspend fun insertIngredients(shoppingList: List<ShoppingListIngredient>): Resource<Unit>
 
-    suspend fun checkOffIngredient(ingredient: ShoppingListIngredient)
+    suspend fun checkOffIngredient(ingredient: ShoppingListIngredient): Resource<Unit>
 
-    suspend fun uncheckIngredient(ingredient: ShoppingListIngredient)
+    suspend fun uncheckIngredient(ingredient: ShoppingListIngredient): Resource<Unit>
 
     suspend fun isIngredientCheckedOff(name: String): Boolean
 

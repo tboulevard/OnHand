@@ -31,7 +31,7 @@ class AddToShoppingListUseCase @Inject constructor(
         return flow {
             println("[OnHand] Adding $ingredients to shopping list")
             // TODO: this runs on viewmodel scope, fix later
-            val insertResult = shoppingListRepository.get().insertIngredients(
+            val result = shoppingListRepository.get().insertIngredients(
                 ingredients.map {
                     ShoppingListIngredient(
                         it.name,
@@ -41,12 +41,12 @@ class AddToShoppingListUseCase @Inject constructor(
                 }
             )
 
-            when (insertResult.status) {
+            when (result.status) {
                 Status.SUCCESS -> {
                     emit(Resource.success(null))
                 }
                 Status.ERROR -> {
-                    emit(Resource.error(msg = insertResult.message.toString()))
+                    emit(Resource.error(msg = result.message.toString()))
                 }
             }
         }.flowOn(ioDispatcher)

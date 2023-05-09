@@ -68,18 +68,17 @@ class ShoppingListViewModel @Inject constructor(
             // Mark the recipe as saving
             _shoppingList[index] = item.copy(isPurchased = isPurchased)
             // Save the recipe
-            checkIngredientUseCase.get().invoke(item).collect {
-                when (it) {
-                    // When save is successful, update UI state
-                    true -> {
+            checkIngredientUseCase.get().invoke(item).collect { resource ->
+                when (resource.status) {
+                    SUCCESS -> {
                         _shoppingList[index] = item.copy(
                             isPurchased = true
                         )
                     }
-                    else -> {
+                    ERROR -> {
                         _errorDialogState.update {
                             ErrorDialogState.displayed(
-                                message = "Unable to check off ingredient,  there was an error."
+                                message = resource.message.toString()
                             )
                         }
                         // Retain the previous save state on error
@@ -99,18 +98,17 @@ class ShoppingListViewModel @Inject constructor(
             // Mark the recipe as saving
             _shoppingList[index] = item.copy(isPurchased = isPurchased)
             // Save the recipe
-            uncheckIngredientUseCase.get().invoke(item).collect {
-                when (it) {
-                    // When save is successful, update UI state
-                    true -> {
+            uncheckIngredientUseCase.get().invoke(item).collect { resource ->
+                when (resource.status) {
+                    SUCCESS -> {
                         _shoppingList[index] = item.copy(
                             isPurchased = false
                         )
                     }
-                    else -> {
+                    ERROR -> {
                         _errorDialogState.update {
                             ErrorDialogState.displayed(
-                                message = "Unable to uncheck ingredient, there was an error."
+                                message = resource.message.toString()
                             )
                         }
                         // Retain the previous save state on error

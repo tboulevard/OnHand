@@ -25,6 +25,14 @@ fun ShoppingListScreen(
     val uiState by viewModel.shoppingListUiState.collectAsStateWithLifecycle()
     val errorDialogState by viewModel.errorDialogState.collectAsStateWithLifecycle()
 
+    // For general errors
+    OnHandAlertDialog(
+        onDismiss = { viewModel.dismissErrorDialog() },
+        titleText = "Error",
+        bodyText = errorDialogState.message,
+        shouldDisplay = errorDialogState.shouldDisplay
+    )
+
     Column(verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()) {
         OnHandScreenHeader("Shopping List")
         when (val state = uiState) {
@@ -60,11 +68,8 @@ fun ShoppingListScreen(
                 }
             }
             is ShoppingListUiState.Error -> {
-                OnHandAlertDialog(
-                    onDismiss = { viewModel.dismissErrorDialog() },
-                    titleText = "Error",
-                    bodyText = errorDialogState.message
-                )
+                // For errors retrieving shopping list itself
+                FullScreenErrorMessage(message = state.message)
             }
         }
     }
