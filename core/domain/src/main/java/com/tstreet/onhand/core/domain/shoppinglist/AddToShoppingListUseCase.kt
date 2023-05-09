@@ -21,31 +21,30 @@ class AddToShoppingListUseCase @Inject constructor(
     @Named(IO) private val ioDispatcher: CoroutineDispatcher,
 ) : UseCase() {
 
-    operator fun invoke(
+    suspend operator fun invoke(
         ingredients: List<Ingredient>,
         recipe: Recipe? = null
-    ): Flow<Resource<Unit>> {
+    ): Resource<Unit> {
         println("[OnHand] Adding $ingredients to shopping list")
 
-        return flow<Resource<Unit>> {
-            val insertResult = shoppingListRepository.get().insertIngredients(
-                ingredients.map {
-                    ShoppingListIngredient(
-                        it.name,
-                        recipe, // TODO: add recipe
-                        false
-                    )
-                }
-            )
-
-            when (insertResult.status) {
-                Status.SUCCESS -> {
-                    emit(Resource.success(null))
-                }
-                Status.ERROR -> {
-                    emit(Resource.error(msg = insertResult.message.toString()))
-                }
+        // TODO: this runs on viewmodel scope, fix later
+        val insertResult = shoppingListRepository.get().insertIngredients(
+            ingredients.map {
+                ShoppingListIngredient(
+                    it.name,
+                    recipe,
+                    false
+                )
             }
-        }.flowOn(ioDispatcher)
+        )
+
+        return when (insertResult.status) {
+            Status.SUCCESS -> {
+                Resource.success(null)
+            }
+            Status.ERROR -> {
+                Resource.error(msg = insertResult.message.toString())
+            }
+        }
     }
 }

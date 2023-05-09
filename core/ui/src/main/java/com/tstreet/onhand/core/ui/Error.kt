@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.material3.Text
 
 @Composable
-fun FullScreenErrorMessage(message : String) {
+fun FullScreenErrorMessage(message: String) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -23,4 +23,12 @@ fun FullScreenErrorMessage(message : String) {
 class ErrorDialogState(
     val shouldDisplay: Boolean,
     val message: String = ""
-)
+) {
+    companion object {
+        fun dismissed() = ErrorDialogState(shouldDisplay = false)
+        fun displayed(message: String) = ErrorDialogState(
+            shouldDisplay = true,
+            message = message
+        )
+    }
+}

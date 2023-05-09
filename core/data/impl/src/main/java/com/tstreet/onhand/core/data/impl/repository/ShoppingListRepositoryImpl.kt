@@ -22,6 +22,7 @@ class ShoppingListRepositoryImpl @Inject constructor(
                     .map { it.toExternalModel() }
             )
         } catch (e: Exception) {
+            // TODO: rethrow in debug
             Resource.error(msg = e.message.toString())
         }
     }

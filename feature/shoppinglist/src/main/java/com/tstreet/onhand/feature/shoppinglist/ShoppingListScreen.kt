@@ -16,16 +16,14 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tstreet.onhand.core.model.*
-import com.tstreet.onhand.core.ui.FullScreenErrorMessage
-import com.tstreet.onhand.core.ui.OnHandProgressIndicator
-import com.tstreet.onhand.core.ui.OnHandScreenHeader
-import com.tstreet.onhand.core.ui.ShoppingListUiState
+import com.tstreet.onhand.core.ui.*
 
 @Composable
 fun ShoppingListScreen(
     viewModel: ShoppingListViewModel
 ) {
     val uiState by viewModel.shoppingListUiState.collectAsStateWithLifecycle()
+    val errorDialogState by viewModel.errorDialogState.collectAsStateWithLifecycle()
 
     Column(verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()) {
         OnHandScreenHeader("Shopping List")
@@ -62,7 +60,11 @@ fun ShoppingListScreen(
                 }
             }
             is ShoppingListUiState.Error -> {
-                FullScreenErrorMessage(message = state.message)
+                OnHandAlertDialog(
+                    onDismiss = { viewModel.dismissErrorDialog() },
+                    titleText = "Error",
+                    bodyText = errorDialogState.message
+                )
             }
         }
     }

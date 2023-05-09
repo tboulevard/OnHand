@@ -4,12 +4,14 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.tstreet.onhand.core.common.Status
+import com.tstreet.onhand.core.common.Status.ERROR
+import com.tstreet.onhand.core.common.Status.SUCCESS
 import com.tstreet.onhand.core.domain.shoppinglist.GetShoppingListUseCase
 import com.tstreet.onhand.core.domain.shoppinglist.CheckOffIngredientUseCase
 import com.tstreet.onhand.core.domain.shoppinglist.UncheckIngredientUseCase
 import com.tstreet.onhand.core.model.ShoppingListIngredient
 import com.tstreet.onhand.core.ui.ErrorDialogState
+import com.tstreet.onhand.core.ui.ErrorDialogState.Companion.dismissed
 import com.tstreet.onhand.core.ui.RecipeDetailUiState
 import com.tstreet.onhand.core.ui.ShoppingListUiState
 import kotlinx.coroutines.flow.*
@@ -28,27 +30,26 @@ class ShoppingListViewModel @Inject constructor(
     }
 
     private var _shoppingList = mutableStateListOf<ShoppingListIngredient>()
-    private val _showErrorDialog = MutableStateFlow(
-        ErrorDialogState(shouldDisplay = false)
-    )
-    val showErrorDialog = _showErrorDialog
+
+    private val _errorDialogState = MutableStateFlow(dismissed())
+    val errorDialogState = _errorDialogState
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = _showErrorDialog.value
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = _errorDialogState.value
         )
 
     val shoppingListUiState = getShoppingListUseCase
         .get()
         .invoke()
-        .map {
-            when (it.status) {
-                Status.SUCCESS -> {
-                    _shoppingList = it.data?.toMutableStateList() ?: mutableStateListOf()
+        .map { resource ->
+            when (resource.status) {
+                SUCCESS -> {
+                    _shoppingList = resource.data?.toMutableStateList() ?: mutableStateListOf()
                     ShoppingListUiState.Success(_shoppingList)
                 }
-                Status.ERROR -> {
-                    ShoppingListUiState.Error(message = it.message.toString())
+                ERROR -> {
+                    ShoppingListUiState.Error(message = resource.message.toString())
                 }
             }
         }
@@ -74,10 +75,11 @@ class ShoppingListViewModel @Inject constructor(
                         )
                     }
                     else -> {
-                        // TODO: todo better error handling
-                        println(
-                            "[OnHand] Unable to check off ingredient, there was an exception"
-                        )
+                        _errorDialogState.update {
+                            ErrorDialogState.displayed(
+                                message = "Unable to check off ingredient,  there was an error."
+                            )
+                        }
                         // Retain the previous save state on error
                         _shoppingList[index] = item.copy(
                             isPurchased = isPurchased
@@ -104,10 +106,11 @@ class ShoppingListViewModel @Inject constructor(
                         )
                     }
                     else -> {
-                        // TODO: todo better error handling
-                        println(
-                            "[OnHand] Unable to uncheck ingredient, there was an exception"
-                        )
+                        _errorDialogState.update {
+                            ErrorDialogState.displayed(
+                                message = "Unable to uncheck ingredient, there was an error."
+                            )
+                        }
                         // Retain the previous save state on error
                         _shoppingList[index] = item.copy(
                             isPurchased = isPurchased
@@ -116,5 +119,9 @@ class ShoppingListViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun dismissErrorDialog() {
+        _errorDialogState.update { dismissed() }
     }
 }

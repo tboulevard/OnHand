@@ -10,6 +10,8 @@ import com.tstreet.onhand.core.domain.recipes.*
 import com.tstreet.onhand.core.domain.shoppinglist.AddToShoppingListUseCase
 import com.tstreet.onhand.core.model.Ingredient
 import com.tstreet.onhand.core.ui.ErrorDialogState
+import com.tstreet.onhand.core.ui.ErrorDialogState.Companion.dismissed
+import com.tstreet.onhand.core.ui.ErrorDialogState.Companion.displayed
 import com.tstreet.onhand.core.ui.RecipeSaveState.*
 import com.tstreet.onhand.core.ui.RecipeWithSaveState
 import com.tstreet.onhand.core.ui.RecipeSearchUiState
@@ -56,8 +58,7 @@ class RecipeSearchViewModel @Inject constructor(
                         RecipeSearchUiState.Error(_recipes)
                     }
                     _errorDialogState.update {
-                        ErrorDialogState(
-                            shouldDisplay = true,
+                        ErrorDialogState.displayed(
                             message = recipes.message.toString()
                         )
                     }
@@ -79,9 +80,7 @@ class RecipeSearchViewModel @Inject constructor(
             initialValue = _uiState.value
         )
 
-    private val _errorDialogState = MutableStateFlow(
-        ErrorDialogState(shouldDisplay = false)
-    )
+    private val _errorDialogState = MutableStateFlow(dismissed())
     val errorDialogState = _errorDialogState
         .stateIn(
             scope = viewModelScope,
@@ -146,25 +145,31 @@ class RecipeSearchViewModel @Inject constructor(
         }
     }
 
+    fun onAddToShoppingList(index: Int) {
+        viewModelScope.launch {
+            val item = _recipes[index]
+            println("[OnHand] Adding missing ingredients for $item")
+
+            when (addToShoppingList.get().invoke(
+                // TODO: .map for getting from RecipeIngredient -> Ingredient
+                ingredients = item.recipe.missedIngredients.map { it.ingredient },
+                recipe = item.recipe
+            ).status) {
+                SUCCESS -> { /* TODO */ }
+                ERROR -> {
+                    _errorDialogState.update {
+                        displayed("Unable to add ingredients to shopping list.")
+                    }
+                }
+            }
+        }
+    }
+
     fun onSortOrderChanged(sortingOrder: SortBy) {
         _sortOrder.update { sortingOrder }
     }
 
     fun dismissErrorDialog() {
-        _errorDialogState.update { ErrorDialogState(shouldDisplay = false) }
-    }
-
-    fun onAddToShoppingList(index: Int) {
-        viewModelScope.launch {
-            val item = _recipes[index]
-
-            addToShoppingList.get().invoke(
-                ingredients = emptyList(),
-                recipe = item.recipe
-            )
-        }
-        val item = _recipes[index]
-        println("[OnHand] Adding missing ingredients for $item")
-        // TODO: implement
+        _errorDialogState.update { dismissed() }
     }
 }
