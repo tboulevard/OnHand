@@ -38,7 +38,6 @@ dependencies {
     androidTestImplementation libs.androidx.test.espresso.core
 
     debugImplementation libs.androidx.compose.ui.tooling
-    debugImplementation libs.androidx.compose.ui.test.manifest
     // TODO: debugImplementation doesn't work for this dependency for some reason...look
     //  into later. We use implementation to circumvent the bug for now.
     implementation libs.androidx.compose.ui.tooling.preview
