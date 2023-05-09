@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "17c6569d226618197d3cd0ea74ecd56a",
+    "identityHash": "5a6e9cfc1be95953165e392602f2958a",
     "entities": [
       {
         "tableName": "ingredient_catalog",
@@ -174,7 +174,7 @@
       },
       {
         "tableName": "shopping_list",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `mappedRecipes` TEXT NOT NULL, `isPurchased` INTEGER NOT NULL, PRIMARY KEY(`name`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `mappedRecipe` TEXT, `isPurchased` INTEGER NOT NULL, PRIMARY KEY(`name`))",
         "fields": [
           {
             "fieldPath": "name",
@@ -183,10 +183,10 @@
             "notNull": true
           },
           {
-            "fieldPath": "mappedRecipes",
-            "columnName": "mappedRecipes",
+            "fieldPath": "mappedRecipe",
+            "columnName": "mappedRecipe",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "isPurchased",
@@ -208,7 +208,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '17c6569d226618197d3cd0ea74ecd56a')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5a6e9cfc1be95953165e392602f2958a')"
     ]
   }
 }

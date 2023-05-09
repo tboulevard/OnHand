@@ -20,7 +20,7 @@ data class Ingredient(
  */
 data class PantryIngredient(
     val ingredient: Ingredient,
-    val inPantry : Boolean = false,
+    val inPantry: Boolean = false,
 )
 
 /**
@@ -32,5 +32,5 @@ data class RecipeIngredient(
     val ingredient: Ingredient,
     val image: String? = null,
     val amount: Double,
-    val unit: String,
+    val unit: String
 )

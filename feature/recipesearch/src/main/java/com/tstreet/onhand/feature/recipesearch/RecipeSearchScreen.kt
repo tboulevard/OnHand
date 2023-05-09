@@ -25,7 +25,7 @@ fun RecipeSearchScreen(
     val uiState by viewModel.uiState.collectAsState()
     val sortOrder by viewModel.sortOrder.collectAsState()
     val openInfoDialog = remember { mutableStateOf(false) }
-    val openErrorDialog = viewModel.showErrorDialog.collectAsState()
+    val errorDialogState = viewModel.errorDialogState.collectAsState()
 
     OnHandAlertDialog(
         onDismiss = { openInfoDialog.value = false },
@@ -85,11 +85,11 @@ fun RecipeSearchScreen(
                 }
             }
             is Error -> {
-                if (openErrorDialog.value) {
+                if (errorDialogState.value.shouldDisplay) {
                     OnHandAlertDialog(
                         onDismiss = { viewModel.dismissErrorDialog() },
                         titleText = "Error",
-                        bodyText = state.message,
+                        bodyText = errorDialogState.value.message,
                         buttonText = "Dismiss"
                     )
                 } else {

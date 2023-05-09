@@ -2,9 +2,11 @@ package com.tstreet.onhand.core.domain.shoppinglist
 
 import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.Resource
+import com.tstreet.onhand.core.common.Status
 import com.tstreet.onhand.core.common.UseCase
 import com.tstreet.onhand.core.data.api.repository.ShoppingListRepository
-import com.tstreet.onhand.core.model.RecipeIngredient
+import com.tstreet.onhand.core.model.Ingredient
+import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.model.ShoppingListIngredient
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -19,21 +21,31 @@ class AddToShoppingListUseCase @Inject constructor(
     @Named(IO) private val ioDispatcher: CoroutineDispatcher,
 ) : UseCase() {
 
-    suspend operator fun invoke(ingredients: List<RecipeIngredient>): Flow<Resource<Unit>> {
+    operator fun invoke(
+        ingredients: List<Ingredient>,
+        recipe: Recipe? = null
+    ): Flow<Resource<Unit>> {
         println("[OnHand] Adding $ingredients to shopping list")
 
         return flow<Resource<Unit>> {
-            shoppingListRepository.get().insertIngredients(
+            val insertResult = shoppingListRepository.get().insertIngredients(
                 ingredients.map {
                     ShoppingListIngredient(
-                        it.ingredient.name,
-                        emptyList(), // TODO: add recipe
+                        it.name,
+                        recipe, // TODO: add recipe
                         false
                     )
                 }
             )
 
-            Resource.success(null)
+            when (insertResult.status) {
+                Status.SUCCESS -> {
+                    emit(Resource.success(null))
+                }
+                Status.ERROR -> {
+                    emit(Resource.error(msg = insertResult.message.toString()))
+                }
+            }
         }.flowOn(ioDispatcher)
     }
 }

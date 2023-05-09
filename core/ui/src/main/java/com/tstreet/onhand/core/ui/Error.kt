@@ -19,3 +19,8 @@ fun FullScreenErrorMessage(message : String) {
         )
     }
 }
+
+class ErrorDialogState(
+    val shouldDisplay: Boolean,
+    val message: String = ""
+)

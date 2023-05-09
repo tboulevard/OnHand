@@ -83,7 +83,7 @@ fun ShoppingListCards(
             ShoppingListCardItem(
                 ShoppingListCard(
                     ingredientName = ingredient.name,
-                    recipes = ingredient.mappedRecipes,
+                    recipe = ingredient.mappedRecipe,
                     isIngredientChecked = ingredient.isPurchased,
                     index = index
                 ),
@@ -149,13 +149,13 @@ fun ShoppingListCardItem(
                     text = "Recipes",
                     style = MaterialTheme.typography.bodyLarge
                 )
-                card.recipes.forEach {
-                    return@forEach Text(
-                        modifier = Modifier.padding(start = 12.dp, top = 2.dp, bottom = 2.dp),
-                        text = "- " + it.title,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
+//                card.recipes.forEach {
+//                    return@forEach Text(
+//                        modifier = Modifier.padding(start = 12.dp, top = 2.dp, bottom = 2.dp),
+//                        text = "- " + it.title,
+//                        style = MaterialTheme.typography.bodyMedium
+//                    )
+//                }
             }
         }
     }
@@ -163,7 +163,7 @@ fun ShoppingListCardItem(
 
 class ShoppingListCard(
     val ingredientName: String,
-    val recipes: List<Recipe>,
+    val recipe: Recipe?,
     val isIngredientChecked: Boolean,
     val index: Int
 )
@@ -173,53 +173,29 @@ class RecipeSearchCardPreviewParamProvider : PreviewParameterProvider<ShoppingLi
     override val values: Sequence<ShoppingListCard> = sequenceOf(
         ShoppingListCard(
             ingredientName = "ingredient",
-            recipes = listOf(
-                Recipe(
-                    id = 1,
-                    title = "Recipe title1",
-                    image = "image",
-                    imageType = "imageType",
-                    missedIngredientCount = 2,
-                    missedIngredients = listOf(
-                        RecipeIngredient(
-                            Ingredient(4, "cheese"),
-                            amount = 2.0,
-                            unit = "oz"
-                        )
-                    ),
-                    usedIngredientCount = 1,
-                    usedIngredients = listOf(
-                        RecipeIngredient(
-                            Ingredient(5, "garlic"),
-                            amount = 1.0,
-                            unit = "clove"
-                        )
-                    ),
-                    likes = 100
+            recipe =
+            Recipe(
+                id = 1,
+                title = "Recipe title1",
+                image = "image",
+                imageType = "imageType",
+                missedIngredientCount = 2,
+                missedIngredients = listOf(
+                    RecipeIngredient(
+                        Ingredient(4, "cheese"),
+                        amount = 2.0,
+                        unit = "oz"
+                    )
                 ),
-                Recipe(
-                    id = 2,
-                    title = "Recipe title2",
-                    image = "image",
-                    imageType = "imageType",
-                    missedIngredientCount = 2,
-                    missedIngredients = listOf(
-                        RecipeIngredient(
-                            Ingredient(40, "tomato"),
-                            amount = 2.0,
-                            unit = "oz"
-                        )
-                    ),
-                    usedIngredientCount = 1,
-                    usedIngredients = listOf(
-                        RecipeIngredient(
-                            Ingredient(50, "onion"),
-                            amount = 1.0,
-                            unit = "unit"
-                        )
-                    ),
-                    likes = 100
-                )
+                usedIngredientCount = 1,
+                usedIngredients = listOf(
+                    RecipeIngredient(
+                        Ingredient(5, "garlic"),
+                        amount = 1.0,
+                        unit = "clove"
+                    )
+                ),
+                likes = 100
             ),
             index = 0,
             isIngredientChecked = true

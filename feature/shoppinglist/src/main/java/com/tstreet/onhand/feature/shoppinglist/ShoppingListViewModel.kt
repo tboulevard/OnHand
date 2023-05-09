@@ -4,10 +4,12 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tstreet.onhand.core.common.Status
 import com.tstreet.onhand.core.domain.shoppinglist.GetShoppingListUseCase
 import com.tstreet.onhand.core.domain.shoppinglist.CheckOffIngredientUseCase
 import com.tstreet.onhand.core.domain.shoppinglist.UncheckIngredientUseCase
 import com.tstreet.onhand.core.model.ShoppingListIngredient
+import com.tstreet.onhand.core.ui.ErrorDialogState
 import com.tstreet.onhand.core.ui.RecipeDetailUiState
 import com.tstreet.onhand.core.ui.ShoppingListUiState
 import kotlinx.coroutines.flow.*
@@ -26,16 +28,30 @@ class ShoppingListViewModel @Inject constructor(
     }
 
     private var _shoppingList = mutableStateListOf<ShoppingListIngredient>()
+    private val _showErrorDialog = MutableStateFlow(
+        ErrorDialogState(shouldDisplay = false)
+    )
+    val showErrorDialog = _showErrorDialog
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = _showErrorDialog.value
+        )
 
     val shoppingListUiState = getShoppingListUseCase
         .get()
         .invoke()
         .map {
-            _shoppingList = it.toMutableStateList()
-            // We pass the snapshot state list by reference to allow mutations within the ViewModel
-            _shoppingList
+            when (it.status) {
+                Status.SUCCESS -> {
+                    _shoppingList = it.data?.toMutableStateList() ?: mutableStateListOf()
+                    ShoppingListUiState.Success(_shoppingList)
+                }
+                Status.ERROR -> {
+                    ShoppingListUiState.Error(message = it.message.toString())
+                }
+            }
         }
-        .map(ShoppingListUiState::Success)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -60,8 +76,7 @@ class ShoppingListViewModel @Inject constructor(
                     else -> {
                         // TODO: todo better error handling
                         println(
-                            "[OnHand] Recipe save unsuccessful, there was an exception - " +
-                                    "recipe not saved"
+                            "[OnHand] Unable to check off ingredient, there was an exception"
                         )
                         // Retain the previous save state on error
                         _shoppingList[index] = item.copy(
@@ -91,8 +106,7 @@ class ShoppingListViewModel @Inject constructor(
                     else -> {
                         // TODO: todo better error handling
                         println(
-                            "[OnHand] Recipe save unsuccessful, there was an exception - " +
-                                    "recipe not saved"
+                            "[OnHand] Unable to uncheck ingredient, there was an exception"
                         )
                         // Retain the previous save state on error
                         _shoppingList[index] = item.copy(

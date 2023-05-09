@@ -1,13 +1,13 @@
 package com.tstreet.onhand.core.data.api.repository
 
+import com.tstreet.onhand.core.common.Resource
 import com.tstreet.onhand.core.model.ShoppingListIngredient
-import kotlinx.coroutines.flow.Flow
 
 interface ShoppingListRepository {
 
-    fun getShoppingList(): Flow<List<ShoppingListIngredient>>
+    suspend fun getShoppingList(): Resource<List<ShoppingListIngredient>>
 
-    suspend fun insertIngredients(shoppingList: List<ShoppingListIngredient>)
+    suspend fun insertIngredients(shoppingList: List<ShoppingListIngredient>): Resource<Unit>
 
     suspend fun checkOffIngredient(ingredient: ShoppingListIngredient)
 
