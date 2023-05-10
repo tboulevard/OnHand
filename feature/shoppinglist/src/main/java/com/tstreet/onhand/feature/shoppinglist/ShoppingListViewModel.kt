@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.Status.ERROR
 import com.tstreet.onhand.core.common.Status.SUCCESS
+import com.tstreet.onhand.core.domain.recipes.GetSavedRecipesUseCase
+import com.tstreet.onhand.core.domain.recipes.GetSavedRecipesUseCase_Factory
 import com.tstreet.onhand.core.domain.shoppinglist.GetShoppingListUseCase
 import com.tstreet.onhand.core.domain.shoppinglist.CheckOffIngredientUseCase
 import com.tstreet.onhand.core.domain.shoppinglist.UncheckIngredientUseCase
@@ -22,7 +24,9 @@ import javax.inject.Provider
 class ShoppingListViewModel @Inject constructor(
     getShoppingListUseCase: Provider<GetShoppingListUseCase>,
     private val checkIngredientUseCase: Provider<CheckOffIngredientUseCase>,
-    private val uncheckIngredientUseCase: Provider<UncheckIngredientUseCase>
+    private val uncheckIngredientUseCase: Provider<UncheckIngredientUseCase>,
+    // TODO: replace call with getting recipes for ingredients added to shopping list
+    private val savedRecipesUseCase: Provider<GetSavedRecipesUseCase>
 ) : ViewModel() {
 
     init {
@@ -31,27 +35,35 @@ class ShoppingListViewModel @Inject constructor(
 
     private var _shoppingList = mutableStateListOf<ShoppingListIngredient>()
 
-    val shoppingListUiState = getShoppingListUseCase
-        .get()
-        .invoke()
-        .map { resource ->
-            when (resource.status) {
-                SUCCESS -> {
-                    // TODO: Log analytics if data is null somehow. We fallback to emitting an
-                    //  empty list.
-                    _shoppingList = resource.data?.toMutableStateList() ?: mutableStateListOf()
-                    ShoppingListUiState.Success(_shoppingList)
-                }
-                ERROR -> {
-                    ShoppingListUiState.Error(message = resource.message.toString())
+    // pseudo for shopping list ui state
+    // get recipes for ingredients in shopping list, get shopping list ingredients
+    //
+
+    val shoppingListUiState =
+        getShoppingListUseCase
+            .get()
+            .invoke().combine(
+                savedRecipesUseCase
+                    .get()
+                    .invoke()
+            ) { t1, t2 ->
+                when (t1.status) {
+                    SUCCESS -> {
+                        // TODO: Log analytics if data is null somehow. We fallback to emitting an
+                        //  empty list.
+                        _shoppingList = t1.data?.toMutableStateList() ?: mutableStateListOf()
+                        ShoppingListUiState.Success(_shoppingList, t2.map { it.recipe })
+                    }
+                    ERROR -> {
+                        ShoppingListUiState.Error(message = t1.message.toString())
+                    }
                 }
             }
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = RecipeDetailUiState.Loading
-        )
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = RecipeDetailUiState.Loading
+            )
 
     private val _errorDialogState = MutableStateFlow(dismissed())
     val errorDialogState = _errorDialogState
@@ -120,6 +132,12 @@ class ShoppingListViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    fun onRemoveRecipe(index: Int) {
+        viewModelScope.launch {
+            println("[OnHand] Removing recipe at index=$index")
         }
     }
 

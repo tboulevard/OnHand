@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -199,9 +200,28 @@ fun RecipeCardItem(
     }
 }
 
+@Composable
+fun ShoppingListRecipeCards(
+    recipes: List<Recipe>,
+    onItemClick: (String) -> Unit = { },
+    onRemoveFromShoppingList: (Int) -> Unit = { }
+) {
+    LazyRow(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        itemsIndexed(recipes) { index, recipe ->
+            ShoppingListRecipeCardItem(
+                recipe = recipe,
+                onItemClick = onItemClick,
+                onRemoveFromShoppingList = onRemoveFromShoppingList
+            )
+        }
+    }
+}
+
 @Preview
 @Composable
-fun RecipeCardItemShoppingList(
+fun ShoppingListRecipeCardItem(
     @PreviewParameter(RecipeCardShoppingListPreviewParamProvider::class) recipe: Recipe,
     index: Int = 0,
     onItemClick: (String) -> Unit = { },
@@ -214,12 +234,13 @@ fun RecipeCardItemShoppingList(
         shadowElevation = 8.dp,
         shape = MaterialTheme.shapes.small
     ) {
-        Column(modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.Top) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.Top
+        ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onItemClick("recipe_detail/${recipe.id}") }
             ) {
                 Image(
                     painter = painterResource(R.drawable.recipe_placeholder),

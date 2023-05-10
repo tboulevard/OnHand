@@ -40,6 +40,31 @@ fun ShoppingListScreen(
                 OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
             }
             is ShoppingListUiState.Success -> {
+                Text(
+                    modifier = Modifier
+                        .padding(8.dp),
+                    text = "10 recipes - ${state.ingredients.size} items",
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center,
+                )
+                when {
+                    state.recipes.isNotEmpty() -> {
+                        ShoppingListRecipeCards(
+                            recipes = state.recipes,
+                            onItemClick = {  },
+                            onRemoveFromShoppingList = viewModel::onRemoveRecipe
+                        )
+                    }
+                }
+
+                Text(
+                    modifier = Modifier
+                        .padding(8.dp),
+                    text = "Ingredients from Recipes",
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center,
+                )
+
                 when {
                     state.ingredients.isNotEmpty() -> {
                         ShoppingListCards(
