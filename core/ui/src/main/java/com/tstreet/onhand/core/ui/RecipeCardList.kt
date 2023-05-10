@@ -1,5 +1,6 @@
 package com.tstreet.onhand.core.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -83,11 +85,10 @@ fun RecipeCardItem(
         }
     ) {
         Row(
-            // TODO: hardcoding recipe_detail route not ideal. Not easy to fix b/c it would require
-            // this module to rely on :app, refactor later...
             modifier = Modifier.clickable { onItemClick("recipe_detail/${recipe.id}") },
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            // Leftmost column, containing card information
             Column(
                 modifier = Modifier
                     .padding(12.dp)
@@ -124,7 +125,12 @@ fun RecipeCardItem(
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
-                Row(modifier = Modifier.padding(4.dp)) {
+
+                // Add to shopping list button
+                Row(
+                    modifier = Modifier.padding(4.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
                     Button(
                         onClick = { onAddToShoppingListClick(index) },
                         colors = ButtonDefaults.buttonColors(
@@ -154,23 +160,9 @@ fun RecipeCardItem(
                         }
                     }
                 }
-// TODO: where to put time if we decide to send through later
-//                Row(modifier = Modifier.padding(4.dp)) {
-//                    Icon(
-//                        painterResource(com.tstreet.onhand.core.ui.R.drawable.timer),
-//                        contentDescription = "time",
-//                        modifier = Modifier
-//                            .size(18.dp)
-//                            .padding(end = 4.dp),
-//                        tint = MaterialTheme.colorScheme.inverseOnSurface
-//                    )
-//                    Text(
-//                        text = "-- minutes",
-//                        style = MaterialTheme.typography.bodyMedium
-//                    )
-//                }
-
             }
+
+            // Rightmost column, containing card information
             Column(
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
@@ -207,6 +199,61 @@ fun RecipeCardItem(
     }
 }
 
+@Preview
+@Composable
+fun RecipeCardItemShoppingList(
+    @PreviewParameter(RecipeCardShoppingListPreviewParamProvider::class) recipe: Recipe,
+    index: Int = 0,
+    onItemClick: (String) -> Unit = { },
+    onRemoveFromShoppingList: (Int) -> Unit = { }
+) {
+    Surface(
+        modifier = Modifier
+            .size(148.dp)
+            .padding(8.dp),
+        shadowElevation = 8.dp,
+        shape = MaterialTheme.shapes.small
+    ) {
+        Column(modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.Top) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onItemClick("recipe_detail/${recipe.id}") }
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.recipe_placeholder),
+                    contentDescription = "recipe image",
+                    modifier = Modifier.size(width = 192.dp, height = 148.dp)
+                )
+                Icon(
+                    Icons.Default.Clear,
+                    contentDescription = "clear ingredients",
+                    modifier = Modifier
+                        .size(24.dp)
+                        .align(Alignment.TopEnd)
+                        .clickable { onRemoveFromShoppingList(index) },
+                    tint = MaterialTheme.colorScheme.inverseOnSurface
+                )
+                Surface(
+                    color = MaterialTheme.colorScheme.surfaceTint,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onItemClick("recipe_detail/${recipe.id}") }
+                        .align(Alignment.BottomStart)
+                ) {
+                    Text(
+                        text = recipe.title,
+                        modifier = Modifier
+                            .padding(4.dp),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+        }
+    }
+}
+
 // Recipe wrapped in save state to allow the view model to toggle it
 data class RecipeWithSaveState(
     val recipe: Recipe,
@@ -229,6 +276,22 @@ class RecipeCardPreviewParamProvider : PreviewParameterProvider<RecipeWithSaveSt
                 likes = 100
             ),
             recipeSaveState = RecipeSaveState.SAVED
+        )
+    )
+}
+
+class RecipeCardShoppingListPreviewParamProvider : PreviewParameterProvider<Recipe> {
+    override val values: Sequence<Recipe> = sequenceOf(
+        Recipe(
+            id = 1,
+            title = "A very long recipe name that is very long",
+            image = "image",
+            imageType = "imageType",
+            usedIngredientCount = 10,
+            usedIngredients = emptyList(),
+            missedIngredientCount = 3,
+            missedIngredients = emptyList(),
+            likes = 100
         )
     )
 }
