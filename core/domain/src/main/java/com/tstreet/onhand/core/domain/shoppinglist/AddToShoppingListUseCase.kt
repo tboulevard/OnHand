@@ -47,6 +47,7 @@ class AddToShoppingListUseCase @Inject constructor(
                 Status.ERROR -> {
                     // TODO: ViewModel layer ignores the full stacktrace - keeping here as reminder
                     //  to transmit via analytics here
+                    println("[OnHand] Error adding to shopping list - ${result.message}")
                     emit(Resource.error(msg = result.message.toString()))
                 }
             }

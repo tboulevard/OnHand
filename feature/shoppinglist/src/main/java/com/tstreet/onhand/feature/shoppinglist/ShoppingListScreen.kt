@@ -39,11 +39,12 @@ fun ShoppingListScreen(
             is ShoppingListUiState.Loading -> {
                 OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
             }
+            // TODO: make the entire screen scrollable rather than having scrollable sections
             is ShoppingListUiState.Success -> {
                 Text(
                     modifier = Modifier
                         .padding(8.dp),
-                    text = "10 recipes - ${state.ingredients.size} items",
+                    text = "${state.recipes.size} recipes - ${state.ingredients.size} items",
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                 )
@@ -51,7 +52,7 @@ fun ShoppingListScreen(
                     state.recipes.isNotEmpty() -> {
                         ShoppingListRecipeCards(
                             recipes = state.recipes,
-                            onItemClick = {  },
+                            onItemClick = { },
                             onRemoveFromShoppingList = viewModel::onRemoveRecipe
                         )
                     }
@@ -76,15 +77,14 @@ fun ShoppingListScreen(
                     else -> {
                         Row(
                             modifier = Modifier
-                                .fillMaxSize()
+                                .fillMaxSize(),
+                            horizontalArrangement = Arrangement.Center
                         ) {
                             Text(
                                 modifier = Modifier
                                     .align(Alignment.CenterVertically)
                                     .padding(8.dp),
-                                text = "No shopping list to show - either because you have all " +
-                                        "ingredients for all saved recipes or because you " +
-                                        "haven't saved any recipes.",
+                                text = "Your shopping list is empty.",
                                 style = MaterialTheme.typography.titleLarge,
                                 textAlign = TextAlign.Center,
                             )
@@ -179,7 +179,7 @@ fun ShoppingListCardItem(
                 if (card.recipe != null) {
                     Text(
                         modifier = Modifier.padding(8.dp),
-                        text = "Recipe: ${card.recipe.title}",
+                        text = card.recipe.title,
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }

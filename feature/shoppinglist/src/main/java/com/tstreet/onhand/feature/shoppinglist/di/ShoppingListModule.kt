@@ -3,6 +3,7 @@ package com.tstreet.onhand.feature.shoppinglist.di
 import com.tstreet.onhand.core.common.UseCase
 import com.tstreet.onhand.core.domain.shoppinglist.GetShoppingListUseCase
 import com.tstreet.onhand.core.domain.shoppinglist.CheckOffIngredientUseCase
+import com.tstreet.onhand.core.domain.shoppinglist.GetRecipesInShoppingListUseCase
 import com.tstreet.onhand.core.domain.shoppinglist.UncheckIngredientUseCase
 import dagger.Binds
 import dagger.Module
@@ -16,12 +17,17 @@ interface ShoppingListModule {
     ): UseCase
 
     @Binds
-    fun bindsMarkShoppingListIngredientUseCase(
+    fun bindsCheckOffIngredientUseCase(
         useCase: CheckOffIngredientUseCase
     ): UseCase
 
     @Binds
-    fun bindsunmarkShoppingListIngredientUseCase(
+    fun bindsUncheckIngredientUseCase(
         useCase: UncheckIngredientUseCase
+    ): UseCase
+
+    @Binds
+    fun bindsGetRecipesInShoppingListUseCase(
+        useCase: GetRecipesInShoppingListUseCase
     ): UseCase
 }

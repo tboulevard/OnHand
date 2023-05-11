@@ -10,6 +10,7 @@ import com.tstreet.onhand.core.domain.recipes.GetSavedRecipesUseCase
 import com.tstreet.onhand.core.domain.recipes.GetSavedRecipesUseCase_Factory
 import com.tstreet.onhand.core.domain.shoppinglist.GetShoppingListUseCase
 import com.tstreet.onhand.core.domain.shoppinglist.CheckOffIngredientUseCase
+import com.tstreet.onhand.core.domain.shoppinglist.GetRecipesInShoppingListUseCase
 import com.tstreet.onhand.core.domain.shoppinglist.UncheckIngredientUseCase
 import com.tstreet.onhand.core.model.ShoppingListIngredient
 import com.tstreet.onhand.core.ui.ErrorDialogState.Companion.dismissed
@@ -23,10 +24,9 @@ import javax.inject.Provider
 
 class ShoppingListViewModel @Inject constructor(
     getShoppingListUseCase: Provider<GetShoppingListUseCase>,
+    getRecipesInShoppingListUseCase: Provider<GetRecipesInShoppingListUseCase>,
     private val checkIngredientUseCase: Provider<CheckOffIngredientUseCase>,
     private val uncheckIngredientUseCase: Provider<UncheckIngredientUseCase>,
-    // TODO: replace call with getting recipes for ingredients added to shopping list
-    private val savedRecipesUseCase: Provider<GetSavedRecipesUseCase>
 ) : ViewModel() {
 
     init {
@@ -43,7 +43,7 @@ class ShoppingListViewModel @Inject constructor(
         getShoppingListUseCase
             .get()
             .invoke().combine(
-                savedRecipesUseCase
+                getRecipesInShoppingListUseCase
                     .get()
                     .invoke()
             ) { t1, t2 ->
@@ -52,7 +52,7 @@ class ShoppingListViewModel @Inject constructor(
                         // TODO: Log analytics if data is null somehow. We fallback to emitting an
                         //  empty list.
                         _shoppingList = t1.data?.toMutableStateList() ?: mutableStateListOf()
-                        ShoppingListUiState.Success(_shoppingList, t2.map { it.recipe })
+                        ShoppingListUiState.Success(_shoppingList, t2.data ?: emptyList())
                     }
                     ERROR -> {
                         ShoppingListUiState.Error(message = t1.message.toString())
