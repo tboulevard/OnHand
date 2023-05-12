@@ -28,7 +28,7 @@ fun ShoppingListScreen(
 
     // For general errors
     OnHandAlertDialog(
-        onDismiss = { viewModel.dismissErrorDialog() },
+        onDismiss = viewModel::dismissErrorDialog,
         titleText = "Error",
         bodyText = errorDialogState.message,
         shouldDisplay = errorDialogState.shouldDisplay
@@ -54,10 +54,10 @@ fun ShoppingListScreen(
                         ShoppingListRecipeCards(
                             recipes = state.recipes,
                             onItemClick = { /* TODO */ },
-                            onRemoveFromShoppingList = removeRecipeConfirmationDialog(
-                                viewModel::onRemoveRecipe,
-                                removeRecipeConfirmationDialogState
-                            )
+                            onRemoveClick = viewModel::showRemoveRecipeConfirmationDialog,
+                            onConfirmRemoveClick = viewModel::onRemoveRecipe,
+                            onDismissDialog = viewModel::dismissRemoveRecipeConfirmationDialog,
+                            removeRecipeConfirmationDialogState = removeRecipeConfirmationDialogState
                         )
                     }
                 }
@@ -190,22 +190,6 @@ fun ShoppingListCardItem(
             }
         }
     }
-}
-
-@Composable
-fun removeRecipeConfirmationDialog(
-    onDismiss : () -> Unit,
-    onRemoveFromShoppingList: () -> Unit = { },
-    confirmationDialogState: Boolean
-) {
-    OnHandAlertDialog(
-        onDismiss = onDismiss,
-        onConfirm = onRemoveFromShoppingList,
-        titleText = "You sure pal?",
-        bodyText = "Are you sure you'd like to remove this recipe and all its ingredients from" +
-                "your shopping list?",
-        shouldDisplay = confirmationDialogState
-    )
 }
 
 class ShoppingListCard(

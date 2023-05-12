@@ -200,81 +200,6 @@ fun RecipeCardItem(
     }
 }
 
-@Composable
-fun ShoppingListRecipeCards(
-    recipes: List<Recipe>,
-    onItemClick: (String) -> Unit = { },
-    onRemoveFromShoppingList: (Int) -> Unit = { }
-) {
-    LazyRow(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        itemsIndexed(recipes) { index, recipe ->
-            ShoppingListRecipeCardItem(
-                recipe = recipe,
-                onItemClick = onItemClick,
-                onRemoveFromShoppingList = onRemoveFromShoppingList
-            )
-        }
-    }
-}
-
-@Preview
-@Composable
-fun ShoppingListRecipeCardItem(
-    @PreviewParameter(RecipeCardShoppingListPreviewParamProvider::class) recipe: Recipe,
-    index: Int = 0,
-    onItemClick: (String) -> Unit = { },
-    onRemoveFromShoppingList: (Int) -> Unit = { }
-) {
-    Surface(
-        modifier = Modifier
-            .size(148.dp)
-            .padding(8.dp),
-        shadowElevation = 8.dp,
-        shape = MaterialTheme.shapes.small
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.Top
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.recipe_placeholder),
-                    contentDescription = "recipe image",
-                    modifier = Modifier.size(width = 192.dp, height = 148.dp)
-                )
-                Icon(
-                    Icons.Default.Clear,
-                    contentDescription = "clear ingredients",
-                    modifier = Modifier
-                        .size(24.dp)
-                        .align(Alignment.TopEnd)
-                        .clickable { onRemoveFromShoppingList(index) },
-                    tint = MaterialTheme.colorScheme.inverseOnSurface
-                )
-                Surface(
-                    color = MaterialTheme.colorScheme.surfaceTint,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onItemClick("recipe_detail/${recipe.id}") }
-                        .align(Alignment.BottomStart)
-                ) {
-                    Text(
-                        text = recipe.title,
-                        modifier = Modifier
-                            .padding(4.dp),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-            }
-        }
-    }
-}
-
 // Recipe wrapped in save state to allow the view model to toggle it
 data class RecipeWithSaveState(
     val recipe: Recipe,
@@ -297,22 +222,6 @@ class RecipeCardPreviewParamProvider : PreviewParameterProvider<RecipeWithSaveSt
                 likes = 100
             ),
             recipeSaveState = RecipeSaveState.SAVED
-        )
-    )
-}
-
-class RecipeCardShoppingListPreviewParamProvider : PreviewParameterProvider<Recipe> {
-    override val values: Sequence<Recipe> = sequenceOf(
-        Recipe(
-            id = 1,
-            title = "A very long recipe name that is very long",
-            image = "image",
-            imageType = "imageType",
-            usedIngredientCount = 10,
-            usedIngredients = emptyList(),
-            missedIngredientCount = 3,
-            missedIngredients = emptyList(),
-            likes = 100
         )
     )
 }

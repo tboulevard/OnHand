@@ -79,7 +79,7 @@ class ShoppingListViewModel @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
-            initialValue = _errorDialogState.value
+            initialValue = _removeRecipeConfirmationDialogState.value
         )
 
     fun onCheckOffShoppingIngredient(index: Int) {
@@ -170,5 +170,14 @@ class ShoppingListViewModel @Inject constructor(
 
     fun dismissErrorDialog() {
         _errorDialogState.update { dismissed() }
+    }
+
+    // TODO cleanup below by wrapping in state object
+    fun dismissRemoveRecipeConfirmationDialog() {
+        _removeRecipeConfirmationDialogState.update { false }
+    }
+
+    fun showRemoveRecipeConfirmationDialog() {
+        _removeRecipeConfirmationDialogState.update { true }
     }
 }

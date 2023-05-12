@@ -33,7 +33,7 @@ fun RecipeSearchScreen(
         bodyText = "Recipes shown here are based on ingredients from your pantry. By " +
                 "default we'll only show recipes where you're missing at most 3 " +
                 "ingredients.",
-        buttonText = "Got it \uD83D\uDC4C",
+        dismissButtonText = "Got it \uD83D\uDC4C",
         shouldDisplay = openInfoDialog.value
     )
 
@@ -42,7 +42,7 @@ fun RecipeSearchScreen(
         onDismiss = { viewModel.dismissErrorDialog() },
         titleText = "Error",
         bodyText = errorDialogState.value.message,
-        buttonText = "Dismiss",
+        dismissButtonText = "Dismiss",
         shouldDisplay = errorDialogState.value.shouldDisplay
     )
 
@@ -99,7 +99,7 @@ fun RecipeSearchScreen(
                         onDismiss = { viewModel.dismissErrorDialog() },
                         titleText = "Error",
                         bodyText = errorDialogState.value.message,
-                        buttonText = "Dismiss"
+                        dismissButtonText = "Dismiss"
                     )
                 } else {
                     SortBySpinner(
