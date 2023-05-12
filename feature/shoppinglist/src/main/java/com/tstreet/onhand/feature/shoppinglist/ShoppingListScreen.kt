@@ -24,6 +24,7 @@ fun ShoppingListScreen(
 ) {
     val uiState by viewModel.shoppingListUiState.collectAsStateWithLifecycle()
     val errorDialogState by viewModel.errorDialogState.collectAsStateWithLifecycle()
+    val removeRecipeConfirmationDialogState by viewModel.removeRecipeConfirmationDialogState.collectAsStateWithLifecycle()
 
     // For general errors
     OnHandAlertDialog(
@@ -52,8 +53,11 @@ fun ShoppingListScreen(
                     state.recipes.isNotEmpty() -> {
                         ShoppingListRecipeCards(
                             recipes = state.recipes,
-                            onItemClick = { },
-                            onRemoveFromShoppingList = viewModel::onRemoveRecipe
+                            onItemClick = { /* TODO */ },
+                            onRemoveFromShoppingList = removeRecipeConfirmationDialog(
+                                viewModel::onRemoveRecipe,
+                                removeRecipeConfirmationDialogState
+                            )
                         )
                     }
                 }
@@ -186,6 +190,22 @@ fun ShoppingListCardItem(
             }
         }
     }
+}
+
+@Composable
+fun removeRecipeConfirmationDialog(
+    onDismiss : () -> Unit,
+    onRemoveFromShoppingList: () -> Unit = { },
+    confirmationDialogState: Boolean
+) {
+    OnHandAlertDialog(
+        onDismiss = onDismiss,
+        onConfirm = onRemoveFromShoppingList,
+        titleText = "You sure pal?",
+        bodyText = "Are you sure you'd like to remove this recipe and all its ingredients from" +
+                "your shopping list?",
+        shouldDisplay = confirmationDialogState
+    )
 }
 
 class ShoppingListCard(

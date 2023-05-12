@@ -8,7 +8,8 @@ import androidx.compose.material3.AlertDialog
 @Composable
 fun OnHandAlertDialog(
     onDismiss: () -> Unit,
-    titleText : String,
+    onConfirm: () -> Unit = { },
+    titleText: String,
     bodyText: String,
     buttonText: String = "Ok",
     shouldDisplay: Boolean = true
@@ -31,7 +32,7 @@ fun OnHandAlertDialog(
                     Text(buttonText)
                 }
             },
-            confirmButton = { },
+            confirmButton = { onConfirm.invoke() },
         )
     }
 }
