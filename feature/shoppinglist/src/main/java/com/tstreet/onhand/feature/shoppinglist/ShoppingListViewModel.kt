@@ -6,12 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.Status.ERROR
 import com.tstreet.onhand.core.common.Status.SUCCESS
-import com.tstreet.onhand.core.domain.recipes.GetSavedRecipesUseCase
-import com.tstreet.onhand.core.domain.recipes.GetSavedRecipesUseCase_Factory
-import com.tstreet.onhand.core.domain.shoppinglist.GetShoppingListUseCase
-import com.tstreet.onhand.core.domain.shoppinglist.CheckOffIngredientUseCase
-import com.tstreet.onhand.core.domain.shoppinglist.GetRecipesInShoppingListUseCase
-import com.tstreet.onhand.core.domain.shoppinglist.UncheckIngredientUseCase
+import com.tstreet.onhand.core.domain.shoppinglist.*
+import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.model.ShoppingListIngredient
 import com.tstreet.onhand.core.ui.ErrorDialogState.Companion.dismissed
 import com.tstreet.onhand.core.ui.ErrorDialogState.Companion.displayed
@@ -25,6 +21,7 @@ import javax.inject.Provider
 class ShoppingListViewModel @Inject constructor(
     getShoppingListUseCase: Provider<GetShoppingListUseCase>,
     getRecipesInShoppingListUseCase: Provider<GetRecipesInShoppingListUseCase>,
+    private val removeRecipeInShoppingListUseCase: Provider<RemoveRecipeInShoppingListUseCase>,
     private val checkIngredientUseCase: Provider<CheckOffIngredientUseCase>,
     private val uncheckIngredientUseCase: Provider<UncheckIngredientUseCase>,
 ) : ViewModel() {
@@ -34,10 +31,7 @@ class ShoppingListViewModel @Inject constructor(
     }
 
     private var _shoppingList = mutableStateListOf<ShoppingListIngredient>()
-
-    // pseudo for shopping list ui state
-    // get recipes for ingredients in shopping list, get shopping list ingredients
-    //
+    private var _mappedRecipes = mutableStateListOf<Recipe>()
 
     val shoppingListUiState =
         getShoppingListUseCase
@@ -46,16 +40,22 @@ class ShoppingListViewModel @Inject constructor(
                 getRecipesInShoppingListUseCase
                     .get()
                     .invoke()
-            ) { t1, t2 ->
-                when (t1.status) {
+            ) { getShoppingListResult, getMappedRecipesResult ->
+                when (getShoppingListResult.status) {
                     SUCCESS -> {
                         // TODO: Log analytics if data is null somehow. We fallback to emitting an
                         //  empty list.
-                        _shoppingList = t1.data?.toMutableStateList() ?: mutableStateListOf()
-                        ShoppingListUiState.Success(_shoppingList, t2.data ?: emptyList())
+                        _shoppingList =
+                            getShoppingListResult.data?.toMutableStateList() ?: mutableStateListOf()
+                        _mappedRecipes = getMappedRecipesResult.data?.toMutableStateList()
+                            ?: mutableStateListOf()
+                        ShoppingListUiState.Success(_shoppingList, _mappedRecipes)
                     }
                     ERROR -> {
-                        ShoppingListUiState.Error(message = t1.message.toString())
+                        ShoppingListUiState.Error(
+                            message = getShoppingListResult.message.toString() +
+                                    getMappedRecipesResult.message.toString()
+                        )
                     }
                 }
             }
@@ -137,7 +137,25 @@ class ShoppingListViewModel @Inject constructor(
 
     fun onRemoveRecipe(index: Int) {
         viewModelScope.launch {
-            println("[OnHand] Removing recipe at index=$index")
+            val item = _mappedRecipes[index]
+            println("[OnHand] Removing recipe at index=$item")
+
+            // TODO: Show info dialog to confirm action later
+
+            when (removeRecipeInShoppingListUseCase.get().invoke(item).status) {
+                SUCCESS -> {
+                    _mappedRecipes.remove(item)
+                    _shoppingList.removeIf { it.mappedRecipe?.title == item.title }
+                }
+                ERROR -> {
+                    _errorDialogState.update {
+                        displayed(
+                            "There was a problem removing the recipe from your shopping list. " +
+                                    "Please try again."
+                        )
+                    }
+                }
+            }
         }
     }
 

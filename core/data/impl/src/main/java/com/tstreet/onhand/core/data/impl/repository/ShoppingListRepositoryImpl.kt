@@ -91,6 +91,16 @@ class ShoppingListRepositoryImpl @Inject constructor(
         shoppingListDao.get().clear()
     }
 
+    override suspend fun removeRecipe(recipe: Recipe): Resource<Unit> {
+        return try {
+            shoppingListDao.get().removeRecipe(recipe)
+            Resource.success(null)
+        } catch (e: Exception) {
+            // TODO: rethrow in debug
+            Resource.error(msg = e.message.toString())
+        }
+    }
+
     override suspend fun isEmpty(): Boolean {
         return shoppingListDao
             .get()

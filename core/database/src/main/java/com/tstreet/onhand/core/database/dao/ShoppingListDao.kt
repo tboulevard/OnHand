@@ -32,4 +32,6 @@ interface ShoppingListDao {
 
     @Query("DELETE from shopping_list")
     suspend fun clear()
+    @Query("DELETE from shopping_list WHERE mappedRecipe = :recipe")
+    suspend fun removeRecipe(recipe: Recipe)
 }
