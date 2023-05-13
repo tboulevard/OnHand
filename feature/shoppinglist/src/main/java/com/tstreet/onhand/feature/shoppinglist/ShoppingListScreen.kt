@@ -34,98 +34,90 @@ fun ShoppingListScreen(
         shouldDisplay = errorDialogState.shouldDisplay
     )
 
-    Column(verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()) {
-        OnHandScreenHeader("Shopping List")
-        when (val state = uiState) {
-            is ShoppingListUiState.Loading -> {
-                OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
-            }
-            // TODO: make the entire screen scrollable rather than having scrollable sections
-            is ShoppingListUiState.Success -> {
-                Text(
-                    modifier = Modifier
-                        .padding(8.dp),
-                    text = "${state.recipes.size} recipes - ${state.ingredients.size} items",
-                    style = MaterialTheme.typography.titleLarge,
-                    textAlign = TextAlign.Center,
-                )
-                when {
-                    state.recipes.isNotEmpty() -> {
-                        ShoppingListRecipeCards(
-                            recipes = state.recipes,
-                            onItemClick = { /* TODO */ },
-                            onRemoveClick = viewModel::showRemoveRecipeConfirmationDialog,
-                            onConfirmRemoveClick = viewModel::onRemoveRecipe,
-                            onDismissDialog = viewModel::dismissRemoveRecipeConfirmationDialog,
-                            removeRecipeConfirmationDialogState = removeRecipeConfirmationDialogState
-                        )
-                    }
-                }
-
-                Text(
-                    modifier = Modifier
-                        .padding(8.dp),
-                    text = "Ingredients from Recipes",
-                    style = MaterialTheme.typography.titleLarge,
-                    textAlign = TextAlign.Center,
-                )
-
-                when {
-                    state.ingredients.isNotEmpty() -> {
-                        ShoppingListCards(
-                            state.ingredients,
-                            viewModel::onCheckOffShoppingIngredient,
-                            viewModel::onUncheckShoppingIngredient
-                        )
-                    }
-                    else -> {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
+    when (val state = uiState) {
+        is ShoppingListUiState.Loading -> {
+            OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
+        }
+        is ShoppingListUiState.Success -> {
+            LazyColumn(verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()) {
+                itemsIndexed(state.screenContent) { index, item ->
+                    when (item) {
+                        is ShoppingListItem.Header -> {
+                            println(state.screenContent)
+                            OnHandScreenHeader("Shopping List")
+                        }
+                        is ShoppingListItem.Summary -> {
                             Text(
                                 modifier = Modifier
-                                    .align(Alignment.CenterVertically)
                                     .padding(8.dp),
-                                text = "Your shopping list is empty.",
+                                text = "${state.recipes.size} recipes - ${state.ingredients.size} items",
                                 style = MaterialTheme.typography.titleLarge,
                                 textAlign = TextAlign.Center,
                             )
                         }
+                        is ShoppingListItem.Ingredient -> {
+                            ShoppingListCardItem(
+                                ShoppingListCard(
+                                    ingredientName = item.ingredient.name,
+                                    recipe = item.ingredient.mappedRecipe,
+                                    isIngredientChecked = item.ingredient.isPurchased,
+                                    index = index
+                                ),
+                                viewModel::onCheckOffShoppingIngredient,
+                                viewModel::onUncheckShoppingIngredient
+                            )
+                            // TODO: rework - will be repeatedly drawn for every item in list (but
+                            //  itll be empty so does it matter?)
+//                                else -> {
+//                                    Row(
+//                                        modifier = Modifier
+//                                            .fillMaxSize(),
+//                                        horizontalArrangement = Arrangement.Center
+//                                    ) {
+//                                        Text(
+//                                            modifier = Modifier
+//                                                .align(Alignment.CenterVertically)
+//                                                .padding(8.dp),
+//                                            text = "Your shopping list is empty.",
+//                                            style = MaterialTheme.typography.titleLarge,
+//                                            textAlign = TextAlign.Center,
+//                                        )
+//                                    }
+//                                }
+//                            }
+                        }
+                        is ShoppingListItem.MappedIngredientsHeader -> {
+                            Text(
+                                modifier = Modifier
+                                    .padding(8.dp),
+                                text = "Ingredients from Recipes",
+                                style = MaterialTheme.typography.titleLarge,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                        is ShoppingListItem.MappedRecipes -> {
+                            when {
+                                item.recipes.isNotEmpty() -> {
+                                    ShoppingListRecipeCards(
+                                        recipes = state.recipes,
+                                        onItemClick = { /* TODO */ },
+                                        onRemoveClick = viewModel::showRemoveRecipeConfirmationDialog,
+                                        onConfirmRemoveClick = viewModel::onRemoveRecipe,
+                                        onDismissDialog = viewModel::dismissRemoveRecipeConfirmationDialog,
+                                        removeRecipeConfirmationDialogState = removeRecipeConfirmationDialogState
+                                    )
+                                }
+                                else -> { /* TODO, no recipes to show */
+                                }
+                            }
+                        }
                     }
                 }
             }
-            is ShoppingListUiState.Error -> {
-                // For errors retrieving shopping list itself
-                FullScreenErrorMessage(message = state.message)
-            }
         }
-    }
-}
-
-@Composable
-fun ShoppingListCards(
-    ingredients: List<ShoppingListIngredient>,
-    onMarkIngredient: (Int) -> Unit,
-    onUnmarkIngredient: (Int) -> Unit
-) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp)
-    ) {
-        itemsIndexed(ingredients) { index, ingredient ->
-            ShoppingListCardItem(
-                ShoppingListCard(
-                    ingredientName = ingredient.name,
-                    recipe = ingredient.mappedRecipe,
-                    isIngredientChecked = ingredient.isPurchased,
-                    index = index
-                ),
-                onMarkIngredient,
-                onUnmarkIngredient
-            )
+        is ShoppingListUiState.Error -> {
+            // For errors retrieving shopping list itself
+            FullScreenErrorMessage(message = state.message)
         }
     }
 }

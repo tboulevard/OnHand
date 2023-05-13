@@ -29,11 +29,58 @@ sealed interface ShoppingListUiState {
     data class Success(
         val ingredients: List<ShoppingListIngredient>,
         val recipes: List<Recipe>
-    ) : ShoppingListUiState
+    ) : ShoppingListUiState {
+
+        val screenContent = listOf(
+            ShoppingListItem.Header(
+                text = "Shopping List"
+            ),
+            ShoppingListItem.Summary(
+                numberOfRecipes = recipes.size,
+                numberOfIngredients = ingredients.size
+            ),
+            ShoppingListItem.MappedRecipes(
+                recipes = recipes
+            ),
+            ShoppingListItem.MappedIngredientsHeader(
+                "Ingredients from Recipes"
+            ),
+// TODO: this doesn't work because it returns a list, not individual ShoppingListItem.Ingredients
+            ingredients.map {
+                ShoppingListItem.Ingredient(
+                    ingredient = it
+                )
+            }
+        )
+    }
 
     data class Error(
         val message: String
     ) : ShoppingListUiState
+}
+
+sealed class ShoppingListItem {
+
+    data class Header(
+        val text: String
+    ) : ShoppingListItem()
+
+    data class Summary(
+        val numberOfRecipes: Int,
+        val numberOfIngredients: Int
+    ) : ShoppingListItem()
+
+    data class MappedRecipes(
+        val recipes: List<Recipe>
+    ) : ShoppingListItem()
+
+    data class MappedIngredientsHeader(
+        val text: String
+    ) : ShoppingListItem()
+
+    data class Ingredient(
+        val ingredient: ShoppingListIngredient
+    ) : ShoppingListItem()
 }
 
 @Composable
@@ -50,7 +97,6 @@ fun ShoppingListRecipeCards(
         modifier = Modifier.fillMaxWidth()
     ) {
         itemsIndexed(recipes) { index, recipe ->
-
             OnHandAlertDialog(
                 onDismiss = onDismissDialog,
                 onConfirm = { onConfirmRemoveClick(index) },
