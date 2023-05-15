@@ -93,9 +93,9 @@ fun ShoppingListRecipeCards(
             OnHandAlertDialog(
                 onDismiss = onDismissDialog,
                 onConfirm = { onConfirmRemoveClick(index) },
-                titleText = "You sure pal?",
-                bodyText = "Are you sure you'd like to remove this recipe and all its ingredients from" +
-                        "your shopping list?",
+                titleText = "Are you sure?",
+                bodyText = "Are you sure you'd like to remove this recipe and all its " +
+                        "ingredients from your shopping list?",
                 dismissButtonText = "Cancel",
                 confirmButtonText = "Yes",
                 showConfirmButton = true,
