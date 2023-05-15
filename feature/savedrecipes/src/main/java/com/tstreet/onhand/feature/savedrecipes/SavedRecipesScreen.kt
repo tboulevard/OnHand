@@ -42,15 +42,15 @@ fun SavedRecipesScreen(
                     false -> {
                         Row(
                             modifier = Modifier
-                                .fillMaxSize()
+                                .fillMaxSize(),
+                            horizontalArrangement = Arrangement.Center
                         ) {
                             Text(
                                 modifier = Modifier
                                     .align(Alignment.CenterVertically)
                                     .padding(8.dp),
                                 text = "Nothing saved \uD83E\uDEE0",
-                                style = MaterialTheme.typography.titleLarge,
-                                // TODO: this doesn't center the text, look into later
+                                style = MaterialTheme.typography.bodyMedium,
                                 textAlign = TextAlign.Center,
                             )
                         }

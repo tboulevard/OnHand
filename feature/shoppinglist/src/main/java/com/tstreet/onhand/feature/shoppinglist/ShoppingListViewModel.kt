@@ -75,7 +75,7 @@ class ShoppingListViewModel @Inject constructor(
 
     // TODO: create state object
     private val _removeRecipeConfirmationDialogState = MutableStateFlow(false)
-    val removeRecipeConfirmationDialogState = _removeRecipeConfirmationDialogState
+    val removeRecipeDialogState = _removeRecipeConfirmationDialogState
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
