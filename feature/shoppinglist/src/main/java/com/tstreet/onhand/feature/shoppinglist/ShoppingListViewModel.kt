@@ -149,12 +149,15 @@ class ShoppingListViewModel @Inject constructor(
             val item = _mappedRecipes[index]
             println("[OnHand] Removing recipe at index=$item")
 
-            // TODO: Show info dialog to confirm action later
-
             when (removeRecipeInShoppingListUseCase.get().invoke(item).status) {
                 SUCCESS -> {
                     _mappedRecipes.remove(item)
-                    _shoppingList.removeIf { it.mappedRecipe?.title == item.title }
+                    _shoppingList.removeIf {
+                        val mappedRecipeTitle = it.mappedRecipe?.title
+                        val itemTitle = item.title
+                        val condition = it.mappedRecipe?.title == item.title
+                        condition
+                    }
                 }
                 ERROR -> {
                     _errorDialogState.update {

@@ -43,7 +43,6 @@ fun ShoppingListScreen(
                 itemsIndexed(state.screenContent) { index, item ->
                     when (item) {
                         is ShoppingListItem.Header -> {
-                            println(state.screenContent)
                             OnHandScreenHeader("Shopping List")
                         }
                         is ShoppingListItem.Summary -> {
@@ -55,17 +54,19 @@ fun ShoppingListScreen(
                                 textAlign = TextAlign.Center,
                             )
                         }
-                        is ShoppingListItem.Ingredient -> {
-                            ShoppingListCardItem(
-                                ShoppingListCard(
-                                    ingredientName = item.ingredient.name,
-                                    recipe = item.ingredient.mappedRecipe,
-                                    isIngredientChecked = item.ingredient.isPurchased,
-                                    index = index
-                                ),
-                                viewModel::onCheckOffShoppingIngredient,
-                                viewModel::onUncheckShoppingIngredient
-                            )
+                        is ShoppingListItem.Ingredients -> {
+                            state.ingredients.map {
+                                ShoppingListCardItem(
+                                    ShoppingListCard(
+                                        ingredientName = it.name,
+                                        recipe = it.mappedRecipe,
+                                        isIngredientChecked = it.isPurchased,
+                                        index = index
+                                    ),
+                                    viewModel::onCheckOffShoppingIngredient,
+                                    viewModel::onUncheckShoppingIngredient
+                                )
+                            }
                             // TODO: rework - will be repeatedly drawn for every item in list (but
                             //  itll be empty so does it matter?)
 //                                else -> {

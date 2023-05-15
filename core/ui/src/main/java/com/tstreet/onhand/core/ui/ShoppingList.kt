@@ -31,6 +31,13 @@ sealed interface ShoppingListUiState {
         val recipes: List<Recipe>
     ) : ShoppingListUiState {
 
+//        private val shoppingListItemIngredients =
+//            ingredients.map {
+//                ShoppingListItem.Ingredient(
+//                    ingredient = it
+//                )
+//            }
+
         val screenContent = listOf(
             ShoppingListItem.Header(
                 text = "Shopping List"
@@ -45,12 +52,9 @@ sealed interface ShoppingListUiState {
             ShoppingListItem.MappedIngredientsHeader(
                 "Ingredients from Recipes"
             ),
-// TODO: this doesn't work because it returns a list, not individual ShoppingListItem.Ingredients
-            ingredients.map {
-                ShoppingListItem.Ingredient(
-                    ingredient = it
-                )
-            }
+            ShoppingListItem.Ingredients(
+                ingredients = ingredients
+            )
         )
     }
 
@@ -78,8 +82,8 @@ sealed class ShoppingListItem {
         val text: String
     ) : ShoppingListItem()
 
-    data class Ingredient(
-        val ingredient: ShoppingListIngredient
+    data class Ingredients(
+        val ingredients: List<ShoppingListIngredient>
     ) : ShoppingListItem()
 }
 
