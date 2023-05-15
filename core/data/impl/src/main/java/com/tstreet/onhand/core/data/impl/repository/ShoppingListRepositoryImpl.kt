@@ -5,6 +5,7 @@ import com.tstreet.onhand.core.data.api.repository.ShoppingListRepository
 import com.tstreet.onhand.core.database.dao.ShoppingListDao
 import com.tstreet.onhand.core.database.model.asEntity
 import com.tstreet.onhand.core.database.model.toExternalModel
+import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.model.ShoppingListIngredient
 import javax.inject.Inject
 import javax.inject.Provider
@@ -20,6 +21,21 @@ class ShoppingListRepositoryImpl @Inject constructor(
                     .get()
                     .getShoppingList()
                     .map { it.toExternalModel() }
+            )
+        } catch (e: Exception) {
+            // TODO: rethrow in debug
+            Resource.error(msg = e.message.toString())
+        }
+    }
+
+    override suspend fun getRecipesInShoppingList(): Resource<List<Recipe>> {
+        return try {
+            Resource.success(
+                data = shoppingListDao
+                    .get()
+                    .getRecipesInShoppingList()
+                    // SQL statement should guarantee non-null - .mapNotNull for compile safety
+                    .mapNotNull { it }
             )
         } catch (e: Exception) {
             // TODO: rethrow in debug
@@ -75,13 +91,19 @@ class ShoppingListRepositoryImpl @Inject constructor(
         shoppingListDao.get().clear()
     }
 
+    override suspend fun removeRecipe(recipe: Recipe): Resource<Unit> {
+        return try {
+            shoppingListDao.get().removeRecipe(recipe)
+            Resource.success(null)
+        } catch (e: Exception) {
+            // TODO: rethrow in debug
+            Resource.error(msg = e.message.toString())
+        }
+    }
+
     override suspend fun isEmpty(): Boolean {
         return shoppingListDao
             .get()
             .isEmpty()
-    }
-
-    override fun getShoppingListByRecipe(): List<ShoppingListIngredient> {
-        TODO("Not yet implemented")
     }
 }

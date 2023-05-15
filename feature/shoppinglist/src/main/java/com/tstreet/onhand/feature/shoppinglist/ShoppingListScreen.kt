@@ -4,6 +4,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,80 +27,111 @@ fun ShoppingListScreen(
 ) {
     val uiState by viewModel.shoppingListUiState.collectAsStateWithLifecycle()
     val errorDialogState by viewModel.errorDialogState.collectAsStateWithLifecycle()
+    val removeRecipeConfirmationDialogState by viewModel.removeRecipeDialogState.collectAsStateWithLifecycle()
 
     // For general errors
     OnHandAlertDialog(
-        onDismiss = { viewModel.dismissErrorDialog() },
+        onDismiss = viewModel::dismissErrorDialog,
         titleText = "Error",
         bodyText = errorDialogState.message,
         shouldDisplay = errorDialogState.shouldDisplay
     )
 
-    Column(verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()) {
-        OnHandScreenHeader("Shopping List")
-        when (val state = uiState) {
-            is ShoppingListUiState.Loading -> {
-                OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
-            }
-            is ShoppingListUiState.Success -> {
-                when {
-                    state.ingredients.isNotEmpty() -> {
-                        ShoppingListCards(
-                            state.ingredients,
-                            viewModel::onCheckOffShoppingIngredient,
-                            viewModel::onUncheckShoppingIngredient
-                        )
-                    }
-                    else -> {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxSize()
-                        ) {
+    when (val state = uiState) {
+        is ShoppingListUiState.Loading -> {
+            OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
+        }
+        is ShoppingListUiState.Success -> {
+            LazyColumn(verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()) {
+                itemsIndexed(state.screenContent()) { index, item ->
+                    when (item) {
+                        is ShoppingListItem.Header -> {
+                            OnHandScreenHeader(item.text)
+                        }
+                        is ShoppingListItem.Summary -> {
                             Text(
                                 modifier = Modifier
-                                    .align(Alignment.CenterVertically)
                                     .padding(8.dp),
-                                text = "No shopping list to show - either because you have all " +
-                                        "ingredients for all saved recipes or because you " +
-                                        "haven't saved any recipes.",
+                                text = item.text,
                                 style = MaterialTheme.typography.titleLarge,
                                 textAlign = TextAlign.Center,
+                            )
+                        }
+                        is ShoppingListItem.Ingredients -> {
+                            when {
+                                item.ingredients.isNotEmpty() -> {
+                                    ShoppingListIngredientCards(
+                                        ingredients = item.ingredients,
+                                    )
+                                }
+                                else -> {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxSize(),
+                                        verticalArrangement = Arrangement.Center
+                                    ) {
+                                        // TODO: replace with real image
+                                        Icon(
+                                            Icons.Default.ShoppingCart,
+                                            contentDescription = "empty shopping card",
+                                            modifier = Modifier
+                                                .size(120.dp)
+                                                .align(Alignment.CenterHorizontally)
+                                                .padding(32.dp),
+                                            tint = MaterialTheme.colorScheme.inverseOnSurface
+                                        )
+                                        Text(
+                                            modifier = Modifier
+                                                .align(Alignment.CenterHorizontally)
+                                                .padding(16.dp),
+                                            text = "Your shopping list is empty. You can add " +
+                                                    "items from recipes or manually enter your " +
+                                                    "own.",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            textAlign = TextAlign.Center,
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        is ShoppingListItem.MappedRecipes -> {
+                            ShoppingListRecipeCards(
+                                recipes = state.recipes,
+                                onItemClick = { /* TODO */ },
+                                onRemoveClick = viewModel::showRemoveRecipeConfirmationDialog,
+                                onConfirmRemoveClick = viewModel::onRemoveRecipe,
+                                onDismissDialog = viewModel::dismissRemoveRecipeConfirmationDialog,
+                                removeRecipeConfirmationDialogState = removeRecipeConfirmationDialogState
                             )
                         }
                     }
                 }
             }
-            is ShoppingListUiState.Error -> {
-                // For errors retrieving shopping list itself
-                FullScreenErrorMessage(message = state.message)
-            }
+        }
+        is ShoppingListUiState.Error -> {
+            // For errors retrieving shopping list itself
+            FullScreenErrorMessage(message = state.message)
         }
     }
 }
 
 @Composable
-fun ShoppingListCards(
+fun ShoppingListIngredientCards(
     ingredients: List<ShoppingListIngredient>,
-    onMarkIngredient: (Int) -> Unit,
-    onUnmarkIngredient: (Int) -> Unit
+    onMarkIngredient: (Int) -> Unit = { },
+    onUnmarkIngredient: (Int) -> Unit = { }
 ) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp)
-    ) {
-        itemsIndexed(ingredients) { index, ingredient ->
-            ShoppingListCardItem(
-                ShoppingListCard(
-                    ingredientName = ingredient.name,
-                    recipe = ingredient.mappedRecipe,
-                    isIngredientChecked = ingredient.isPurchased,
-                    index = index
-                ),
-                onMarkIngredient,
-                onUnmarkIngredient
-            )
-        }
+    ingredients.mapIndexed { index, ingredient ->
+        ShoppingListCardItem(
+            ShoppingListCard(
+                ingredientName = ingredient.name,
+                recipe = ingredient.mappedRecipe,
+                isIngredientChecked = ingredient.isPurchased,
+                index = index
+            ),
+            onMarkIngredient = onMarkIngredient,
+            onUnmarkIngredient = onUnmarkIngredient
+        )
     }
 }
 
@@ -154,7 +188,7 @@ fun ShoppingListCardItem(
                 if (card.recipe != null) {
                     Text(
                         modifier = Modifier.padding(8.dp),
-                        text = "Recipe: ${card.recipe.title}",
+                        text = card.recipe.title,
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }

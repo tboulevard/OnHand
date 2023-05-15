@@ -1,11 +1,14 @@
 package com.tstreet.onhand.core.data.api.repository
 
 import com.tstreet.onhand.core.common.Resource
+import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.model.ShoppingListIngredient
 
 interface ShoppingListRepository {
 
     suspend fun getShoppingList(): Resource<List<ShoppingListIngredient>>
+
+    suspend fun getRecipesInShoppingList(): Resource<List<Recipe>>
 
     suspend fun insertIngredients(shoppingList: List<ShoppingListIngredient>): Resource<Unit>
 
@@ -15,9 +18,8 @@ interface ShoppingListRepository {
 
     suspend fun isIngredientCheckedOff(name: String): Boolean
 
-    fun getShoppingListByRecipe(): List<ShoppingListIngredient>
-
     suspend fun isEmpty(): Boolean
 
     suspend fun clear()
+    suspend fun removeRecipe(recipe : Recipe): Resource<Unit>
 }
