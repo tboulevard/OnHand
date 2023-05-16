@@ -87,6 +87,14 @@ class RecipeSearchViewModel @Inject constructor(
             initialValue = _errorDialogState.value
         )
 
+    private val _infoDialogState = MutableStateFlow(dismissed())
+    val infoDialogState = _infoDialogState
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = _infoDialogState.value
+        )
+
     fun onRecipeSaved(index: Int) {
         // TODO: wrap all this in a lock to prevent concurrent execution. in general make
         //  mutable states visible to only one thread
@@ -177,5 +185,20 @@ class RecipeSearchViewModel @Inject constructor(
 
     fun dismissErrorDialog() {
         _errorDialogState.update { dismissed() }
+    }
+
+    fun showInfoDialog() {
+        _infoDialogState.update {
+            displayed(
+                title = "Search Recipes",
+                message = "Recipes shown here are based on ingredients from your pantry. By " +
+                        "default we'll only show recipes where you're missing at most 3 " +
+                        "ingredients.",
+            )
+        }
+    }
+
+    fun dismissInfoDialog() {
+        _infoDialogState.update { dismissed() }
     }
 }

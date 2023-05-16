@@ -10,6 +10,8 @@ import com.tstreet.onhand.core.domain.pantry.AddToPantryUseCase
 import com.tstreet.onhand.core.domain.pantry.GetPantryUseCase
 import com.tstreet.onhand.core.domain.pantry.RemoveFromPantryUseCase
 import com.tstreet.onhand.core.model.PantryIngredient
+import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
+import com.tstreet.onhand.core.ui.AlertDialogState.Companion.displayed
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,6 +26,7 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     val pantry = mutableStateListOf<PantryIngredient>()
+
     // TODO: refactor to work with keys for each item in LazyColumn
     var ingredients = mutableStateListOf<PantryIngredient>()
         private set
@@ -70,14 +73,12 @@ class HomeViewModel @Inject constructor(
     private val _isPreSearchDebounce = MutableStateFlow(false)
     val isPreSearchDebounce = _isPreSearchDebounce.asStateFlow()
 
-    private val _showErrorDialog = MutableStateFlow(
-        ErrorDialogState(shouldDisplay = false)
-    )
-    val errorDialogState = _showErrorDialog
+    private val _errorDialogState = MutableStateFlow(dismissed())
+    val errorDialogState = _errorDialogState
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
-            initialValue = _showErrorDialog.value
+            initialValue = _errorDialogState.value
         )
 
     fun onSearchTextChanged(text: String) {
@@ -96,9 +97,9 @@ class HomeViewModel @Inject constructor(
                             ingredients[index] = item.copy(inPantry = false)
                         }
                         Status.ERROR -> {
-                            _showErrorDialog.update {
-                                ErrorDialogState(
-                                    shouldDisplay = true,
+                            _errorDialogState.update {
+                                displayed(
+                                    title = "Error",
                                     message = "Unable to remove item from pantry. Please try again."
                                 )
                             }
@@ -113,9 +114,9 @@ class HomeViewModel @Inject constructor(
                             ingredients[index] = item.copy(inPantry = true)
                         }
                         Status.ERROR -> {
-                            _showErrorDialog.update {
-                                ErrorDialogState(
-                                    shouldDisplay = true,
+                            _errorDialogState.update {
+                                displayed(
+                                    title = "Error",
                                     message = "Unable to add item to pantry. Please try again."
                                 )
                             }
@@ -137,9 +138,9 @@ class HomeViewModel @Inject constructor(
                         pantry.removeAt(index)
                     }
                     Status.ERROR -> {
-                        _showErrorDialog.update {
-                            ErrorDialogState(
-                                shouldDisplay = true,
+                        _errorDialogState.update {
+                            displayed(
+                                title = "Error",
                                 message = "Unable to remove item from pantry. Please try again."
                             )
                         }
@@ -154,7 +155,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun dismissErrorDialog() {
-        _showErrorDialog.update { ErrorDialogState(shouldDisplay = false) }
+        _errorDialogState.update { dismissed() }
     }
 
     private fun refreshPantry() {

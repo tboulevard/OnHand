@@ -9,24 +9,21 @@ import androidx.compose.material3.AlertDialog
 fun OnHandAlertDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit = { },
-    titleText: String,
-    bodyText: String,
     dismissButtonText: String = "Dismiss",
     confirmButtonText: String = "Confirm",
     showConfirmButton: Boolean = false,
-    shouldDisplay: Boolean = true
+    state: AlertDialogState,
 ) {
-    println("[OnHand] Displaying alert dialog for: $bodyText")
-    if (shouldDisplay) {
+    if (state.shouldDisplay) {
         AlertDialog(
             onDismissRequest = {
                 onDismiss()
             },
             title = {
-                Text(titleText)
+                Text(state.title)
             },
             text = {
-                Text(bodyText)
+                Text(state.message)
             },
             dismissButton = {
                 Button(

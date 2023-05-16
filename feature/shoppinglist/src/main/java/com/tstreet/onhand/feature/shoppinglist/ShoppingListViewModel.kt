@@ -32,7 +32,7 @@ class ShoppingListViewModel @Inject constructor(
 
     private var _shoppingList = mutableStateListOf<ShoppingListIngredient>()
     private var _mappedRecipes = mutableStateListOf<Recipe>()
-    private var indexRecipeRemoval = 0
+    private var removeRecipeIndex = 0
 
     val shoppingListUiState =
         getShoppingListUseCase
@@ -46,8 +46,8 @@ class ShoppingListViewModel @Inject constructor(
                     SUCCESS -> {
                         // TODO: Log analytics if data is null somehow. We fallback to emitting an
                         //  empty list.
-                        _shoppingList =
-                            getShoppingListResult.data?.toMutableStateList() ?: mutableStateListOf()
+                        _shoppingList = getShoppingListResult.data?.toMutableStateList()
+                            ?: mutableStateListOf()
                         _mappedRecipes = getMappedRecipesResult.data?.toMutableStateList()
                             ?: mutableStateListOf()
                         ShoppingListUiState.Success(_shoppingList, _mappedRecipes)
@@ -74,13 +74,12 @@ class ShoppingListViewModel @Inject constructor(
             initialValue = _errorDialogState.value
         )
 
-    // TODO: create state object
-    private val _removeRecipeConfirmationDialogState = MutableStateFlow(dismissed())
-    val removeRecipeDialogState = _removeRecipeConfirmationDialogState
+    private val _removeRecipeDialogState = MutableStateFlow(dismissed())
+    val removeRecipeDialogState = _removeRecipeDialogState
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
-            initialValue = _removeRecipeConfirmationDialogState.value
+            initialValue = _removeRecipeDialogState.value
         )
 
     fun onCheckOffShoppingIngredient(index: Int) {
@@ -149,7 +148,7 @@ class ShoppingListViewModel @Inject constructor(
 
     fun onRemoveRecipe() {
         viewModelScope.launch {
-            val item = _mappedRecipes[indexRecipeRemoval]
+            val item = _mappedRecipes[removeRecipeIndex]
             when (removeRecipeInShoppingListUseCase.get().invoke(item).status) {
                 SUCCESS -> {
                     _mappedRecipes.remove(item)
@@ -172,13 +171,13 @@ class ShoppingListViewModel @Inject constructor(
         _errorDialogState.update { dismissed() }
     }
 
-    fun dismissRemoveRecipeConfirmationDialog() {
-        _removeRecipeConfirmationDialogState.update { dismissed() }
+    fun dismissRemoveRecipeDialog() {
+        _removeRecipeDialogState.update { dismissed() }
     }
 
-    fun showRemoveRecipeConfirmationDialog(index: Int) {
-        indexRecipeRemoval = index
-        _removeRecipeConfirmationDialogState.update {
+    fun showRemoveRecipeDialog(index: Int) {
+        removeRecipeIndex = index
+        _removeRecipeDialogState.update {
             displayed(
                 title = "Are you sure?",
                 message = "Are you sure you'd like to remove this recipe and all its " +

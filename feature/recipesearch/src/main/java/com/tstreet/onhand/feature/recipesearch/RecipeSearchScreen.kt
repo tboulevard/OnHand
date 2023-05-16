@@ -24,26 +24,19 @@ fun RecipeSearchScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val sortOrder by viewModel.sortOrder.collectAsState()
-    val openInfoDialog = remember { mutableStateOf(false) }
+    val openInfoDialog = viewModel.infoDialogState.collectAsState()
     val errorDialogState = viewModel.errorDialogState.collectAsState()
 
     OnHandAlertDialog(
-        onDismiss = { openInfoDialog.value = false },
-        titleText = "Search Recipes",
-        bodyText = "Recipes shown here are based on ingredients from your pantry. By " +
-                "default we'll only show recipes where you're missing at most 3 " +
-                "ingredients.",
+        onDismiss = viewModel::dismissInfoDialog,
         dismissButtonText = "Got it \uD83D\uDC4C",
-        shouldDisplay = openInfoDialog.value
+        state = openInfoDialog.value
     )
 
     // TODO: duplicated alert dialogs, refactor
     OnHandAlertDialog(
         onDismiss = { viewModel.dismissErrorDialog() },
-        titleText = "Error",
-        bodyText = errorDialogState.value.message,
-        dismissButtonText = "Dismiss",
-        shouldDisplay = errorDialogState.value.shouldDisplay
+        state = errorDialogState.value
     )
 
     Column(
@@ -59,7 +52,7 @@ fun RecipeSearchScreen(
                     .padding(4.dp)
                     .align(Alignment.CenterVertically)
                     .clickable {
-                        openInfoDialog.value = true
+                        viewModel.showInfoDialog()
                     },
                 tint = MaterialTheme.colorScheme.surfaceTint
             )
@@ -97,9 +90,7 @@ fun RecipeSearchScreen(
                 if (errorDialogState.value.shouldDisplay) {
                     OnHandAlertDialog(
                         onDismiss = { viewModel.dismissErrorDialog() },
-                        titleText = "Error",
-                        bodyText = errorDialogState.value.message,
-                        dismissButtonText = "Dismiss"
+                        state = errorDialogState.value
                     )
                 } else {
                     SortBySpinner(

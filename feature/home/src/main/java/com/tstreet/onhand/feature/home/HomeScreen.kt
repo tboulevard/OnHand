@@ -38,10 +38,8 @@ fun HomeScreen(
     val errorDialogState = viewModel.errorDialogState.collectAsState()
 
     OnHandAlertDialog(
-        onDismiss = { viewModel.dismissErrorDialog() },
-        titleText = "Error",
-        bodyText = errorDialogState.value.message,
-        shouldDisplay = errorDialogState.value.shouldDisplay
+        onDismiss = viewModel::dismissErrorDialog,
+        state = errorDialogState.value
     )
 
     Column(
