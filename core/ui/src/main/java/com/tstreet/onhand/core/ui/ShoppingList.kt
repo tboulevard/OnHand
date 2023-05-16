@@ -52,44 +52,46 @@ sealed interface ShoppingListUiState {
     ) : ShoppingListUiState
 }
 
-sealed class ShoppingListItem {
+sealed interface ShoppingListItem {
 
     data class Header(
         val text: String
-    ) : ShoppingListItem()
+    ) : ShoppingListItem
 
     data class Summary(
         private val numberOfRecipes: Int,
         private val numberOfIngredients: Int
-    ) : ShoppingListItem() {
+    ) : ShoppingListItem {
 
         val text = "$numberOfRecipes recipes - $numberOfIngredients items"
     }
 
     data class MappedRecipes(
         val recipes: List<Recipe>
-    ) : ShoppingListItem()
+    ) : ShoppingListItem
 
     data class Ingredients(
         val ingredients: List<ShoppingListIngredient>
-    ) : ShoppingListItem()
+    ) : ShoppingListItem
 }
 
 @Composable
 fun ShoppingListRecipeCards(
     recipes: List<Recipe>,
-    onItemClick: (String) -> Unit = { },
-    onRemoveClick: (Int) -> Unit = { }
+    onItemClick: (String) -> Unit,
+    onRemoveClick: (Int) -> Unit
 ) {
     LazyRow(
         modifier = Modifier.fillMaxWidth()
     ) {
         itemsIndexed(recipes) { index, recipe ->
-            ShoppingListRecipeCardItem(
-                recipe = recipe,
-                onItemClick = onItemClick,
-                onRemoveClick = onRemoveClick,
-                index
+            ShoppingListRecipeItem(
+                ShoppingListRecipeCard(
+                    recipe = recipe,
+                    onItemClick = onItemClick,
+                    onRemoveClick = onRemoveClick,
+                    index
+                )
             )
         }
     }
@@ -97,11 +99,9 @@ fun ShoppingListRecipeCards(
 
 @Preview
 @Composable
-fun ShoppingListRecipeCardItem(
-    @PreviewParameter(RecipeCardShoppingListPreviewParamProvider::class) recipe: Recipe,
-    onItemClick: (String) -> Unit = { },
-    onRemoveClick: (Int) -> Unit = { },
-    index: Int = 0
+fun ShoppingListRecipeItem(
+    @PreviewParameter(ShoppingListRecipeCardPreviewParamProvider::class)
+    card: ShoppingListRecipeCard
 ) {
     Surface(
         modifier = Modifier
@@ -117,7 +117,7 @@ fun ShoppingListRecipeCardItem(
             Box(modifier = Modifier.fillMaxSize()) {
                 AsyncImage(
                     modifier = Modifier.fillMaxWidth(),
-                    model = recipe.image,
+                    model = card.recipe.image,
                     contentDescription = null
                 )
                 Icon(
@@ -126,18 +126,18 @@ fun ShoppingListRecipeCardItem(
                     modifier = Modifier
                         .size(24.dp)
                         .align(Alignment.TopEnd)
-                        .clickable { onRemoveClick(index) },
-                    tint = MaterialTheme.colorScheme.inverseOnSurface
+                        .clickable { card.onRemoveClick(card.index) },
+                    tint = MaterialTheme.colorScheme.inverseSurface
                 )
                 Surface(
                     color = MaterialTheme.colorScheme.surfaceTint,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { onItemClick("recipe_detail/${recipe.id}") }
+                        .clickable { card.onItemClick("recipe_detail/${card.recipe.id}") }
                         .align(Alignment.BottomStart)
                 ) {
                     Text(
-                        text = recipe.title,
+                        text = card.recipe.title,
                         modifier = Modifier
                             .padding(4.dp),
                         style = MaterialTheme.typography.bodyMedium
@@ -148,19 +148,32 @@ fun ShoppingListRecipeCardItem(
     }
 }
 
+class ShoppingListRecipeCard(
+    val recipe: Recipe,
+    val onItemClick: (String) -> Unit,
+    val onRemoveClick: (Int) -> Unit,
+    val index: Int
+)
+
 // TODO: move below to a better location
-class RecipeCardShoppingListPreviewParamProvider : PreviewParameterProvider<Recipe> {
-    override val values: Sequence<Recipe> = sequenceOf(
-        Recipe(
-            id = 1,
-            title = "A very long recipe name that is very long",
-            image = "image",
-            imageType = "imageType",
-            usedIngredientCount = 10,
-            usedIngredients = emptyList(),
-            missedIngredientCount = 3,
-            missedIngredients = emptyList(),
-            likes = 100
+class ShoppingListRecipeCardPreviewParamProvider :
+    PreviewParameterProvider<ShoppingListRecipeCard> {
+    override val values: Sequence<ShoppingListRecipeCard> = sequenceOf(
+        ShoppingListRecipeCard(
+            recipe = Recipe(
+                id = 1,
+                title = "A very long recipe name that is very long",
+                image = "image.jpg",
+                imageType = "jpeg",
+                usedIngredientCount = 10,
+                usedIngredients = emptyList(),
+                missedIngredientCount = 3,
+                missedIngredients = emptyList(),
+                likes = 100
+            ),
+            onItemClick = { },
+            onRemoveClick = { },
+            index = 0
         )
     )
 }

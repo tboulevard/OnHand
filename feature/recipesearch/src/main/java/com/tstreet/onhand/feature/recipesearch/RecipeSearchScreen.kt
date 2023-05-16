@@ -51,9 +51,7 @@ fun RecipeSearchScreen(
                     .size(32.dp)
                     .padding(4.dp)
                     .align(Alignment.CenterVertically)
-                    .clickable {
-                        viewModel.showInfoDialog()
-                    },
+                    .clickable { viewModel.showInfoDialog() },
                 tint = MaterialTheme.colorScheme.surfaceTint
             )
         }
