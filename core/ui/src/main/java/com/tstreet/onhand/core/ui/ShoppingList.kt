@@ -1,6 +1,5 @@
 package com.tstreet.onhand.core.ui
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -14,7 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
+import coil.compose.AsyncImage
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -130,14 +129,11 @@ fun ShoppingListRecipeCardItem(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.Top
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.recipe_placeholder),
-                    contentDescription = "recipe image",
-                    modifier = Modifier.size(width = 192.dp, height = 148.dp)
+            Box(modifier = Modifier.fillMaxSize()) {
+                AsyncImage(
+                    modifier = Modifier.fillMaxWidth(),
+                    model = recipe.image,
+                    contentDescription = null
                 )
                 Icon(
                     Icons.Default.Clear,
@@ -159,7 +155,7 @@ fun ShoppingListRecipeCardItem(
                         text = recipe.title,
                         modifier = Modifier
                             .padding(4.dp),
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
             }
@@ -172,7 +168,7 @@ class RecipeCardShoppingListPreviewParamProvider : PreviewParameterProvider<Reci
     override val values: Sequence<Recipe> = sequenceOf(
         Recipe(
             id = 1,
-            title = "A very long recipe name that is very long",
+            title = "A very",
             image = "image",
             imageType = "imageType",
             usedIngredientCount = 10,
