@@ -37,8 +37,6 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
                 add("implementation", libs.findLibrary("androidx.navigation.compose").get())
                 add("implementation", libs.findLibrary("androidx.compose.material3").get())
                 add("implementation", libs.findLibrary("androidx.lifecycle.runtime.compose").get())
-                add("implementation", libs.findLibrary("coil.kt").get())
-                add("implementation", libs.findLibrary("coil.kt.compose").get())
                 add("implementation", libs.findLibrary("dagger").get())
                 add("kapt", libs.findLibrary("dagger.compiler").get())
 

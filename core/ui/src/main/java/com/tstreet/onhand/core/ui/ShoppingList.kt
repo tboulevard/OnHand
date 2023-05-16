@@ -168,7 +168,7 @@ class RecipeCardShoppingListPreviewParamProvider : PreviewParameterProvider<Reci
     override val values: Sequence<Recipe> = sequenceOf(
         Recipe(
             id = 1,
-            title = "A very",
+            title = "A very long recipe name that is very long",
             image = "image",
             imageType = "imageType",
             usedIngredientCount = 10,
