@@ -19,16 +19,3 @@ fun FullScreenErrorMessage(message: String) {
         )
     }
 }
-
-class ErrorDialogState(
-    val shouldDisplay: Boolean,
-    val message: String = ""
-) {
-    companion object {
-        fun dismissed() = ErrorDialogState(shouldDisplay = false)
-        fun displayed(message: String) = ErrorDialogState(
-            shouldDisplay = true,
-            message = message
-        )
-    }
-}

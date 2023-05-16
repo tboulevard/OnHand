@@ -9,23 +9,21 @@ import androidx.compose.material3.AlertDialog
 fun OnHandAlertDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit = { },
-    titleText: String,
-    bodyText: String,
     dismissButtonText: String = "Dismiss",
     confirmButtonText: String = "Confirm",
     showConfirmButton: Boolean = false,
-    shouldDisplay: Boolean = true
+    state: AlertDialogState,
 ) {
-    if (shouldDisplay) {
+    if (state.shouldDisplay) {
         AlertDialog(
             onDismissRequest = {
                 onDismiss()
             },
             title = {
-                Text(titleText)
+                Text(state.title)
             },
             text = {
-                Text(bodyText)
+                Text(state.message)
             },
             dismissButton = {
                 Button(
@@ -46,6 +44,29 @@ fun OnHandAlertDialog(
                     }
                 }
             },
+        )
+    }
+}
+
+class AlertDialogState(
+    val shouldDisplay: Boolean,
+    val title: String,
+    val message: String
+) {
+    companion object {
+        fun dismissed() = AlertDialogState(
+            shouldDisplay = false,
+            title = "",
+            message = ""
+        )
+
+        fun displayed(
+            title: String,
+            message: String
+        ) = AlertDialogState(
+            shouldDisplay = true,
+            title = title,
+            message = message
         )
     }
 }

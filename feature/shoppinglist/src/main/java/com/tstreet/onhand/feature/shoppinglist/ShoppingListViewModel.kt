@@ -9,8 +9,8 @@ import com.tstreet.onhand.core.common.Status.SUCCESS
 import com.tstreet.onhand.core.domain.shoppinglist.*
 import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.model.ShoppingListIngredient
-import com.tstreet.onhand.core.ui.ErrorDialogState.Companion.dismissed
-import com.tstreet.onhand.core.ui.ErrorDialogState.Companion.displayed
+import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
+import com.tstreet.onhand.core.ui.AlertDialogState.Companion.displayed
 import com.tstreet.onhand.core.ui.RecipeDetailUiState
 import com.tstreet.onhand.core.ui.ShoppingListUiState
 import kotlinx.coroutines.flow.*
@@ -32,6 +32,7 @@ class ShoppingListViewModel @Inject constructor(
 
     private var _shoppingList = mutableStateListOf<ShoppingListIngredient>()
     private var _mappedRecipes = mutableStateListOf<Recipe>()
+    private var removeRecipeIndex = 0
 
     val shoppingListUiState =
         getShoppingListUseCase
@@ -45,8 +46,8 @@ class ShoppingListViewModel @Inject constructor(
                     SUCCESS -> {
                         // TODO: Log analytics if data is null somehow. We fallback to emitting an
                         //  empty list.
-                        _shoppingList =
-                            getShoppingListResult.data?.toMutableStateList() ?: mutableStateListOf()
+                        _shoppingList = getShoppingListResult.data?.toMutableStateList()
+                            ?: mutableStateListOf()
                         _mappedRecipes = getMappedRecipesResult.data?.toMutableStateList()
                             ?: mutableStateListOf()
                         ShoppingListUiState.Success(_shoppingList, _mappedRecipes)
@@ -73,13 +74,12 @@ class ShoppingListViewModel @Inject constructor(
             initialValue = _errorDialogState.value
         )
 
-    // TODO: create state object
-    private val _removeRecipeConfirmationDialogState = MutableStateFlow(false)
-    val removeRecipeDialogState = _removeRecipeConfirmationDialogState
+    private val _removeRecipeDialogState = MutableStateFlow(dismissed())
+    val removeRecipeDialogState = _removeRecipeDialogState
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
-            initialValue = _removeRecipeConfirmationDialogState.value
+            initialValue = _removeRecipeDialogState.value
         )
 
     fun onCheckOffShoppingIngredient(index: Int) {
@@ -99,8 +99,9 @@ class ShoppingListViewModel @Inject constructor(
                     ERROR -> {
                         _errorDialogState.update {
                             displayed(
-                                "There was a problem checking off the ingredient in your " +
-                                        "shopping list. Please try again."
+                                title = "Error",
+                                message = "There was a problem checking off the ingredient in " +
+                                        "your shopping list. Please try again."
                             )
                         }
                         // Retain the previous save state on error
@@ -130,7 +131,8 @@ class ShoppingListViewModel @Inject constructor(
                     ERROR -> {
                         _errorDialogState.update {
                             displayed(
-                                "There was a problem unchecking the ingredient in your " +
+                                title = "Error",
+                                message = "There was a problem unchecking the ingredient in your " +
                                         "shopping list. Please try again."
                             )
                         }
@@ -144,26 +146,20 @@ class ShoppingListViewModel @Inject constructor(
         }
     }
 
-    fun onRemoveRecipe(index: Int) {
+    fun onRemoveRecipe() {
         viewModelScope.launch {
-            val item = _mappedRecipes[index]
-            println("[OnHand] Removing recipe at index=$item")
-
+            val item = _mappedRecipes[removeRecipeIndex]
             when (removeRecipeInShoppingListUseCase.get().invoke(item).status) {
                 SUCCESS -> {
                     _mappedRecipes.remove(item)
-                    _shoppingList.removeIf {
-                        val mappedRecipeTitle = it.mappedRecipe?.title
-                        val itemTitle = item.title
-                        val condition = it.mappedRecipe?.title == item.title
-                        condition
-                    }
+                    _shoppingList.removeIf { it.mappedRecipe?.title == item.title }
                 }
                 ERROR -> {
                     _errorDialogState.update {
                         displayed(
-                            "There was a problem removing the recipe from your shopping list. " +
-                                    "Please try again."
+                            title = "Error",
+                            message = "There was a problem removing the recipe from your " +
+                                    "shopping list. Please try again."
                         )
                     }
                 }
@@ -175,12 +171,18 @@ class ShoppingListViewModel @Inject constructor(
         _errorDialogState.update { dismissed() }
     }
 
-    // TODO cleanup below by wrapping in state object
-    fun dismissRemoveRecipeConfirmationDialog() {
-        _removeRecipeConfirmationDialogState.update { false }
+    fun dismissRemoveRecipeDialog() {
+        _removeRecipeDialogState.update { dismissed() }
     }
 
-    fun showRemoveRecipeConfirmationDialog() {
-        _removeRecipeConfirmationDialogState.update { true }
+    fun showRemoveRecipeDialog(index: Int) {
+        removeRecipeIndex = index
+        _removeRecipeDialogState.update {
+            displayed(
+                title = "Are you sure?",
+                message = "Are you sure you'd like to remove this recipe and all its " +
+                        "ingredients from your shopping list?"
+            )
+        }
     }
 }

@@ -8,8 +8,8 @@ import com.tstreet.onhand.core.common.Status.SUCCESS
 import com.tstreet.onhand.core.domain.*
 import com.tstreet.onhand.core.domain.recipes.*
 import com.tstreet.onhand.core.domain.shoppinglist.AddToShoppingListUseCase
-import com.tstreet.onhand.core.ui.ErrorDialogState.Companion.dismissed
-import com.tstreet.onhand.core.ui.ErrorDialogState.Companion.displayed
+import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
+import com.tstreet.onhand.core.ui.AlertDialogState.Companion.displayed
 import com.tstreet.onhand.core.ui.RecipeSaveState.*
 import com.tstreet.onhand.core.ui.RecipeWithSaveState
 import com.tstreet.onhand.core.ui.RecipeSearchUiState
@@ -57,6 +57,7 @@ class RecipeSearchViewModel @Inject constructor(
                     }
                     _errorDialogState.update {
                         displayed(
+                            title = "Error",
                             message = recipes.message.toString()
                         )
                     }
@@ -86,6 +87,14 @@ class RecipeSearchViewModel @Inject constructor(
             initialValue = _errorDialogState.value
         )
 
+    private val _infoDialogState = MutableStateFlow(dismissed())
+    val infoDialogState = _infoDialogState
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = _infoDialogState.value
+        )
+
     fun onRecipeSaved(index: Int) {
         // TODO: wrap all this in a lock to prevent concurrent execution. in general make
         //  mutable states visible to only one thread
@@ -104,15 +113,17 @@ class RecipeSearchViewModel @Inject constructor(
                         )
                     }
                     else -> {
-                        // TODO: todo better error handling
-                        println(
-                            "[OnHand] Recipe save unsuccessful, there was an exception - " +
-                                    "recipe not saved"
-                        )
                         // Retain the previous save state on error
                         _recipes[index] = item.copy(
                             recipeSaveState = saveState
                         )
+                        _errorDialogState.update {
+                            displayed(
+                                title = "Error",
+                                message = "Recipe save unsuccessful, there was an error. " +
+                                        "Please try again."
+                            )
+                        }
                     }
                 }
             }
@@ -132,11 +143,13 @@ class RecipeSearchViewModel @Inject constructor(
                         )
                     }
                     else -> {
-                        // TODO: todo better error handling
-                        println(
-                            "[OnHand] Recipe unsave unsuccessful, there was an exception - " +
-                                    "recipe not removed from DB"
-                        )
+                        _errorDialogState.update {
+                            displayed(
+                                title = "Error",
+                                message = "Recipe unsave unsuccessful, there was an error. " +
+                                        "Please try again."
+                            )
+                        }
                     }
                 }
             }
@@ -146,8 +159,6 @@ class RecipeSearchViewModel @Inject constructor(
     fun onAddToShoppingList(index: Int) {
         viewModelScope.launch {
             val item = _recipes[index]
-            println("[OnHand] Adding missing ingredients for $item")
-
             addToShoppingList.get().invoke(
                 // TODO: .map for getting from RecipeIngredient -> Ingredient
                 ingredients = item.recipe.missedIngredients.map { it.ingredient },
@@ -159,7 +170,11 @@ class RecipeSearchViewModel @Inject constructor(
                     }
                     ERROR -> {
                         _errorDialogState.update {
-                            displayed("Unable to add ingredients to shopping list.")
+                            displayed(
+                                title = "Error",
+                                message = "Unable to add ingredients to shopping list. Please " +
+                                        "try again."
+                            )
                         }
                     }
                 }
@@ -173,5 +188,20 @@ class RecipeSearchViewModel @Inject constructor(
 
     fun dismissErrorDialog() {
         _errorDialogState.update { dismissed() }
+    }
+
+    fun showInfoDialog() {
+        _infoDialogState.update {
+            displayed(
+                title = "Search Recipes",
+                message = "Recipes shown here are based on ingredients from your pantry. By " +
+                        "default we'll only show recipes where you're missing at most 3 " +
+                        "ingredients.",
+            )
+        }
+    }
+
+    fun dismissInfoDialog() {
+        _infoDialogState.update { dismissed() }
     }
 }

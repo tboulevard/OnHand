@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -27,14 +26,22 @@ fun ShoppingListScreen(
 ) {
     val uiState by viewModel.shoppingListUiState.collectAsStateWithLifecycle()
     val errorDialogState by viewModel.errorDialogState.collectAsStateWithLifecycle()
-    val removeRecipeConfirmationDialogState by viewModel.removeRecipeDialogState.collectAsStateWithLifecycle()
+    val removeRecipeDialogState by viewModel.removeRecipeDialogState.collectAsStateWithLifecycle()
 
     // For general errors
     OnHandAlertDialog(
         onDismiss = viewModel::dismissErrorDialog,
-        titleText = "Error",
-        bodyText = errorDialogState.message,
-        shouldDisplay = errorDialogState.shouldDisplay
+        state = errorDialogState
+    )
+
+    // Recipe removal confirmation dialog
+    OnHandAlertDialog(
+        onDismiss = viewModel::dismissRemoveRecipeDialog,
+        onConfirm = viewModel::onRemoveRecipe,
+        dismissButtonText = "Cancel",
+        confirmButtonText = "Yes",
+        showConfirmButton = true,
+        state = removeRecipeDialogState
     )
 
     when (val state = uiState) {
@@ -43,7 +50,7 @@ fun ShoppingListScreen(
         }
         is ShoppingListUiState.Success -> {
             LazyColumn(verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()) {
-                itemsIndexed(state.screenContent()) { index, item ->
+                itemsIndexed(state.screenContent()) { _, item ->
                     when (item) {
                         is ShoppingListItem.Header -> {
                             OnHandScreenHeader(item.text)
@@ -57,11 +64,20 @@ fun ShoppingListScreen(
                                 textAlign = TextAlign.Center,
                             )
                         }
+                        is ShoppingListItem.MappedRecipes -> {
+                            ShoppingListRecipeCards(
+                                recipes = item.recipes,
+                                onItemClick = { /* TODO */ },
+                                onRemoveClick = viewModel::showRemoveRecipeDialog
+                            )
+                        }
                         is ShoppingListItem.Ingredients -> {
                             when {
                                 item.ingredients.isNotEmpty() -> {
                                     ShoppingListIngredientCards(
                                         ingredients = item.ingredients,
+                                        onMarkIngredient = viewModel::onCheckOffShoppingIngredient,
+                                        onUnmarkIngredient = viewModel::onUncheckShoppingIngredient
                                     )
                                 }
                                 else -> {
@@ -70,7 +86,6 @@ fun ShoppingListScreen(
                                             .fillMaxSize(),
                                         verticalArrangement = Arrangement.Center
                                     ) {
-                                        // TODO: replace with real image
                                         Icon(
                                             Icons.Default.ShoppingCart,
                                             contentDescription = "empty shopping card",
@@ -93,16 +108,6 @@ fun ShoppingListScreen(
                                     }
                                 }
                             }
-                        }
-                        is ShoppingListItem.MappedRecipes -> {
-                            ShoppingListRecipeCards(
-                                recipes = state.recipes,
-                                onItemClick = { /* TODO */ },
-                                onRemoveClick = viewModel::showRemoveRecipeConfirmationDialog,
-                                onConfirmRemoveClick = viewModel::onRemoveRecipe,
-                                onDismissDialog = viewModel::dismissRemoveRecipeConfirmationDialog,
-                                removeRecipeConfirmationDialogState = removeRecipeConfirmationDialogState
-                            )
                         }
                     }
                 }
