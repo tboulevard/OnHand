@@ -9,8 +9,8 @@ import com.tstreet.onhand.core.common.Status.SUCCESS
 import com.tstreet.onhand.core.domain.shoppinglist.*
 import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.model.ShoppingListIngredient
-import com.tstreet.onhand.core.ui.ErrorDialogState.Companion.dismissed
-import com.tstreet.onhand.core.ui.ErrorDialogState.Companion.displayed
+import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
+import com.tstreet.onhand.core.ui.AlertDialogState.Companion.displayed
 import com.tstreet.onhand.core.ui.RecipeDetailUiState
 import com.tstreet.onhand.core.ui.ShoppingListUiState
 import kotlinx.coroutines.flow.*
@@ -32,6 +32,7 @@ class ShoppingListViewModel @Inject constructor(
 
     private var _shoppingList = mutableStateListOf<ShoppingListIngredient>()
     private var _mappedRecipes = mutableStateListOf<Recipe>()
+    private var indexRecipeRemoval = 0
 
     val shoppingListUiState =
         getShoppingListUseCase
@@ -74,7 +75,7 @@ class ShoppingListViewModel @Inject constructor(
         )
 
     // TODO: create state object
-    private val _removeRecipeConfirmationDialogState = MutableStateFlow(false)
+    private val _removeRecipeConfirmationDialogState = MutableStateFlow(dismissed())
     val removeRecipeDialogState = _removeRecipeConfirmationDialogState
         .stateIn(
             scope = viewModelScope,
@@ -99,8 +100,9 @@ class ShoppingListViewModel @Inject constructor(
                     ERROR -> {
                         _errorDialogState.update {
                             displayed(
-                                "There was a problem checking off the ingredient in your " +
-                                        "shopping list. Please try again."
+                                title = "Error",
+                                message = "There was a problem checking off the ingredient in " +
+                                        "your shopping list. Please try again."
                             )
                         }
                         // Retain the previous save state on error
@@ -130,7 +132,8 @@ class ShoppingListViewModel @Inject constructor(
                     ERROR -> {
                         _errorDialogState.update {
                             displayed(
-                                "There was a problem unchecking the ingredient in your " +
+                                title = "Error",
+                                message = "There was a problem unchecking the ingredient in your " +
                                         "shopping list. Please try again."
                             )
                         }
@@ -144,26 +147,20 @@ class ShoppingListViewModel @Inject constructor(
         }
     }
 
-    fun onRemoveRecipe(index: Int) {
+    fun onRemoveRecipe() {
         viewModelScope.launch {
-            val item = _mappedRecipes[index]
-            println("[OnHand] Removing recipe at index=$item")
-
+            val item = _mappedRecipes[indexRecipeRemoval]
             when (removeRecipeInShoppingListUseCase.get().invoke(item).status) {
                 SUCCESS -> {
                     _mappedRecipes.remove(item)
-                    _shoppingList.removeIf {
-                        val mappedRecipeTitle = it.mappedRecipe?.title
-                        val itemTitle = item.title
-                        val condition = it.mappedRecipe?.title == item.title
-                        condition
-                    }
+                    _shoppingList.removeIf { it.mappedRecipe?.title == item.title }
                 }
                 ERROR -> {
                     _errorDialogState.update {
                         displayed(
-                            "There was a problem removing the recipe from your shopping list. " +
-                                    "Please try again."
+                            title = "Error",
+                            message = "There was a problem removing the recipe from your " +
+                                    "shopping list. Please try again."
                         )
                     }
                 }
@@ -175,12 +172,18 @@ class ShoppingListViewModel @Inject constructor(
         _errorDialogState.update { dismissed() }
     }
 
-    // TODO cleanup below by wrapping in state object
     fun dismissRemoveRecipeConfirmationDialog() {
-        _removeRecipeConfirmationDialogState.update { false }
+        _removeRecipeConfirmationDialogState.update { dismissed() }
     }
 
-    fun showRemoveRecipeConfirmationDialog() {
-        _removeRecipeConfirmationDialogState.update { true }
+    fun showRemoveRecipeConfirmationDialog(index: Int) {
+        indexRecipeRemoval = index
+        _removeRecipeConfirmationDialogState.update {
+            displayed(
+                title = "Are you sure?",
+                message = "Are you sure you'd like to remove this recipe and all its " +
+                        "ingredients from your shopping list?"
+            )
+        }
     }
 }

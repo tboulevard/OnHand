@@ -16,6 +16,7 @@ fun OnHandAlertDialog(
     showConfirmButton: Boolean = false,
     shouldDisplay: Boolean = true
 ) {
+    println("[OnHand] Displaying alert dialog for: $bodyText")
     if (shouldDisplay) {
         AlertDialog(
             onDismissRequest = {
@@ -46,6 +47,29 @@ fun OnHandAlertDialog(
                     }
                 }
             },
+        )
+    }
+}
+
+class AlertDialogState(
+    val shouldDisplay: Boolean,
+    val title: String,
+    val message: String
+) {
+    companion object {
+        fun dismissed() = AlertDialogState(
+            shouldDisplay = false,
+            title = "",
+            message = ""
+        )
+
+        fun displayed(
+            title: String,
+            message: String
+        ) = AlertDialogState(
+            shouldDisplay = true,
+            title = title,
+            message = message
         )
     }
 }

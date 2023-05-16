@@ -79,32 +79,17 @@ sealed class ShoppingListItem {
 fun ShoppingListRecipeCards(
     recipes: List<Recipe>,
     onItemClick: (String) -> Unit = { },
-    onRemoveClick: () -> Unit = { },
-    onConfirmRemoveClick: (Int) -> Unit,
-    onDismissDialog: () -> Unit,
-    removeRecipeConfirmationDialogState: Boolean,
-
-    ) {
+    onRemoveClick: (Int) -> Unit = { }
+) {
     LazyRow(
         modifier = Modifier.fillMaxWidth()
     ) {
         itemsIndexed(recipes) { index, recipe ->
-            OnHandAlertDialog(
-                onDismiss = onDismissDialog,
-                onConfirm = { onConfirmRemoveClick(index) },
-                titleText = "Are you sure?",
-                bodyText = "Are you sure you'd like to remove this recipe and all its " +
-                        "ingredients from your shopping list?",
-                dismissButtonText = "Cancel",
-                confirmButtonText = "Yes",
-                showConfirmButton = true,
-                shouldDisplay = removeRecipeConfirmationDialogState
-            )
-
             ShoppingListRecipeCardItem(
                 recipe = recipe,
                 onItemClick = onItemClick,
-                onRemoveClick = onRemoveClick
+                onRemoveClick = onRemoveClick,
+                index
             )
         }
     }
@@ -114,9 +99,9 @@ fun ShoppingListRecipeCards(
 @Composable
 fun ShoppingListRecipeCardItem(
     @PreviewParameter(RecipeCardShoppingListPreviewParamProvider::class) recipe: Recipe,
-    index: Int = 0,
     onItemClick: (String) -> Unit = { },
-    onRemoveClick: () -> Unit = { }
+    onRemoveClick: (Int) -> Unit = { },
+    index: Int = 0
 ) {
     Surface(
         modifier = Modifier
@@ -141,7 +126,7 @@ fun ShoppingListRecipeCardItem(
                     modifier = Modifier
                         .size(24.dp)
                         .align(Alignment.TopEnd)
-                        .clickable { onRemoveClick() },
+                        .clickable { onRemoveClick(index) },
                     tint = MaterialTheme.colorScheme.inverseOnSurface
                 )
                 Surface(

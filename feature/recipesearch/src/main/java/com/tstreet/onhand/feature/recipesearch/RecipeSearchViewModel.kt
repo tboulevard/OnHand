@@ -8,8 +8,8 @@ import com.tstreet.onhand.core.common.Status.SUCCESS
 import com.tstreet.onhand.core.domain.*
 import com.tstreet.onhand.core.domain.recipes.*
 import com.tstreet.onhand.core.domain.shoppinglist.AddToShoppingListUseCase
-import com.tstreet.onhand.core.ui.ErrorDialogState.Companion.dismissed
-import com.tstreet.onhand.core.ui.ErrorDialogState.Companion.displayed
+import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
+import com.tstreet.onhand.core.ui.AlertDialogState.Companion.displayed
 import com.tstreet.onhand.core.ui.RecipeSaveState.*
 import com.tstreet.onhand.core.ui.RecipeWithSaveState
 import com.tstreet.onhand.core.ui.RecipeSearchUiState
@@ -57,6 +57,7 @@ class RecipeSearchViewModel @Inject constructor(
                     }
                     _errorDialogState.update {
                         displayed(
+                            title = "Error",
                             message = recipes.message.toString()
                         )
                     }
@@ -159,7 +160,10 @@ class RecipeSearchViewModel @Inject constructor(
                     }
                     ERROR -> {
                         _errorDialogState.update {
-                            displayed("Unable to add ingredients to shopping list.")
+                            displayed(
+                                title = "Error",
+                                message = "Unable to add ingredients to shopping list."
+                            )
                         }
                     }
                 }

@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -37,13 +36,24 @@ fun ShoppingListScreen(
         shouldDisplay = errorDialogState.shouldDisplay
     )
 
+    OnHandAlertDialog(
+        onDismiss = viewModel::dismissRemoveRecipeConfirmationDialog,
+        onConfirm = { viewModel.onRemoveRecipe() },
+        titleText = removeRecipeConfirmationDialogState.title,
+        bodyText = removeRecipeConfirmationDialogState.message,
+        dismissButtonText = "Cancel",
+        confirmButtonText = "Yes",
+        showConfirmButton = true,
+        shouldDisplay = removeRecipeConfirmationDialogState.shouldDisplay
+    )
+
     when (val state = uiState) {
         is ShoppingListUiState.Loading -> {
             OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
         }
         is ShoppingListUiState.Success -> {
             LazyColumn(verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()) {
-                itemsIndexed(state.screenContent()) { index, item ->
+                itemsIndexed(state.screenContent()) { _, item ->
                     when (item) {
                         is ShoppingListItem.Header -> {
                             OnHandScreenHeader(item.text)
@@ -55,6 +65,13 @@ fun ShoppingListScreen(
                                 text = item.text,
                                 style = MaterialTheme.typography.titleLarge,
                                 textAlign = TextAlign.Center,
+                            )
+                        }
+                        is ShoppingListItem.MappedRecipes -> {
+                            ShoppingListRecipeCards(
+                                recipes = item.recipes,
+                                onItemClick = { /* TODO */ },
+                                onRemoveClick = viewModel::showRemoveRecipeConfirmationDialog
                             )
                         }
                         is ShoppingListItem.Ingredients -> {
@@ -93,16 +110,6 @@ fun ShoppingListScreen(
                                     }
                                 }
                             }
-                        }
-                        is ShoppingListItem.MappedRecipes -> {
-                            ShoppingListRecipeCards(
-                                recipes = state.recipes,
-                                onItemClick = { /* TODO */ },
-                                onRemoveClick = viewModel::showRemoveRecipeConfirmationDialog,
-                                onConfirmRemoveClick = viewModel::onRemoveRecipe,
-                                onDismissDialog = viewModel::dismissRemoveRecipeConfirmationDialog,
-                                removeRecipeConfirmationDialogState = removeRecipeConfirmationDialogState
-                            )
                         }
                     }
                 }
