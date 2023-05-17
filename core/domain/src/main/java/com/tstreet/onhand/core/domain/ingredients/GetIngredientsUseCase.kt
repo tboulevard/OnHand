@@ -4,6 +4,7 @@ import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.common.UseCase
 import com.tstreet.onhand.core.data.api.repository.IngredientSearchRepository
 import com.tstreet.onhand.core.model.PantryIngredient
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -19,6 +20,11 @@ class GetIngredientsUseCase @Inject constructor(
         repository
             .get()
             .searchIngredients(
-                query.lowercase()
+                query.sanitize()
             )
+
+    private fun String.sanitize() =
+        this
+            .replace(Regex("[^A-Za-z0-9]"), "")
+            .lowercase()
 }

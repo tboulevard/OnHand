@@ -20,8 +20,14 @@ class OfflineIngredientSearchRepository @Inject constructor(
     }
 
     override suspend fun searchIngredients(query: String): List<PantryIngredient> {
-        return ingredientCatalogDao.get()
-            .search(query)
-            .map(IngredientCatalogEntity::asExternalModel)
+        println("[OnHand] Searching for ingredients with query=$query")
+        return when {
+            query.isNotBlank() -> {
+                ingredientCatalogDao.get()
+                    .search(query)
+                    .map(IngredientCatalogEntity::asExternalModel)
+            }
+            else -> { emptyList() }
+        }
     }
 }
