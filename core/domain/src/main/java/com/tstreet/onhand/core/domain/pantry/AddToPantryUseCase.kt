@@ -1,13 +1,14 @@
 package com.tstreet.onhand.core.domain.pantry
 
-import com.tstreet.onhand.core.common.FeatureScope
-import com.tstreet.onhand.core.common.PantryStateManager
-import com.tstreet.onhand.core.common.Resource
-import com.tstreet.onhand.core.common.UseCase
+import com.tstreet.onhand.core.common.*
+import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.data.api.repository.PantryRepository
 import com.tstreet.onhand.core.data.api.repository.RecipeRepository
 import com.tstreet.onhand.core.model.Ingredient
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import javax.inject.Named
 import javax.inject.Provider
 
 @FeatureScope
@@ -15,29 +16,24 @@ class AddToPantryUseCase @Inject constructor(
     private val pantryRepository: Provider<PantryRepository>,
     private val recipeRepository: Provider<RecipeRepository>,
     private val pantryStateManager: Provider<PantryStateManager>,
+    @Named(IO) private val ioDispatcher: CoroutineDispatcher,
 ) : UseCase() {
 
-    suspend operator fun invoke(ingredient: Ingredient) : Resource<Unit> {
-        val affectedEntities = pantryRepository
-            .get()
-            .addIngredient(ingredient)
+    suspend operator fun invoke(ingredient: Ingredient): Resource<Unit> {
+        return withContext(ioDispatcher) {
+            val affectedEntities = pantryRepository
+                .get()
+                .addIngredient(ingredient)
 
-        return when {
-            affectedEntities > 0 -> {
-                pantryStateManager.get().onPantryStateChange()
-
-                // search recipe cache for ingredient added
-
-
-                recipeRepository.get().updatedStoredRecipesForIngredient(ingredient)
-                // if ingredient missed in recipe ->
-                //  remove from missed ingredients
-                //  add to used
-
-                Resource.success(null)
-            }
-            else -> {
-                Resource.error("Unable to add $ingredient to pantry.")
+            when {
+                affectedEntities > 0 -> {
+                    pantryStateManager.get().onPantryStateChange()
+                    recipeRepository.get().updateSavedRecipesMissingIngredient(ingredient)
+                    Resource.success(null)
+                }
+                else -> {
+                    Resource.error("Unable to add $ingredient to pantry.")
+                }
             }
         }
     }

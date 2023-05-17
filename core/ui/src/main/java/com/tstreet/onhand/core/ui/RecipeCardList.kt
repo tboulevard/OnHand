@@ -105,9 +105,19 @@ fun RecipeCardItem(
                     modifier = Modifier.padding(4.dp),
                     style = MaterialTheme.typography.bodyMedium
                 )
+                Text(
+                    text = "Used: ${recipe.usedIngredients.map { it.ingredient.name }}",
+                    modifier = Modifier.padding(4.dp),
+                    style = MaterialTheme.typography.bodyMedium
+                )
                 if (recipe.missedIngredientCount > 0) {
                     Text(
                         text = "${if (recipe.missedIngredientCount > 1) "${recipe.missedIngredientCount} ingredients" else "1 ingredient"} missing",
+                        modifier = Modifier.padding(4.dp),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = "Missing: ${recipe.missedIngredients.map { it.ingredient.name } }",
                         modifier = Modifier.padding(4.dp),
                         style = MaterialTheme.typography.bodyMedium
                     )
