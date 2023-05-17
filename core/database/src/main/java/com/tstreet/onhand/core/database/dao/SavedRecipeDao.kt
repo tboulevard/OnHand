@@ -1,29 +1,91 @@
 package com.tstreet.onhand.core.database.dao
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Transaction
+import androidx.room.*
 import com.tstreet.onhand.core.database.model.SavedRecipeEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface SavedRecipeDao {
+abstract class SavedRecipeDao {
 
-    @Insert
-    suspend fun addRecipe(recipe: SavedRecipeEntity)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun addRecipe(recipe: SavedRecipeEntity)
 
     @Query("SELECT 1 from saved_recipes WHERE id = :id")
-    suspend fun isRecipeSaved(id: Int): Int
+    abstract suspend fun isRecipeSaved(id: Int): Int
 
     @Query("DELETE FROM saved_recipes WHERE id = :id")
-    suspend fun deleteRecipe(id: Int)
+    abstract suspend fun deleteRecipe(id: Int)
 
     @Query("SELECT * from saved_recipes WHERE id = :id")
     @Transaction
-    fun getRecipe(id: Int): Flow<SavedRecipeEntity>
+    abstract fun getRecipe(id: Int): Flow<SavedRecipeEntity>
 
     @Query("SELECT * from saved_recipes")
     @Transaction
-    fun getSavedRecipes(): Flow<List<SavedRecipeEntity>>
+    abstract fun getSavedRecipes(): Flow<List<SavedRecipeEntity>>
+
+    @Transaction
+    open suspend fun updateRecipesMissingIngredient(ingredientName: String) {
+        getRecipesMissingIngredient(ingredientName).map { entity ->
+            entity.missedIngredients.find { it.ingredient.name == ingredientName }
+                ?.let { missedIngredient ->
+                    val newMissedIngredients =
+                        entity.missedIngredients.filterNot { it.ingredient.name == ingredientName }
+                    val newUsedIngredients = entity.usedIngredients + missedIngredient
+                    entity.copy(
+                        missedIngredients = newMissedIngredients,
+                        missedIngredientCount = newMissedIngredients.size,
+                        usedIngredients = newUsedIngredients,
+                        usedIngredientCount = newUsedIngredients.size
+                    )
+                }
+        }.forEach { updatedEntity ->
+            updatedEntity?.apply {
+                addRecipe(this)
+            }
+        }
+    }
+
+    @Transaction
+    open suspend fun updateRecipesUsingIngredient(ingredientName: String) {
+        getRecipesUsingIngredient(ingredientName).map { entity ->
+            entity.usedIngredients.find { it.ingredient.name == ingredientName }
+                ?.let { usedIngredient ->
+                    val newUsedIngredients =
+                        entity.usedIngredients.filterNot { it.ingredient.name == ingredientName }
+                    val newMissedIngredients = entity.missedIngredients + usedIngredient
+                    entity.copy(
+                        missedIngredients = newMissedIngredients,
+                        missedIngredientCount = newMissedIngredients.size,
+                        usedIngredients = newUsedIngredients,
+                        usedIngredientCount = newUsedIngredients.size
+                    )
+                }
+        }.forEach { updatedEntity ->
+            // If no entities are updated, no recipes are changed
+            updatedEntity?.apply {
+                addRecipe(this)
+            }
+        }
+    }
+
+    @Query(
+        """
+        SELECT * FROM saved_recipes 
+        WHERE missedIngredients LIKE '%' || :ingredientName || '%'
+            """
+    )
+    abstract suspend fun getRecipesMissingIngredient(
+        ingredientName: String
+    ): List<SavedRecipeEntity>
+
+    @Query(
+        """
+        SELECT * FROM saved_recipes 
+        WHERE usedIngredients LIKE '%' || :ingredientName || '%'
+            """
+    )
+    abstract suspend fun getRecipesUsingIngredient(
+        ingredientName: String
+    ): List<SavedRecipeEntity>
 }

@@ -116,6 +116,30 @@ class RecipeRepositoryImpl @Inject constructor(
             .map { it.map(SavedRecipeEntity::asExternalModel) }
     }
 
+    override suspend fun updateSavedRecipesMissingIngredient(ingredient: Ingredient) {
+        println("[OnHand] updateSavedRecipesMissingIngredient($ingredient)")
+        try {
+            savedRecipeDao
+                .get()
+                .updateRecipesMissingIngredient(ingredient.name)
+        } catch (e: Exception) {
+            // TODO: log analytics here
+            // TODO: rethrow in debug
+        }
+    }
+
+    override suspend fun updateSavedRecipesUsingIngredient(ingredient: Ingredient) {
+        println("[OnHand] updateSavedRecipesUsingIngredient($ingredient)")
+        try {
+            savedRecipeDao
+                .get()
+                .updateRecipesUsingIngredient(ingredient.name)
+        } catch (e: Exception) {
+            // TODO: log analytics here
+            // TODO: rethrow in debug
+        }
+    }
+
     private suspend fun getCachedRecipeSearchResults(): List<Recipe> {
         return recipeSearchCacheDao
             .get()

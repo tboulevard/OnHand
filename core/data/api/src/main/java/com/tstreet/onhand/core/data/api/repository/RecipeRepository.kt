@@ -2,6 +2,7 @@ package com.tstreet.onhand.core.data.api.repository
 
 import com.tstreet.onhand.core.common.FetchStrategy
 import com.tstreet.onhand.core.common.Resource
+import com.tstreet.onhand.core.model.Ingredient
 import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.model.RecipeDetail
 import com.tstreet.onhand.core.model.SaveableRecipe
@@ -23,4 +24,6 @@ interface RecipeRepository {
     suspend fun isRecipeSaved(id: Int): Boolean
 
     fun getSavedRecipes(): Flow<List<SaveableRecipe>>
+    suspend fun updateSavedRecipesMissingIngredient(ingredient: Ingredient)
+    suspend fun updateSavedRecipesUsingIngredient(ingredient: Ingredient)
 }
