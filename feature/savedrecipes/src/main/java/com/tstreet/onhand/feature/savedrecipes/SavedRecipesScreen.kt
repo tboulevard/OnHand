@@ -19,6 +19,12 @@ fun SavedRecipesScreen(
     viewModel: SavedRecipesViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val errorDialogState by viewModel.errorDialogState.collectAsState()
+
+    OnHandAlertDialog(
+        onDismiss = { viewModel.dismissErrorDialog() },
+        state = errorDialogState
+    )
 
     Column(
         verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()
@@ -36,7 +42,7 @@ fun SavedRecipesScreen(
                             onItemClick = navController::navigate,
                             onSaveClick = viewModel::onRecipeSaved,
                             onUnSaveClick = viewModel::onRecipeUnsaved,
-                            onAddToShoppingListClick = { /* TODO */ }
+                            onAddToShoppingListClick = viewModel::onAddToShoppingList
                         )
                     }
                     false -> {
