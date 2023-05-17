@@ -3,10 +3,13 @@ package com.tstreet.onhand.feature.savedrecipes
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tstreet.onhand.core.common.Status
 import com.tstreet.onhand.core.domain.recipes.GetSavedRecipesUseCase
 import com.tstreet.onhand.core.domain.recipes.SaveRecipeUseCase
 import com.tstreet.onhand.core.domain.recipes.UnsaveRecipeUseCase
+import com.tstreet.onhand.core.domain.shoppinglist.AddToShoppingListUseCase
 import com.tstreet.onhand.core.ui.*
+import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -15,7 +18,8 @@ import javax.inject.Provider
 class SavedRecipesViewModel @Inject constructor(
     getSavedRecipes: Provider<GetSavedRecipesUseCase>,
     private val unsaveRecipe: Provider<UnsaveRecipeUseCase>,
-    private val saveRecipe: Provider<SaveRecipeUseCase>
+    private val saveRecipe: Provider<SaveRecipeUseCase>,
+    private val addToShoppingList: Provider<AddToShoppingListUseCase>
 ) : ViewModel() {
 
     init {
@@ -39,6 +43,14 @@ class SavedRecipesViewModel @Inject constructor(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = SavedRecipesUiState.Loading
+        )
+
+    private val _errorDialogState = MutableStateFlow(dismissed())
+    val errorDialogState = _errorDialogState
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = _errorDialogState.value
         )
 
     fun onRecipeSaved(index: Int) {
@@ -97,5 +109,35 @@ class SavedRecipesViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun onAddToShoppingList(index: Int) {
+        viewModelScope.launch {
+            val item = _recipes[index]
+            addToShoppingList.get().invoke(
+                // TODO: .map for getting from RecipeIngredient -> Ingredient
+                ingredients = item.recipe.missedIngredients.map { it.ingredient },
+                recipe = item.recipe
+            ).collect {
+                when (it.status) {
+                    Status.SUCCESS -> {
+                        // TODO: implement logic to transmit state back to UI
+                    }
+                    Status.ERROR -> {
+                        _errorDialogState.update {
+                            AlertDialogState.displayed(
+                                title = "Error",
+                                message = "Unable to add ingredients to shopping list. Please " +
+                                        "try again."
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fun dismissErrorDialog() {
+        _errorDialogState.update { dismissed() }
     }
 }
