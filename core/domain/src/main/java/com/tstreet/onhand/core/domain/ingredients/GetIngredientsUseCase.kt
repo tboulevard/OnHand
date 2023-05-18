@@ -24,7 +24,9 @@ class GetIngredientsUseCase @Inject constructor(
                     .get()
                     .searchIngredients(sanitizedQuery)
             }
-            else -> { emptyList() }
+            else -> {
+                emptyList()
+            }
         }
     }
 

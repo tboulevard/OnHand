@@ -50,6 +50,8 @@ fun ShoppingListScreen(
         }
         is ShoppingListUiState.Success -> {
             LazyColumn(verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()) {
+                // TODO: specify contentType here, since rows are different
+                //  https://developer.android.com/jetpack/compose/lists#content-type
                 itemsIndexed(state.screenContent()) { _, item ->
                     when (item) {
                         is ShoppingListItem.Header -> {
