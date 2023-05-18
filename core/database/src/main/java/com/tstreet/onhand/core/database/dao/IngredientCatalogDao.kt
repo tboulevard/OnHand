@@ -22,6 +22,10 @@ interface IngredientCatalogDao {
     @Query("UPDATE ingredient_catalog SET inPantry = 0 WHERE name = :ingredientName AND inPantry = 1")
     suspend fun removeFromPantry(ingredientName: String) : Int
 
+    // NOTE: Because this wraps with Flow<>, any changes on the table level will trigger the
+    // emission of a new value for all active subscribers
+    // This function is a good candidate to wrap flow because we emit values over time (i.e.,
+    // pantry items can change in UI multiple times)
     @Query("SELECT * FROM ingredient_catalog WHERE inPantry = 1")
     @Transaction
     fun getAllFromPantry(): Flow<List<IngredientCatalogEntity>>

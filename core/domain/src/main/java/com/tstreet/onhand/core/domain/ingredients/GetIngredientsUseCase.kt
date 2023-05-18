@@ -16,12 +16,18 @@ class GetIngredientsUseCase @Inject constructor(
     private val repository: Provider<IngredientSearchRepository>
 ) : UseCase() {
 
-    suspend operator fun invoke(query: String): List<PantryIngredient> =
-        repository
-            .get()
-            .searchIngredients(
-                query.sanitize()
-            )
+    suspend operator fun invoke(query: String): List<PantryIngredient> {
+        val sanitizedQuery = query.sanitize()
+        return when {
+            sanitizedQuery.isNotBlank() -> {
+                repository
+                    .get()
+                    .searchIngredients(sanitizedQuery)
+            }
+            else -> { emptyList() }
+        }
+    }
+
 
     private fun String.sanitize() =
         this

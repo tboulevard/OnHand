@@ -22,10 +22,8 @@ class HomeViewModel @Inject constructor(
     private val getIngredients: Provider<GetIngredientsUseCase>,
     private val addToPantry: Provider<AddToPantryUseCase>,
     private val removeFromPantry: Provider<RemoveFromPantryUseCase>,
-    private val getPantry: Provider<GetPantryUseCase>,
+    getPantry: Provider<GetPantryUseCase>,
 ) : ViewModel() {
-
-    val pantry = mutableStateListOf<PantryIngredient>()
 
     // TODO: refactor to work with keys for each item in LazyColumn
     var ingredients = mutableStateListOf<PantryIngredient>()
@@ -33,7 +31,6 @@ class HomeViewModel @Inject constructor(
 
     init {
         println("[OnHand] ${this.javaClass.simpleName} created")
-        refreshPantry()
     }
 
     private val _searchText = MutableStateFlow("")
@@ -64,6 +61,18 @@ class HomeViewModel @Inject constructor(
             initialValue = _searchText.value
         )
 
+    val pantry: StateFlow<List<PantryIngredient>> =
+        // TODO: Each time we emit a value, the entire pantry list recomposes. Tried giving
+        //  each element a key to avoid this but didn't work. Look into later. We would also
+        //  maintain a separate list in this class that changes based on the diff of what this
+        //  emits and it. But not worth the effort for now, no performance issues...
+        getPantry.get().invoke()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
+
     private val _isSearching = MutableStateFlow(false)
     val isSearching = _isSearching.asStateFlow()
 
@@ -92,8 +101,6 @@ class HomeViewModel @Inject constructor(
                 item.inPantry -> {
                     when (removeFromPantry.get().invoke(item.ingredient).status) {
                         Status.SUCCESS -> {
-                            // TODO: cleanup messy double seek to remove one item
-                            pantry.remove(pantry.find { it.ingredient.id == item.ingredient.id })
                             ingredients[index] = item.copy(inPantry = false)
                         }
                         Status.ERROR -> {
@@ -109,8 +116,6 @@ class HomeViewModel @Inject constructor(
                 else -> {
                     when (addToPantry.get().invoke(item.ingredient).status) {
                         Status.SUCCESS -> {
-                            // TODO: cleanup messy double seek to remove one item
-                            pantry.add(item.copy(inPantry = true))
                             ingredients[index] = item.copy(inPantry = true)
                         }
                         Status.ERROR -> {
@@ -129,14 +134,12 @@ class HomeViewModel @Inject constructor(
 
     fun onToggleFromPantry(index: Int) {
         viewModelScope.launch {
-            val item = pantry[index]
+            val item = pantry.value[index]
             // TODO: probably an unnecessary check, but put here to make sure we didn't somehow
             // get an ingredient in the pantry that isn't marked as in the pantry
             if (item.inPantry) {
                 when (removeFromPantry.get().invoke(item.ingredient).status) {
-                    Status.SUCCESS -> {
-                        pantry.removeAt(index)
-                    }
+                    Status.SUCCESS -> { }
                     Status.ERROR -> {
                         _errorDialogState.update {
                             displayed(
@@ -156,12 +159,5 @@ class HomeViewModel @Inject constructor(
 
     fun dismissErrorDialog() {
         _errorDialogState.update { dismissed() }
-    }
-
-    private fun refreshPantry() {
-        viewModelScope.launch {
-            // TODO: refactor call using .first() once we move pantry to it's own tab
-            pantry.addAll(getPantry.get().invoke().first())
-        }
     }
 }

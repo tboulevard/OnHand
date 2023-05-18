@@ -40,6 +40,11 @@ internal fun Project.configureKotlinAndroid(
                 "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
                 "-opt-in=kotlinx.coroutines.FlowPreview",
                 "-opt-in=kotlin.Experimental",
+//                // Enables compose compiler metrics/reports for all modules
+//                "-P",
+//                "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=/Users/tstreet/Desktop",
+//                "-P",
+//                "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=/Users/tstreet/Desktop"
             )
 
             // Set JVM target to 11
