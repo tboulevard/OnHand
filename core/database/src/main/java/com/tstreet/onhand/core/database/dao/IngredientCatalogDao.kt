@@ -14,7 +14,8 @@ interface IngredientCatalogDao {
 
     // TODO: LIMIT of 6 entries returned hardcoded for now, make it dynamic later
     @Query("SELECT * FROM ingredient_catalog WHERE name LIKE '%' || :query || '%' LIMIT 6")
-    suspend fun search(query: String): List<IngredientCatalogEntity>
+    @Transaction
+    fun search(query: String): Flow<List<IngredientCatalogEntity>>
 
     @Query("UPDATE ingredient_catalog SET inPantry = 1 WHERE name = :ingredientName AND inPantry = 0")
     suspend fun addToPantry(ingredientName: String) : Int

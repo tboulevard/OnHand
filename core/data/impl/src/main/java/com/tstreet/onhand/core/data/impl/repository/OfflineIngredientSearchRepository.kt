@@ -7,7 +7,9 @@ import com.tstreet.onhand.core.database.model.IngredientCatalogEntity
 import com.tstreet.onhand.core.database.model.asExternalModel
 import com.tstreet.onhand.core.model.PantryIngredient
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Provider
@@ -21,11 +23,11 @@ class OfflineIngredientSearchRepository @Inject constructor(
         println("[OnHand] Creating ${this.javaClass.simpleName}")
     }
 
-    override suspend fun searchIngredients(query: String): List<PantryIngredient> {
-        return withContext(ioDispatcher) {
-            ingredientCatalogDao.get()
-                .search(query)
-                .map(IngredientCatalogEntity::asExternalModel)
-        }
+    override fun searchIngredients(query: String): Flow<List<PantryIngredient>> {
+        return ingredientCatalogDao.get()
+            .search(query)
+            .map { it.map(IngredientCatalogEntity::asExternalModel) }
+            .flowOn(ioDispatcher)
+
     }
 }

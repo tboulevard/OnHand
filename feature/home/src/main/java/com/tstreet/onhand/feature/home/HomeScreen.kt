@@ -31,8 +31,9 @@ import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
 fun HomeScreen(
     viewModel: HomeViewModel
 ) {
-    val searchText by viewModel.searchText.collectAsState()
+    val searchText by viewModel.searchText.collectAsState(initial = "")
     val pantry by viewModel.pantry.collectAsStateWithLifecycle()
+    val ingredients by viewModel.ingredients.collectAsStateWithLifecycle()
     val isSearching by viewModel.isSearching.collectAsState()
     val isSearchBarFocused by viewModel.isSearchBarFocused.collectAsState()
     val isPreSearchDebouncing by viewModel.isPreSearchDebounce.collectAsState()
@@ -59,7 +60,7 @@ fun HomeScreen(
             }
             isSearchBarFocused -> {
                 IngredientSearchCardList(
-                    ingredients = viewModel.ingredients,
+                    ingredients = ingredients,
                     onItemClick = viewModel::onToggleFromSearch,
                     isPreSearchDebouncing,
                     searchText
