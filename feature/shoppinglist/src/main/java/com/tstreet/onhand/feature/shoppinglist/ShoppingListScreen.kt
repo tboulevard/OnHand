@@ -53,7 +53,9 @@ fun ShoppingListScreen(
             LazyColumn(verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()) {
                 // TODO: specify contentType here, since rows are different
                 //  https://developer.android.com/jetpack/compose/lists#content-type
-                itemsIndexed(state.screenContent()) { _, item ->
+                // TODO: Implement item keys for this approach to avoid recompositions, hashCode
+                //  doesn't appear to work...
+                itemsIndexed(state.screenContent(), key = { _, item -> item.hashCode() }) { _, item ->
                     when (item) {
                         is ShoppingListItem.Header -> {
                             OnHandScreenHeader(item.text)

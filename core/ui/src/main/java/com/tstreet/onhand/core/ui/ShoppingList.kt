@@ -88,7 +88,9 @@ fun ShoppingListRecipeCards(
     LazyRow(
         modifier = Modifier.fillMaxWidth()
     ) {
-        itemsIndexed(recipes) { index, recipe ->
+        // TODO: Implement item keys for this approach to avoid recompositions, currently
+        //  doesn't appear to work...
+        itemsIndexed(recipes, key = { _, item -> item.id }) { index, recipe ->
             ShoppingListRecipeItem(
                 ShoppingListRecipeCard(
                     recipe = recipe,
