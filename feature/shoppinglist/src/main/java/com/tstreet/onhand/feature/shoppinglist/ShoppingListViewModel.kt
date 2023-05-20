@@ -13,6 +13,7 @@ import com.tstreet.onhand.core.ui.RecipeDetailUiState
 import com.tstreet.onhand.core.ui.ShoppingListUiState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -32,7 +33,12 @@ class ShoppingListViewModel @Inject constructor(
     private var ingredients = listOf<ShoppingListIngredient>()
     private var recipes = listOf<Recipe>()
     private var removeRecipeIndex = 0
+    private val errorDialogShown = AtomicBoolean(false)
 
+    // NOTE: This flow is re-triggered if there's a change to the backing shopping_list table,
+    //  so state is updated automatically. We retrieve a new list so both lists in their
+    //  entirety recompose though. For now this approach is simple so we'll keep it so there are
+    //  no perf issues
     val shoppingListUiState =
         getShoppingListUseCase
             .get()
@@ -43,14 +49,32 @@ class ShoppingListViewModel @Inject constructor(
             ) { getShoppingListResult, getMappedRecipesResult ->
                 ingredients = getShoppingListResult.data ?: emptyList()
                 recipes = getMappedRecipesResult.data ?: emptyList()
-                when (getShoppingListResult.status) {
-                    SUCCESS -> {
-                        ShoppingListUiState.Success(ingredients, recipes)
+                when {
+                    getShoppingListResult.status == SUCCESS &&
+                            getMappedRecipesResult.status == SUCCESS -> {
+                        ShoppingListUiState.Success(
+                            mappedRecipes = recipes,
+                            shoppingListIngredients = ingredients
+                        )
                     }
-                    ERROR -> {
+                    else -> {
+                        // So that edits to the shopping list don't re-show the error dialog
+                        if (!errorDialogShown.getAndSet(true)) {
+                            _errorDialogState.update {
+                                displayed(
+                                    title = "Error",
+                                    message = "There was a problem retrieving some shopping list " +
+                                            "contents. Showing partial results."
+                                )
+                            }
+                        }
                         ShoppingListUiState.Error(
-                            message = getShoppingListResult.message.toString() +
-                                    getMappedRecipesResult.message.toString()
+                            message = "getMappedRecipesResult = " +
+                                    getMappedRecipesResult.message.toString() + ", " +
+                                    "getShoppingListResult = " +
+                                    getShoppingListResult.message.toString(),
+                            mappedRecipes = recipes,
+                            shoppingListIngredients = ingredients
                         )
                     }
                 }
