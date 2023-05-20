@@ -1,10 +1,8 @@
 package com.tstreet.onhand.feature.home
 
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.tstreet.onhand.core.common.Status
+import com.tstreet.onhand.core.common.Status.*
 import com.tstreet.onhand.core.domain.ingredients.GetIngredientsUseCase
 import com.tstreet.onhand.core.domain.pantry.AddToPantryUseCase
 import com.tstreet.onhand.core.domain.pantry.GetPantryUseCase
@@ -17,52 +15,81 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Provider
 
+// TODO: Each time we emit a value for either ingredient or pantry, the entire list recomposes.
+//  Tried giving each element a key to avoid this but didn't work. Look into later. For now this
+//  class is mostly just an example of how to use Flows from room really cleanly.
 @OptIn(kotlinx.coroutines.FlowPreview::class)
 class HomeViewModel @Inject constructor(
     private val getIngredients: Provider<GetIngredientsUseCase>,
     private val addToPantry: Provider<AddToPantryUseCase>,
     private val removeFromPantry: Provider<RemoveFromPantryUseCase>,
-    private val getPantry: Provider<GetPantryUseCase>,
+    getPantry: Provider<GetPantryUseCase>,
 ) : ViewModel() {
-
-    val pantry = mutableStateListOf<PantryIngredient>()
-
-    // TODO: refactor to work with keys for each item in LazyColumn
-    var ingredients = mutableStateListOf<PantryIngredient>()
-        private set
 
     init {
         println("[OnHand] ${this.javaClass.simpleName} created")
-        refreshPantry()
     }
 
-    private val _searchText = MutableStateFlow("")
-    val searchText: StateFlow<String> = _searchText
-        .onEach { _isPreSearchDebounce.update { true } }
-        .debounce(250L)
+    private var searchQuery: String? = null
+
+    // SharedFlow does not need to explicitly need to be collected, as it is a hot flow.
+    // Addtionally, we can replay to all observers n times.
+    private val _searchTextFlow = MutableSharedFlow<String?>(replay = 1)
+
+    // However this is a regular Flow (cold), and needs to be collected. We collect it via
+    // .collectAsState()
+    val displayedSearchText: Flow<String> = _searchTextFlow.map { it.orEmpty() }
+
+    private val _ingredients: Flow<List<PantryIngredient>> = _searchTextFlow
         .onEach {
-            _isPreSearchDebounce.update { false }
-            // Only search and update listed ingredients if we have a valid search query
-            if (it.isNotBlank()) {
-                _isSearching.update { true }
-                ingredients = getIngredients.get().invoke(it).toMutableStateList()
-            } else if (ingredients.isNotEmpty()) {
-                // Clear the list if search query is blank and we already have listed ingredients
-                ingredients.clear()
-            }
+            searchQuery = it
+            _isPreSearchDebounce.update { true }
         }
-        // TODO: is there a better operator than combine to appropriately set the backing field?
-        .combine(_searchText) { _, _ ->
-            _searchText.value
+        .debounce(250L)
+        .onEach { _isPreSearchDebounce.update { false } }
+        .flatMapLatest {
+            _isSearching.update { true }
+            // NOTE: This is retriggered when changing pantry state in search list too.
+            getIngredients.get().invoke(searchQuery)
         }
         .onEach {
             _isSearching.update { false }
         }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = _searchText.value
-        )
+
+    val ingredients: StateFlow<List<PantryIngredient>> =
+        _ingredients
+            .stateIn(
+                // Note: Child jobs launched in this scope are automatically cancelled when
+                //  onCleared() is called for this ViewModel.
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
+
+    val pantry: StateFlow<List<PantryIngredient>> =
+        getPantry.get().invoke()
+            .map {
+                println("[OnHand] listPantry status=${it.status}")
+                when (it.status) {
+                    SUCCESS -> {
+                        it.data ?: emptyList()
+                    }
+                    ERROR -> {
+                        _errorDialogState.update {
+                            displayed(
+                                title = "Error",
+                                message = "Unable to list pantry."
+                            )
+                        }
+                        emptyList()
+                    }
+                }
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
 
     private val _isSearching = MutableStateFlow(false)
     val isSearching = _isSearching.asStateFlow()
@@ -82,21 +109,17 @@ class HomeViewModel @Inject constructor(
         )
 
     fun onSearchTextChanged(text: String) {
-        _searchText.value = text
+        _searchTextFlow.tryEmit(text)
     }
 
     fun onToggleFromSearch(index: Int) {
         viewModelScope.launch {
-            val item = ingredients[index]
+            val item = ingredients.value[index]
             when {
                 item.inPantry -> {
                     when (removeFromPantry.get().invoke(item.ingredient).status) {
-                        Status.SUCCESS -> {
-                            // TODO: cleanup messy double seek to remove one item
-                            pantry.remove(pantry.find { it.ingredient.id == item.ingredient.id })
-                            ingredients[index] = item.copy(inPantry = false)
-                        }
-                        Status.ERROR -> {
+                        SUCCESS -> {}
+                        ERROR -> {
                             _errorDialogState.update {
                                 displayed(
                                     title = "Error",
@@ -108,12 +131,8 @@ class HomeViewModel @Inject constructor(
                 }
                 else -> {
                     when (addToPantry.get().invoke(item.ingredient).status) {
-                        Status.SUCCESS -> {
-                            // TODO: cleanup messy double seek to remove one item
-                            pantry.add(item.copy(inPantry = true))
-                            ingredients[index] = item.copy(inPantry = true)
-                        }
-                        Status.ERROR -> {
+                        SUCCESS -> {}
+                        ERROR -> {
                             _errorDialogState.update {
                                 displayed(
                                     title = "Error",
@@ -129,15 +148,13 @@ class HomeViewModel @Inject constructor(
 
     fun onToggleFromPantry(index: Int) {
         viewModelScope.launch {
-            val item = pantry[index]
+            val item = pantry.value[index]
             // TODO: probably an unnecessary check, but put here to make sure we didn't somehow
             // get an ingredient in the pantry that isn't marked as in the pantry
             if (item.inPantry) {
                 when (removeFromPantry.get().invoke(item.ingredient).status) {
-                    Status.SUCCESS -> {
-                        pantry.removeAt(index)
-                    }
-                    Status.ERROR -> {
+                    SUCCESS -> {}
+                    ERROR -> {
                         _errorDialogState.update {
                             displayed(
                                 title = "Error",
@@ -156,12 +173,5 @@ class HomeViewModel @Inject constructor(
 
     fun dismissErrorDialog() {
         _errorDialogState.update { dismissed() }
-    }
-
-    private fun refreshPantry() {
-        viewModelScope.launch {
-            // TODO: refactor call using .first() once we move pantry to it's own tab
-            pantry.addAll(getPantry.get().invoke().first())
-        }
     }
 }

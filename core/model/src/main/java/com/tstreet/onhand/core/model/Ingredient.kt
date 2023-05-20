@@ -1,5 +1,6 @@
 package com.tstreet.onhand.core.model
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import kotlinx.serialization.Serializable
 
@@ -18,6 +19,7 @@ data class Ingredient(
  *
  * NOTE: For now, amounts/unit not stored
  */
+@Stable
 data class PantryIngredient(
     val ingredient: Ingredient,
     val inPantry: Boolean = false,

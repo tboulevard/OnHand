@@ -4,6 +4,8 @@ import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.common.UseCase
 import com.tstreet.onhand.core.data.api.repository.IngredientSearchRepository
 import com.tstreet.onhand.core.model.PantryIngredient
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -15,10 +17,25 @@ class GetIngredientsUseCase @Inject constructor(
     private val repository: Provider<IngredientSearchRepository>
 ) : UseCase() {
 
-    suspend operator fun invoke(query: String): List<PantryIngredient> =
-        repository
-            .get()
-            .searchIngredients(
-                query.lowercase()
-            )
+    operator fun invoke(query: String?): Flow<List<PantryIngredient>> {
+        val sanitizedQuery = query.sanitize()
+        return when {
+            sanitizedQuery.isNotBlank() -> {
+                repository
+                    .get()
+                    .searchIngredients(sanitizedQuery)
+            }
+            else -> {
+                flowOf(emptyList())
+            }
+        }
+    }
+
+
+    /**
+     * Takes [this] and removes all non alphanumerics. If [this] is null we return an empty String.
+     */
+    private fun String?.sanitize(): String {
+        return this?.replace(Regex("[^A-Za-z0-9]"), "")?.lowercase() ?: ""
+    }
 }

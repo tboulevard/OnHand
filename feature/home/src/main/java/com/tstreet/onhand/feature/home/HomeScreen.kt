@@ -11,13 +11,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tstreet.onhand.core.model.PantryIngredient
 import com.tstreet.onhand.core.ui.OnHandAlertDialog
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
@@ -31,7 +31,9 @@ import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
 fun HomeScreen(
     viewModel: HomeViewModel
 ) {
-    val searchText by viewModel.searchText.collectAsState()
+    val searchText by viewModel.displayedSearchText.collectAsState(initial = "")
+    val pantry by viewModel.pantry.collectAsStateWithLifecycle()
+    val ingredients by viewModel.ingredients.collectAsStateWithLifecycle()
     val isSearching by viewModel.isSearching.collectAsState()
     val isSearchBarFocused by viewModel.isSearchBarFocused.collectAsState()
     val isPreSearchDebouncing by viewModel.isPreSearchDebounce.collectAsState()
@@ -58,7 +60,7 @@ fun HomeScreen(
             }
             isSearchBarFocused -> {
                 IngredientSearchCardList(
-                    ingredients = viewModel.ingredients,
+                    ingredients = ingredients,
                     onItemClick = viewModel::onToggleFromSearch,
                     isPreSearchDebouncing,
                     searchText
@@ -66,7 +68,7 @@ fun HomeScreen(
             }
             else -> {
                 PantryItemList(
-                    viewModel.pantry,
+                    pantry,
                     viewModel::onToggleFromPantry
                 )
             }
@@ -231,7 +233,7 @@ fun IngredientSearchCardList(
 
 @Composable
 private fun PantryItemList(
-    pantry: SnapshotStateList<PantryIngredient>,
+    pantry: List<PantryIngredient>,
     onToggleFromPantry: (Int) -> Unit
 ) {
     Text(
@@ -315,7 +317,7 @@ private fun PantryCardList(
         verticalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.Top),
         horizontalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.Start),
     ) {
-        itemsIndexed(pantry) { index, item ->
+        itemsIndexed(pantry, key = { _, item -> item.ingredient.id }) { index, item ->
             PantryListItem(
                 card = PantryItemCard(
                     item.ingredient.name,

@@ -28,45 +28,41 @@ class GetRecipesUseCase @Inject constructor(
 ) : UseCase() {
 
     operator fun invoke(sortBy: SortBy = DEFAULT_SORTING): Flow<Resource<List<SaveableRecipe>>> {
-        val recipes = getPantryIngredients()
-            .map { ingredients ->
-                if (ingredients.isNotEmpty()) {
-                    val recipes = findSaveableRecipes(ingredients)
-                    val sortedRecipes = when (sortBy) {
-                        POPULARITY ->
-                            recipes.data?.sortedByDescending { it.recipe.likes }
-                        MISSING_INGREDIENTS ->
-                            recipes.data?.sortedBy { it.recipe.missedIngredientCount }
-                    }
-                    when (recipes.status) {
-                        SUCCESS -> {
-                            // TODO: pantry reset logic messed up, look into before merging...
-                            pantryStateManager.get().onResetPantryState()
-                            Resource.success(data = sortedRecipes)
-                        }
-                        ERROR -> {
-                            println(
-                                "[OnHand] Pantry state not reset because there was an error " +
-                                        "retrieving recipes."
-                            )
-                            Resource.error(
-                                msg = recipes.message.toString(),
-                                data = sortedRecipes
-                            )
-                        }
-                    }
-                } else {
-                    Resource.success(emptyList())
+        // TODO: An error retrieving pantry ingredients makes us transmit empty list to ViewModel -
+        //  we may want to explicitly propagate the error up later
+        val recipes = getPantryIngredients().map { ingredients ->
+            if (ingredients.isNotEmpty()) {
+                val recipes = findSaveableRecipes(ingredients)
+                val sortedRecipes = when (sortBy) {
+                    POPULARITY -> recipes.data?.sortedByDescending { it.recipe.likes }
+                    MISSING_INGREDIENTS -> recipes.data?.sortedBy { it.recipe.missedIngredientCount }
                 }
+                when (recipes.status) {
+                    SUCCESS -> {
+                        // TODO: pantry reset logic messed up, look into before merging...
+                        pantryStateManager.get().onResetPantryState()
+                        Resource.success(data = sortedRecipes)
+                    }
+                    ERROR -> {
+                        println(
+                            "[OnHand] Pantry state not reset because there was an error " + "retrieving recipes."
+                        )
+                        Resource.error(
+                            msg = recipes.message.toString(), data = sortedRecipes
+                        )
+                    }
+                }
+            } else {
+                Resource.success(emptyList())
             }
+        }
 
         return recipes.flowOn(ioDispatcher)
     }
 
     private suspend fun findSaveableRecipes(ingredientNames: List<String>): Resource<List<SaveableRecipe>> {
         val recipeResource = recipeRepository.get().findRecipes(
-            fetchStrategy = getFetchStrategy(),
-            ingredients = ingredientNames
+            fetchStrategy = getFetchStrategy(), ingredients = ingredientNames
         )
 
         val saveableRecipeResource = recipeResource.data?.let {
@@ -77,8 +73,7 @@ class GetRecipesUseCase @Inject constructor(
                 //  specifically for sorting
                 val isRecipeSaved = recipeRepository.get().isRecipeSaved(recipe.id)
                 SaveableRecipe(
-                    recipe = recipe,
-                    isSaved = isRecipeSaved
+                    recipe = recipe, isSaved = isRecipeSaved
                 )
             }
         }
@@ -89,23 +84,26 @@ class GetRecipesUseCase @Inject constructor(
             }
             ERROR -> {
                 Resource.error(
-                    msg = recipeResource.message.toString(),
-                    data = saveableRecipeResource
+                    msg = recipeResource.message.toString(), data = saveableRecipeResource
                 )
             }
         }
     }
 
     private fun getPantryIngredients(): Flow<List<String>> {
-        return pantryRepository
-            .get()
-            .listPantry()
-            .map { ingredientList ->
-                ingredientList
-                    .map { item ->
-                        item.ingredient.name
-                    }
+        return pantryRepository.get().listPantry().map {
+            when (it.status) {
+                SUCCESS -> {
+                    it.data?.map { item -> item.ingredient.name } ?: emptyList()
+                }
+                ERROR -> {
+                    println(
+                        "[OnHand] There was an error getting the pantry ingredients" + "for recipes."
+                    )
+                    emptyList()
+                }
             }
+        }
     }
 
     private fun getFetchStrategy() =
@@ -118,8 +116,7 @@ class GetRecipesUseCase @Inject constructor(
 }
 
 enum class SortBy {
-    POPULARITY,
-    MISSING_INGREDIENTS
+    POPULARITY, MISSING_INGREDIENTS
 }
 
 val DEFAULT_SORTING = POPULARITY
