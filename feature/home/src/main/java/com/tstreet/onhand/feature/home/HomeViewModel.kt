@@ -2,7 +2,7 @@ package com.tstreet.onhand.feature.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.tstreet.onhand.core.common.Status
+import com.tstreet.onhand.core.common.Status.*
 import com.tstreet.onhand.core.domain.ingredients.GetIngredientsUseCase
 import com.tstreet.onhand.core.domain.pantry.AddToPantryUseCase
 import com.tstreet.onhand.core.domain.pantry.GetPantryUseCase
@@ -35,9 +35,10 @@ class HomeViewModel @Inject constructor(
     // SharedFlow does not need to explicitly need to be collected, as it is a hot flow.
     // Addtionally, we can replay to all observers n times.
     private val _searchTextFlow = MutableSharedFlow<String?>(replay = 1)
+
     // However this is a regular Flow (cold), and needs to be collected. We collect it via
     // .collectAsState()
-    val searchText: Flow<String> = _searchTextFlow.map { it.orEmpty() }
+    val displayedSearchText: Flow<String> = _searchTextFlow.map { it.orEmpty() }
 
     private val _ingredients: Flow<List<PantryIngredient>> = _searchTextFlow
         .onEach {
@@ -58,6 +59,8 @@ class HomeViewModel @Inject constructor(
     val ingredients: StateFlow<List<PantryIngredient>> =
         _ingredients
             .stateIn(
+                // Note: Child jobs launched in this scope are automatically cancelled when
+                //  onCleared() is called for this ViewModel.
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
                 initialValue = emptyList()
@@ -65,6 +68,23 @@ class HomeViewModel @Inject constructor(
 
     val pantry: StateFlow<List<PantryIngredient>> =
         getPantry.get().invoke()
+            .map {
+                println("[OnHand] listPantry status=${it.status}")
+                when (it.status) {
+                    SUCCESS -> {
+                        it.data ?: emptyList()
+                    }
+                    ERROR -> {
+                        _errorDialogState.update {
+                            displayed(
+                                title = "Error",
+                                message = "Unable to list pantry."
+                            )
+                        }
+                        emptyList()
+                    }
+                }
+            }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
@@ -98,8 +118,8 @@ class HomeViewModel @Inject constructor(
             when {
                 item.inPantry -> {
                     when (removeFromPantry.get().invoke(item.ingredient).status) {
-                        Status.SUCCESS -> { }
-                        Status.ERROR -> {
+                        SUCCESS -> {}
+                        ERROR -> {
                             _errorDialogState.update {
                                 displayed(
                                     title = "Error",
@@ -111,8 +131,8 @@ class HomeViewModel @Inject constructor(
                 }
                 else -> {
                     when (addToPantry.get().invoke(item.ingredient).status) {
-                        Status.SUCCESS -> { }
-                        Status.ERROR -> {
+                        SUCCESS -> {}
+                        ERROR -> {
                             _errorDialogState.update {
                                 displayed(
                                     title = "Error",
@@ -133,8 +153,8 @@ class HomeViewModel @Inject constructor(
             // get an ingredient in the pantry that isn't marked as in the pantry
             if (item.inPantry) {
                 when (removeFromPantry.get().invoke(item.ingredient).status) {
-                    Status.SUCCESS -> { }
-                    Status.ERROR -> {
+                    SUCCESS -> {}
+                    ERROR -> {
                         _errorDialogState.update {
                             displayed(
                                 title = "Error",

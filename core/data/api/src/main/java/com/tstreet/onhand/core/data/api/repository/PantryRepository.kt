@@ -1,5 +1,6 @@
 package com.tstreet.onhand.core.data.api.repository
 
+import com.tstreet.onhand.core.common.Resource
 import com.tstreet.onhand.core.model.Ingredient
 import com.tstreet.onhand.core.model.PantryIngredient
 import kotlinx.coroutines.flow.Flow
@@ -24,5 +25,5 @@ interface PantryRepository {
      * Emits [PantryIngredient]s where inPantry=true each time there's an update to the underlying
      * table.
      */
-    fun listPantry() : Flow<List<PantryIngredient>>
+    fun listPantry() : Flow<Resource<List<PantryIngredient>>>
 }
