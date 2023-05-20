@@ -2,19 +2,18 @@ package com.tstreet.onhand.core.domain.shoppinglist
 
 import com.tstreet.onhand.core.common.*
 import com.tstreet.onhand.core.data.api.repository.ShoppingListRepository
-import com.tstreet.onhand.core.model.*
-import kotlinx.coroutines.flow.*
+import com.tstreet.onhand.core.model.ShoppingListIngredient
 import javax.inject.Inject
 import javax.inject.Provider
 
-class GetShoppingListUseCase @Inject constructor(
+@FeatureScope
+class RemoveIngredientUseCase @Inject constructor(
     private val shoppingListRepository: Provider<ShoppingListRepository>,
 ) : UseCase() {
 
-    operator fun invoke(): Flow<Resource<List<ShoppingListIngredient>>> {
-        println("[OnHand] GetShoppingListUseCase.invoke()")
+    suspend operator fun invoke(shoppingListIngredient: ShoppingListIngredient): Resource<Unit> {
         return shoppingListRepository
             .get()
-            .getShoppingList()
+            .removeIngredient(shoppingListIngredient)
     }
 }

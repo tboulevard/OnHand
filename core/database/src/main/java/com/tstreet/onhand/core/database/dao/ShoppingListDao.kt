@@ -9,10 +9,12 @@ import kotlinx.coroutines.flow.Flow
 interface ShoppingListDao {
 
     @Query("SELECT * from shopping_list")
-    suspend fun getShoppingList(): List<ShoppingListEntity>
+    @Transaction
+    fun getShoppingList(): Flow<List<ShoppingListEntity>>
 
     @Query("SELECT DISTINCT mappedRecipe from shopping_list WHERE mappedRecipe IS NOT NULL")
-    suspend fun getRecipesInShoppingList(): List<Recipe?>
+    @Transaction
+    fun getRecipesInShoppingList(): Flow<List<Recipe?>>
 
     // TODO: For now, we only allow a given ingredient to be mapped to one recipe
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -25,13 +27,14 @@ interface ShoppingListDao {
     suspend fun markIngredientPurchased(name: String)
 
     @Query("UPDATE shopping_list SET isPurchased = 0 WHERE ingredientName = :name AND isPurchased = 1")
-    fun unmarkIngredientPurchased(name: String)
+    suspend fun unmarkIngredientPurchased(name: String)
 
     @Query("SELECT (SELECT COUNT(*) FROM shopping_list) == 0")
     suspend fun isEmpty(): Boolean
 
-    @Query("DELETE from shopping_list")
-    suspend fun clear()
     @Query("DELETE from shopping_list WHERE mappedRecipe = :recipe")
     suspend fun removeRecipe(recipe: Recipe)
+
+    @Query("DELETE FROM shopping_list WHERE ingredientName = :name")
+    suspend fun removeIngredient(name: String)
 }

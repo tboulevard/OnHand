@@ -21,35 +21,39 @@ import androidx.compose.ui.unit.dp
 import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.model.ShoppingListIngredient
 
-sealed interface ShoppingListUiState {
+sealed class ShoppingListUiState(
+    val ingredients: List<ShoppingListIngredient>,
+    val recipes: List<Recipe>
+) {
+    object Loading : ShoppingListUiState(emptyList(), emptyList())
 
-    object Loading : ShoppingListUiState
-
+    // TODO: refactor duplicate screen content functions...
     data class Success(
-        val ingredients: List<ShoppingListIngredient>,
-        val recipes: List<Recipe>
-    ) : ShoppingListUiState {
-
-        fun screenContent() = listOf(
-            ShoppingListItem.Header(
-                text = "Shopping List"
-            ),
-            ShoppingListItem.Summary(
-                numberOfRecipes = recipes.size,
-                numberOfIngredients = ingredients.size
-            ),
-            ShoppingListItem.MappedRecipes(
-                recipes = recipes
-            ),
-            ShoppingListItem.Ingredients(
-                ingredients = ingredients
-            )
-        )
-    }
+        val shoppingListIngredients: List<ShoppingListIngredient>,
+        val mappedRecipes: List<Recipe>
+    ) : ShoppingListUiState(shoppingListIngredients, mappedRecipes)
 
     data class Error(
-        val message: String
-    ) : ShoppingListUiState
+        val message: String,
+        val shoppingListIngredients: List<ShoppingListIngredient>,
+        val mappedRecipes: List<Recipe>
+    ) : ShoppingListUiState(shoppingListIngredients, mappedRecipes)
+
+    fun screenContent() = listOf(
+        ShoppingListItem.Header(
+            text = "Shopping List"
+        ),
+        ShoppingListItem.Summary(
+            numberOfRecipes = recipes.size,
+            numberOfIngredients = ingredients.size
+        ),
+        ShoppingListItem.MappedRecipes(
+            recipes = recipes
+        ),
+        ShoppingListItem.Ingredients(
+            ingredients = ingredients
+        )
+    )
 }
 
 sealed interface ShoppingListItem {
@@ -84,7 +88,9 @@ fun ShoppingListRecipeCards(
     LazyRow(
         modifier = Modifier.fillMaxWidth()
     ) {
-        itemsIndexed(recipes) { index, recipe ->
+        // TODO: Implement item keys for this approach to avoid recompositions, currently
+        //  doesn't appear to work...
+        itemsIndexed(recipes, key = { _, item -> item.id }) { index, recipe ->
             ShoppingListRecipeItem(
                 ShoppingListRecipeCard(
                     recipe = recipe,

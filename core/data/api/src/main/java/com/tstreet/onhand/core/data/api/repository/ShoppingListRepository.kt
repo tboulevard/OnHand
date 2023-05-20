@@ -3,12 +3,13 @@ package com.tstreet.onhand.core.data.api.repository
 import com.tstreet.onhand.core.common.Resource
 import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.model.ShoppingListIngredient
+import kotlinx.coroutines.flow.Flow
 
 interface ShoppingListRepository {
 
-    suspend fun getShoppingList(): Resource<List<ShoppingListIngredient>>
+    fun getShoppingList(): Flow<Resource<List<ShoppingListIngredient>>>
 
-    suspend fun getRecipesInShoppingList(): Resource<List<Recipe>>
+    fun getRecipesInShoppingList(): Flow<Resource<List<Recipe>>>
 
     suspend fun insertIngredients(shoppingList: List<ShoppingListIngredient>): Resource<Unit>
 
@@ -20,6 +21,7 @@ interface ShoppingListRepository {
 
     suspend fun isEmpty(): Boolean
 
-    suspend fun clear()
     suspend fun removeRecipe(recipe : Recipe): Resource<Unit>
+
+    suspend fun removeIngredient(ingredient : ShoppingListIngredient) : Resource<Unit>
 }

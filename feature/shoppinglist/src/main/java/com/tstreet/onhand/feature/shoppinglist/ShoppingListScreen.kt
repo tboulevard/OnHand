@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -52,7 +53,9 @@ fun ShoppingListScreen(
             LazyColumn(verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()) {
                 // TODO: specify contentType here, since rows are different
                 //  https://developer.android.com/jetpack/compose/lists#content-type
-                itemsIndexed(state.screenContent()) { _, item ->
+                // TODO: Implement item keys for this approach to avoid recompositions, hashCode
+                //  doesn't appear to work...
+                itemsIndexed(state.screenContent(), key = { _, item -> item.hashCode() }) { _, item ->
                     when (item) {
                         is ShoppingListItem.Header -> {
                             OnHandScreenHeader(item.text)
@@ -79,7 +82,8 @@ fun ShoppingListScreen(
                                     ShoppingListIngredientCards(
                                         ingredients = item.ingredients,
                                         onMarkIngredient = viewModel::onCheckOffShoppingIngredient,
-                                        onUnmarkIngredient = viewModel::onUncheckShoppingIngredient
+                                        onUnmarkIngredient = viewModel::onUncheckShoppingIngredient,
+                                        onRemoveIngredient = viewModel::onRemoveIngredient
                                     )
                                 }
                                 else -> {
@@ -116,8 +120,72 @@ fun ShoppingListScreen(
             }
         }
         is ShoppingListUiState.Error -> {
-            // For errors retrieving shopping list itself
-            FullScreenErrorMessage(message = state.message)
+            LazyColumn(verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()) {
+                // TODO: specify contentType here, since rows are different
+                //  https://developer.android.com/jetpack/compose/lists#content-type
+                itemsIndexed(state.screenContent()) { _, item ->
+                    when (item) {
+                        is ShoppingListItem.Header -> {
+                            OnHandScreenHeader(item.text)
+                        }
+                        is ShoppingListItem.Summary -> {
+                            Text(
+                                modifier = Modifier
+                                    .padding(8.dp),
+                                text = item.text,
+                                style = MaterialTheme.typography.titleLarge,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                        is ShoppingListItem.MappedRecipes -> {
+                            ShoppingListRecipeCards(
+                                recipes = item.recipes,
+                                onItemClick = { /* TODO */ },
+                                onRemoveClick = viewModel::showRemoveRecipeDialog
+                            )
+                        }
+                        is ShoppingListItem.Ingredients -> {
+                            when {
+                                item.ingredients.isNotEmpty() -> {
+                                    ShoppingListIngredientCards(
+                                        ingredients = item.ingredients,
+                                        onMarkIngredient = viewModel::onCheckOffShoppingIngredient,
+                                        onUnmarkIngredient = viewModel::onUncheckShoppingIngredient,
+                                        onRemoveIngredient = viewModel::onRemoveIngredient
+                                    )
+                                }
+                                else -> {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxSize(),
+                                        verticalArrangement = Arrangement.Center
+                                    ) {
+                                        Icon(
+                                            Icons.Default.ShoppingCart,
+                                            contentDescription = "empty shopping card",
+                                            modifier = Modifier
+                                                .size(120.dp)
+                                                .align(Alignment.CenterHorizontally)
+                                                .padding(32.dp),
+                                            tint = MaterialTheme.colorScheme.inverseOnSurface
+                                        )
+                                        Text(
+                                            modifier = Modifier
+                                                .align(Alignment.CenterHorizontally)
+                                                .padding(16.dp),
+                                            text = "Your shopping list is empty. You can add " +
+                                                    "items from recipes or manually enter your " +
+                                                    "own.",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            textAlign = TextAlign.Center,
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -126,7 +194,8 @@ fun ShoppingListScreen(
 fun ShoppingListIngredientCards(
     ingredients: List<ShoppingListIngredient>,
     onMarkIngredient: (Int) -> Unit = { },
-    onUnmarkIngredient: (Int) -> Unit = { }
+    onUnmarkIngredient: (Int) -> Unit = { },
+    onRemoveIngredient: (Int) -> Unit = { }
 ) {
     ingredients.mapIndexed { index, ingredient ->
         ShoppingListCardItem(
@@ -137,7 +206,8 @@ fun ShoppingListIngredientCards(
                 index = index
             ),
             onMarkIngredient = onMarkIngredient,
-            onUnmarkIngredient = onUnmarkIngredient
+            onUnmarkIngredient = onUnmarkIngredient,
+            onRemoveIngredient = onRemoveIngredient
         )
     }
 }
@@ -147,7 +217,8 @@ fun ShoppingListIngredientCards(
 fun ShoppingListCardItem(
     @PreviewParameter(RecipeSearchCardPreviewParamProvider::class) card: ShoppingListCard,
     onMarkIngredient: (Int) -> Unit = { },
-    onUnmarkIngredient: (Int) -> Unit = { }
+    onUnmarkIngredient: (Int) -> Unit = { },
+    onRemoveIngredient: (Int) -> Unit = { }
 ) {
     Surface(
         modifier = Modifier
@@ -200,6 +271,14 @@ fun ShoppingListCardItem(
                     )
                 }
             }
+            Icon(
+                Icons.Default.Clear,
+                contentDescription = "remove",
+                modifier = Modifier
+                    .size(36.dp)
+                    .clickable { onRemoveIngredient(card.index) },
+                tint = MaterialTheme.colorScheme.inverseOnSurface
+            )
         }
     }
 }
