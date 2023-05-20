@@ -1,7 +1,5 @@
 package com.tstreet.onhand.feature.shoppinglist
 
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.Status.ERROR
@@ -31,8 +29,8 @@ class ShoppingListViewModel @Inject constructor(
         println("[OnHand] ${this.javaClass.simpleName} created")
     }
 
-    private var _shoppingList = mutableStateListOf<ShoppingListIngredient>()
-    private var _mappedRecipes = mutableStateListOf<Recipe>()
+    private var ingredients = listOf<ShoppingListIngredient>()
+    private var recipes = listOf<Recipe>()
     private var removeRecipeIndex = 0
 
     val shoppingListUiState =
@@ -43,15 +41,11 @@ class ShoppingListViewModel @Inject constructor(
                     .get()
                     .invoke()
             ) { getShoppingListResult, getMappedRecipesResult ->
+                ingredients = getShoppingListResult.data ?: emptyList()
+                recipes = getMappedRecipesResult.data ?: emptyList()
                 when (getShoppingListResult.status) {
                     SUCCESS -> {
-                        // TODO: Log analytics if data is null somehow. We fallback to emitting an
-                        //  empty list.
-                        _shoppingList = getShoppingListResult.data?.toMutableStateList()
-                            ?: mutableStateListOf()
-                        _mappedRecipes = getMappedRecipesResult.data?.toMutableStateList()
-                            ?: mutableStateListOf()
-                        ShoppingListUiState.Success(_shoppingList, _mappedRecipes)
+                        ShoppingListUiState.Success(ingredients, recipes)
                     }
                     ERROR -> {
                         ShoppingListUiState.Error(
@@ -85,18 +79,12 @@ class ShoppingListViewModel @Inject constructor(
 
     fun onCheckOffShoppingIngredient(index: Int) {
         viewModelScope.launch {
-            val item = _shoppingList[index]
-            val isPurchased = item.isPurchased
+            val item = ingredients[index]
             // Mark the recipe as saving
-            _shoppingList[index] = item.copy(isPurchased = isPurchased)
             // Save the recipe
             checkIngredientUseCase.get().invoke(item).collect { resource ->
                 when (resource.status) {
-                    SUCCESS -> {
-                        _shoppingList[index] = item.copy(
-                            isPurchased = true
-                        )
-                    }
+                    SUCCESS -> {}
                     ERROR -> {
                         _errorDialogState.update {
                             displayed(
@@ -105,10 +93,6 @@ class ShoppingListViewModel @Inject constructor(
                                         "your shopping list. Please try again."
                             )
                         }
-                        // Retain the previous save state on error
-                        _shoppingList[index] = item.copy(
-                            isPurchased = isPurchased
-                        )
                     }
                 }
             }
@@ -117,18 +101,11 @@ class ShoppingListViewModel @Inject constructor(
 
     fun onUncheckShoppingIngredient(index: Int) {
         viewModelScope.launch {
-            val item = _shoppingList[index]
-            val isPurchased = item.isPurchased
-            // Mark the recipe as saving
-            _shoppingList[index] = item.copy(isPurchased = isPurchased)
+            val item = ingredients[index]
             // Save the recipe
             uncheckIngredientUseCase.get().invoke(item).collect { resource ->
                 when (resource.status) {
-                    SUCCESS -> {
-                        _shoppingList[index] = item.copy(
-                            isPurchased = false
-                        )
-                    }
+                    SUCCESS -> {}
                     ERROR -> {
                         _errorDialogState.update {
                             displayed(
@@ -137,10 +114,6 @@ class ShoppingListViewModel @Inject constructor(
                                         "shopping list. Please try again."
                             )
                         }
-                        // Retain the previous save state on error
-                        _shoppingList[index] = item.copy(
-                            isPurchased = isPurchased
-                        )
                     }
                 }
             }
@@ -149,12 +122,9 @@ class ShoppingListViewModel @Inject constructor(
 
     fun onRemoveRecipe() {
         viewModelScope.launch {
-            val item = _mappedRecipes[removeRecipeIndex]
+            val item = recipes[removeRecipeIndex]
             when (removeRecipeInShoppingListUseCase.get().invoke(item).status) {
-                SUCCESS -> {
-                    _mappedRecipes.remove(item)
-                    _shoppingList.removeIf { it.mappedRecipe?.title == item.title }
-                }
+                SUCCESS -> {}
                 ERROR -> {
                     _errorDialogState.update {
                         displayed(
@@ -170,11 +140,9 @@ class ShoppingListViewModel @Inject constructor(
 
     fun onRemoveIngredient(index: Int) {
         viewModelScope.launch {
-            val item = _shoppingList[index]
+            val item = ingredients[index]
             when (removeIngredientUseCase.get().invoke(item).status) {
-                SUCCESS -> {
-                    _shoppingList.removeAt(index)
-                }
+                SUCCESS -> {}
                 ERROR -> {
                     _errorDialogState.update {
                         displayed(
