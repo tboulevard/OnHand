@@ -21,6 +21,7 @@ import javax.inject.Provider
 class ShoppingListViewModel @Inject constructor(
     getShoppingListUseCase: Provider<GetShoppingListUseCase>,
     getRecipesInShoppingListUseCase: Provider<GetRecipesInShoppingListUseCase>,
+    private val removeIngredientUseCase: Provider<RemoveIngredientUseCase>,
     private val removeRecipeInShoppingListUseCase: Provider<RemoveRecipeInShoppingListUseCase>,
     private val checkIngredientUseCase: Provider<CheckOffIngredientUseCase>,
     private val uncheckIngredientUseCase: Provider<UncheckIngredientUseCase>,
@@ -159,6 +160,26 @@ class ShoppingListViewModel @Inject constructor(
                         displayed(
                             title = "Error",
                             message = "There was a problem removing the recipe from your " +
+                                    "shopping list. Please try again."
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    fun onRemoveIngredient(index: Int) {
+        viewModelScope.launch {
+            val item = _shoppingList[index]
+            when (removeIngredientUseCase.get().invoke(item).status) {
+                SUCCESS -> {
+                    _shoppingList.removeAt(index)
+                }
+                ERROR -> {
+                    _errorDialogState.update {
+                        displayed(
+                            title = "Error",
+                            message = "There was a problem removing the ingredient from your " +
                                     "shopping list. Please try again."
                         )
                     }

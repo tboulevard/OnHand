@@ -32,4 +32,9 @@ interface ShoppingListModule {
     fun bindsRemoveRecipeInShoppingListUseCase(
         useCase: RemoveRecipeInShoppingListUseCase
     ): UseCase
+
+    @Binds
+    fun bindsRemoveIngredientInShoppingListUseCase(
+        useCase: RemoveIngredientUseCase
+    ): UseCase
 }

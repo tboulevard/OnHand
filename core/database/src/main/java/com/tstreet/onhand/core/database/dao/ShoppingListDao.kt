@@ -3,7 +3,6 @@ package com.tstreet.onhand.core.database.dao;
 import androidx.room.*
 import com.tstreet.onhand.core.database.model.ShoppingListEntity
 import com.tstreet.onhand.core.model.Recipe
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ShoppingListDao {
@@ -25,13 +24,14 @@ interface ShoppingListDao {
     suspend fun markIngredientPurchased(name: String)
 
     @Query("UPDATE shopping_list SET isPurchased = 0 WHERE ingredientName = :name AND isPurchased = 1")
-    fun unmarkIngredientPurchased(name: String)
+    suspend fun unmarkIngredientPurchased(name: String)
 
     @Query("SELECT (SELECT COUNT(*) FROM shopping_list) == 0")
     suspend fun isEmpty(): Boolean
 
-    @Query("DELETE from shopping_list")
-    suspend fun clear()
     @Query("DELETE from shopping_list WHERE mappedRecipe = :recipe")
     suspend fun removeRecipe(recipe: Recipe)
+
+    @Query("DELETE FROM shopping_list WHERE ingredientName = :name")
+    suspend fun removeIngredient(name: String)
 }

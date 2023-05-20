@@ -1,6 +1,7 @@
 package com.tstreet.onhand.core.data.api.repository
 
 import com.tstreet.onhand.core.common.Resource
+import com.tstreet.onhand.core.model.Ingredient
 import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.model.ShoppingListIngredient
 
@@ -20,6 +21,7 @@ interface ShoppingListRepository {
 
     suspend fun isEmpty(): Boolean
 
-    suspend fun clear()
     suspend fun removeRecipe(recipe : Recipe): Resource<Unit>
+
+    suspend fun removeIngredient(ingredient : ShoppingListIngredient) : Resource<Unit>
 }
