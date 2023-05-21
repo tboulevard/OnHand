@@ -69,7 +69,6 @@ class HomeViewModel @Inject constructor(
     val pantry: StateFlow<List<PantryIngredient>> =
         getPantry.get().invoke()
             .map {
-                println("[OnHand] listPantry status=${it.status}")
                 when (it.status) {
                     SUCCESS -> {
                         it.data ?: emptyList()
