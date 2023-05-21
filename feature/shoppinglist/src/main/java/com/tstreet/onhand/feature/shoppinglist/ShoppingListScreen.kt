@@ -55,7 +55,7 @@ fun ShoppingListScreen(
                 //  https://developer.android.com/jetpack/compose/lists#content-type
                 // TODO: Implement item keys for this approach to avoid recompositions, hashCode
                 //  doesn't appear to work...
-                itemsIndexed(state.screenContent(), key = { _, item -> item.hashCode() }) { _, item ->
+                itemsIndexed(state.screenContent()) { _, item ->
                     when (item) {
                         is ShoppingListItem.Header -> {
                             OnHandScreenHeader(item.text)

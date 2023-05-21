@@ -1,10 +1,7 @@
 package com.tstreet.onhand.nav
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class BottomNavigationScreen(
@@ -21,7 +18,7 @@ sealed class BottomNavigationScreen(
     object RecipeSearch : BottomNavigationScreen(
         route = "recipe_search",
         displayText = "Recipes",
-        icon = Icons.Default.List
+        icon = Icons.Default.Search
     )
 
     object SavedRecipes : BottomNavigationScreen(
@@ -35,13 +32,20 @@ sealed class BottomNavigationScreen(
         displayText = "Grocery",
         icon = Icons.Default.ShoppingCart
     )
+
+    object AddCustomRecipe : BottomNavigationScreen(
+        route = "add_custom_recipe",
+        displayText = "Custom",
+        icon = Icons.Default.AddCircle
+    )
 }
 
 val BottomNavigationScreens = listOf(
     BottomNavigationScreen.IngredientSearch,
     BottomNavigationScreen.RecipeSearch,
+    BottomNavigationScreen.AddCustomRecipe,
     BottomNavigationScreen.SavedRecipes,
-    BottomNavigationScreen.ShoppingList
+    BottomNavigationScreen.ShoppingList,
 )
 
 sealed class Screen(

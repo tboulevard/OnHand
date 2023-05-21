@@ -17,7 +17,9 @@ import com.tstreet.onhand.core.common.LocalCommonProvider
 import com.tstreet.onhand.core.common.injectedViewModel
 import com.tstreet.onhand.core.data.api.di.LocalDataProvider
 import com.tstreet.onhand.core.ui.RECIPE_ID_NAV_KEY
+import com.tstreet.onhand.feature.customrecipe.AddCustomRecipeScreen
 import com.tstreet.onhand.feature.home.HomeScreen
+import com.tstreet.onhand.feature.customrecipe.di.DaggerCustomRecipeComponent
 import com.tstreet.onhand.feature.home.di.DaggerHomeComponent
 import com.tstreet.onhand.feature.recipedetail.INVALID_RECIPE_ID
 import com.tstreet.onhand.feature.recipedetail.RecipeDetailScreen
@@ -123,6 +125,18 @@ private fun NavigationConfiguration(
             ShoppingListScreen(
                 injectedViewModel {
                     DaggerShoppingListComponent
+                        .builder()
+                        .dataComponentProvider(dataProvider)
+                        .commonComponentProvider(commonProvider)
+                        .build()
+                        .viewModel
+                }
+            )
+        }
+        composable(route = BottomNavigationScreen.AddCustomRecipe.route) {
+            AddCustomRecipeScreen(
+                injectedViewModel {
+                    DaggerCustomRecipeComponent
                         .builder()
                         .dataComponentProvider(dataProvider)
                         .commonComponentProvider(commonProvider)
