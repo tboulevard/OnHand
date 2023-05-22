@@ -3,12 +3,9 @@ package com.tstreet.onhand.feature.customrecipe
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.domain.customrecipe.AddRecipeUseCase
-import com.tstreet.onhand.core.model.Ingredient
 import com.tstreet.onhand.core.model.PartialRecipe
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
+import com.tstreet.onhand.core.model.RecipeIngredient
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Provider
@@ -30,7 +27,7 @@ class CreateCustomRecipeViewModel @Inject constructor(
     )
 
     // required = at least 1
-    private val _ingredients = MutableStateFlow(emptyList<Ingredient>())
+    private val _ingredients = MutableStateFlow(emptyList<RecipeIngredient>())
     val ingredients = _ingredients.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
@@ -55,7 +52,9 @@ class CreateCustomRecipeViewModel @Inject constructor(
 
     fun onDoneClicked() {
         viewModelScope.launch {
-            val result = addRecipeUseCase.get().invoke(createPartialRecipe())
+            addRecipeUseCase.get().invoke(createPartialRecipe()).collect {
+                println("[OnHand] Save recipe status=${it.status}")
+            }
         }
     }
 
@@ -64,19 +63,19 @@ class CreateCustomRecipeViewModel @Inject constructor(
     }
 
     fun onImageChanged(text: String) {
-
+        TODO()
     }
 
     fun onIngredientsChanged(text: String) {
-
+        TODO()
     }
 
     private fun createPartialRecipe() = PartialRecipe(
-        _recipeTitle.value,
-        // TODO: when we allow submitting custom images
-        _coverImage.value,
-        _coverImage.value + ".jpg",
-        _instructions.value
-
+        recipeTitle = _recipeTitle.value,
+        recipeInstructions = _instructions.value,
+        ingredients = _ingredients.value,
+        // TODO: revisit below when we allow submitting custom images
+        recipeImage = _coverImage.value,
+        recipeImageType = "",
     )
 }

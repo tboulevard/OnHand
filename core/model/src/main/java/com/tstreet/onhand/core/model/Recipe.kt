@@ -20,7 +20,9 @@ class Recipe(
     //  with recipes from API
     val instructions: String? = null,
     val likes: Int
-) : PartialRecipe(title, image, imageType, instructions)
+) : PartialRecipe(
+    title, image, imageType, instructions, usedIngredients + missedIngredients
+)
 
 /**
  * A [Recipe] with additional information for whether it is saved locally (i.e. in DB).
@@ -41,5 +43,6 @@ open class PartialRecipe(
     val recipeTitle: String,
     val recipeImage: String,
     val recipeImageType: String,
-    val recipeInstructions: String?
+    val recipeInstructions: String?,
+    val ingredients: List<RecipeIngredient>
 )
