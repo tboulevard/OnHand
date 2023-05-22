@@ -93,12 +93,8 @@ class SavedRecipesViewModel @Inject constructor(
             // Just unsave the recipe - no loading indicator
             unsaveRecipe.get().invoke(item.recipe).collect {
                 when (it) {
-                    // When the unsave is successful, update UI state
-                    true -> {
-                        _recipes[index] = item.copy(
-                            recipeSaveState = RecipeSaveState.NOT_SAVED
-                        )
-                    }
+                    // We just rely on the flow to retrigger and update the UI for now
+                    true -> { }
                     else -> {
                         // TODO: todo better error handling
                         println(
