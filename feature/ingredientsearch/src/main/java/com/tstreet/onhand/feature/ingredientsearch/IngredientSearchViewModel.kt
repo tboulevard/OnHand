@@ -3,7 +3,6 @@ package com.tstreet.onhand.feature.ingredientsearch
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.domain.ingredients.GetIngredientsUseCase
-import com.tstreet.onhand.core.model.Ingredient
 import com.tstreet.onhand.core.ui.AlertDialogState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -19,13 +18,12 @@ class IngredientSearchViewModel @Inject constructor(
     }
 
     private var searchQuery: String? = null
-    private var selectedIngredient: SelectableIngredient? = null
 
     // SharedFlow does not need to explicitly need to be collected, as it is a hot flow.
     // Additionally, we can replay to all new observers n times (in this case just the
     // most recent value).
     private val _searchTextFlow = MutableSharedFlow<String?>(replay = 1)
-    private val _selectableIngredientsFlow =
+    private val _selectableIngredientsMutableFlow =
         MutableSharedFlow<List<SelectableIngredient>>(replay = 1)
     private var _selectableIngredients = mutableListOf<SelectableIngredient>()
 
@@ -50,32 +48,26 @@ class IngredientSearchViewModel @Inject constructor(
                 _isSearching.update { false }
             }
             .map {
-                _selectableIngredients = it.map { pantryIngredient ->
+                val newList = it.map { pantryIngredient ->
                     val ingredient = pantryIngredient.ingredient
                     SelectableIngredient(
                         ingredient = ingredient,
                         isSelected = selectedIngredients.find { selectedIngredient -> selectedIngredient.ingredient.name == ingredient.name } != null
                     )
-                }.toMutableList()
-                _selectableIngredients
+                }
+                _selectableIngredients = newList.toMutableList()
+                newList
             }
 
 
-    val displayedIngredients: StateFlow<List<SelectableIngredient>> =
-        flowOf(_ingredients, _selectableIngredientsFlow)
+    val displayedIngredients: Flow<List<SelectableIngredient>> =
+        flowOf(_ingredients, _selectableIngredientsMutableFlow)
             // Allows us to collect only the most recently emitted value from the original
             // flows
             .flattenMerge()
             .onEach {
-                println("[OnHand] new value for displayedIngredients=$it")
+                println("[OnHand] post flatten concat")
             }
-            .stateIn(
-                // Note: Child jobs launched in this scope are automatically cancelled when
-                //  onCleared() is called for this ViewModel.
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5000),
-                initialValue = emptyList()
-            )
 
     private val selectedIngredients = mutableListOf<SelectableIngredient>()
 
@@ -115,7 +107,7 @@ class IngredientSearchViewModel @Inject constructor(
             val item = _selectableIngredients[index]
             val isSelected = item.isSelected
             _selectableIngredients[index] = item.copy(isSelected = !isSelected)
-            _selectableIngredientsFlow.tryEmit(_selectableIngredients)
+            _selectableIngredientsMutableFlow.tryEmit(_selectableIngredients)
         }
     }
 

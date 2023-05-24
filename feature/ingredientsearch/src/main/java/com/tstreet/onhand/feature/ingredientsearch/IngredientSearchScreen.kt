@@ -31,11 +31,13 @@ fun IngredientSearchScreen(
     navController: NavHostController,
     viewModel: IngredientSearchViewModel
 ) {
-    val ingredients by viewModel.displayedIngredients.collectAsStateWithLifecycle()
+    val ingredients by viewModel.displayedIngredients.collectAsState(initial = emptyList())
     val searchText by viewModel.displayedSearchText.collectAsState(initial = "")
     val isSearching by viewModel.isSearching.collectAsState()
     val isSearchBarFocused by viewModel.isSearchBarFocused.collectAsState()
     val isPreSearchDebouncing by viewModel.isPreSearchDebounce.collectAsState()
+
+    println("[OnHand] recompose IngredientSearchScreen")
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -59,7 +61,9 @@ fun IngredientSearchScreen(
                     searchText
                 )
             }
-            else -> { Text("TODO - not implemented ") }
+            else -> {
+                Text("TODO - not implemented ")
+            }
         }
     }
 }
@@ -205,6 +209,7 @@ fun IngredientSearchCardList(
                 itemsIndexed(
                     items = ingredients
                 ) { index, item ->
+                    println("[OnHand] recomposition for ${item.ingredient.name}")
                     IngredientSearchListItem(
                         card = IngredientSearchCard(
                             name = item.ingredient.name,
