@@ -16,11 +16,14 @@ import androidx.navigation.navArgument
 import com.tstreet.onhand.core.common.LocalCommonProvider
 import com.tstreet.onhand.core.common.injectedViewModel
 import com.tstreet.onhand.core.data.api.di.LocalDataProvider
+import com.tstreet.onhand.core.ui.INGREDIENT_SEARCH_NAV_KEY
 import com.tstreet.onhand.core.ui.RECIPE_ID_NAV_KEY
 import com.tstreet.onhand.feature.customrecipe.CreateCustomRecipeScreen
 import com.tstreet.onhand.feature.home.HomeScreen
 import com.tstreet.onhand.feature.customrecipe.di.DaggerCustomRecipeComponent
 import com.tstreet.onhand.feature.home.di.DaggerHomeComponent
+import com.tstreet.onhand.feature.ingredientsearch.IngredientSearchScreen
+import com.tstreet.onhand.feature.ingredientsearch.di.DaggerIngredientSearchComponent
 import com.tstreet.onhand.feature.recipedetail.INVALID_RECIPE_ID
 import com.tstreet.onhand.feature.recipedetail.RecipeDetailScreen
 import com.tstreet.onhand.feature.recipedetail.di.DaggerRecipeDetailComponent
@@ -61,11 +64,11 @@ private fun NavigationConfiguration(
 
     NavHost(
         navController = navController,
-        startDestination = BottomNavigationScreen.IngredientSearch.route
+        startDestination = BottomNavigationScreen.Home.route
     ) {
         // Note: each composable { } block is triggered for each recomposition (potentially as
         // often each new frame). Revisit whether this is a performance issue later.
-        composable(route = BottomNavigationScreen.IngredientSearch.route) {
+        composable(route = BottomNavigationScreen.Home.route) {
             HomeScreen(
                 injectedViewModel {
                     DaggerHomeComponent
@@ -135,6 +138,7 @@ private fun NavigationConfiguration(
         }
         composable(route = BottomNavigationScreen.AddCustomRecipe.route) {
             CreateCustomRecipeScreen(
+                navController,
                 injectedViewModel {
                     DaggerCustomRecipeComponent
                         .builder()
@@ -145,7 +149,21 @@ private fun NavigationConfiguration(
                 }
             )
         }
-
+        composable(
+            route = Screen.IngredientSearch.route
+        ) {
+            IngredientSearchScreen(
+                navController,
+                injectedViewModel {
+                    DaggerIngredientSearchComponent
+                        .builder()
+                        .dataComponentProvider(dataProvider)
+                        .commonComponentProvider(commonProvider)
+                        .build()
+                        .viewModel
+                }
+            )
+        }
     }
 }
 

@@ -3,14 +3,16 @@ package com.tstreet.onhand.nav
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.tstreet.onhand.core.common.INGREDIENT_SEARCH_ROUTE
+import com.tstreet.onhand.core.common.RECIPE_DETAIL_ROUTE
 
 sealed class BottomNavigationScreen(
     val route: String,
     val displayText: String,
     val icon: ImageVector
 ) {
-    object IngredientSearch : BottomNavigationScreen(
-        route = "ingredient_search",
+    object Home : BottomNavigationScreen(
+        route = "home",
         displayText = "Home",
         icon = Icons.Default.Home
     )
@@ -41,7 +43,7 @@ sealed class BottomNavigationScreen(
 }
 
 val BottomNavigationScreens = listOf(
-    BottomNavigationScreen.IngredientSearch,
+    BottomNavigationScreen.Home,
     BottomNavigationScreen.RecipeSearch,
     BottomNavigationScreen.AddCustomRecipe,
     BottomNavigationScreen.SavedRecipes,
@@ -51,5 +53,6 @@ val BottomNavigationScreens = listOf(
 sealed class Screen(
     val route: String
 ) {
-    object RecipeDetail : Screen("recipe_detail")
+    object RecipeDetail : Screen(RECIPE_DETAIL_ROUTE)
+    object IngredientSearch : Screen(INGREDIENT_SEARCH_ROUTE)
 }

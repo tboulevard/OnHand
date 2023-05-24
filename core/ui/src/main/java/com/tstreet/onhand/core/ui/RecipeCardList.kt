@@ -14,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import com.tstreet.onhand.core.common.RECIPE_DETAIL_ROUTE
 import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
 
@@ -83,7 +84,7 @@ fun RecipeCardItem(
         }
     ) {
         Row(
-            modifier = Modifier.clickable { onItemClick("recipe_detail/${recipe.id}") },
+            modifier = Modifier.clickable { onItemClick("$RECIPE_DETAIL_ROUTE/${recipe.id}") },
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             // Leftmost column, containing card information

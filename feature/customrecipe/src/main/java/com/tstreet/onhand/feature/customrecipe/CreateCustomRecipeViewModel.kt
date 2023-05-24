@@ -62,11 +62,11 @@ class CreateCustomRecipeViewModel @Inject constructor(
         _recipeTitle.update { text }
     }
 
-    fun onImageChanged(text: String) {
-        TODO()
+    fun onAddIngredients(ingredients: List<RecipeIngredient>) {
+        _ingredients.update { ingredients }
     }
 
-    fun onIngredientsChanged(text: String) {
+    fun onImageChanged(text: String) {
         TODO()
     }
 
