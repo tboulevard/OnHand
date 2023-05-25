@@ -65,9 +65,6 @@ class IngredientSearchViewModel @Inject constructor(
             // Allows us to collect only the most recently emitted value from the original
             // flows
             .flattenMerge()
-            .onEach {
-                println("[OnHand] post flatten concat")
-            }
 
     private val selectedIngredients = mutableListOf<SelectableIngredient>()
 
@@ -107,12 +104,14 @@ class IngredientSearchViewModel @Inject constructor(
             val item = _selectableIngredients[index]
             val isSelected = item.isSelected
             _selectableIngredients[index] = item.copy(isSelected = !isSelected)
-            if(isSelected) {
+            val newListTest = mutableListOf<SelectableIngredient>()
+            newListTest.addAll(_selectableIngredients)
+            if (isSelected) {
                 selectedIngredients.removeIf { it.ingredient.name == item.ingredient.name }
             } else {
                 selectedIngredients.add(_selectableIngredients[index])
             }
-            _selectableIngredientsMutableFlow.tryEmit(_selectableIngredients)
+            _selectableIngredientsMutableFlow.tryEmit(newListTest)
         }
     }
 
