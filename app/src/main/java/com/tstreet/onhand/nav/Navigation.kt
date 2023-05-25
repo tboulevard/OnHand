@@ -6,6 +6,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -16,7 +17,7 @@ import androidx.navigation.navArgument
 import com.tstreet.onhand.core.common.LocalCommonProvider
 import com.tstreet.onhand.core.common.injectedViewModel
 import com.tstreet.onhand.core.data.api.di.LocalDataProvider
-import com.tstreet.onhand.core.ui.INGREDIENT_SEARCH_NAV_KEY
+import com.tstreet.onhand.core.model.RecipeIngredient
 import com.tstreet.onhand.core.ui.RECIPE_ID_NAV_KEY
 import com.tstreet.onhand.feature.customrecipe.CreateCustomRecipeScreen
 import com.tstreet.onhand.feature.home.HomeScreen
@@ -140,12 +141,11 @@ private fun NavigationConfiguration(
             CreateCustomRecipeScreen(
                 navController,
                 injectedViewModel {
-                    DaggerCustomRecipeComponent
-                        .builder()
-                        .dataComponentProvider(dataProvider)
-                        .commonComponentProvider(commonProvider)
-                        .build()
-                        .viewModel
+                    DaggerCustomRecipeComponent.factory().create(
+                        dataComponentProvider = dataProvider,
+                        commonComponentProvider = commonProvider,
+                        savedStateHandle = it.savedStateHandle
+                    ).viewModel
                 }
             )
         }

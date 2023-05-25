@@ -9,8 +9,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import com.tstreet.onhand.core.common.INGREDIENT_SEARCH_ROUTE
+import com.tstreet.onhand.core.model.Ingredient
 
 // TODO: use @PreviewParameter + create module with fake models to populate composables
 // TODO: screen rotation wipes `isSearchBarFocused` -> look into used collectAsStateWithLifecycle
@@ -23,7 +25,10 @@ fun CreateCustomRecipeScreen(
     viewModel: CreateCustomRecipeViewModel
 ) {
 
+    // TODO: nav away warn unsaved changes
+
     val recipeTitle = viewModel.recipeTitle.collectAsState()
+    val ingredients by viewModel.ingredients.collectAsState()
 
     Box {
         Text(text = "AddCustomRecipeScreen")
@@ -40,7 +45,7 @@ fun CreateCustomRecipeScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
-                .clickable { navController.navigate(INGREDIENT_SEARCH_ROUTE)},
+                .clickable { navController.navigate(INGREDIENT_SEARCH_ROUTE) },
             horizontalArrangement = Arrangement.Start
         ) {
             Icon(
@@ -53,6 +58,11 @@ fun CreateCustomRecipeScreen(
                 tint = MaterialTheme.colorScheme.surfaceTint
             )
             Text("Add ingredients")
+        }
+        ingredients.forEach {
+            Row() {
+                Text(text = it.ingredient.name)
+            }
         }
         Button(
             onClick = viewModel::onDoneClicked

@@ -1,5 +1,6 @@
 package com.tstreet.onhand.feature.ingredientsearch
 
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.domain.ingredients.GetIngredientsUseCase
@@ -22,7 +23,8 @@ class IngredientSearchViewModel @Inject constructor(
     private var _mutableIngredients = mutableListOf<SelectableIngredient>()
 
     // List of all selected ingredients only
-    private val selectedIngredients = mutableListOf<SelectableIngredient>()
+    private val _selectedIngredients = mutableStateListOf<SelectableIngredient>()
+    val displayedSelectedIngredients : List<SelectableIngredient> = _selectedIngredients
 
     // SharedFlow does not need to explicitly need to be collected, as it is a hot flow.
     // Additionally, we can replay to all new observers n times (in this case just the
@@ -53,7 +55,7 @@ class IngredientSearchViewModel @Inject constructor(
                     val ingredient = pantryIngredient.ingredient
                     SelectableIngredient(
                         ingredient = ingredient,
-                        isSelected = selectedIngredients.find { selectedIngredient -> selectedIngredient.ingredient.name == ingredient.name } != null
+                        isSelected = _selectedIngredients.find { selectedIngredient -> selectedIngredient.ingredient.name == ingredient.name } != null
                     )
                 }
                 _mutableIngredients = newSearchResults.toMutableList()
@@ -110,9 +112,9 @@ class IngredientSearchViewModel @Inject constructor(
             // Mirror the change by either adding or removing the element from the list of
             // selected ingredients
             if (isSelected) {
-                selectedIngredients.removeIf { it.ingredient.name == item.ingredient.name }
+                _selectedIngredients.removeIf { it.ingredient.name == item.ingredient.name }
             } else {
-                selectedIngredients.add(_mutableIngredients[index])
+                _selectedIngredients.add(_mutableIngredients[index])
             }
 
             _selectableIngredientsFlow.tryEmit(
@@ -123,6 +125,6 @@ class IngredientSearchViewModel @Inject constructor(
     }
 
     fun getSelectedIngredients(): List<SelectableIngredient> {
-        return selectedIngredients
+        return _selectedIngredients
     }
 }
