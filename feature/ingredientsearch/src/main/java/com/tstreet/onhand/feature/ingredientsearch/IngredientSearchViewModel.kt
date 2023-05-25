@@ -107,6 +107,11 @@ class IngredientSearchViewModel @Inject constructor(
             val item = _selectableIngredients[index]
             val isSelected = item.isSelected
             _selectableIngredients[index] = item.copy(isSelected = !isSelected)
+            if(isSelected) {
+                selectedIngredients.removeIf { it.ingredient.name == item.ingredient.name }
+            } else {
+                selectedIngredients.add(_selectableIngredients[index])
+            }
             _selectableIngredientsMutableFlow.tryEmit(_selectableIngredients)
         }
     }
