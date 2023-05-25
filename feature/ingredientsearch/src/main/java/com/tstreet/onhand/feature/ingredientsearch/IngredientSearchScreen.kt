@@ -31,7 +31,7 @@ fun IngredientSearchScreen(
     navController: NavHostController,
     viewModel: IngredientSearchViewModel
 ) {
-    val ingredients by viewModel.displayedIngredients.collectAsState(initial = emptyList())
+    val ingredients by viewModel.displayedIngredients.collectAsState()
     val searchText by viewModel.displayedSearchText.collectAsState(initial = "")
     val isSearching by viewModel.isSearching.collectAsState()
     val isSearchBarFocused by viewModel.isSearchBarFocused.collectAsState()
