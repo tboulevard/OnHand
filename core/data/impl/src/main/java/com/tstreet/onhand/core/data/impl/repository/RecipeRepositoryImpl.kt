@@ -87,11 +87,14 @@ class RecipeRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun saveRecipe(recipe: Recipe) {
+    override suspend fun saveRecipe(
+        recipe: Recipe,
+        isCustomRecipe : Boolean
+    ) {
         println("[OnHand] saveRecipe($recipe)")
         savedRecipeDao
             .get()
-            .addRecipe(recipe.toSavedRecipeEntity())
+            .addRecipe(recipe.toSavedRecipeEntity(isCustomRecipe))
     }
 
     override suspend fun unsaveRecipe(id: Int) {

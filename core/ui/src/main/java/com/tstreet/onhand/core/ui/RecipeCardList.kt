@@ -46,8 +46,8 @@ fun RecipeCardList(
                         missedIngredients = recipe.missedIngredients,
                         likes = recipe.likes
                     ),
-                    recipeSaveState = item.recipeSaveState
-
+                    recipeSaveState = item.recipeSaveState,
+                    isCustom = item.isCustom
                 ),
                 index = index,
                 onItemClick = onItemClick,
@@ -93,11 +93,23 @@ fun RecipeCardItem(
                     .padding(12.dp)
                     .weight(1f)
             ) {
-                Text(
-                    text = recipe.title,
-                    modifier = Modifier.padding(4.dp),
-                    style = MaterialTheme.typography.headlineMedium
-                )
+                Row {
+                    if (recipeWithSaveState.isCustom) {
+                        Icon(
+                            Icons.Default.Edit,
+                            contentDescription = "is custom recipe",
+                            modifier = Modifier
+                                .size(24.dp)
+                                .align(Alignment.CenterVertically),
+                            tint = MaterialTheme.colorScheme.inverseOnSurface,
+                        )
+                    }
+                    Text(
+                        text = recipe.title,
+                        modifier = Modifier.padding(4.dp),
+                        style = MaterialTheme.typography.headlineMedium
+                    )
+                }
                 if (recipe.usedIngredientCount > 0) {
                     Text(
                         text = "${if (recipe.usedIngredientCount > 1) "${recipe.usedIngredientCount} ingredients" else "1 ingredient"} used",
@@ -169,7 +181,6 @@ fun RecipeCardItem(
                     .align(Alignment.CenterVertically)
                     .padding(16.dp)
             ) {
-
                 when (recipeWithSaveState.recipeSaveState) {
                     RecipeSaveState.SAVED -> {
                         Icon(
@@ -203,6 +214,7 @@ fun RecipeCardItem(
 // Recipe wrapped in save state to allow the view model to toggle it
 data class RecipeWithSaveState(
     val recipe: Recipe,
+    val isCustom: Boolean,
     val recipeSaveState: RecipeSaveState
 )
 
@@ -221,7 +233,8 @@ class RecipeCardPreviewParamProvider : PreviewParameterProvider<RecipeWithSaveSt
                 missedIngredients = emptyList(),
                 likes = 100
             ),
-            recipeSaveState = RecipeSaveState.SAVED
+            recipeSaveState = RecipeSaveState.SAVED,
+            isCustom = true
         )
     )
 }

@@ -28,6 +28,7 @@ fun List<SaveableRecipe>?.toRecipeWithSaveStateItemList(): SnapshotStateList<Rec
     return this?.map {
         RecipeWithSaveState(
             recipe = it.recipe,
+            isCustom = it.isCustom,
             recipeSaveState =
             when {
                 it.isSaved -> {

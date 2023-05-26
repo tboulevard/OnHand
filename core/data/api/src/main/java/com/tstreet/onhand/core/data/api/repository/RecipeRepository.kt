@@ -17,7 +17,7 @@ interface RecipeRepository {
 
     suspend fun getRecipeDetail(id: Int): Resource<RecipeDetail>
 
-    suspend fun saveRecipe(recipe: Recipe)
+    suspend fun saveRecipe(recipe: Recipe, isCustomRecipe : Boolean = false)
 
     suspend fun unsaveRecipe(id: Int)
 

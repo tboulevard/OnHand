@@ -59,7 +59,8 @@ class AddRecipeUseCase @Inject constructor(
                             instructions = partialRecipe.recipeInstructions,
                             // TODO: revisit - for now custom recipes just won't have likes
                             likes = -1,
-                        )
+                        ),
+                        isCustomRecipe = true
                     )
                     Resource.success(null)
                 }

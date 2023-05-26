@@ -30,6 +30,7 @@ data class Recipe(
 data class SaveableRecipe(
     val recipe: Recipe,
     val isSaved: Boolean = false,
+    val isCustom : Boolean = false
 )
 
 /**
