@@ -1,6 +1,5 @@
 package com.tstreet.onhand.feature.customrecipe
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.domain.customrecipe.AddRecipeUseCase
@@ -13,13 +12,10 @@ import javax.inject.Provider
 
 class CreateCustomRecipeViewModel @Inject constructor(
     private val addRecipeUseCase: Provider<AddRecipeUseCase>,
-    // TODO: problem with doing it this way is that saved state isn't actually updated (retained by injectedViewModel code)
-    @com.tstreet.onhand.feature.customrecipe.di.SavedStateHandle savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     init {
         println("[OnHand] ${this.javaClass.simpleName} created")
-        println("[OnHand] ingredients=" + savedStateHandle.get<List<RecipeIngredient>>("ingredients"))
     }
 
     // required
@@ -31,7 +27,7 @@ class CreateCustomRecipeViewModel @Inject constructor(
     )
 
     // required = at least 1
-    private val _ingredients = MutableStateFlow(savedStateHandle.get<List<RecipeIngredient>>("ingredients") ?: emptyList())
+    private val _ingredients = MutableStateFlow(emptyList<RecipeIngredient>())
     val ingredients = _ingredients.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
@@ -66,9 +62,14 @@ class CreateCustomRecipeViewModel @Inject constructor(
         _recipeTitle.update { text }
     }
 
-//    fun onAddIngredients(ingredients: List<RecipeIngredient>) {
-//        _ingredients.update { ingredients }
-//    }
+    fun onRecieveIngredients(ingredients: List<RecipeIngredient>) {
+        // In case the user wants to add more ingredients after adding some previously
+        _ingredients.value += ingredients
+    }
+
+    fun onRemoveIngredient(index: Int) {
+        _ingredients.value -= _ingredients.value[index]
+    }
 
     fun onImageChanged(text: String) {
         TODO()

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavHostController
@@ -140,12 +141,14 @@ private fun NavigationConfiguration(
         composable(route = BottomNavigationScreen.AddCustomRecipe.route) {
             CreateCustomRecipeScreen(
                 navController,
+                it.savedStateHandle,
                 injectedViewModel {
-                    DaggerCustomRecipeComponent.factory().create(
-                        dataComponentProvider = dataProvider,
-                        commonComponentProvider = commonProvider,
-                        savedStateHandle = it.savedStateHandle
-                    ).viewModel
+                    DaggerCustomRecipeComponent
+                        .builder()
+                        .dataComponentProvider(dataProvider)
+                        .commonComponentProvider(commonProvider)
+                        .build()
+                        .viewModel
                 }
             )
         }

@@ -26,7 +26,7 @@ class AddRecipeUseCase @Inject constructor(
 ) : UseCase() {
 
     operator fun invoke(partialRecipe: PartialRecipe): Flow<Resource<Unit>> {
-        println("[OnHand] AddRecipeUseCase - Adding recipe=${partialRecipe.recipeTitle}")
+        println("[OnHand] AddRecipeUseCase - Adding recipe=${partialRecipe.recipeTitle}, ingredients=${partialRecipe.ingredients}")
 
         return pantryRepository.get().listPantry().map {
             when (it.status) {
@@ -83,7 +83,7 @@ class AddRecipeUseCase @Inject constructor(
         val newList = mutableListOf<RecipeIngredient>()
         customRecipeIngredients.filterTo(destination = newList) { customRecipeIngredient ->
             // Filter the ingredient if we find it in the pantry (not missing)
-            pantryIngredients.find { customRecipeIngredient.ingredient.name == it.ingredient.name } != null
+            pantryIngredients.find { customRecipeIngredient.ingredient.name == it.ingredient.name } == null
         }
         return newList
     }
@@ -98,7 +98,7 @@ class AddRecipeUseCase @Inject constructor(
         val newList = mutableListOf<RecipeIngredient>()
         customRecipeIngredients.filterTo(destination = newList) { customRecipeIngredient ->
             // Filter the ingredient if we do not find it in the pantry (not used)
-            pantryIngredients.find { customRecipeIngredient.ingredient.name == it.ingredient.name } == null
+            pantryIngredients.find { customRecipeIngredient.ingredient.name == it.ingredient.name } != null
         }
         return newList
     }
