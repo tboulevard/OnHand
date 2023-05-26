@@ -15,7 +15,7 @@ interface RecipeRepository {
         ingredients: List<String>
     ): Resource<List<Recipe>>
 
-    suspend fun getRecipeDetail(id: Int): Resource<RecipeDetail>
+    suspend fun getRecipeDetail(id: Int, fetchStrategy: FetchStrategy): Resource<RecipeDetail>
 
     suspend fun saveRecipe(recipe: Recipe, isCustomRecipe : Boolean = false)
 

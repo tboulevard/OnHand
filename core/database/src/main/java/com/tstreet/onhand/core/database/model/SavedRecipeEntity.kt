@@ -17,6 +17,7 @@ data class SavedRecipeEntity(
     @ColumnInfo(name = "missedIngredientCount") val missedIngredientCount: Int,
     @ColumnInfo(name = "usedIngredients") val usedIngredients: List<RecipeIngredient>,
     @ColumnInfo(name = "usedIngredientCount") val usedIngredientCount: Int,
+    @ColumnInfo(name = "instructions") val instructions: String,
     @ColumnInfo(name = "likes") val likes: Int,
     @ColumnInfo(name = "isCustomRecipe") val isCustomRecipe: Boolean = false
 )
@@ -32,10 +33,19 @@ fun SavedRecipeEntity.asExternalModel() =
             missedIngredientCount = missedIngredientCount,
             usedIngredients = usedIngredients,
             usedIngredientCount = usedIngredientCount,
+            instructions = instructions,
             likes = likes,
         ),
         isSaved = true, // TODO: refactor, for now assume true - all recipes in this table are saved
         isCustom = isCustomRecipe
+    )
+
+fun SavedRecipeEntity.asViewableRecipe() =
+    RecipeDetail(
+        id = id,
+        title = title,
+        instructions = instructions,
+        summary = "TODO",
     )
 
 fun Recipe.toSavedRecipeEntity(isCustomRecipe: Boolean) = SavedRecipeEntity(
@@ -47,6 +57,7 @@ fun Recipe.toSavedRecipeEntity(isCustomRecipe: Boolean) = SavedRecipeEntity(
     missedIngredientCount = missedIngredientCount,
     usedIngredients = usedIngredients,
     usedIngredientCount = usedIngredientCount,
+    instructions = instructions,
     likes = likes,
     isCustomRecipe = isCustomRecipe
 )

@@ -17,8 +17,7 @@ abstract class SavedRecipeDao {
     abstract suspend fun deleteRecipe(id: Int)
 
     @Query("SELECT * from saved_recipes WHERE id = :id")
-    @Transaction
-    abstract fun getRecipe(id: Int): Flow<SavedRecipeEntity>
+    abstract suspend fun getRecipe(id: Int): SavedRecipeEntity
 
     @Query("SELECT * from saved_recipes")
     @Transaction

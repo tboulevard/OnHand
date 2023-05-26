@@ -3,6 +3,7 @@ package com.tstreet.onhand.feature.recipedetail
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -30,20 +31,11 @@ fun RecipeDetailScreen(
             OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
         }
         is Success -> {
-            AndroidView(
-                factory = {
-                    WebView(it).apply {
-                        layoutParams = ViewGroup.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT
-                        )
-                        webViewClient = WebViewClient()
-                    }
-                }, update = {
-                    // Smart cast to 'RecipeDetailUiState.Success' is impossible, because 'uiState'
-                    // is a property that has open or custom getter
-                    it.loadUrl(state.recipeDetail.sourceUrl)
-                })
+            Column {
+                // TODO: ingredients...
+                Text(text = state.recipeDetail.title)
+                Text(text = state.recipeDetail.instructions ?: "No instructions provided.")
+            }
         }
         is Error -> {
             if (openErrorDialog.value) {

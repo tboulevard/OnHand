@@ -70,6 +70,7 @@ fun RecipeCardItem(
     onAddToShoppingListClick: (Int) -> Unit = { }
 ) {
     val recipe = recipeWithSaveState.recipe
+    val isCustom = recipeWithSaveState.isCustom
 
     Surface(
         modifier = Modifier
@@ -84,7 +85,11 @@ fun RecipeCardItem(
         }
     ) {
         Row(
-            modifier = Modifier.clickable { onItemClick("$RECIPE_DETAIL_ROUTE/${recipe.id}") },
+            modifier = Modifier.clickable {
+                onItemClick(
+                    "$RECIPE_DETAIL_ROUTE/${recipe.id}/$isCustom",
+                )
+            },
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             // Leftmost column, containing card information

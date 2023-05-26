@@ -16,9 +16,8 @@ data class Recipe(
     val usedIngredients: List<RecipeIngredient>,
     val missedIngredientCount: Int,
     val missedIngredients: List<RecipeIngredient>,
-    // TODO: figure out how to supply this later, on RecipeDetail and not saved by default
-    //  with recipes from API
-    val instructions: String? = null,
+    // TODO: Look into using Optional type here instead of empty string
+    val instructions: String = "",
     val likes: Int
 ) : PartialRecipe(
     title, image, imageType, instructions, usedIngredients + missedIngredients

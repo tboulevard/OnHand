@@ -1,6 +1,7 @@
 package com.tstreet.onhand.core.data.impl.repository
 
 import com.tstreet.onhand.core.common.FetchStrategy
+import com.tstreet.onhand.core.common.FetchStrategy.*
 import com.tstreet.onhand.core.common.Resource
 import com.tstreet.onhand.core.data.api.repository.RecipeRepository
 import com.tstreet.onhand.core.database.dao.RecipeSearchCacheDao
@@ -34,10 +35,10 @@ class RecipeRepositoryImpl @Inject constructor(
         println("[OnHand] findRecipes($fetchStrategy, $ingredients)")
 
         return when (fetchStrategy) {
-            FetchStrategy.DATABASE -> {
+            DATABASE -> {
                 Resource.success(data = getCachedRecipeSearchResults())
             }
-            FetchStrategy.NETWORK -> {
+            NETWORK -> {
                 val networkResponse =
                     onHandNetworkDataSource
                         .get()
@@ -64,25 +65,33 @@ class RecipeRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getRecipeDetail(id: Int): Resource<RecipeDetail> {
-        println("[OnHand] getRecipeDetail($id)")
-        val networkResponse = onHandNetworkDataSource
-            .get()
-            .getRecipeDetail(id)
+    override suspend fun getRecipeDetail(id: Int, fetchStrategy: FetchStrategy): Resource<RecipeDetail> {
+        println("[OnHand] getRecipeDetail($id, $fetchStrategy)")
 
-        return when (networkResponse) {
-            is Success -> {
-                Resource.success(
-                    data = networkResponse.body.asExternalModel()
-                )
+        return when(fetchStrategy) {
+            DATABASE -> {
+                Resource.success(data = savedRecipeDao.get().getRecipe(id).asViewableRecipe())
             }
-            is ApiError,
-            is NetworkError,
-            is UnknownError -> {
-                Resource.error(
-                    msg = "${networkResponse::class.java.simpleName}, please check your " +
-                            "device's network connectivity. Unable to view recipe.",
-                )
+            NETWORK -> {
+                val networkResponse = onHandNetworkDataSource
+                    .get()
+                    .getRecipeDetail(id)
+
+                return when (networkResponse) {
+                    is Success -> {
+                        Resource.success(
+                            data = networkResponse.body.asExternalModel()
+                        )
+                    }
+                    is ApiError,
+                    is NetworkError,
+                    is UnknownError -> {
+                        Resource.error(
+                            msg = "${networkResponse::class.java.simpleName}, please check your " +
+                                    "device's network connectivity. Unable to view recipe.",
+                        )
+                    }
+                }
             }
         }
     }
@@ -184,6 +193,7 @@ private fun NetworkRecipeIngredient.asExternalModel() = RecipeIngredient(
 
 private fun NetworkRecipeDetail.asExternalModel() = RecipeDetail(
     id = id,
-    // TODO: Determine whether it's best to just transmit an empty src url or some other state
-    sourceUrl = sourceUrl ?: ""
+    title = title ?: "NO_TITLE_PRESENT",
+    instructions = instructions,
+    summary = summary
 )

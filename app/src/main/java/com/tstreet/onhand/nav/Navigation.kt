@@ -18,6 +18,7 @@ import androidx.navigation.navArgument
 import com.tstreet.onhand.core.common.LocalCommonProvider
 import com.tstreet.onhand.core.common.injectedViewModel
 import com.tstreet.onhand.core.data.api.di.LocalDataProvider
+import com.tstreet.onhand.core.ui.IS_CUSTOM_RECIPE_FLAG
 import com.tstreet.onhand.core.ui.RECIPE_ID_NAV_KEY
 import com.tstreet.onhand.feature.customrecipe.CreateCustomRecipeScreen
 import com.tstreet.onhand.feature.home.HomeScreen
@@ -25,6 +26,7 @@ import com.tstreet.onhand.feature.customrecipe.di.DaggerCustomRecipeComponent
 import com.tstreet.onhand.feature.home.di.DaggerHomeComponent
 import com.tstreet.onhand.feature.ingredientsearch.IngredientSearchScreen
 import com.tstreet.onhand.feature.ingredientsearch.di.DaggerIngredientSearchComponent
+import com.tstreet.onhand.feature.recipedetail.INVALID_CUSTOM_RECIPE_FLAG
 import com.tstreet.onhand.feature.recipedetail.INVALID_RECIPE_ID
 import com.tstreet.onhand.feature.recipedetail.RecipeDetailScreen
 import com.tstreet.onhand.feature.recipedetail.di.DaggerRecipeDetailComponent
@@ -97,17 +99,25 @@ private fun NavigationConfiguration(
             )
         }
         composable(
-            route = "${Screen.RecipeDetail.route}/{$RECIPE_ID_NAV_KEY}",
-            arguments = listOf(navArgument(RECIPE_ID_NAV_KEY) { type = NavType.IntType })
+            // TODO: there's nothing enforcing this route between the detail screen and screens that
+            //  navigate to it, refactor in future
+            route = "${Screen.RecipeDetail.route}/{$RECIPE_ID_NAV_KEY}/{$IS_CUSTOM_RECIPE_FLAG}",
+            arguments = listOf(
+                navArgument(RECIPE_ID_NAV_KEY) { type = NavType.IntType },
+                navArgument(IS_CUSTOM_RECIPE_FLAG) { type = NavType.BoolType }
+            )
         ) {
             val recipeId = it.arguments?.getInt(RECIPE_ID_NAV_KEY) ?: INVALID_RECIPE_ID
+            val isCustom =
+                it.arguments?.getBoolean(IS_CUSTOM_RECIPE_FLAG) ?: INVALID_CUSTOM_RECIPE_FLAG
             RecipeDetailScreen(
                 navController,
                 injectedViewModel {
                     DaggerRecipeDetailComponent.factory().create(
                         dataComponentProvider = dataProvider,
                         commonComponentProvider = commonProvider,
-                        recipeId = recipeId
+                        recipeId = recipeId,
+                        isCustom = isCustom
                     ).viewModel
                 }
             )

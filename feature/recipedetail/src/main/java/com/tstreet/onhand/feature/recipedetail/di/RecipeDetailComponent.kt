@@ -22,12 +22,16 @@ interface RecipeDetailComponent {
     @get:RecipeId
     val recipeId : Int
 
+    @get:IsCustomRecipe
+    val isCustom : Boolean
+
     @Component.Factory
     interface Factory {
         fun create(
             dataComponentProvider: DataComponentProvider,
             commonComponentProvider: CommonComponentProvider,
-            @BindsInstance @RecipeId recipeId : Int
+            @BindsInstance @RecipeId recipeId : Int,
+            @BindsInstance @IsCustomRecipe isCustom: Boolean
         ) : RecipeDetailComponent
     }
 }

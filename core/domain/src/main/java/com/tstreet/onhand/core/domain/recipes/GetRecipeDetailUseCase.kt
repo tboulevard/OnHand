@@ -18,15 +18,24 @@ class GetRecipeDetailUseCase @Inject constructor(
     @Named(IO) private val ioDispatcher: CoroutineDispatcher,
 ) : UseCase() {
 
-    operator fun invoke(id: Int): Flow<Resource<RecipeDetail>> {
+    operator fun invoke(id: Int, isCustom: Boolean): Flow<Resource<RecipeDetail>> {
         val detail = flow {
             emit(
                 repository
                     .get()
-                    .getRecipeDetail(id)
+                    .getRecipeDetail(
+                        id,
+                        getFetchStrategy(isCustom)
+                    )
             )
         }
 
         return detail.flowOn(ioDispatcher)
     }
+
+    private fun getFetchStrategy(isCustom: Boolean) =
+        when {
+            isCustom -> FetchStrategy.DATABASE
+            else -> FetchStrategy.NETWORK
+        }
 }
