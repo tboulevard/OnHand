@@ -1,5 +1,6 @@
 package com.tstreet.onhand.feature.customrecipe
 
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.domain.customrecipe.AddRecipeUseCase
@@ -19,20 +20,16 @@ class CreateCustomRecipeViewModel @Inject constructor(
     }
 
     // required
-    private val _recipeTitle = MutableStateFlow("")
-    val recipeTitle = _recipeTitle.stateIn(
+    private val _title = MutableStateFlow("")
+    val title = _title.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = _recipeTitle.value
+        initialValue = _title.value
     )
 
-    // required = at least 1
-    private val _ingredients = MutableStateFlow(emptyList<RecipeIngredient>())
-    val ingredients = _ingredients.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = _ingredients.value
-    )
+    // required - at least 1
+    private val _ingredients = mutableStateListOf<RecipeIngredient>()
+    val ingredients: List<RecipeIngredient> = _ingredients
 
     // optional - address in future PR
     private val _coverImage = MutableStateFlow("")
@@ -50,6 +47,27 @@ class CreateCustomRecipeViewModel @Inject constructor(
         initialValue = _instructions.value
     )
 
+    fun onTitleChanged(text: String) {
+        _title.update { text }
+    }
+
+    fun onReceiveIngredients(ingredients: List<RecipeIngredient>) {
+        // In case the user wants to add more ingredients after adding some previously
+        _ingredients += ingredients
+    }
+
+    fun onRemoveIngredient(index: Int) {
+        _ingredients -= _ingredients[index]
+    }
+
+    fun onInstructionsChanged(text: String) {
+        _instructions.update { text }
+    }
+
+    fun onImageChanged(text: String) {
+        // TODO
+    }
+
     fun onDoneClicked() {
         viewModelScope.launch {
             addRecipeUseCase.get().invoke(createPartialRecipe()).collect {
@@ -58,27 +76,10 @@ class CreateCustomRecipeViewModel @Inject constructor(
         }
     }
 
-    fun onTitleChanged(text: String) {
-        _recipeTitle.update { text }
-    }
-
-    fun onRecieveIngredients(ingredients: List<RecipeIngredient>) {
-        // In case the user wants to add more ingredients after adding some previously
-        _ingredients.value += ingredients
-    }
-
-    fun onRemoveIngredient(index: Int) {
-        _ingredients.value -= _ingredients.value[index]
-    }
-
-    fun onImageChanged(text: String) {
-        TODO()
-    }
-
     private fun createPartialRecipe() = PartialRecipe(
-        recipeTitle = _recipeTitle.value,
+        recipeTitle = _title.value,
         recipeInstructions = _instructions.value,
-        ingredients = _ingredients.value,
+        ingredients = _ingredients,
         // TODO: revisit below when we allow submitting custom images
         recipeImage = _coverImage.value,
         recipeImageType = "",

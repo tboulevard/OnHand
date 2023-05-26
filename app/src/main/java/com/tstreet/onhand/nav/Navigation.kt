@@ -18,7 +18,6 @@ import androidx.navigation.navArgument
 import com.tstreet.onhand.core.common.LocalCommonProvider
 import com.tstreet.onhand.core.common.injectedViewModel
 import com.tstreet.onhand.core.data.api.di.LocalDataProvider
-import com.tstreet.onhand.core.model.RecipeIngredient
 import com.tstreet.onhand.core.ui.RECIPE_ID_NAV_KEY
 import com.tstreet.onhand.feature.customrecipe.CreateCustomRecipeScreen
 import com.tstreet.onhand.feature.home.HomeScreen

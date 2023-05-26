@@ -15,6 +15,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavHostController
 import com.tstreet.onhand.core.common.INGREDIENT_SEARCH_ROUTE
+import com.tstreet.onhand.core.ui.INGREDIENT_SEARCH_ITEMS_KEY
+import com.tstreet.onhand.core.ui.OnHandScreenHeader
 
 // TODO: use @PreviewParameter + create module with fake models to populate composables
 // TODO: screen rotation wipes `isSearchBarFocused` -> look into used collectAsStateWithLifecycle
@@ -30,24 +32,38 @@ fun CreateCustomRecipeScreen(
 
     // TODO: nav away warn unsaved changes
 
-    val recipeTitle = viewModel.recipeTitle.collectAsState()
-    val ingredients by viewModel.ingredients.collectAsState()
+    val title = viewModel.title.collectAsState()
+    val ingredients = viewModel.ingredients
+    val instructions = viewModel.instructions.collectAsState()
 
     LaunchedEffect(null) {
-        viewModel.onRecieveIngredients(savedStateHandle.get("ingredients") ?: emptyList())
-    }
-
-    Box {
-        Text(text = "AddCustomRecipeScreen")
+        viewModel.onReceiveIngredients(
+            savedStateHandle[INGREDIENT_SEARCH_ITEMS_KEY] ?: emptyList()
+        )
     }
 
     Column() {
+        OnHandScreenHeader(text = "Create Recipe")
         TextField(
-            value = recipeTitle.value,
+            value = title.value,
             onValueChange = viewModel::onTitleChanged,
             label = { Text("Recipe Title") },
             textStyle = MaterialTheme.typography.bodyMedium
         )
+        IconButton(
+            modifier = Modifier.size(144.dp),
+            onClick = { viewModel.onImageChanged("") }
+        ) {
+            Column() {
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = "add image",
+                    modifier = Modifier.fillMaxWidth(),
+                    tint = MaterialTheme.colorScheme.surfaceTint
+                )
+                Text(text = "Add Cover Image")
+            }
+        }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -67,6 +83,8 @@ fun CreateCustomRecipeScreen(
             Text("Add ingredients")
         }
 
+        // TODO: if this list exceeds bounds of screen, only this section is scrollable.
+        //  make entire screen scrollable (similar approach to shopping list)
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
@@ -89,6 +107,13 @@ fun CreateCustomRecipeScreen(
                 }
             }
         }
+        TextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = instructions.value,
+            onValueChange = viewModel::onInstructionsChanged,
+            label = { Text("Instructions (optional)") },
+            textStyle = MaterialTheme.typography.bodyMedium
+        )
         Button(
             onClick = viewModel::onDoneClicked
         ) {

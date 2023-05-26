@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.tstreet.onhand.core.model.RecipeIngredient
+import com.tstreet.onhand.core.ui.INGREDIENT_SEARCH_ITEMS_KEY
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
 import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
 
@@ -72,7 +73,7 @@ fun IngredientSearchScreen(
                     navController.previousBackStackEntry
                         ?.savedStateHandle
                         ?.set(
-                            "ingredients",
+                            INGREDIENT_SEARCH_ITEMS_KEY,
                             viewModel.getSelectedIngredients()
                                 // TODO: Doing this on the main thread is bad, but revisit when we allow
                                 // unit input
@@ -86,7 +87,9 @@ fun IngredientSearchScreen(
                                 })
 
                     navController.popBackStack()
-                }) {
+                },
+                enabled = selectedIngredients.isNotEmpty()
+                ) {
                     Text(text = "Save")
                 }
             }
