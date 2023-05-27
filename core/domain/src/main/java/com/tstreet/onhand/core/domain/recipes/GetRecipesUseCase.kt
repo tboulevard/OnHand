@@ -19,6 +19,9 @@ import javax.inject.Provider
 //  here to be pedantic...
 // TODO: Also - Is it correct to have this annotation at the class or module level? For all
 //  use cases, class level appears to work while module level does not
+/**
+ * Retrieves recipes based on contents of pantry.
+ */
 @FeatureScope
 class GetRecipesUseCase @Inject constructor(
     private val recipeRepository: Provider<RecipeRepository>,

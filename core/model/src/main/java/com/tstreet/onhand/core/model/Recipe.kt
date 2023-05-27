@@ -1,6 +1,7 @@
 package com.tstreet.onhand.core.model
 
 import kotlinx.serialization.Serializable
+import java.util.Optional
 
 /**
  * General purpose representation of a recipe, containing identifying information and ingredients
@@ -16,8 +17,7 @@ data class Recipe(
     val usedIngredients: List<RecipeIngredient>,
     val missedIngredientCount: Int,
     val missedIngredients: List<RecipeIngredient>,
-    // TODO: Look into using Optional type here instead of empty string
-    val instructions: String = "",
+    val instructions: String? = null,
     val likes: Int
 ) : PartialRecipe(
     title, image, imageType, instructions, usedIngredients + missedIngredients

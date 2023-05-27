@@ -4,7 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.Status.ERROR
 import com.tstreet.onhand.core.common.Status.SUCCESS
-import com.tstreet.onhand.core.domain.recipes.GetRecipeDetailUseCase
+import com.tstreet.onhand.core.domain.recipes.GetRecipeUseCase
+import com.tstreet.onhand.core.domain.recipes.GetRecipesUseCase
 import com.tstreet.onhand.core.ui.RecipeDetailUiState
 import com.tstreet.onhand.feature.recipedetail.di.IsCustomRecipe
 import com.tstreet.onhand.feature.recipedetail.di.RecipeId
@@ -13,7 +14,7 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 class RecipeDetailViewModel @Inject constructor(
-    getRecipeDetail: Provider<GetRecipeDetailUseCase>,
+    getRecipe: Provider<GetRecipeUseCase>,
     @RecipeId private val recipeId: Int,
     @IsCustomRecipe private val isCustom: Boolean
 ) : ViewModel() {
@@ -40,9 +41,8 @@ class RecipeDetailViewModel @Inject constructor(
             }
             else -> {
                 // TODO: flow isn't really needed here, but for MVP keep this...
-                getRecipeDetail.get().invoke(
-                    recipeId,
-                    isCustom
+                getRecipe.get().invoke(
+                    recipeId
                 )
                     .map {
                         when (it.status) {

@@ -65,40 +65,9 @@ class RecipeRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getRecipeDetail(id: Int, fetchStrategy: FetchStrategy): Resource<RecipeDetail> {
-        println("[OnHand] getRecipeDetail($id, $fetchStrategy)")
-
-        return when(fetchStrategy) {
-            DATABASE -> {
-                Resource.success(data = savedRecipeDao.get().getRecipe(id).asViewableRecipe())
-            }
-            NETWORK -> {
-                val networkResponse = onHandNetworkDataSource
-                    .get()
-                    .getRecipeDetail(id)
-
-                return when (networkResponse) {
-                    is Success -> {
-                        Resource.success(
-                            data = networkResponse.body.asExternalModel()
-                        )
-                    }
-                    is ApiError,
-                    is NetworkError,
-                    is UnknownError -> {
-                        Resource.error(
-                            msg = "${networkResponse::class.java.simpleName}, please check your " +
-                                    "device's network connectivity. Unable to view recipe.",
-                        )
-                    }
-                }
-            }
-        }
-    }
-
     override suspend fun saveRecipe(
         recipe: Recipe,
-        isCustomRecipe : Boolean
+        isCustomRecipe: Boolean
     ) {
         println("[OnHand] saveRecipe($recipe)")
         savedRecipeDao
@@ -152,6 +121,23 @@ class RecipeRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getRecipe(id: Int): Resource<Recipe> {
+        println("[OnHand] getRecipe($id)")
+
+        return try {
+            Resource.success(
+                data = savedRecipeDao
+                    .get()
+                    .getRecipe(id)
+                    .asExternalModel()
+                    .recipe
+            )
+        } catch (e: Exception) {
+            // TODO: rethrow in debug
+            Resource.error(msg = e.message.toString())
+        }
+    }
+
     private suspend fun getCachedRecipeSearchResults(): List<Recipe> {
         return recipeSearchCacheDao
             .get()
@@ -189,11 +175,4 @@ private fun NetworkRecipeIngredient.asExternalModel() = RecipeIngredient(
     image = image,
     amount = amount,
     unit = unit,
-)
-
-private fun NetworkRecipeDetail.asExternalModel() = RecipeDetail(
-    id = id,
-    title = title ?: "NO_TITLE_PRESENT",
-    instructions = instructions,
-    summary = summary
 )

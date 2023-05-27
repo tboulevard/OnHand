@@ -56,7 +56,7 @@ class AddRecipeUseCase @Inject constructor(
                             usedIngredientCount = usedIngredients.size,
                             missedIngredients = missedIngredients,
                             missedIngredientCount = missedIngredients.size,
-                            instructions = partialRecipe.recipeInstructions ?: "No instructions provided.",
+                            instructions = partialRecipe.recipeInstructions,
                             // TODO: revisit - for now custom recipes just won't have likes
                             likes = -1,
                         ),

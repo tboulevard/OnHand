@@ -29,7 +29,6 @@ private interface RetrofitOnHandService {
         @Query("ingredients") ingredients: List<String>,
     ): OnHandNetworkResponse<List<NetworkRecipe>>
 
-    // TODO: sort by number of likes to show more relevant recipes potentially
     @GET("recipes/{id}/information")
     suspend fun getRecipeDetail(
         @Path("id") id: Int,

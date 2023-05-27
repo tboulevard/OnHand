@@ -1,8 +1,5 @@
 package com.tstreet.onhand.feature.recipedetail
 
-import android.view.ViewGroup
-import android.webkit.WebView
-import android.webkit.WebViewClient
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.AlertDialog
@@ -12,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavHostController
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
 import com.tstreet.onhand.core.ui.RecipeDetailUiState.*
@@ -32,9 +28,9 @@ fun RecipeDetailScreen(
         }
         is Success -> {
             Column {
-                // TODO: ingredients...
-                Text(text = state.recipeDetail.title)
-                Text(text = state.recipeDetail.instructions ?: "No instructions provided.")
+                Text(text = state.recipe.title)
+                Text(text = "${state.recipe.usedIngredients}" + "${state.recipe.missedIngredients}")
+                Text(text = state.recipe.instructions ?: "No instructions provided.")
             }
         }
         is Error -> {

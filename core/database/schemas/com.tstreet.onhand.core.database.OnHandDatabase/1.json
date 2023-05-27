@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "fca5706687a66c8601c08443e55f64ad",
+    "identityHash": "f9b318d44935af27a916746e8c129212",
     "entities": [
       {
         "tableName": "ingredient_catalog",
@@ -38,7 +38,7 @@
       },
       {
         "tableName": "saved_recipes",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `title` TEXT NOT NULL, `image` TEXT NOT NULL, `imageType` TEXT NOT NULL, `missedIngredients` TEXT NOT NULL, `missedIngredientCount` INTEGER NOT NULL, `usedIngredients` TEXT NOT NULL, `usedIngredientCount` INTEGER NOT NULL, `instructions` TEXT NOT NULL, `likes` INTEGER NOT NULL, `isCustomRecipe` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `isCustomRecipe` INTEGER NOT NULL, `title` TEXT NOT NULL, `image` TEXT NOT NULL, `imageType` TEXT NOT NULL, `missedIngredients` TEXT NOT NULL, `missedIngredientCount` INTEGER NOT NULL, `usedIngredients` TEXT NOT NULL, `usedIngredientCount` INTEGER NOT NULL, `instructions` TEXT, `likes` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -47,62 +47,62 @@
             "notNull": true
           },
           {
-            "fieldPath": "title",
+            "fieldPath": "isCustomRecipe",
+            "columnName": "isCustomRecipe",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "recipeProperties.title",
             "columnName": "title",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "image",
+            "fieldPath": "recipeProperties.image",
             "columnName": "image",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "imageType",
+            "fieldPath": "recipeProperties.imageType",
             "columnName": "imageType",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "missedIngredients",
+            "fieldPath": "recipeProperties.missedIngredients",
             "columnName": "missedIngredients",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "missedIngredientCount",
+            "fieldPath": "recipeProperties.missedIngredientCount",
             "columnName": "missedIngredientCount",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "usedIngredients",
+            "fieldPath": "recipeProperties.usedIngredients",
             "columnName": "usedIngredients",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "usedIngredientCount",
+            "fieldPath": "recipeProperties.usedIngredientCount",
             "columnName": "usedIngredientCount",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "instructions",
+            "fieldPath": "recipeProperties.instructions",
             "columnName": "instructions",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
-            "fieldPath": "likes",
+            "fieldPath": "recipeProperties.likes",
             "columnName": "likes",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "isCustomRecipe",
-            "columnName": "isCustomRecipe",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -118,7 +118,7 @@
       },
       {
         "tableName": "recipe_search_cache",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `title` TEXT NOT NULL, `image` TEXT NOT NULL, `imageType` TEXT NOT NULL, `missedIngredients` TEXT NOT NULL, `missedIngredientCount` INTEGER NOT NULL, `usedIngredients` TEXT NOT NULL, `usedIngredientCount` INTEGER NOT NULL, `likes` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `title` TEXT NOT NULL, `image` TEXT NOT NULL, `imageType` TEXT NOT NULL, `missedIngredients` TEXT NOT NULL, `missedIngredientCount` INTEGER NOT NULL, `usedIngredients` TEXT NOT NULL, `usedIngredientCount` INTEGER NOT NULL, `instructions` TEXT, `likes` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -127,49 +127,55 @@
             "notNull": true
           },
           {
-            "fieldPath": "title",
+            "fieldPath": "storedRecipeProperties.title",
             "columnName": "title",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "image",
+            "fieldPath": "storedRecipeProperties.image",
             "columnName": "image",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "imageType",
+            "fieldPath": "storedRecipeProperties.imageType",
             "columnName": "imageType",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "missedIngredients",
+            "fieldPath": "storedRecipeProperties.missedIngredients",
             "columnName": "missedIngredients",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "missedIngredientCount",
+            "fieldPath": "storedRecipeProperties.missedIngredientCount",
             "columnName": "missedIngredientCount",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "usedIngredients",
+            "fieldPath": "storedRecipeProperties.usedIngredients",
             "columnName": "usedIngredients",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "usedIngredientCount",
+            "fieldPath": "storedRecipeProperties.usedIngredientCount",
             "columnName": "usedIngredientCount",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "likes",
+            "fieldPath": "storedRecipeProperties.instructions",
+            "columnName": "instructions",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "storedRecipeProperties.likes",
             "columnName": "likes",
             "affinity": "INTEGER",
             "notNull": true
@@ -220,7 +226,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fca5706687a66c8601c08443e55f64ad')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f9b318d44935af27a916746e8c129212')"
     ]
   }
 }

@@ -1,50 +1,44 @@
 package com.tstreet.onhand.core.database.model
 
-import androidx.room.ColumnInfo
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.tstreet.onhand.core.model.Recipe
-import com.tstreet.onhand.core.model.RecipeIngredient
 
 @Entity(
     tableName = "recipe_search_cache"
 )
 data class RecipeSearchCacheEntity(
     @PrimaryKey val id: Int,
-    @ColumnInfo(name = "title") val title: String,
-    @ColumnInfo(name = "image") val image: String,
-    @ColumnInfo(name = "imageType") val imageType: String,
-    @ColumnInfo(name = "missedIngredients") val missedIngredients: List<RecipeIngredient>,
-    @ColumnInfo(name = "missedIngredientCount") val missedIngredientCount: Int,
-    @ColumnInfo(name = "usedIngredients") val usedIngredients: List<RecipeIngredient>,
-    @ColumnInfo(name = "usedIngredientCount") val usedIngredientCount: Int,
-    @ColumnInfo(name = "likes") val likes: Int
+    @Embedded val storedRecipeProperties: StoredRecipeProperties
 )
 
 fun RecipeSearchCacheEntity.asExternalModel(): Recipe {
     return Recipe(
         id = id,
-        title = title,
-        image = image,
-        imageType = imageType,
-        missedIngredients = missedIngredients,
-        missedIngredientCount = missedIngredientCount,
-        usedIngredients = usedIngredients,
-        usedIngredientCount = usedIngredientCount,
-        likes = likes
+        title = storedRecipeProperties.title,
+        image = storedRecipeProperties.image,
+        imageType = storedRecipeProperties.imageType,
+        missedIngredients = storedRecipeProperties.missedIngredients,
+        missedIngredientCount = storedRecipeProperties.missedIngredientCount,
+        usedIngredients = storedRecipeProperties.usedIngredients,
+        usedIngredientCount = storedRecipeProperties.usedIngredientCount,
+        likes = storedRecipeProperties.likes
     )
 }
 
 fun Recipe.toSearchCacheEntity(): RecipeSearchCacheEntity {
     return RecipeSearchCacheEntity(
         id = id,
-        title = title,
-        image = image,
-        imageType = imageType,
-        missedIngredients = missedIngredients,
-        missedIngredientCount = missedIngredientCount,
-        usedIngredients = usedIngredients,
-        usedIngredientCount = usedIngredientCount,
-        likes = likes
+        StoredRecipeProperties(
+            title = title,
+            image = image,
+            imageType = imageType,
+            missedIngredients = missedIngredients,
+            missedIngredientCount = missedIngredientCount,
+            usedIngredients = usedIngredients,
+            usedIngredientCount = usedIngredientCount,
+            likes = likes
+        )
     )
 }

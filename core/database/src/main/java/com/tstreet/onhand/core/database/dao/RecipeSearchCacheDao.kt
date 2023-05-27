@@ -5,7 +5,6 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import com.tstreet.onhand.core.database.model.RecipeSearchCacheEntity
-import com.tstreet.onhand.core.model.Ingredient
 
 @Dao
 abstract class RecipeSearchCacheDao {
@@ -24,4 +23,7 @@ abstract class RecipeSearchCacheDao {
 
     @Query("DELETE FROM recipe_search_cache")
     abstract suspend fun clear()
+
+    @Query("SELECT * from recipe_search_cache WHERE id = :id")
+    abstract suspend fun getRecipe(id: Int): RecipeSearchCacheEntity
 }
