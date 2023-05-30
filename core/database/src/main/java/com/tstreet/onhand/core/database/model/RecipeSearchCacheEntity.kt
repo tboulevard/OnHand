@@ -10,27 +10,29 @@ import com.tstreet.onhand.core.model.Recipe
 )
 data class RecipeSearchCacheEntity(
     @PrimaryKey val id: Int,
-    @Embedded val storedRecipeProperties: StoredRecipeProperties
+    @Embedded val previewProperties: RecipePreviewProperties
 )
 
 fun RecipeSearchCacheEntity.asExternalModel(): Recipe {
     return Recipe(
         id = id,
-        title = storedRecipeProperties.title,
-        image = storedRecipeProperties.image,
-        imageType = storedRecipeProperties.imageType,
-        missedIngredients = storedRecipeProperties.missedIngredients,
-        missedIngredientCount = storedRecipeProperties.missedIngredientCount,
-        usedIngredients = storedRecipeProperties.usedIngredients,
-        usedIngredientCount = storedRecipeProperties.usedIngredientCount,
-        likes = storedRecipeProperties.likes
+        title = previewProperties.title,
+        image = previewProperties.image,
+        imageType = previewProperties.imageType,
+        missedIngredients = previewProperties.missedIngredients,
+        missedIngredientCount = previewProperties.missedIngredientCount,
+        usedIngredients = previewProperties.usedIngredients,
+        usedIngredientCount = previewProperties.usedIngredientCount,
+        likes = previewProperties.likes,
+        // All search cache entities are sourced from API for now, so never custom.
+        isCustom = false
     )
 }
 
 fun Recipe.toSearchCacheEntity(): RecipeSearchCacheEntity {
     return RecipeSearchCacheEntity(
         id = id,
-        StoredRecipeProperties(
+        RecipePreviewProperties(
             title = title,
             image = image,
             imageType = imageType,
@@ -40,5 +42,7 @@ fun Recipe.toSearchCacheEntity(): RecipeSearchCacheEntity {
             usedIngredientCount = usedIngredientCount,
             likes = likes
         )
+        // NOTE: we do not save RecipeDetailProperties because we rely on API providing this info
+        //  ( and we currently do not cache the info from API for this)
     )
 }

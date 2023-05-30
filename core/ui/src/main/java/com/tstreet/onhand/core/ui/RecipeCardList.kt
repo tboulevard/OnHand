@@ -44,7 +44,8 @@ fun RecipeCardList(
                         usedIngredients = recipe.usedIngredients,
                         missedIngredientCount = recipe.missedIngredientCount,
                         missedIngredients = recipe.missedIngredients,
-                        likes = recipe.likes
+                        likes = recipe.likes,
+                        isCustom = item.isCustom
                     ),
                     recipeSaveState = item.recipeSaveState,
                     isCustom = item.isCustom
@@ -219,7 +220,8 @@ fun RecipeCardItem(
 // Recipe wrapped in save state to allow the view model to toggle it
 data class RecipeWithSaveState(
     val recipe: Recipe,
-    val isCustom: Boolean,
+    // Default to false for cards shown in search list
+    val isCustom: Boolean = false,
     val recipeSaveState: RecipeSaveState
 )
 
@@ -236,7 +238,8 @@ class RecipeCardPreviewParamProvider : PreviewParameterProvider<RecipeWithSaveSt
                 usedIngredients = emptyList(),
                 missedIngredientCount = 3,
                 missedIngredients = emptyList(),
-                likes = 100
+                likes = 100,
+                isCustom = true
             ),
             recipeSaveState = RecipeSaveState.SAVED,
             isCustom = true

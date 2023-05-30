@@ -175,7 +175,8 @@ class ShoppingListRecipeCardPreviewParamProvider :
                 usedIngredients = emptyList(),
                 missedIngredientCount = 3,
                 missedIngredients = emptyList(),
-                likes = 100
+                likes = 100,
+                isCustom = true
             ),
             onItemClick = { },
             onRemoveClick = { },

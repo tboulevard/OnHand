@@ -26,13 +26,13 @@ abstract class SavedRecipeDao {
     @Transaction
     open suspend fun updateRecipesMissingIngredient(ingredientName: String) {
         getRecipesMissingIngredient(ingredientName).map { entity ->
-            entity.recipeProperties.missedIngredients.find { it.ingredient.name == ingredientName }
+            entity.previewProperties.missedIngredients.find { it.ingredient.name == ingredientName }
                 ?.let { missedIngredient ->
                     val newMissedIngredients =
-                        entity.recipeProperties.missedIngredients.filterNot { it.ingredient.name == ingredientName }
-                    val newUsedIngredients = entity.recipeProperties.usedIngredients + missedIngredient
+                        entity.previewProperties.missedIngredients.filterNot { it.ingredient.name == ingredientName }
+                    val newUsedIngredients = entity.previewProperties.usedIngredients + missedIngredient
                     // Copy all existing recipe properties except those that we want changed
-                    val newProperties = entity.recipeProperties.copy(
+                    val newProperties = entity.previewProperties.copy(
                         missedIngredients = newMissedIngredients,
                         missedIngredientCount = newMissedIngredients.size,
                         usedIngredients = newUsedIngredients,
@@ -40,7 +40,7 @@ abstract class SavedRecipeDao {
                     )
                     // Create a new SavedRecipeEntity with new recipe properties
                     entity.copy(
-                        recipeProperties = newProperties
+                        previewProperties = newProperties
                     )
                 }
         }.forEach { updatedEntity ->
@@ -53,19 +53,19 @@ abstract class SavedRecipeDao {
     @Transaction
     open suspend fun updateRecipesUsingIngredient(ingredientName: String) {
         getRecipesUsingIngredient(ingredientName).map { entity ->
-            entity.recipeProperties.usedIngredients.find { it.ingredient.name == ingredientName }
+            entity.previewProperties.usedIngredients.find { it.ingredient.name == ingredientName }
                 ?.let { usedIngredient ->
                     val newUsedIngredients =
-                        entity.recipeProperties.usedIngredients.filterNot { it.ingredient.name == ingredientName }
-                    val newMissedIngredients = entity.recipeProperties.missedIngredients + usedIngredient
-                    val newProperties = entity.recipeProperties.copy(
+                        entity.previewProperties.usedIngredients.filterNot { it.ingredient.name == ingredientName }
+                    val newMissedIngredients = entity.previewProperties.missedIngredients + usedIngredient
+                    val newProperties = entity.previewProperties.copy(
                         missedIngredients = newMissedIngredients,
                         missedIngredientCount = newMissedIngredients.size,
                         usedIngredients = newUsedIngredients,
                         usedIngredientCount = newUsedIngredients.size
                     )
                     entity.copy(
-                        recipeProperties = newProperties
+                        previewProperties = newProperties
                     )
                 }
         }.forEach { updatedEntity ->

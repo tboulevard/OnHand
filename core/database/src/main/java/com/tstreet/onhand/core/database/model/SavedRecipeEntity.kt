@@ -12,33 +12,39 @@ import com.tstreet.onhand.core.model.*
 data class SavedRecipeEntity(
     @PrimaryKey val id: Int,
     // Using composition to share fields across entities
-    @Embedded val recipeProperties: StoredRecipeProperties,
+    @Embedded val previewProperties: RecipePreviewProperties,
+    // NOTE: We allow this to be null as a whole, but if it's included we require certain fields.
+    //  For now this is mainly to distinguish between custom and api src'd recipes
+    @Embedded val detailProperties: RecipeDetailProperties? = null,
     // Entity specific fields can be placed here
     @ColumnInfo(name = "isCustomRecipe") val isCustomRecipe: Boolean = false
 )
 
-fun SavedRecipeEntity.asExternalModel() =
-    SaveableRecipe(
+fun SavedRecipeEntity.asExternalModel(): SaveableRecipe {
+    println("[OnHand] asExternalModel:\n\n $this")
+    return SaveableRecipe(
         Recipe(
             id = id,
-            title = recipeProperties.title,
-            image = recipeProperties.image,
-            imageType = recipeProperties.imageType,
-            missedIngredients = recipeProperties.missedIngredients,
-            missedIngredientCount = recipeProperties.missedIngredientCount,
-            usedIngredients = recipeProperties.usedIngredients,
-            usedIngredientCount = recipeProperties.usedIngredientCount,
-            instructions = recipeProperties.instructions,
-            likes = recipeProperties.likes,
+            title = previewProperties.title,
+            image = previewProperties.image,
+            imageType = previewProperties.imageType,
+            missedIngredients = previewProperties.missedIngredients,
+            missedIngredientCount = previewProperties.missedIngredientCount,
+            usedIngredients = previewProperties.usedIngredients,
+            usedIngredientCount = previewProperties.usedIngredientCount,
+            likes = previewProperties.likes,
+            isCustom = isCustomRecipe,
         ),
         isSaved = true, // TODO: refactor, for now assume true - all recipes in this table are saved
-        isCustom = isCustomRecipe
     )
+}
 
-fun Recipe.toSavedRecipeEntity(isCustomRecipe: Boolean) =
-    SavedRecipeEntity(
+// For non custom recipes, we expect all recipes to src detail from API. So no point in saving it
+// now. Could impl caching later though.
+fun Recipe.toSavedRecipeEntity(): SavedRecipeEntity {
+    return SavedRecipeEntity(
         id = id,
-        StoredRecipeProperties(
+        RecipePreviewProperties(
             title = title,
             image = image,
             imageType = imageType,
@@ -46,8 +52,33 @@ fun Recipe.toSavedRecipeEntity(isCustomRecipe: Boolean) =
             missedIngredientCount = missedIngredientCount,
             usedIngredients = usedIngredients,
             usedIngredientCount = usedIngredientCount,
-            instructions = instructions,
             likes = likes,
         ),
-        isCustomRecipe = isCustomRecipe
+        isCustomRecipe = false
     )
+}
+
+// We expect all detail info to be provided by user, so we save it with the recipe
+
+fun createCustomSavedRecipeEntity(
+    recipe: Recipe,
+    detail: RecipeDetail
+): SavedRecipeEntity {
+    return SavedRecipeEntity(
+        id = recipe.id,
+        previewProperties = RecipePreviewProperties(
+            title = recipe.title,
+            image = recipe.image,
+            imageType = recipe.imageType,
+            missedIngredients = recipe.missedIngredients,
+            missedIngredientCount = recipe.missedIngredientCount,
+            usedIngredients = recipe.usedIngredients,
+            usedIngredientCount = recipe.usedIngredientCount,
+            likes = recipe.likes,
+        ),
+        detailProperties = RecipeDetailProperties(
+            instructions = detail.instructions
+        ),
+        isCustomRecipe = true
+    )
+}

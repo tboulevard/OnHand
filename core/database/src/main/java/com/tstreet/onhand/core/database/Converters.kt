@@ -1,7 +1,6 @@
 package com.tstreet.onhand.core.database
 
 import androidx.room.TypeConverter
-import com.tstreet.onhand.core.database.model.StoredRecipeProperties
 import com.tstreet.onhand.core.model.Recipe
 import com.tstreet.onhand.core.model.RecipeIngredient
 import kotlinx.serialization.json.Json

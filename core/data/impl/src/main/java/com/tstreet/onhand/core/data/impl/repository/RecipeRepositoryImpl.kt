@@ -65,14 +65,46 @@ class RecipeRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getRecipeDetail(id: Int): Resource<RecipeDetail> {
+        println("[OnHand] getRecipeDetail($id)")
+        val networkResponse = onHandNetworkDataSource
+            .get()
+            .getRecipeDetail(id)
+
+        return when (networkResponse) {
+            is Success -> {
+                Resource.success(
+                    data = networkResponse.body.asExternalModel()
+                )
+            }
+            is ApiError,
+            is NetworkError,
+            is UnknownError -> {
+                Resource.error(
+                    msg = "${networkResponse::class.java.simpleName}, please check your " +
+                            "device's network connectivity. Unable to view recipe.",
+                )
+            }
+        }
+    }
+
     override suspend fun saveRecipe(
-        recipe: Recipe,
-        isCustomRecipe: Boolean
+        recipe: Recipe
     ) {
         println("[OnHand] saveRecipe($recipe)")
         savedRecipeDao
             .get()
-            .addRecipe(recipe.toSavedRecipeEntity(isCustomRecipe))
+            .addRecipe(recipe.toSavedRecipeEntity())
+    }
+
+    override suspend fun saveCustomRecipe(
+        recipe : Recipe,
+        detail: RecipeDetail
+    ) {
+        println("[OnHand] saveCustomRecipe($recipe)")
+        savedRecipeDao
+            .get()
+            .addRecipe(createCustomSavedRecipeEntity(recipe, detail))
     }
 
     override suspend fun unsaveRecipe(id: Int) {
@@ -155,6 +187,10 @@ class RecipeRepositoryImpl @Inject constructor(
 }
 
 // TODO: potentially move to more appropriate spot...
+private fun NetworkRecipeDetail.asExternalModel() = RecipeDetail(
+    instructions = instructions ?: "No instructions provided." // TODO: revisit
+)
+
 private fun NetworkRecipe.asExternalModel() = Recipe(
     id = id,
     title = title,
@@ -164,7 +200,8 @@ private fun NetworkRecipe.asExternalModel() = Recipe(
     usedIngredients = usedIngredients.map { it.asExternalModel() },
     missedIngredientCount = missedIngredientCount,
     missedIngredients = missedIngredients.map { it.asExternalModel() },
-    likes = likes
+    likes = likes,
+    isCustom = false
 )
 
 private fun NetworkRecipeIngredient.asExternalModel() = RecipeIngredient(

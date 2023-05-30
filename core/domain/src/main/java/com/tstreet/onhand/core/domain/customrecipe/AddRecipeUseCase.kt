@@ -6,10 +6,7 @@ import com.tstreet.onhand.core.common.Status.*
 import com.tstreet.onhand.core.common.UseCase
 import com.tstreet.onhand.core.data.api.repository.PantryRepository
 import com.tstreet.onhand.core.data.api.repository.RecipeRepository
-import com.tstreet.onhand.core.model.PantryIngredient
-import com.tstreet.onhand.core.model.PartialRecipe
-import com.tstreet.onhand.core.model.Recipe
-import com.tstreet.onhand.core.model.RecipeIngredient
+import com.tstreet.onhand.core.model.*
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -25,8 +22,8 @@ class AddRecipeUseCase @Inject constructor(
     @Named(IO) private val ioDispatcher: CoroutineDispatcher,
 ) : UseCase() {
 
-    operator fun invoke(partialRecipe: PartialRecipe): Flow<Resource<Unit>> {
-        println("[OnHand] AddRecipeUseCase - Adding recipe=${partialRecipe.recipeTitle}, ingredients=${partialRecipe.ingredients}")
+    operator fun invoke(customRecipeInput: CustomRecipeInput): Flow<Resource<Unit>> {
+        println("[OnHand] AddRecipeUseCase - Adding recipe=${customRecipeInput.recipeTitle}, ingredients=${customRecipeInput.ingredients}")
 
         return pantryRepository.get().listPantry().map {
             when (it.status) {
@@ -34,33 +31,35 @@ class AddRecipeUseCase @Inject constructor(
                     val usedIngredients = it.data?.let { pantryIngredients ->
                         calculateUsedIngredients(
                             pantryIngredients = pantryIngredients,
-                            customRecipeIngredients = partialRecipe.ingredients
+                            customRecipeIngredients = customRecipeInput.ingredients
                         )
                     } ?: emptyList()
                     val missedIngredients = it.data?.let { pantryIngredients ->
                         calculateMissedIngredients(
                             pantryIngredients = pantryIngredients,
-                            customRecipeIngredients = partialRecipe.ingredients
+                            customRecipeIngredients = customRecipeInput.ingredients
                         )
                     } ?: emptyList()
 
-                    recipeRepository.get().saveRecipe(
-                        Recipe(
+                    recipeRepository.get().saveCustomRecipe(
+                        recipe = Recipe(
                             // TODO: for now, we just assign id based on hash of title - potentially
                             //  look into a more stable approach in the future.
-                            id = partialRecipe.recipeTitle.hashCode(),
-                            title = partialRecipe.recipeTitle,
-                            image = partialRecipe.recipeImage,
-                            imageType = partialRecipe.recipeImageType,
+                            id = customRecipeInput.recipeTitle.hashCode(),
+                            title = customRecipeInput.recipeTitle,
+                            image = customRecipeInput.recipeImage,
+                            imageType = customRecipeInput.recipeImageType,
                             usedIngredients = usedIngredients,
                             usedIngredientCount = usedIngredients.size,
                             missedIngredients = missedIngredients,
                             missedIngredientCount = missedIngredients.size,
-                            instructions = partialRecipe.recipeInstructions,
+                            isCustom = true,
                             // TODO: revisit - for now custom recipes just won't have likes
                             likes = -1,
                         ),
-                        isCustomRecipe = true
+                        detail = RecipeDetail(
+                            instructions = customRecipeInput.instructions
+                        )
                     )
                     Resource.success(null)
                 }

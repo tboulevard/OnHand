@@ -41,6 +41,7 @@ class RecipeDetailViewModel @Inject constructor(
             }
             else -> {
                 // TODO: flow isn't really needed here, but for MVP keep this...
+                // TODO: maybe make this return a duple (Recipe, Detail)?
                 getRecipe.get().invoke(
                     recipeId
                 )

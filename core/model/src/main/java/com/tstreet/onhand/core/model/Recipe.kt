@@ -1,7 +1,6 @@
 package com.tstreet.onhand.core.model
 
 import kotlinx.serialization.Serializable
-import java.util.Optional
 
 /**
  * General purpose representation of a recipe, containing identifying information and ingredients
@@ -17,10 +16,10 @@ data class Recipe(
     val usedIngredients: List<RecipeIngredient>,
     val missedIngredientCount: Int,
     val missedIngredients: List<RecipeIngredient>,
-    val instructions: String? = null,
-    val likes: Int
+    val likes: Int,
+    val isCustom : Boolean
 ) : PartialRecipe(
-    title, image, imageType, instructions, usedIngredients + missedIngredients
+    title, image, imageType, usedIngredients + missedIngredients
 )
 
 /**
@@ -43,6 +42,14 @@ open class PartialRecipe(
     val recipeTitle: String,
     val recipeImage: String,
     val recipeImageType: String,
-    val recipeInstructions: String?,
     val ingredients: List<RecipeIngredient>
 )
+
+class CustomRecipeInput(
+    val recipeTitle: String,
+    val recipeImage: String,
+    val recipeImageType: String,
+    val ingredients: List<RecipeIngredient>,
+    val instructions : String
+)
+// we need a model just for information collected from the user for custom recipes

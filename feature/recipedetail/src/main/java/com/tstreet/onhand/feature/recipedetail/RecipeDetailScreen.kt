@@ -30,7 +30,7 @@ fun RecipeDetailScreen(
             Column {
                 Text(text = state.recipe.title)
                 Text(text = "${state.recipe.usedIngredients}" + "${state.recipe.missedIngredients}")
-                Text(text = state.recipe.instructions ?: "No instructions provided.")
+                Text(text =  "TODO: No instructions provided.")
             }
         }
         is Error -> {

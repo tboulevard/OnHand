@@ -317,7 +317,8 @@ class RecipeSearchCardPreviewParamProvider : PreviewParameterProvider<ShoppingLi
                         unit = "clove"
                     )
                 ),
-                likes = 100
+                likes = 100,
+                isCustom = true,
             ),
             index = 0,
             isIngredientChecked = true

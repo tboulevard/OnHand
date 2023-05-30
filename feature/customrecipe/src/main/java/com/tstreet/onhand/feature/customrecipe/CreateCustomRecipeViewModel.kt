@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.domain.customrecipe.AddRecipeUseCase
+import com.tstreet.onhand.core.model.CustomRecipeInput
 import com.tstreet.onhand.core.model.PartialRecipe
 import com.tstreet.onhand.core.model.RecipeIngredient
 import kotlinx.coroutines.flow.*
@@ -76,9 +77,9 @@ class CreateCustomRecipeViewModel @Inject constructor(
         }
     }
 
-    private fun createPartialRecipe() = PartialRecipe(
+    private fun createPartialRecipe() = CustomRecipeInput(
         recipeTitle = _title.value,
-        recipeInstructions = _instructions.value,
+        instructions = _instructions.value,
         ingredients = _ingredients,
         // TODO: revisit below when we allow submitting custom images
         recipeImage = _coverImage.value,
