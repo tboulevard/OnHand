@@ -25,13 +25,17 @@ interface RecipeDetailComponent {
     @get:IsCustomRecipe
     val isCustom : Boolean
 
+    @get:Recipe
+    val recipe : com.tstreet.onhand.core.model.Recipe
+
     @Component.Factory
     interface Factory {
         fun create(
             dataComponentProvider: DataComponentProvider,
             commonComponentProvider: CommonComponentProvider,
             @BindsInstance @RecipeId recipeId : Int,
-            @BindsInstance @IsCustomRecipe isCustom: Boolean
+            @BindsInstance @IsCustomRecipe isCustom: Boolean,
+            @BindsInstance @Recipe recipe : com.tstreet.onhand.core.model.Recipe
         ) : RecipeDetailComponent
     }
 }

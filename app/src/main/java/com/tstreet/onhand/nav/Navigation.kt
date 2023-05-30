@@ -20,6 +20,7 @@ import com.tstreet.onhand.core.common.injectedViewModel
 import com.tstreet.onhand.core.data.api.di.LocalDataProvider
 import com.tstreet.onhand.core.ui.IS_CUSTOM_RECIPE_FLAG
 import com.tstreet.onhand.core.ui.RECIPE_ID_NAV_KEY
+import com.tstreet.onhand.core.ui.RECIPE_NAV_KEY
 import com.tstreet.onhand.feature.customrecipe.CreateCustomRecipeScreen
 import com.tstreet.onhand.feature.home.HomeScreen
 import com.tstreet.onhand.feature.customrecipe.di.DaggerCustomRecipeComponent
@@ -30,6 +31,7 @@ import com.tstreet.onhand.feature.recipedetail.INVALID_CUSTOM_RECIPE_FLAG
 import com.tstreet.onhand.feature.recipedetail.INVALID_RECIPE_ID
 import com.tstreet.onhand.feature.recipedetail.RecipeDetailScreen
 import com.tstreet.onhand.feature.recipedetail.di.DaggerRecipeDetailComponent
+import com.tstreet.onhand.feature.recipedetail.di.Recipe
 import com.tstreet.onhand.feature.recipesearch.RecipeSearchScreen
 import com.tstreet.onhand.feature.recipesearch.di.DaggerRecipeSearchComponent
 import com.tstreet.onhand.feature.savedrecipes.SavedRecipesScreen
@@ -104,12 +106,25 @@ private fun NavigationConfiguration(
             route = "${Screen.RecipeDetail.route}/{$RECIPE_ID_NAV_KEY}/{$IS_CUSTOM_RECIPE_FLAG}",
             arguments = listOf(
                 navArgument(RECIPE_ID_NAV_KEY) { type = NavType.IntType },
-                navArgument(IS_CUSTOM_RECIPE_FLAG) { type = NavType.BoolType }
+                navArgument(IS_CUSTOM_RECIPE_FLAG) { type = NavType.BoolType },
             )
         ) {
             val recipeId = it.arguments?.getInt(RECIPE_ID_NAV_KEY) ?: INVALID_RECIPE_ID
             val isCustom =
                 it.arguments?.getBoolean(IS_CUSTOM_RECIPE_FLAG) ?: INVALID_CUSTOM_RECIPE_FLAG
+            // TODO:
+            val recipe : com.tstreet.onhand.core.model.Recipe = com.tstreet.onhand.core.model.Recipe(
+                id = 1,
+                title = "A very long recipe name that is very long",
+                image = "image",
+                imageType = "imageType",
+                usedIngredientCount = 10,
+                usedIngredients = emptyList(),
+                missedIngredientCount = 3,
+                missedIngredients = emptyList(),
+                likes = 100,
+                isCustom = true
+            )
             RecipeDetailScreen(
                 navController,
                 injectedViewModel {
@@ -117,7 +132,9 @@ private fun NavigationConfiguration(
                         dataComponentProvider = dataProvider,
                         commonComponentProvider = commonProvider,
                         recipeId = recipeId,
-                        isCustom = isCustom
+                        isCustom = isCustom,
+                        // TODO:
+                        recipe = recipe
                     ).viewModel
                 }
             )

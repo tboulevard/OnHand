@@ -4,19 +4,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.Status.ERROR
 import com.tstreet.onhand.core.common.Status.SUCCESS
-import com.tstreet.onhand.core.domain.recipes.GetRecipeUseCase
-import com.tstreet.onhand.core.domain.recipes.GetRecipesUseCase
+import com.tstreet.onhand.core.domain.recipes.GetRecipeDetailUseCase
 import com.tstreet.onhand.core.ui.RecipeDetailUiState
 import com.tstreet.onhand.feature.recipedetail.di.IsCustomRecipe
+import com.tstreet.onhand.feature.recipedetail.di.Recipe
 import com.tstreet.onhand.feature.recipedetail.di.RecipeId
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 import javax.inject.Provider
 
 class RecipeDetailViewModel @Inject constructor(
-    getRecipe: Provider<GetRecipeUseCase>,
+    getRecipeDetail: Provider<GetRecipeDetailUseCase>,
     @RecipeId private val recipeId: Int,
-    @IsCustomRecipe private val isCustom: Boolean
+    @IsCustomRecipe private val isCustom: Boolean,
+    @Recipe private val recipe : com.tstreet.onhand.core.model.Recipe
 ) : ViewModel() {
 
     private val _showErrorDialog = MutableStateFlow(false)
@@ -42,14 +43,20 @@ class RecipeDetailViewModel @Inject constructor(
             else -> {
                 // TODO: flow isn't really needed here, but for MVP keep this...
                 // TODO: maybe make this return a duple (Recipe, Detail)?
-                getRecipe.get().invoke(
-                    recipeId
+                getRecipeDetail.get().invoke(
+                    recipeId,
+                    isCustom
                 )
                     .map {
                         when (it.status) {
                             SUCCESS -> {
                                 // TODO: handle null
-                                RecipeDetailUiState.Success(it.data!!)
+                                RecipeDetailUiState.Success(
+                                    // TODO:...For custom recipes, we already have this info in DB.
+                                    // For non custom recipes, we need to retrieve it or pass from other screen
+                                    recipe = recipe,
+                                    detail = it.data!!
+                                )
                             }
                             ERROR -> {
                                 _showErrorDialog.update { true }

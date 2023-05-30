@@ -28,5 +28,5 @@ interface RecipeRepository {
     fun getSavedRecipes(): Flow<List<SaveableRecipe>>
     suspend fun updateSavedRecipesMissingIngredient(ingredient: Ingredient)
     suspend fun updateSavedRecipesUsingIngredient(ingredient: Ingredient)
-    suspend fun getRecipe(id: Int): Resource<Recipe>
+    suspend fun getCustomRecipeDetail(id: Int): Resource<RecipeDetail>
 }

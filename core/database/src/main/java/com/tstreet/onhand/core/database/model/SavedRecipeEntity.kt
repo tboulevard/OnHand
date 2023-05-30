@@ -20,7 +20,7 @@ data class SavedRecipeEntity(
     @ColumnInfo(name = "isCustomRecipe") val isCustomRecipe: Boolean = false
 )
 
-fun SavedRecipeEntity.asExternalModel(): SaveableRecipe {
+fun SavedRecipeEntity.asSaveableRecipe(): SaveableRecipe {
     println("[OnHand] asExternalModel:\n\n $this")
     return SaveableRecipe(
         Recipe(
@@ -57,6 +57,11 @@ fun Recipe.toSavedRecipeEntity(): SavedRecipeEntity {
         isCustomRecipe = false
     )
 }
+
+fun SavedRecipeEntity.asCustomRecipeDetail() =
+    RecipeDetail(
+        instructions = detailProperties?.instructions
+    )
 
 // We expect all detail info to be provided by user, so we save it with the recipe
 

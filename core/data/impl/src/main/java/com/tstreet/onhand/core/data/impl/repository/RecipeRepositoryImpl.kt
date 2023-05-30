@@ -126,7 +126,7 @@ class RecipeRepositoryImpl @Inject constructor(
         return savedRecipeDao
             .get()
             .getSavedRecipes()
-            .map { it.map(SavedRecipeEntity::asExternalModel) }
+            .map { it.map(SavedRecipeEntity::asSaveableRecipe) }
     }
 
     override suspend fun updateSavedRecipesMissingIngredient(ingredient: Ingredient) {
@@ -153,16 +153,15 @@ class RecipeRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getRecipe(id: Int): Resource<Recipe> {
-        println("[OnHand] getRecipe($id)")
+    override suspend fun getCustomRecipeDetail(id: Int): Resource<RecipeDetail> {
+        println("[OnHand] getCustomRecipeDetail($id)")
 
         return try {
             Resource.success(
                 data = savedRecipeDao
                     .get()
                     .getRecipe(id)
-                    .asExternalModel()
-                    .recipe
+                    .asCustomRecipeDetail()
             )
         } catch (e: Exception) {
             // TODO: rethrow in debug
@@ -174,7 +173,7 @@ class RecipeRepositoryImpl @Inject constructor(
         return recipeSearchCacheDao
             .get()
             .getRecipeSearchResult()
-            .map(RecipeSearchCacheEntity::asExternalModel)
+            .map(RecipeSearchCacheEntity::asSaveableRecipe)
     }
 
     private suspend fun cacheRecipeSearchResults(recipes: List<Recipe>) {
