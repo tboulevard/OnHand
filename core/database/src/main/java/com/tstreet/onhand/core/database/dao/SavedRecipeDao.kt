@@ -23,6 +23,9 @@ abstract class SavedRecipeDao {
     @Transaction
     abstract fun getSavedRecipes(): Flow<List<SavedRecipeEntity>>
 
+    @Query("SELECT 1 from saved_recipes WHERE id = :id AND isCustomRecipe = 1")
+    abstract suspend fun isRecipeCustom(id: Int): Int
+
     @Transaction
     open suspend fun updateRecipesMissingIngredient(ingredientName: String) {
         getRecipesMissingIngredient(ingredientName).map { entity ->

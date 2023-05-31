@@ -21,7 +21,6 @@ data class SavedRecipeEntity(
 )
 
 fun SavedRecipeEntity.asRecipePreview(): SaveableRecipe {
-    println("[OnHand] asExternalModel:\n\n $this")
     return SaveableRecipe(
         Recipe(
             id = id,
@@ -35,7 +34,6 @@ fun SavedRecipeEntity.asRecipePreview(): SaveableRecipe {
             likes = previewProperties.likes,
             isCustom = isCustomRecipe,
         ),
-        isCustom = isCustomRecipe,
         isSaved = true, // TODO: refactor, for now assume true - all recipes in this table are saved
     )
 }
@@ -99,6 +97,6 @@ fun createCustomSavedRecipeEntity(
         detailProperties = RecipeDetailProperties(
             instructions = recipe.detail.instructions
         ),
-        isCustomRecipe = true
+        isCustomRecipe = recipe.preview.isCustom
     )
 }

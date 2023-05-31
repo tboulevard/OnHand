@@ -109,13 +109,17 @@ fun CreateCustomRecipeScreen(
         }
         TextField(
             modifier = Modifier.fillMaxWidth(),
-            value = instructions.value,
+            value = instructions.value ?: "",
             onValueChange = viewModel::onInstructionsChanged,
             label = { Text("Instructions (optional)") },
             textStyle = MaterialTheme.typography.bodyMedium
         )
         Button(
-            onClick = viewModel::onDoneClicked
+            onClick = {
+                viewModel.onDoneClicked()
+
+                // Show snackbar, clear inputs
+            }
         ) {
             Text(text = "Done")
         }

@@ -3,9 +3,9 @@ package com.tstreet.onhand.feature.customrecipe
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tstreet.onhand.core.common.Status.*
 import com.tstreet.onhand.core.domain.customrecipe.AddRecipeUseCase
 import com.tstreet.onhand.core.model.CustomRecipeInput
-import com.tstreet.onhand.core.model.PartialRecipe
 import com.tstreet.onhand.core.model.RecipeIngredient
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -41,7 +41,7 @@ class CreateCustomRecipeViewModel @Inject constructor(
     )
 
     // optional
-    private val _instructions = MutableStateFlow("")
+    private val _instructions = MutableStateFlow<String?>(null)
     val instructions = _instructions.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
@@ -72,9 +72,24 @@ class CreateCustomRecipeViewModel @Inject constructor(
     fun onDoneClicked() {
         viewModelScope.launch {
             addRecipeUseCase.get().invoke(createPartialRecipe()).collect {
-                println("[OnHand] Save recipe status=${it.status}")
+                when (it.status) {
+                    SUCCESS -> {
+                        clearInputs()
+                        // TODO: show snackbar?
+                    }
+                    ERROR -> {
+                        println("[OnHand] There was an error creating the recipe. Please try again.")
+                    }
+                }
             }
         }
+    }
+
+    private fun clearInputs() {
+        _title.update { "" }
+        _instructions.update { null }
+        _ingredients.clear()
+        _coverImage.update { "" }
     }
 
     private fun createPartialRecipe() = CustomRecipeInput(

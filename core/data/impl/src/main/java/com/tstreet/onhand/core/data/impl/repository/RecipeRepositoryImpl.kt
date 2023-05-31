@@ -120,6 +120,7 @@ class RecipeRepositoryImpl @Inject constructor(
             .isRecipeSaved(id) == 1
     }
 
+
     override fun getSavedRecipes(): Flow<List<SaveableRecipe>> {
         println("[OnHand] getSavedRecipes()")
         return savedRecipeDao
@@ -180,6 +181,13 @@ class RecipeRepositoryImpl @Inject constructor(
             // TODO: rethrow in debug
             Resource.error(msg = e.message.toString())
         }
+    }
+
+    override suspend fun isRecipeCustom(id: Int): Boolean {
+        println("[OnHand] isRecipeCustom($id)")
+        return savedRecipeDao
+            .get()
+            .isRecipeCustom(id) == 1
     }
 
     private suspend fun getCachedRecipeSearchResults(): List<Recipe> {

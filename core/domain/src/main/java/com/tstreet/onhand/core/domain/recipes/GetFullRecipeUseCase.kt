@@ -21,13 +21,12 @@ class GetFullRecipeUseCase @Inject constructor(
 ) : UseCase() {
 
     operator fun invoke(
-        id: Int,
-        isCustom: Boolean
+        id: Int
     ): Flow<Resource<FullRecipe>> {
         // TODO: revisit, doesn't need to be a flow.
         // TODO: handle Resources properly...
         return flow {
-            if (isCustom) {
+            if (recipeRepository.get().isRecipeCustom(id)) {
                 emit(recipeRepository.get().getFullRecipe(id))
             } else {
                 val preview = recipeRepository.get().getCachedRecipePreview(id).data!!

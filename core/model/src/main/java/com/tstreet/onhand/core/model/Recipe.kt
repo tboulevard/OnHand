@@ -5,8 +5,6 @@ import kotlinx.serialization.Serializable
 /**
  * General purpose representation of a recipe, containing identifying information and ingredients
  * to make it.
- *
- * TODO: Synonymous with preview
  */
 @Serializable
 data class Recipe(
@@ -19,9 +17,7 @@ data class Recipe(
     val missedIngredientCount: Int,
     val missedIngredients: List<RecipeIngredient>,
     val likes: Int,
-    val isCustom : Boolean
-) : PartialRecipe(
-    title, image, imageType, usedIngredients + missedIngredients
+    val isCustom: Boolean
 )
 
 /**
@@ -29,8 +25,7 @@ data class Recipe(
  */
 data class SaveableRecipe(
     val recipe: Recipe,
-    val isSaved: Boolean = false,
-    val isCustom : Boolean = false
+    val isSaved: Boolean = false
 )
 
 /**
@@ -39,26 +34,18 @@ data class SaveableRecipe(
  * recipe. Shares many of the same fields as [Recipe].
  */
 @Serializable
-open class PartialRecipe(
-    // Prefixed with 'recipe' so parent Recipe can remain serializable...
-    val recipeTitle: String,
-    val recipeImage: String,
-    val recipeImageType: String,
-    val ingredients: List<RecipeIngredient>
-)
-
-class CustomRecipeInput(
+open class CustomRecipeInput(
     val recipeTitle: String,
     val recipeImage: String,
     val recipeImageType: String,
     val ingredients: List<RecipeIngredient>,
-    val instructions : String
+    val instructions: String? = null
 )
 
 /**
  * Composite of [Recipe] and [RecipeDetail] - All information we can gather on a given recipe.
  */
 data class FullRecipe(
-    val preview : Recipe,
-    val detail : RecipeDetail
+    val preview: Recipe,
+    val detail: RecipeDetail
 )

@@ -45,10 +45,9 @@ fun RecipeCardList(
                         missedIngredientCount = recipe.missedIngredientCount,
                         missedIngredients = recipe.missedIngredients,
                         likes = recipe.likes,
-                        isCustom = item.isCustom
+                        isCustom = recipe.isCustom
                     ),
                     recipeSaveState = item.recipeSaveState,
-                    isCustom = item.isCustom
                 ),
                 index = index,
                 onItemClick = onItemClick,
@@ -71,7 +70,6 @@ fun RecipeCardItem(
     onAddToShoppingListClick: (Int) -> Unit = { }
 ) {
     val recipe = recipeWithSaveState.recipe
-    val isCustom = recipeWithSaveState.isCustom
 
     Surface(
         modifier = Modifier
@@ -88,7 +86,7 @@ fun RecipeCardItem(
         Row(
             modifier = Modifier.clickable {
                 onItemClick(
-                    "$RECIPE_DETAIL_ROUTE/${recipe.id}/$isCustom",
+                    "$RECIPE_DETAIL_ROUTE/${recipe.id}",
                 )
             },
             horizontalArrangement = Arrangement.SpaceBetween
@@ -100,7 +98,7 @@ fun RecipeCardItem(
                     .weight(1f)
             ) {
                 Row {
-                    if (recipeWithSaveState.isCustom) {
+                    if (recipeWithSaveState.recipe.isCustom) {
                         Icon(
                             Icons.Default.Edit,
                             contentDescription = "is custom recipe",
@@ -220,8 +218,6 @@ fun RecipeCardItem(
 // Recipe wrapped in save state to allow the view model to toggle it
 data class RecipeWithSaveState(
     val recipe: Recipe,
-    // Default to false for cards shown in search list
-    val isCustom: Boolean = false,
     val recipeSaveState: RecipeSaveState
 )
 
@@ -242,7 +238,6 @@ class RecipeCardPreviewParamProvider : PreviewParameterProvider<RecipeWithSaveSt
                 isCustom = true
             ),
             recipeSaveState = RecipeSaveState.SAVED,
-            isCustom = true
         )
     )
 }
