@@ -28,9 +28,9 @@ fun RecipeDetailScreen(
         }
         is Success -> {
             Column {
-                Text(text = state.recipe?.title ?: "No title provided")
-                Text(text = "You have: ${state.recipe?.usedIngredients?.map { it.ingredient.name }}")
-                Text(text = "You are missing: ${state.recipe?.missedIngredients?.map { it.ingredient.name }}")
+                Text(text = state.recipePreview?.title ?: "No title provided")
+                Text(text = "You have: ${state.recipePreview?.usedIngredients?.map { it.ingredient.name }}")
+                Text(text = "You are missing: ${state.recipePreview?.missedIngredients?.map { it.ingredient.name }}")
                 Text(text = state.detail?.instructions ?: "No instructions provided")
             }
         }

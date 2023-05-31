@@ -2,7 +2,7 @@ package com.tstreet.onhand.core.database.dao;
 
 import androidx.room.*
 import com.tstreet.onhand.core.database.model.ShoppingListEntity
-import com.tstreet.onhand.core.model.Recipe
+import com.tstreet.onhand.core.model.RecipePreview
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -12,9 +12,9 @@ interface ShoppingListDao {
     @Transaction
     fun getShoppingList(): Flow<List<ShoppingListEntity>>
 
-    @Query("SELECT DISTINCT mappedRecipe from shopping_list WHERE mappedRecipe IS NOT NULL")
+    @Query("SELECT DISTINCT mappedRecipePreview from shopping_list WHERE mappedRecipePreview IS NOT NULL")
     @Transaction
-    fun getRecipesInShoppingList(): Flow<List<Recipe?>>
+    fun getRecipesInShoppingList(): Flow<List<RecipePreview?>>
 
     // TODO: For now, we only allow a given ingredient to be mapped to one recipe
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -32,8 +32,8 @@ interface ShoppingListDao {
     @Query("SELECT (SELECT COUNT(*) FROM shopping_list) == 0")
     suspend fun isEmpty(): Boolean
 
-    @Query("DELETE from shopping_list WHERE mappedRecipe = :recipe")
-    suspend fun removeRecipe(recipe: Recipe)
+    @Query("DELETE from shopping_list WHERE mappedRecipePreview = :recipePreview")
+    suspend fun removeRecipe(recipePreview: RecipePreview)
 
     @Query("DELETE FROM shopping_list WHERE ingredientName = :name")
     suspend fun removeIngredient(name: String)

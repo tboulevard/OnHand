@@ -3,7 +3,7 @@ package com.tstreet.onhand.core.database.model
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.tstreet.onhand.core.model.Recipe
+import com.tstreet.onhand.core.model.RecipePreview
 
 @Entity(
     tableName = "recipe_search_cache"
@@ -13,8 +13,8 @@ data class RecipeSearchCacheEntity(
     @Embedded val previewProperties: RecipePreviewProperties
 )
 
-fun RecipeSearchCacheEntity.asRecipePreview(): Recipe {
-    return Recipe(
+fun RecipeSearchCacheEntity.asRecipePreview(): RecipePreview {
+    return RecipePreview(
         id = id,
         title = previewProperties.title,
         image = previewProperties.image,
@@ -29,7 +29,7 @@ fun RecipeSearchCacheEntity.asRecipePreview(): Recipe {
     )
 }
 
-fun Recipe.toSearchCacheEntity(): RecipeSearchCacheEntity {
+fun RecipePreview.toSearchCacheEntity(): RecipeSearchCacheEntity {
     return RecipeSearchCacheEntity(
         id = id,
         RecipePreviewProperties(

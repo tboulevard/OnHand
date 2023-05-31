@@ -49,7 +49,7 @@ class RecipeDetailViewModel @Inject constructor(
                                 RecipeDetailUiState.Success(
                                     // TODO:...For custom recipes, we already have this info in DB.
                                     // For non custom recipes, we need to retrieve it or pass from other screen
-                                    recipe = it.data?.preview,
+                                    recipePreview = it.data?.preview,
                                     detail = it.data?.detail
                                 )
                             }

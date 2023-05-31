@@ -15,7 +15,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import com.tstreet.onhand.core.common.RECIPE_DETAIL_ROUTE
-import com.tstreet.onhand.core.model.Recipe
+import com.tstreet.onhand.core.model.RecipePreview
 import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
 
 @Composable
@@ -32,10 +32,10 @@ fun RecipeCardList(
             .padding(8.dp)
     ) {
         itemsIndexed(recipes) { index, item ->
-            val recipe = item.recipe
+            val recipe = item.recipePreview
             RecipeCardItem(
                 recipeWithSaveState = RecipeWithSaveState(
-                    Recipe(
+                    RecipePreview(
                         id = recipe.id,
                         title = recipe.title,
                         image = recipe.image,
@@ -69,7 +69,7 @@ fun RecipeCardItem(
     onUnSaveClick: (Int) -> Unit = { },
     onAddToShoppingListClick: (Int) -> Unit = { }
 ) {
-    val recipe = recipeWithSaveState.recipe
+    val recipe = recipeWithSaveState.recipePreview
 
     Surface(
         modifier = Modifier
@@ -98,7 +98,7 @@ fun RecipeCardItem(
                     .weight(1f)
             ) {
                 Row {
-                    if (recipeWithSaveState.recipe.isCustom) {
+                    if (recipeWithSaveState.recipePreview.isCustom) {
                         Icon(
                             Icons.Default.Edit,
                             contentDescription = "is custom recipe",
@@ -217,7 +217,7 @@ fun RecipeCardItem(
 
 // Recipe wrapped in save state to allow the view model to toggle it
 data class RecipeWithSaveState(
-    val recipe: Recipe,
+    val recipePreview: RecipePreview,
     val recipeSaveState: RecipeSaveState
 )
 
@@ -225,7 +225,7 @@ data class RecipeWithSaveState(
 class RecipeCardPreviewParamProvider : PreviewParameterProvider<RecipeWithSaveState> {
     override val values: Sequence<RecipeWithSaveState> = sequenceOf(
         RecipeWithSaveState(
-            Recipe(
+            RecipePreview(
                 id = 1,
                 title = "A very long recipe name that is very long",
                 image = "image",

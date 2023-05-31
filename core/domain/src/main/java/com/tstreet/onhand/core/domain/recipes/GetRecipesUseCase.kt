@@ -37,8 +37,8 @@ class GetRecipesUseCase @Inject constructor(
             if (ingredients.isNotEmpty()) {
                 val recipes = findSaveableRecipes(ingredients)
                 val sortedRecipes = when (sortBy) {
-                    POPULARITY -> recipes.data?.sortedByDescending { it.recipe.likes }
-                    MISSING_INGREDIENTS -> recipes.data?.sortedBy { it.recipe.missedIngredientCount }
+                    POPULARITY -> recipes.data?.sortedByDescending { it.recipePreview.likes }
+                    MISSING_INGREDIENTS -> recipes.data?.sortedBy { it.recipePreview.missedIngredientCount }
                 }
                 when (recipes.status) {
                     SUCCESS -> {
@@ -76,7 +76,7 @@ class GetRecipesUseCase @Inject constructor(
                 //  specifically for sorting
                 val isRecipeSaved = recipeRepository.get().isRecipeSaved(recipe.id)
                 SaveableRecipe(
-                    recipe = recipe, isSaved = isRecipeSaved
+                    recipePreview = recipe, isSaved = isRecipeSaved
                 )
             }
         }

@@ -22,7 +22,7 @@ data class SavedRecipeEntity(
 
 fun SavedRecipeEntity.asRecipePreview(): SaveableRecipe {
     return SaveableRecipe(
-        Recipe(
+        RecipePreview(
             id = id,
             title = previewProperties.title,
             image = previewProperties.image,
@@ -40,7 +40,7 @@ fun SavedRecipeEntity.asRecipePreview(): SaveableRecipe {
 
 // For non custom recipes, we expect all recipes to src detail from API. So no point in saving it
 // now. Could impl caching later though.
-fun Recipe.toSavedRecipeEntity(): SavedRecipeEntity {
+fun RecipePreview.toSavedRecipeEntity(): SavedRecipeEntity {
     return SavedRecipeEntity(
         id = id,
         RecipePreviewProperties(
@@ -59,7 +59,7 @@ fun Recipe.toSavedRecipeEntity(): SavedRecipeEntity {
 
 fun SavedRecipeEntity.asFullRecipe() =
     FullRecipe(
-        preview = Recipe(
+        preview = RecipePreview(
             id = id,
             title = previewProperties.title,
             image = previewProperties.image,

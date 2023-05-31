@@ -43,7 +43,7 @@ class AddRecipeUseCase @Inject constructor(
 
                     recipeRepository.get().saveFullRecipe(
                         recipe = FullRecipe(
-                            preview = Recipe(
+                            preview = RecipePreview(
                                 // TODO: for now, we just assign id based on hash of title - potentially
                                 //  look into a more stable approach in the future.
                                 id = customRecipeInput.recipeTitle.hashCode(),

@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.Status.ERROR
 import com.tstreet.onhand.core.common.Status.SUCCESS
 import com.tstreet.onhand.core.domain.shoppinglist.*
-import com.tstreet.onhand.core.model.Recipe
+import com.tstreet.onhand.core.model.RecipePreview
 import com.tstreet.onhand.core.model.ShoppingListIngredient
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.displayed
@@ -31,7 +31,7 @@ class ShoppingListViewModel @Inject constructor(
     }
 
     private var ingredients = listOf<ShoppingListIngredient>()
-    private var recipes = listOf<Recipe>()
+    private var recipePreviews = listOf<RecipePreview>()
     private var removeRecipeIndex = 0
     private val errorDialogShown = AtomicBoolean(false)
 
@@ -48,12 +48,12 @@ class ShoppingListViewModel @Inject constructor(
                     .invoke()
             ) { getShoppingListResult, getMappedRecipesResult ->
                 ingredients = getShoppingListResult.data ?: emptyList()
-                recipes = getMappedRecipesResult.data ?: emptyList()
+                recipePreviews = getMappedRecipesResult.data ?: emptyList()
                 when {
                     getShoppingListResult.status == SUCCESS &&
                             getMappedRecipesResult.status == SUCCESS -> {
                         ShoppingListUiState.Success(
-                            mappedRecipes = recipes,
+                            mappedRecipePreviews = recipePreviews,
                             shoppingListIngredients = ingredients
                         )
                     }
@@ -73,7 +73,7 @@ class ShoppingListViewModel @Inject constructor(
                                     getMappedRecipesResult.message.toString() + ", " +
                                     "getShoppingListResult = " +
                                     getShoppingListResult.message.toString(),
-                            mappedRecipes = recipes,
+                            mappedRecipePreviews = recipePreviews,
                             shoppingListIngredients = ingredients
                         )
                     }
@@ -146,7 +146,7 @@ class ShoppingListViewModel @Inject constructor(
 
     fun onRemoveRecipe() {
         viewModelScope.launch {
-            val item = recipes[removeRecipeIndex]
+            val item = recipePreviews[removeRecipeIndex]
             when (removeRecipeInShoppingListUseCase.get().invoke(item).status) {
                 SUCCESS -> {}
                 ERROR -> {

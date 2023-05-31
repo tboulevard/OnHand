@@ -10,11 +10,11 @@ interface RecipeRepository {
     suspend fun findRecipes(
         fetchStrategy: FetchStrategy,
         ingredients: List<String>
-    ): Resource<List<Recipe>>
+    ): Resource<List<RecipePreview>>
 
     suspend fun getRecipeDetail(id: Int): Resource<RecipeDetail>
 
-    suspend fun saveRecipePreview(recipe: Recipe)
+    suspend fun saveRecipePreview(recipePreview: RecipePreview)
     suspend fun saveFullRecipe(
         recipe: FullRecipe
     )
@@ -26,7 +26,7 @@ interface RecipeRepository {
     suspend fun updateSavedRecipesUsingIngredient(ingredient: Ingredient)
     suspend fun getFullRecipe(id: Int): Resource<FullRecipe>
 
-    suspend fun getCachedRecipePreview(id: Int): Resource<Recipe>
+    suspend fun getCachedRecipePreview(id: Int): Resource<RecipePreview>
 
     suspend fun isRecipeCustom(id: Int): Boolean
 }

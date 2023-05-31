@@ -18,37 +18,37 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
-import com.tstreet.onhand.core.model.Recipe
+import com.tstreet.onhand.core.model.RecipePreview
 import com.tstreet.onhand.core.model.ShoppingListIngredient
 
 sealed class ShoppingListUiState(
     val ingredients: List<ShoppingListIngredient>,
-    val recipes: List<Recipe>
+    val recipePreviews: List<RecipePreview>
 ) {
     object Loading : ShoppingListUiState(emptyList(), emptyList())
 
     // TODO: refactor duplicate screen content functions...
     data class Success(
         val shoppingListIngredients: List<ShoppingListIngredient>,
-        val mappedRecipes: List<Recipe>
-    ) : ShoppingListUiState(shoppingListIngredients, mappedRecipes)
+        val mappedRecipePreviews: List<RecipePreview>
+    ) : ShoppingListUiState(shoppingListIngredients, mappedRecipePreviews)
 
     data class Error(
         val message: String,
         val shoppingListIngredients: List<ShoppingListIngredient>,
-        val mappedRecipes: List<Recipe>
-    ) : ShoppingListUiState(shoppingListIngredients, mappedRecipes)
+        val mappedRecipePreviews: List<RecipePreview>
+    ) : ShoppingListUiState(shoppingListIngredients, mappedRecipePreviews)
 
     fun screenContent() = listOf(
         ShoppingListItem.Header(
             text = "Shopping List"
         ),
         ShoppingListItem.Summary(
-            numberOfRecipes = recipes.size,
+            numberOfRecipes = recipePreviews.size,
             numberOfIngredients = ingredients.size
         ),
         ShoppingListItem.MappedRecipes(
-            recipes = recipes
+            recipePreviews = recipePreviews
         ),
         ShoppingListItem.Ingredients(
             ingredients = ingredients
@@ -71,7 +71,7 @@ sealed interface ShoppingListItem {
     }
 
     data class MappedRecipes(
-        val recipes: List<Recipe>
+        val recipePreviews: List<RecipePreview>
     ) : ShoppingListItem
 
     data class Ingredients(
@@ -81,7 +81,7 @@ sealed interface ShoppingListItem {
 
 @Composable
 fun ShoppingListRecipeCards(
-    recipes: List<Recipe>,
+    recipePreviews: List<RecipePreview>,
     onItemClick: (String) -> Unit,
     onRemoveClick: (Int) -> Unit
 ) {
@@ -90,10 +90,10 @@ fun ShoppingListRecipeCards(
     ) {
         // TODO: Implement item keys for this approach to avoid recompositions, currently
         //  doesn't appear to work...
-        itemsIndexed(recipes, key = { _, item -> item.id }) { index, recipe ->
+        itemsIndexed(recipePreviews, key = { _, item -> item.id }) { index, recipe ->
             ShoppingListRecipeItem(
                 ShoppingListRecipeCard(
-                    recipe = recipe,
+                    recipePreview = recipe,
                     onItemClick = onItemClick,
                     onRemoveClick = onRemoveClick,
                     index
@@ -123,7 +123,7 @@ fun ShoppingListRecipeItem(
             Box(modifier = Modifier.fillMaxSize()) {
                 AsyncImage(
                     modifier = Modifier.fillMaxWidth(),
-                    model = card.recipe.image,
+                    model = card.recipePreview.image,
                     contentDescription = null
                 )
                 Icon(
@@ -139,11 +139,11 @@ fun ShoppingListRecipeItem(
                     color = MaterialTheme.colorScheme.surfaceTint,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { card.onItemClick("recipe_detail/${card.recipe.id}") }
+                        .clickable { card.onItemClick("recipe_detail/${card.recipePreview.id}") }
                         .align(Alignment.BottomStart)
                 ) {
                     Text(
-                        text = card.recipe.title,
+                        text = card.recipePreview.title,
                         modifier = Modifier
                             .padding(4.dp),
                         style = MaterialTheme.typography.bodyMedium
@@ -155,7 +155,7 @@ fun ShoppingListRecipeItem(
 }
 
 class ShoppingListRecipeCard(
-    val recipe: Recipe,
+    val recipePreview: RecipePreview,
     val onItemClick: (String) -> Unit,
     val onRemoveClick: (Int) -> Unit,
     val index: Int
@@ -166,7 +166,7 @@ class ShoppingListRecipeCardPreviewParamProvider :
     PreviewParameterProvider<ShoppingListRecipeCard> {
     override val values: Sequence<ShoppingListRecipeCard> = sequenceOf(
         ShoppingListRecipeCard(
-            recipe = Recipe(
+            recipePreview = RecipePreview(
                 id = 1,
                 title = "A very long recipe name that is very long",
                 image = "image.jpg",

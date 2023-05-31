@@ -1,6 +1,6 @@
 package com.tstreet.onhand.core.ui
 
-import com.tstreet.onhand.core.model.Recipe
+import com.tstreet.onhand.core.model.RecipePreview
 import com.tstreet.onhand.core.model.RecipeDetail
 
 sealed interface RecipeDetailUiState {
@@ -8,7 +8,7 @@ sealed interface RecipeDetailUiState {
     object Loading : RecipeDetailUiState
 
     data class Success(
-        val recipe: Recipe?,
+        val recipePreview: RecipePreview?,
         val detail : RecipeDetail?
     ) : RecipeDetailUiState
 

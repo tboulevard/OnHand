@@ -31,7 +31,7 @@ class RecipeRepositoryImpl @Inject constructor(
     override suspend fun findRecipes(
         fetchStrategy: FetchStrategy,
         ingredients: List<String>
-    ): Resource<List<Recipe>> {
+    ): Resource<List<RecipePreview>> {
         println("[OnHand] findRecipes($fetchStrategy, $ingredients)")
 
         return when (fetchStrategy) {
@@ -89,12 +89,12 @@ class RecipeRepositoryImpl @Inject constructor(
     }
 
     override suspend fun saveRecipePreview(
-        recipe: Recipe
+        recipePreview: RecipePreview
     ) {
-        println("[OnHand] saveRecipe($recipe)")
+        println("[OnHand] saveRecipe($recipePreview)")
         savedRecipeDao
             .get()
-            .addRecipe(recipe.toSavedRecipeEntity())
+            .addRecipe(recipePreview.toSavedRecipeEntity())
     }
 
     override suspend fun saveFullRecipe(
@@ -169,7 +169,7 @@ class RecipeRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getCachedRecipePreview(id: Int): Resource<Recipe> {
+    override suspend fun getCachedRecipePreview(id: Int): Resource<RecipePreview> {
         return try {
             Resource.success(
                 data = recipeSearchCacheDao
@@ -190,18 +190,18 @@ class RecipeRepositoryImpl @Inject constructor(
             .isRecipeCustom(id) == 1
     }
 
-    private suspend fun getCachedRecipeSearchResults(): List<Recipe> {
+    private suspend fun getCachedRecipeSearchResults(): List<RecipePreview> {
         return recipeSearchCacheDao
             .get()
             .getRecipeSearchResult()
             .map(RecipeSearchCacheEntity::asRecipePreview)
     }
 
-    private suspend fun cacheRecipeSearchResults(recipes: List<Recipe>) {
+    private suspend fun cacheRecipeSearchResults(recipePreviews: List<RecipePreview>) {
         recipeSearchCacheDao
             .get()
             .cacheRecipeSearchResult(
-                recipes.map(Recipe::toSearchCacheEntity)
+                recipePreviews.map(RecipePreview::toSearchCacheEntity)
             )
     }
 }
@@ -211,7 +211,7 @@ private fun NetworkRecipeDetail.asExternalModel() = RecipeDetail(
     instructions = instructions ?: "No instructions provided." // TODO: revisit
 )
 
-private fun NetworkRecipe.asExternalModel() = Recipe(
+private fun NetworkRecipe.asExternalModel() = RecipePreview(
     id = id,
     title = title,
     image = image,

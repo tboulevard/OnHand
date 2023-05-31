@@ -27,7 +27,7 @@ enum class RecipeSaveState {
 fun List<SaveableRecipe>?.toRecipeWithSaveStateItemList(): SnapshotStateList<RecipeWithSaveState> {
     return this?.map {
         RecipeWithSaveState(
-            recipe = it.recipe,
+            recipePreview = it.recipePreview,
             recipeSaveState =
             when {
                 it.isSaved -> {
