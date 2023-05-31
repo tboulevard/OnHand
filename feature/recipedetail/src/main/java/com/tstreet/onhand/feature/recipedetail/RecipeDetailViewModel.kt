@@ -4,20 +4,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.Status.ERROR
 import com.tstreet.onhand.core.common.Status.SUCCESS
-import com.tstreet.onhand.core.domain.recipes.GetRecipeDetailUseCase
+import com.tstreet.onhand.core.domain.recipes.GetFullRecipeUseCase
 import com.tstreet.onhand.core.ui.RecipeDetailUiState
 import com.tstreet.onhand.feature.recipedetail.di.IsCustomRecipe
-import com.tstreet.onhand.feature.recipedetail.di.Recipe
 import com.tstreet.onhand.feature.recipedetail.di.RecipeId
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 import javax.inject.Provider
 
 class RecipeDetailViewModel @Inject constructor(
-    getRecipeDetail: Provider<GetRecipeDetailUseCase>,
+    getFullRecipe: Provider<GetFullRecipeUseCase>,
     @RecipeId private val recipeId: Int,
     @IsCustomRecipe private val isCustom: Boolean,
-    @Recipe private val recipe : com.tstreet.onhand.core.model.Recipe
 ) : ViewModel() {
 
     private val _showErrorDialog = MutableStateFlow(false)
@@ -43,7 +41,7 @@ class RecipeDetailViewModel @Inject constructor(
             else -> {
                 // TODO: flow isn't really needed here, but for MVP keep this...
                 // TODO: maybe make this return a duple (Recipe, Detail)?
-                getRecipeDetail.get().invoke(
+                getFullRecipe.get().invoke(
                     recipeId,
                     isCustom
                 )
@@ -54,8 +52,8 @@ class RecipeDetailViewModel @Inject constructor(
                                 RecipeDetailUiState.Success(
                                     // TODO:...For custom recipes, we already have this info in DB.
                                     // For non custom recipes, we need to retrieve it or pass from other screen
-                                    recipe = recipe,
-                                    detail = it.data!!
+                                    recipe = it.data?.preview,
+                                    detail = it.data?.detail
                                 )
                             }
                             ERROR -> {

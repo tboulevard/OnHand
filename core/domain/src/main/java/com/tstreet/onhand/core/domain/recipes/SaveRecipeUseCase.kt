@@ -23,7 +23,7 @@ class SaveRecipeUseCase @Inject constructor(
     operator fun invoke(recipe: Recipe): Flow<Boolean> {
         println("[OnHand] SaveRecipeUseCase.invoke()")
         return flow {
-            repository.get().saveRecipe(recipe)
+            repository.get().saveRecipePreview(recipe)
 
             // Only invoke state change is the recipe was saved successfully
             savedRecipeStateManager.get().onSavedRecipeStateChange()

@@ -28,9 +28,10 @@ fun RecipeDetailScreen(
         }
         is Success -> {
             Column {
-                Text(text = state.recipe.title)
-                Text(text = "${state.recipe.usedIngredients.map { it.ingredient.name }}" + "${state.recipe.missedIngredients.map { it.ingredient.name }}")
-                Text(text = state.detail.instructions ?: "No instructions provided")
+                Text(text = state.recipe?.title ?: "No title provided")
+                Text(text = "You have: ${state.recipe?.usedIngredients?.map { it.ingredient.name }}")
+                Text(text = "You are missing: ${state.recipe?.missedIngredients?.map { it.ingredient.name }}")
+                Text(text = state.detail?.instructions ?: "No instructions provided")
             }
         }
         is Error -> {

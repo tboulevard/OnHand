@@ -16,7 +16,7 @@ data class IngredientCatalogEntity(
     @ColumnInfo(name = "inPantry") val inPantry: Boolean
 )
 
-fun IngredientCatalogEntity.asSaveableRecipe() = PantryIngredient(
+fun IngredientCatalogEntity.asRecipePreview() = PantryIngredient(
     ingredient = Ingredient(
         id = id,
         name = name

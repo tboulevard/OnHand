@@ -41,24 +41,26 @@ class AddRecipeUseCase @Inject constructor(
                         )
                     } ?: emptyList()
 
-                    recipeRepository.get().saveCustomRecipe(
-                        recipe = Recipe(
-                            // TODO: for now, we just assign id based on hash of title - potentially
-                            //  look into a more stable approach in the future.
-                            id = customRecipeInput.recipeTitle.hashCode(),
-                            title = customRecipeInput.recipeTitle,
-                            image = customRecipeInput.recipeImage,
-                            imageType = customRecipeInput.recipeImageType,
-                            usedIngredients = usedIngredients,
-                            usedIngredientCount = usedIngredients.size,
-                            missedIngredients = missedIngredients,
-                            missedIngredientCount = missedIngredients.size,
-                            isCustom = true,
-                            // TODO: revisit - for now custom recipes just won't have likes
-                            likes = -1,
-                        ),
-                        detail = RecipeDetail(
-                            instructions = customRecipeInput.instructions
+                    recipeRepository.get().saveFullRecipe(
+                        recipe = FullRecipe(
+                            preview = Recipe(
+                                // TODO: for now, we just assign id based on hash of title - potentially
+                                //  look into a more stable approach in the future.
+                                id = customRecipeInput.recipeTitle.hashCode(),
+                                title = customRecipeInput.recipeTitle,
+                                image = customRecipeInput.recipeImage,
+                                imageType = customRecipeInput.recipeImageType,
+                                usedIngredients = usedIngredients,
+                                usedIngredientCount = usedIngredients.size,
+                                missedIngredients = missedIngredients,
+                                missedIngredientCount = missedIngredients.size,
+                                isCustom = true,
+                                // TODO: revisit - for now custom recipes just won't have likes
+                                likes = -1,
+                            ),
+                            detail = RecipeDetail(
+                                instructions = customRecipeInput.instructions
+                            )
                         )
                     )
                     Resource.success(null)

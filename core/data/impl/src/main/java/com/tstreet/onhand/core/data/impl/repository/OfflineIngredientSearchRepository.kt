@@ -4,7 +4,7 @@ import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.data.api.repository.IngredientSearchRepository
 import com.tstreet.onhand.core.database.dao.IngredientCatalogDao
 import com.tstreet.onhand.core.database.model.IngredientCatalogEntity
-import com.tstreet.onhand.core.database.model.asSaveableRecipe
+import com.tstreet.onhand.core.database.model.asRecipePreview
 import com.tstreet.onhand.core.model.PantryIngredient
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -26,7 +26,7 @@ class OfflineIngredientSearchRepository @Inject constructor(
     override fun searchIngredients(query: String): Flow<List<PantryIngredient>> {
         return ingredientCatalogDao.get()
             .search(query)
-            .map { it.map(IngredientCatalogEntity::asSaveableRecipe) }
+            .map { it.map(IngredientCatalogEntity::asRecipePreview) }
             .flowOn(ioDispatcher)
 
     }

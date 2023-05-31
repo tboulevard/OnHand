@@ -112,19 +112,7 @@ private fun NavigationConfiguration(
             val recipeId = it.arguments?.getInt(RECIPE_ID_NAV_KEY) ?: INVALID_RECIPE_ID
             val isCustom =
                 it.arguments?.getBoolean(IS_CUSTOM_RECIPE_FLAG) ?: INVALID_CUSTOM_RECIPE_FLAG
-            // TODO:
-            val recipe : com.tstreet.onhand.core.model.Recipe = com.tstreet.onhand.core.model.Recipe(
-                id = 1,
-                title = "A very long recipe name that is very long",
-                image = "image",
-                imageType = "imageType",
-                usedIngredientCount = 10,
-                usedIngredients = emptyList(),
-                missedIngredientCount = 3,
-                missedIngredients = emptyList(),
-                likes = 100,
-                isCustom = true
-            )
+
             RecipeDetailScreen(
                 navController,
                 injectedViewModel {
@@ -132,9 +120,7 @@ private fun NavigationConfiguration(
                         dataComponentProvider = dataProvider,
                         commonComponentProvider = commonProvider,
                         recipeId = recipeId,
-                        isCustom = isCustom,
-                        // TODO:
-                        recipe = recipe
+                        isCustom = isCustom
                     ).viewModel
                 }
             )

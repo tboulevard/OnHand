@@ -13,7 +13,7 @@ data class RecipeSearchCacheEntity(
     @Embedded val previewProperties: RecipePreviewProperties
 )
 
-fun RecipeSearchCacheEntity.asSaveableRecipe(): Recipe {
+fun RecipeSearchCacheEntity.asRecipePreview(): Recipe {
     return Recipe(
         id = id,
         title = previewProperties.title,

@@ -20,7 +20,7 @@ data class SavedRecipeEntity(
     @ColumnInfo(name = "isCustomRecipe") val isCustomRecipe: Boolean = false
 )
 
-fun SavedRecipeEntity.asSaveableRecipe(): SaveableRecipe {
+fun SavedRecipeEntity.asRecipePreview(): SaveableRecipe {
     println("[OnHand] asExternalModel:\n\n $this")
     return SaveableRecipe(
         Recipe(
@@ -35,6 +35,7 @@ fun SavedRecipeEntity.asSaveableRecipe(): SaveableRecipe {
             likes = previewProperties.likes,
             isCustom = isCustomRecipe,
         ),
+        isCustom = isCustomRecipe,
         isSaved = true, // TODO: refactor, for now assume true - all recipes in this table are saved
     )
 }
@@ -58,31 +59,45 @@ fun Recipe.toSavedRecipeEntity(): SavedRecipeEntity {
     )
 }
 
-fun SavedRecipeEntity.asCustomRecipeDetail() =
-    RecipeDetail(
-        instructions = detailProperties?.instructions
+fun SavedRecipeEntity.asFullRecipe() =
+    FullRecipe(
+        preview = Recipe(
+            id = id,
+            title = previewProperties.title,
+            image = previewProperties.image,
+            imageType = previewProperties.imageType,
+            usedIngredientCount = previewProperties.usedIngredientCount,
+            usedIngredients = previewProperties.usedIngredients,
+            missedIngredientCount = previewProperties.missedIngredientCount,
+            missedIngredients = previewProperties.missedIngredients,
+            likes = previewProperties.likes,
+            isCustom = isCustomRecipe
+        ),
+        detail = RecipeDetail(
+            instructions = detailProperties?.instructions
+        )
     )
+
 
 // We expect all detail info to be provided by user, so we save it with the recipe
 
 fun createCustomSavedRecipeEntity(
-    recipe: Recipe,
-    detail: RecipeDetail
+    recipe: FullRecipe
 ): SavedRecipeEntity {
     return SavedRecipeEntity(
-        id = recipe.id,
+        id = recipe.preview.id,
         previewProperties = RecipePreviewProperties(
-            title = recipe.title,
-            image = recipe.image,
-            imageType = recipe.imageType,
-            missedIngredients = recipe.missedIngredients,
-            missedIngredientCount = recipe.missedIngredientCount,
-            usedIngredients = recipe.usedIngredients,
-            usedIngredientCount = recipe.usedIngredientCount,
-            likes = recipe.likes,
+            title = recipe.preview.title,
+            image = recipe.preview.image,
+            imageType = recipe.preview.imageType,
+            missedIngredients = recipe.preview.missedIngredients,
+            missedIngredientCount = recipe.preview.missedIngredientCount,
+            usedIngredients = recipe.preview.usedIngredients,
+            usedIngredientCount = recipe.preview.usedIngredientCount,
+            likes = recipe.preview.likes,
         ),
         detailProperties = RecipeDetailProperties(
-            instructions = detail.instructions
+            instructions = recipe.detail.instructions
         ),
         isCustomRecipe = true
     )

@@ -8,8 +8,8 @@ sealed interface RecipeDetailUiState {
     object Loading : RecipeDetailUiState
 
     data class Success(
-        val recipe: Recipe,
-        val detail : RecipeDetail
+        val recipe: Recipe?,
+        val detail : RecipeDetail?
     ) : RecipeDetailUiState
 
     data class Error(

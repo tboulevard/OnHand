@@ -2,10 +2,7 @@ package com.tstreet.onhand.core.data.api.repository
 
 import com.tstreet.onhand.core.common.FetchStrategy
 import com.tstreet.onhand.core.common.Resource
-import com.tstreet.onhand.core.model.Ingredient
-import com.tstreet.onhand.core.model.Recipe
-import com.tstreet.onhand.core.model.RecipeDetail
-import com.tstreet.onhand.core.model.SaveableRecipe
+import com.tstreet.onhand.core.model.*
 import kotlinx.coroutines.flow.Flow
 
 interface RecipeRepository {
@@ -17,10 +14,9 @@ interface RecipeRepository {
 
     suspend fun getRecipeDetail(id: Int): Resource<RecipeDetail>
 
-    suspend fun saveRecipe(recipe: Recipe)
-    suspend fun saveCustomRecipe(
-        recipe: Recipe,
-        detail : RecipeDetail
+    suspend fun saveRecipePreview(recipe: Recipe)
+    suspend fun saveFullRecipe(
+        recipe: FullRecipe
     )
 
     suspend fun unsaveRecipe(id: Int)
@@ -28,5 +24,7 @@ interface RecipeRepository {
     fun getSavedRecipes(): Flow<List<SaveableRecipe>>
     suspend fun updateSavedRecipesMissingIngredient(ingredient: Ingredient)
     suspend fun updateSavedRecipesUsingIngredient(ingredient: Ingredient)
-    suspend fun getCustomRecipeDetail(id: Int): Resource<RecipeDetail>
+    suspend fun getFullRecipe(id: Int): Resource<FullRecipe>
+
+    suspend fun getCachedRecipePreview(id: Int): Resource<Recipe>
 }

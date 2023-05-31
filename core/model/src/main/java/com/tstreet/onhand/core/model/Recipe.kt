@@ -5,6 +5,8 @@ import kotlinx.serialization.Serializable
 /**
  * General purpose representation of a recipe, containing identifying information and ingredients
  * to make it.
+ *
+ * TODO: Synonymous with preview
  */
 @Serializable
 data class Recipe(
@@ -52,4 +54,11 @@ class CustomRecipeInput(
     val ingredients: List<RecipeIngredient>,
     val instructions : String
 )
-// we need a model just for information collected from the user for custom recipes
+
+/**
+ * Composite of [Recipe] and [RecipeDetail] - All information we can gather on a given recipe.
+ */
+data class FullRecipe(
+    val preview : Recipe,
+    val detail : RecipeDetail
+)

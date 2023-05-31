@@ -88,7 +88,7 @@ class RecipeRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun saveRecipe(
+    override suspend fun saveRecipePreview(
         recipe: Recipe
     ) {
         println("[OnHand] saveRecipe($recipe)")
@@ -97,14 +97,13 @@ class RecipeRepositoryImpl @Inject constructor(
             .addRecipe(recipe.toSavedRecipeEntity())
     }
 
-    override suspend fun saveCustomRecipe(
-        recipe : Recipe,
-        detail: RecipeDetail
+    override suspend fun saveFullRecipe(
+        recipe: FullRecipe
     ) {
         println("[OnHand] saveCustomRecipe($recipe)")
         savedRecipeDao
             .get()
-            .addRecipe(createCustomSavedRecipeEntity(recipe, detail))
+            .addRecipe(createCustomSavedRecipeEntity(recipe))
     }
 
     override suspend fun unsaveRecipe(id: Int) {
@@ -126,7 +125,7 @@ class RecipeRepositoryImpl @Inject constructor(
         return savedRecipeDao
             .get()
             .getSavedRecipes()
-            .map { it.map(SavedRecipeEntity::asSaveableRecipe) }
+            .map { it.map(SavedRecipeEntity::asRecipePreview) }
     }
 
     override suspend fun updateSavedRecipesMissingIngredient(ingredient: Ingredient) {
@@ -153,7 +152,7 @@ class RecipeRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getCustomRecipeDetail(id: Int): Resource<RecipeDetail> {
+    override suspend fun getFullRecipe(id: Int): Resource<FullRecipe> {
         println("[OnHand] getCustomRecipeDetail($id)")
 
         return try {
@@ -161,7 +160,21 @@ class RecipeRepositoryImpl @Inject constructor(
                 data = savedRecipeDao
                     .get()
                     .getRecipe(id)
-                    .asCustomRecipeDetail()
+                    .asFullRecipe()
+            )
+        } catch (e: Exception) {
+            // TODO: rethrow in debug
+            Resource.error(msg = e.message.toString())
+        }
+    }
+
+    override suspend fun getCachedRecipePreview(id: Int): Resource<Recipe> {
+        return try {
+            Resource.success(
+                data = recipeSearchCacheDao
+                    .get()
+                    .getRecipe(id)
+                    .asRecipePreview()
             )
         } catch (e: Exception) {
             // TODO: rethrow in debug
@@ -173,7 +186,7 @@ class RecipeRepositoryImpl @Inject constructor(
         return recipeSearchCacheDao
             .get()
             .getRecipeSearchResult()
-            .map(RecipeSearchCacheEntity::asSaveableRecipe)
+            .map(RecipeSearchCacheEntity::asRecipePreview)
     }
 
     private suspend fun cacheRecipeSearchResults(recipes: List<Recipe>) {
