@@ -15,15 +15,19 @@ interface RecipeRepository {
     suspend fun getRecipeDetail(id: Int): Resource<RecipeDetail>
 
     suspend fun saveRecipePreview(recipePreview: RecipePreview)
-    suspend fun saveFullRecipe(
-        recipe: FullRecipe
-    )
+
+    suspend fun saveFullRecipe(recipe: FullRecipe): Resource<Unit>
 
     suspend fun unsaveRecipe(id: Int)
+
     suspend fun isRecipeSaved(id: Int): Boolean
+
     fun getSavedRecipes(): Flow<List<SaveableRecipe>>
+
     suspend fun updateSavedRecipesMissingIngredient(ingredient: Ingredient)
+
     suspend fun updateSavedRecipesUsingIngredient(ingredient: Ingredient)
+
     suspend fun getFullRecipe(id: Int): Resource<FullRecipe>
 
     suspend fun getCachedRecipePreview(id: Int): Resource<RecipePreview>

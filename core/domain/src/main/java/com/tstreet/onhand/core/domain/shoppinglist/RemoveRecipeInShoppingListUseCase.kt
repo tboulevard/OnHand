@@ -20,7 +20,7 @@ class RemoveRecipeInShoppingListUseCase @Inject constructor(
     operator suspend fun invoke(recipePreview: RecipePreview): Resource<Unit> {
         println("[OnHand] RemoveRecipeInShoppingListUseCase.invoke()")
         return withContext(ioDispatcher) {
-            val result = shoppingListRepository.get().removeRecipe(recipePreview)
+            val result = shoppingListRepository.get().removeRecipePreview(recipePreview)
             when (result.status) {
                 Status.SUCCESS -> {
                     Resource.success(result.data)

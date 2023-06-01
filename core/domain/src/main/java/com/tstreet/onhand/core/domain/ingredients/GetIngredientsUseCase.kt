@@ -36,6 +36,6 @@ class GetIngredientsUseCase @Inject constructor(
      * Takes [this] and removes all non alphanumerics. If [this] is null we return an empty String.
      */
     private fun String?.sanitize(): String {
-        return this?.replace(Regex("[^A-Za-z0-9]"), "")?.lowercase() ?: ""
+        return this?.replace(Regex("[^A-Za-z0-9 ]"), "")?.lowercase() ?: ""
     }
 }

@@ -36,7 +36,14 @@ class RecipeRepositoryImpl @Inject constructor(
 
         return when (fetchStrategy) {
             DATABASE -> {
-                Resource.success(data = getCachedRecipeSearchResults())
+                try {
+                    Resource.success(data = getCachedRecipeSearchResults())
+                } catch (e: Exception) {
+                    // TODO: log analytics here
+                    // TODO: rethrow in debug
+                    println("[OnHand] Error retrieving cached recipes: ${e.message}")
+                    Resource.error(msg = e.message.toString())
+                }
             }
             NETWORK -> {
                 val networkResponse =
@@ -57,7 +64,10 @@ class RecipeRepositoryImpl @Inject constructor(
                             msg = "${networkResponse::class.java.simpleName}, please check your " +
                                     "device's network connectivity.\n\nShowing last calculated " +
                                     "search result.",
-                            data = getCachedRecipeSearchResults()
+                            data = findRecipes(
+                                fetchStrategy = DATABASE,
+                                ingredients
+                            ).data
                         )
                     }
                 }
@@ -99,11 +109,18 @@ class RecipeRepositoryImpl @Inject constructor(
 
     override suspend fun saveFullRecipe(
         recipe: FullRecipe
-    ) {
+    ) : Resource<Unit> {
         println("[OnHand] saveCustomRecipe($recipe)")
-        savedRecipeDao
-            .get()
-            .addRecipe(createCustomSavedRecipeEntity(recipe))
+        return try {
+            savedRecipeDao
+                .get()
+                .addRecipe(createCustomSavedRecipeEntity(recipe))
+            Resource.success(null)
+        } catch (e: Exception) {
+            // TODO: log analytics here
+            // TODO: rethrow in debug
+            Resource.error(msg = e.message.toString())
+        }
     }
 
     override suspend fun unsaveRecipe(id: Int) {
@@ -125,7 +142,7 @@ class RecipeRepositoryImpl @Inject constructor(
         println("[OnHand] getSavedRecipes()")
         return savedRecipeDao
             .get()
-            .getSavedRecipes()
+            .getAll()
             .map { it.map(SavedRecipeEntity::asRecipePreview) }
     }
 

@@ -21,7 +21,7 @@ class Converters {
     }
 
     @TypeConverter
-    fun toRecipe(str: String?): RecipePreview? {
+    fun toRecipePreview(str: String?): RecipePreview? {
         return if (str != null) {
             Json.decodeFromString(str)
         } else {
@@ -30,7 +30,7 @@ class Converters {
     }
 
     @TypeConverter
-    fun fromRecipe(recipePreview: RecipePreview?): String? {
+    fun fromRecipePreview(recipePreview: RecipePreview?): String? {
         return if (recipePreview != null) {
             Json.encodeToString(recipePreview)
         } else {

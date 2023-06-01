@@ -32,8 +32,8 @@ interface ShoppingListDao {
     @Query("SELECT (SELECT COUNT(*) FROM shopping_list) == 0")
     suspend fun isEmpty(): Boolean
 
-    @Query("DELETE from shopping_list WHERE mappedRecipePreview = :recipePreview")
-    suspend fun removeRecipe(recipePreview: RecipePreview)
+    @Query("DELETE from shopping_list WHERE mappedRecipePreview = :recipe")
+    suspend fun removeRecipePreview(recipe: RecipePreview)
 
     @Query("DELETE FROM shopping_list WHERE ingredientName = :name")
     suspend fun removeIngredient(name: String)

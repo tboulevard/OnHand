@@ -9,7 +9,6 @@ import com.tstreet.onhand.core.data.api.repository.RecipeRepository
 import com.tstreet.onhand.core.model.*
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -23,8 +22,7 @@ class AddRecipeUseCase @Inject constructor(
 ) : UseCase() {
 
     operator fun invoke(customRecipeInput: CustomRecipeInput): Flow<Resource<Unit>> {
-        println("[OnHand] AddRecipeUseCase - Adding recipe=${customRecipeInput.recipeTitle}, ingredients=${customRecipeInput.ingredients}")
-
+        println("[OnHand] Adding recipe with input=${customRecipeInput.recipeTitle}")
         return pantryRepository.get().listPantry().map {
             when (it.status) {
                 SUCCESS -> {
@@ -63,15 +61,13 @@ class AddRecipeUseCase @Inject constructor(
                             )
                         )
                     )
-                    Resource.success(null)
                 }
                 ERROR -> {
                     // TODO: revisit when saveRecipe() API is updated
                     Resource.error(msg = it.message.toString())
                 }
             }
-        }.catch {
-            Resource.error<Nothing>(msg = it.message.toString())
+            // So missing/used ingredient calculation doesn't happen in ViewModel coroutine scope...
         }.flowOn(ioDispatcher)
     }
 

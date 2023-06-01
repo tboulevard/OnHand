@@ -21,7 +21,7 @@ interface ShoppingListRepository {
 
     suspend fun isEmpty(): Boolean
 
-    suspend fun removeRecipe(recipePreview : RecipePreview): Resource<Unit>
+    suspend fun removeRecipePreview(recipePreview : RecipePreview): Resource<Unit>
 
     suspend fun removeIngredient(ingredient : ShoppingListIngredient) : Resource<Unit>
 }

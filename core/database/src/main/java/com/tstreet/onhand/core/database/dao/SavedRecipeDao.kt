@@ -21,7 +21,7 @@ abstract class SavedRecipeDao {
 
     @Query("SELECT * from saved_recipes")
     @Transaction
-    abstract fun getSavedRecipes(): Flow<List<SavedRecipeEntity>>
+    abstract fun getAll(): Flow<List<SavedRecipeEntity>>
 
     @Query("SELECT 1 from saved_recipes WHERE id = :id AND isCustomRecipe = 1")
     abstract suspend fun isRecipeCustom(id: Int): Int
@@ -47,6 +47,7 @@ abstract class SavedRecipeDao {
                     )
                 }
         }.forEach { updatedEntity ->
+            // If no entities are updated, no recipes are changed
             updatedEntity?.apply {
                 addRecipe(this)
             }

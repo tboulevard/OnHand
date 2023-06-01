@@ -103,9 +103,9 @@ class ShoppingListRepositoryImpl @Inject constructor(
             .isShoppingListIngredientPurchased(name)
     }
 
-    override suspend fun removeRecipe(recipePreview: RecipePreview): Resource<Unit> {
+    override suspend fun removeRecipePreview(recipePreview: RecipePreview): Resource<Unit> {
         return try {
-            shoppingListDao.get().removeRecipe(recipePreview)
+            shoppingListDao.get().removeRecipePreview(recipePreview)
             Resource.success(null)
         } catch (e: Exception) {
             // TODO: rethrow in debug
