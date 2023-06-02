@@ -1,8 +1,10 @@
 package com.tstreet.onhand.core.data.impl.repository
 
+import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.FetchStrategy
 import com.tstreet.onhand.core.common.FetchStrategy.*
 import com.tstreet.onhand.core.common.Resource
+import com.tstreet.onhand.core.common.Status.*
 import com.tstreet.onhand.core.data.api.repository.RecipeRepository
 import com.tstreet.onhand.core.database.dao.RecipeSearchCacheDao
 import com.tstreet.onhand.core.database.dao.SavedRecipeDao
@@ -13,15 +15,19 @@ import com.tstreet.onhand.core.network.model.NetworkRecipe
 import com.tstreet.onhand.core.network.model.NetworkRecipeDetail
 import com.tstreet.onhand.core.network.model.NetworkRecipeIngredient
 import com.tstreet.onhand.core.network.retrofit.NetworkResponse.*
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import javax.inject.Named
 import javax.inject.Provider
 
 class RecipeRepositoryImpl @Inject constructor(
     private val onHandNetworkDataSource: Provider<OnHandNetworkDataSource>,
     private val savedRecipeDao: Provider<SavedRecipeDao>,
     private val recipeSearchCacheDao: Provider<RecipeSearchCacheDao>,
+    @Named(IO) private val ioDispatcher: CoroutineDispatcher,
 ) : RecipeRepository {
 
     init {
@@ -109,7 +115,7 @@ class RecipeRepositoryImpl @Inject constructor(
 
     override suspend fun saveFullRecipe(
         recipe: FullRecipe
-    ) : Resource<Unit> {
+    ): Resource<Unit> {
         println("[OnHand] saveCustomRecipe($recipe)")
         return try {
             savedRecipeDao
@@ -172,32 +178,48 @@ class RecipeRepositoryImpl @Inject constructor(
 
     override suspend fun getFullRecipe(id: Int): Resource<FullRecipe> {
         println("[OnHand] getCustomRecipeDetail($id)")
+        return withContext(ioDispatcher) {
+            try {
+                if (isRecipeCustom(id)) {
+                    Resource.success(
+                        data = savedRecipeDao
+                            .get()
+                            .getRecipe(id)
+                            .asFullRecipe()
+                    )
+                } else {
+                    val detail = getRecipeDetail(id)
 
-        return try {
-            Resource.success(
-                data = savedRecipeDao
-                    .get()
-                    .getRecipe(id)
-                    .asFullRecipe()
-            )
-        } catch (e: Exception) {
-            // TODO: rethrow in debug
-            Resource.error(msg = e.message.toString())
+                    when (detail.status) {
+                        SUCCESS -> {
+                            // This won't work if the search cache changed zzzzzzzz...
+                            val preview = getCachedRecipePreview(id)
+                            Resource.success(
+                                data = FullRecipe(
+                                    preview = preview,
+                                    // Shouldn't be null at this point, but if it is we throw the
+                                    // NPE and catch it.
+                                    detail = detail.data!!
+                                )
+                            )
+                        }
+                        ERROR -> {
+                            Resource.error(msg = detail.message.toString())
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                // TODO: rethrow in debug
+                Resource.error(msg = e.message.toString())
+            }
         }
     }
 
-    override suspend fun getCachedRecipePreview(id: Int): Resource<RecipePreview> {
-        return try {
-            Resource.success(
-                data = recipeSearchCacheDao
-                    .get()
-                    .getRecipe(id)
-                    .asRecipePreview()
-            )
-        } catch (e: Exception) {
-            // TODO: rethrow in debug
-            Resource.error(msg = e.message.toString())
-        }
+    private suspend fun getCachedRecipePreview(id: Int): RecipePreview {
+        return recipeSearchCacheDao
+            .get()
+            .getRecipe(id)
+            .asRecipePreview()
     }
 
     override suspend fun isRecipeCustom(id: Int): Boolean {

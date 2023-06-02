@@ -13,7 +13,7 @@ import javax.inject.Provider
 
 class RecipeDetailViewModel @Inject constructor(
     getFullRecipe: Provider<GetFullRecipeUseCase>,
-    @RecipeId private val recipeId: Int,
+    @RecipeId private val recipeId: Int?,
 ) : ViewModel() {
 
     private val _showErrorDialog = MutableStateFlow(false)
@@ -24,41 +24,32 @@ class RecipeDetailViewModel @Inject constructor(
             initialValue = _showErrorDialog.value
         )
 
-    // TODO: Need to handle state if default recipeId (0) is passed through. Null recipeId theoretically
-    // not possible, but we allow it because of how passing navArgument works. This prevents crashes - recipeId = 0
-    // will just link to an invalid url and show nothing.
     val recipeDetailUiState =
         when (recipeId) {
-            INVALID_RECIPE_ID -> {
+            null -> {
                 MutableStateFlow(
                     RecipeDetailUiState.Error(
-                        message = "Error: Received null id for detail"
+                        message = "Error: Received null id for recipe, cannot fetch detail."
                     )
                 )
             }
             else -> {
-                // TODO: flow isn't really needed here, but for MVP keep this...
-                // TODO: maybe make this return a duple (Recipe, Detail)?
                 getFullRecipe.get().invoke(
                     recipeId
-                )
-                    .map {
-                        when (it.status) {
-                            SUCCESS -> {
-                                // TODO: handle null
-                                RecipeDetailUiState.Success(
-                                    // TODO:...For custom recipes, we already have this info in DB.
-                                    // For non custom recipes, we need to retrieve it or pass from other screen
-                                    recipePreview = it.data?.preview,
-                                    detail = it.data?.detail
-                                )
-                            }
-                            ERROR -> {
-                                _showErrorDialog.update { true }
-                                RecipeDetailUiState.Error(it.message.toString())
-                            }
+                ).map {
+                    when (it.status) {
+                        SUCCESS -> {
+                            RecipeDetailUiState.Success(
+                                recipePreview = it.data?.preview,
+                                detail = it.data?.detail
+                            )
+                        }
+                        ERROR -> {
+                            _showErrorDialog.update { true }
+                            RecipeDetailUiState.Error(it.message.toString())
                         }
                     }
+                }
                     .stateIn(
                         scope = viewModelScope,
                         started = SharingStarted.WhileSubscribed(5000),

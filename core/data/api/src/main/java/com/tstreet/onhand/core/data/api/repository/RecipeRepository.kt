@@ -30,7 +30,5 @@ interface RecipeRepository {
 
     suspend fun getFullRecipe(id: Int): Resource<FullRecipe>
 
-    suspend fun getCachedRecipePreview(id: Int): Resource<RecipePreview>
-
     suspend fun isRecipeCustom(id: Int): Boolean
 }
