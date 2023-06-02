@@ -31,4 +31,3 @@ interface RecipeDetailComponent {
         ) : RecipeDetailComponent
     }
 }
-

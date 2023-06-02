@@ -4,7 +4,7 @@ import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.common.UseCase
 import com.tstreet.onhand.core.data.api.repository.RecipeRepository
-import com.tstreet.onhand.core.model.SaveableRecipe
+import com.tstreet.onhand.core.model.SaveableRecipePreview
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
@@ -17,7 +17,7 @@ class GetSavedRecipesUseCase @Inject constructor(
     @Named(IO) private val ioDispatcher: CoroutineDispatcher,
 ) : UseCase() {
 
-    operator fun invoke(): Flow<List<SaveableRecipe>> {
+    operator fun invoke(): Flow<List<SaveableRecipePreview>> {
         println("[OnHand] GetSavedRecipesUseCase.invoke()")
         val savedRecipeFlow = recipeRepository
             .get()

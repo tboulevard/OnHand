@@ -1,15 +1,13 @@
 package com.tstreet.onhand.core.ui
 
-import com.tstreet.onhand.core.model.RecipePreview
-import com.tstreet.onhand.core.model.RecipeDetail
+import com.tstreet.onhand.core.model.FullRecipe
 
 sealed interface RecipeDetailUiState {
 
     object Loading : RecipeDetailUiState
 
     data class Success(
-        val recipePreview: RecipePreview?,
-        val detail : RecipeDetail?
+        val recipe: FullRecipe?
     ) : RecipeDetailUiState
 
     data class Error(

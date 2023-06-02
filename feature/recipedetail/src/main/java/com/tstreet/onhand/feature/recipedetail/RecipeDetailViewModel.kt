@@ -29,7 +29,8 @@ class RecipeDetailViewModel @Inject constructor(
             null -> {
                 MutableStateFlow(
                     RecipeDetailUiState.Error(
-                        message = "Error: Received null id for recipe, cannot fetch detail."
+                        message = "Error: Received invalid recipe id, cannot fetch detailed " +
+                                "information for this recipe."
                     )
                 )
             }
@@ -40,13 +41,15 @@ class RecipeDetailViewModel @Inject constructor(
                     when (it.status) {
                         SUCCESS -> {
                             RecipeDetailUiState.Success(
-                                recipePreview = it.data?.preview,
-                                detail = it.data?.detail
+                                recipe = it.data
                             )
                         }
                         ERROR -> {
                             _showErrorDialog.update { true }
-                            RecipeDetailUiState.Error(it.message.toString())
+                            RecipeDetailUiState.Error(
+                                "There was an unexpected error getting detailed information for " +
+                                        "this recipe. Please try again."
+                            )
                         }
                     }
                 }

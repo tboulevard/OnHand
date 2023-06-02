@@ -144,7 +144,7 @@ class RecipeRepositoryImpl @Inject constructor(
     }
 
 
-    override fun getSavedRecipes(): Flow<List<SaveableRecipe>> {
+    override fun getSavedRecipes(): Flow<List<SaveableRecipePreview>> {
         println("[OnHand] getSavedRecipes()")
         return savedRecipeDao
             .get()
@@ -225,7 +225,7 @@ class RecipeRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun getSavedRecipe(id: Int): SaveableRecipe {
+    private suspend fun getSavedRecipe(id: Int): SaveableRecipePreview {
         return savedRecipeDao
             .get()
             .getRecipe(id)

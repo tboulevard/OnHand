@@ -6,9 +6,9 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
 import com.tstreet.onhand.core.ui.RecipeDetailUiState.*
@@ -18,9 +18,8 @@ fun RecipeDetailScreen(
     navController: NavHostController,
     viewModel: RecipeDetailViewModel
 ) {
-    // TODO: research collectAsStateWithLifecycle instead...
-    val uiState by viewModel.recipeDetailUiState.collectAsState()
-    val openErrorDialog = viewModel.showErrorDialog.collectAsState()
+    val uiState by viewModel.recipeDetailUiState.collectAsStateWithLifecycle()
+    val openErrorDialog = viewModel.showErrorDialog.collectAsStateWithLifecycle()
 
     when (val state = uiState) {
         is Loading -> {
@@ -28,10 +27,10 @@ fun RecipeDetailScreen(
         }
         is Success -> {
             Column {
-                Text(text = state.recipePreview?.title ?: "No title provided")
-                Text(text = "You have: ${state.recipePreview?.usedIngredients?.map { it.ingredient.name }}")
-                Text(text = "You are missing: ${state.recipePreview?.missedIngredients?.map { it.ingredient.name }}")
-                Text(text = state.detail?.instructions ?: "No instructions provided")
+                Text(text = state.recipe?.preview?.title ?: "No title provided")
+                Text(text = "You have: ${state.recipe?.preview?.usedIngredients?.map { it.ingredient.name }}")
+                Text(text = "You are missing: ${state.recipe?.preview?.missedIngredients?.map { it.ingredient.name }}")
+                Text(text = state.recipe?.detail?.instructions ?: "No instructions provided")
             }
         }
         is Error -> {

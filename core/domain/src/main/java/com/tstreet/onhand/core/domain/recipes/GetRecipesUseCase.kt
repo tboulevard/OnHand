@@ -7,7 +7,7 @@ import com.tstreet.onhand.core.common.Status.SUCCESS
 import com.tstreet.onhand.core.data.api.repository.PantryRepository
 import com.tstreet.onhand.core.data.api.repository.RecipeRepository
 import com.tstreet.onhand.core.domain.recipes.SortBy.*
-import com.tstreet.onhand.core.model.SaveableRecipe
+import com.tstreet.onhand.core.model.SaveableRecipePreview
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
@@ -30,7 +30,7 @@ class GetRecipesUseCase @Inject constructor(
     @Named(IO) private val ioDispatcher: CoroutineDispatcher,
 ) : UseCase() {
 
-    operator fun invoke(sortBy: SortBy = DEFAULT_SORTING): Flow<Resource<List<SaveableRecipe>>> {
+    operator fun invoke(sortBy: SortBy = DEFAULT_SORTING): Flow<Resource<List<SaveableRecipePreview>>> {
         // TODO: An error retrieving pantry ingredients makes us transmit empty list to ViewModel -
         //  we may want to explicitly propagate the error up later
         val recipes = getPantryIngredients().map { ingredients ->
@@ -63,7 +63,7 @@ class GetRecipesUseCase @Inject constructor(
         return recipes.flowOn(ioDispatcher)
     }
 
-    private suspend fun findSaveableRecipes(ingredientNames: List<String>): Resource<List<SaveableRecipe>> {
+    private suspend fun findSaveableRecipes(ingredientNames: List<String>): Resource<List<SaveableRecipePreview>> {
         val recipeResource = recipeRepository.get().findRecipes(
             fetchStrategy = getFetchStrategy(), ingredients = ingredientNames
         )
@@ -75,7 +75,7 @@ class GetRecipesUseCase @Inject constructor(
                 //  if list contents haven't changed. Look into caching the results to re-use
                 //  specifically for sorting
                 val isRecipeSaved = recipeRepository.get().isRecipeSaved(recipe.id)
-                SaveableRecipe(
+                SaveableRecipePreview(
                     recipePreview = recipe, isSaved = isRecipeSaved
                 )
             }

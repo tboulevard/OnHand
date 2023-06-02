@@ -69,26 +69,18 @@ fun IngredientSearchScreen(
                         contentDescription = "go back",
                     )
                 }
-                Button(onClick = {
-                    navController.previousBackStackEntry
-                        ?.savedStateHandle
-                        ?.set(
-                            INGREDIENT_SEARCH_ITEMS_KEY,
-                            viewModel.getSelectedIngredients()
-                                // TODO: Doing this on the main thread is bad, but revisit when we allow
-                                // unit input
-                                .map {
-                                    RecipeIngredient(
-                                        ingredient = it.ingredient,
-                                        image = "",
-                                        unit = "unit",
-                                        amount = 0.0
-                                    )
-                                })
+                Button(
+                    onClick = {
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set(
+                                INGREDIENT_SEARCH_ITEMS_KEY,
+                                viewModel.getSelectedIngredients()
+                            )
 
-                    navController.popBackStack()
-                },
-                enabled = selectedIngredients.isNotEmpty()
+                        navController.popBackStack()
+                    },
+                    enabled = selectedIngredients.isNotEmpty()
                 ) {
                     Text(text = "Save")
                 }
