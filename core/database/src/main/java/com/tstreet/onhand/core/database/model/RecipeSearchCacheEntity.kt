@@ -1,50 +1,48 @@
 package com.tstreet.onhand.core.database.model
 
-import androidx.room.ColumnInfo
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.tstreet.onhand.core.model.Recipe
-import com.tstreet.onhand.core.model.RecipeIngredient
+import com.tstreet.onhand.core.model.RecipePreview
 
 @Entity(
     tableName = "recipe_search_cache"
 )
 data class RecipeSearchCacheEntity(
     @PrimaryKey val id: Int,
-    @ColumnInfo(name = "title") val title: String,
-    @ColumnInfo(name = "image") val image: String,
-    @ColumnInfo(name = "imageType") val imageType: String,
-    @ColumnInfo(name = "missedIngredients") val missedIngredients: List<RecipeIngredient>,
-    @ColumnInfo(name = "missedIngredientCount") val missedIngredientCount: Int,
-    @ColumnInfo(name = "usedIngredients") val usedIngredients: List<RecipeIngredient>,
-    @ColumnInfo(name = "usedIngredientCount") val usedIngredientCount: Int,
-    @ColumnInfo(name = "likes") val likes: Int
+    @Embedded val previewProperties: RecipePreviewProperties
 )
 
-fun RecipeSearchCacheEntity.asExternalModel(): Recipe {
-    return Recipe(
+fun RecipeSearchCacheEntity.asRecipePreview(): RecipePreview {
+    return RecipePreview(
         id = id,
-        title = title,
-        image = image,
-        imageType = imageType,
-        missedIngredients = missedIngredients,
-        missedIngredientCount = missedIngredientCount,
-        usedIngredients = usedIngredients,
-        usedIngredientCount = usedIngredientCount,
-        likes = likes
+        title = previewProperties.title,
+        image = previewProperties.image,
+        imageType = previewProperties.imageType,
+        missedIngredients = previewProperties.missedIngredients,
+        missedIngredientCount = previewProperties.missedIngredientCount,
+        usedIngredients = previewProperties.usedIngredients,
+        usedIngredientCount = previewProperties.usedIngredientCount,
+        likes = previewProperties.likes,
+        // All search cache entities are sourced from API for now, so never custom.
+        isCustom = false
     )
 }
 
-fun Recipe.toSearchCacheEntity(): RecipeSearchCacheEntity {
+fun RecipePreview.toSearchCacheEntity(): RecipeSearchCacheEntity {
     return RecipeSearchCacheEntity(
         id = id,
-        title = title,
-        image = image,
-        imageType = imageType,
-        missedIngredients = missedIngredients,
-        missedIngredientCount = missedIngredientCount,
-        usedIngredients = usedIngredients,
-        usedIngredientCount = usedIngredientCount,
-        likes = likes
+        RecipePreviewProperties(
+            title = title,
+            image = image,
+            imageType = imageType,
+            missedIngredients = missedIngredients,
+            missedIngredientCount = missedIngredientCount,
+            usedIngredients = usedIngredients,
+            usedIngredientCount = usedIngredientCount,
+            likes = likes
+        )
+        // NOTE: we do not save RecipeDetailProperties because we rely on API providing this info
+        //  ( and we currently do not cache the info from API for this)
     )
 }

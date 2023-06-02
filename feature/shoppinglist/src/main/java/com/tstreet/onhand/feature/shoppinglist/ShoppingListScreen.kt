@@ -55,7 +55,7 @@ fun ShoppingListScreen(
                 //  https://developer.android.com/jetpack/compose/lists#content-type
                 // TODO: Implement item keys for this approach to avoid recompositions, hashCode
                 //  doesn't appear to work...
-                itemsIndexed(state.screenContent(), key = { _, item -> item.hashCode() }) { _, item ->
+                itemsIndexed(state.screenContent()) { _, item ->
                     when (item) {
                         is ShoppingListItem.Header -> {
                             OnHandScreenHeader(item.text)
@@ -71,7 +71,7 @@ fun ShoppingListScreen(
                         }
                         is ShoppingListItem.MappedRecipes -> {
                             ShoppingListRecipeCards(
-                                recipes = item.recipes,
+                                recipePreviews = item.recipePreviews,
                                 onItemClick = { /* TODO */ },
                                 onRemoveClick = viewModel::showRemoveRecipeDialog
                             )
@@ -139,7 +139,7 @@ fun ShoppingListScreen(
                         }
                         is ShoppingListItem.MappedRecipes -> {
                             ShoppingListRecipeCards(
-                                recipes = item.recipes,
+                                recipePreviews = item.recipePreviews,
                                 onItemClick = { /* TODO */ },
                                 onRemoveClick = viewModel::showRemoveRecipeDialog
                             )
@@ -201,7 +201,7 @@ fun ShoppingListIngredientCards(
         ShoppingListCardItem(
             ShoppingListCard(
                 ingredientName = ingredient.name,
-                recipe = ingredient.mappedRecipe,
+                recipePreview = ingredient.mappedRecipePreview,
                 isIngredientChecked = ingredient.isPurchased,
                 index = index
             ),
@@ -263,10 +263,10 @@ fun ShoppingListCardItem(
                     text = card.ingredientName,
                     style = MaterialTheme.typography.headlineMedium
                 )
-                if (card.recipe != null) {
+                if (card.recipePreview != null) {
                     Text(
                         modifier = Modifier.padding(8.dp),
-                        text = card.recipe.title,
+                        text = card.recipePreview.title,
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
@@ -285,7 +285,7 @@ fun ShoppingListCardItem(
 
 class ShoppingListCard(
     val ingredientName: String,
-    val recipe: Recipe?,
+    val recipePreview: RecipePreview?,
     val isIngredientChecked: Boolean,
     val index: Int
 )
@@ -295,8 +295,8 @@ class RecipeSearchCardPreviewParamProvider : PreviewParameterProvider<ShoppingLi
     override val values: Sequence<ShoppingListCard> = sequenceOf(
         ShoppingListCard(
             ingredientName = "ingredient",
-            recipe =
-            Recipe(
+            recipePreview =
+            RecipePreview(
                 id = 1,
                 title = "Recipe title1",
                 image = "image",
@@ -317,7 +317,8 @@ class RecipeSearchCardPreviewParamProvider : PreviewParameterProvider<ShoppingLi
                         unit = "clove"
                     )
                 ),
-                likes = 100
+                likes = 100,
+                isCustom = true,
             ),
             index = 0,
             isIngredientChecked = true

@@ -3,11 +3,12 @@ package com.tstreet.onhand.core.model
 import kotlinx.serialization.Serializable
 
 /**
- * General purpose representation of a recipe, containing identifying information and ingredients
- * to make it.
+ * High-level representation of a recipe, containing identifying information and ingredients
+ * to make it. More detailed information to be modeled in [RecipeDetail], which with this class form
+ * the complete information for a recipe in [FullRecipe].
  */
 @Serializable
-data class Recipe(
+data class RecipePreview(
     val id: Int,
     val title: String,
     val image: String,
@@ -16,13 +17,6 @@ data class Recipe(
     val usedIngredients: List<RecipeIngredient>,
     val missedIngredientCount: Int,
     val missedIngredients: List<RecipeIngredient>,
-    val likes: Int
-)
-
-/**
- * A [Recipe] with additional information for whether it is saved locally (i.e. in DB).
- */
-data class SaveableRecipe(
-    val recipe: Recipe,
-    val isSaved: Boolean = false,
+    val likes: Int,
+    val isCustom: Boolean
 )

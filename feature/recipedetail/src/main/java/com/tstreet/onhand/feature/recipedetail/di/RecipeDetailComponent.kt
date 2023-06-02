@@ -20,15 +20,14 @@ interface RecipeDetailComponent {
     val viewModel: RecipeDetailViewModel
 
     @get:RecipeId
-    val recipeId : Int
+    val recipeId : Int?
 
     @Component.Factory
     interface Factory {
         fun create(
             dataComponentProvider: DataComponentProvider,
             commonComponentProvider: CommonComponentProvider,
-            @BindsInstance @RecipeId recipeId : Int
+            @BindsInstance @RecipeId recipeId : Int?
         ) : RecipeDetailComponent
     }
 }
-

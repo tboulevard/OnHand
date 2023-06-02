@@ -1,7 +1,10 @@
 package com.tstreet.onhand.core.data.impl.repository
 
+import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.FetchStrategy
+import com.tstreet.onhand.core.common.FetchStrategy.*
 import com.tstreet.onhand.core.common.Resource
+import com.tstreet.onhand.core.common.Status.*
 import com.tstreet.onhand.core.data.api.repository.RecipeRepository
 import com.tstreet.onhand.core.database.dao.RecipeSearchCacheDao
 import com.tstreet.onhand.core.database.dao.SavedRecipeDao
@@ -12,15 +15,19 @@ import com.tstreet.onhand.core.network.model.NetworkRecipe
 import com.tstreet.onhand.core.network.model.NetworkRecipeDetail
 import com.tstreet.onhand.core.network.model.NetworkRecipeIngredient
 import com.tstreet.onhand.core.network.retrofit.NetworkResponse.*
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import javax.inject.Named
 import javax.inject.Provider
 
 class RecipeRepositoryImpl @Inject constructor(
     private val onHandNetworkDataSource: Provider<OnHandNetworkDataSource>,
     private val savedRecipeDao: Provider<SavedRecipeDao>,
     private val recipeSearchCacheDao: Provider<RecipeSearchCacheDao>,
+    @Named(IO) private val ioDispatcher: CoroutineDispatcher,
 ) : RecipeRepository {
 
     init {
@@ -30,14 +37,21 @@ class RecipeRepositoryImpl @Inject constructor(
     override suspend fun findRecipes(
         fetchStrategy: FetchStrategy,
         ingredients: List<String>
-    ): Resource<List<Recipe>> {
+    ): Resource<List<RecipePreview>> {
         println("[OnHand] findRecipes($fetchStrategy, $ingredients)")
 
         return when (fetchStrategy) {
-            FetchStrategy.DATABASE -> {
-                Resource.success(data = getCachedRecipeSearchResults())
+            DATABASE -> {
+                try {
+                    Resource.success(data = getCachedRecipeSearchResults())
+                } catch (e: Exception) {
+                    // TODO: log analytics here
+                    // TODO: rethrow in debug
+                    println("[OnHand] Error retrieving cached recipes: ${e.message}")
+                    Resource.error(msg = e.message.toString())
+                }
             }
-            FetchStrategy.NETWORK -> {
+            NETWORK -> {
                 val networkResponse =
                     onHandNetworkDataSource
                         .get()
@@ -56,7 +70,10 @@ class RecipeRepositoryImpl @Inject constructor(
                             msg = "${networkResponse::class.java.simpleName}, please check your " +
                                     "device's network connectivity.\n\nShowing last calculated " +
                                     "search result.",
-                            data = getCachedRecipeSearchResults()
+                            data = findRecipes(
+                                fetchStrategy = DATABASE,
+                                ingredients
+                            ).data
                         )
                     }
                 }
@@ -87,11 +104,29 @@ class RecipeRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun saveRecipe(recipe: Recipe) {
-        println("[OnHand] saveRecipe($recipe)")
+    override suspend fun saveRecipePreview(
+        recipePreview: RecipePreview
+    ) {
+        println("[OnHand] saveRecipe($recipePreview)")
         savedRecipeDao
             .get()
-            .addRecipe(recipe.toSavedRecipeEntity())
+            .addRecipe(recipePreview.toSavedRecipeEntity())
+    }
+
+    override suspend fun saveFullRecipe(
+        recipe: FullRecipe
+    ): Resource<Unit> {
+        println("[OnHand] saveCustomRecipe($recipe)")
+        return try {
+            savedRecipeDao
+                .get()
+                .addRecipe(createCustomSavedRecipeEntity(recipe))
+            Resource.success(null)
+        } catch (e: Exception) {
+            // TODO: log analytics here
+            // TODO: rethrow in debug
+            Resource.error(msg = e.message.toString())
+        }
     }
 
     override suspend fun unsaveRecipe(id: Int) {
@@ -108,12 +143,13 @@ class RecipeRepositoryImpl @Inject constructor(
             .isRecipeSaved(id) == 1
     }
 
-    override fun getSavedRecipes(): Flow<List<SaveableRecipe>> {
+
+    override fun getSavedRecipes(): Flow<List<SaveableRecipePreview>> {
         println("[OnHand] getSavedRecipes()")
         return savedRecipeDao
             .get()
-            .getSavedRecipes()
-            .map { it.map(SavedRecipeEntity::asExternalModel) }
+            .getAll()
+            .map { it.map(SavedRecipeEntity::asSaveableRecipePreview) }
     }
 
     override suspend fun updateSavedRecipesMissingIngredient(ingredient: Ingredient) {
@@ -140,24 +176,98 @@ class RecipeRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun getCachedRecipeSearchResults(): List<Recipe> {
+    override suspend fun getFullRecipe(id: Int): Resource<FullRecipe> {
+        println("[OnHand] getCustomRecipeDetail($id)")
+        return withContext(ioDispatcher) {
+            try {
+                // Custom recipes have both preview and detail information stored locally
+                if (isRecipeCustom(id)) {
+                    Resource.success(
+                        data = savedRecipeDao
+                            .get()
+                            .getRecipe(id)
+                            .asFullRecipe()
+                    )
+                } else {
+                    val detail = getRecipeDetail(id)
+
+                    when (detail.status) {
+                        SUCCESS -> {
+                            // Preview information from API sourced recipes will either be in the
+                            // saved recipe DB or search cache, return the info from whichever
+                            // its in.
+                            // TODO: revisit above comment because it relies on the app to operate
+                            //  a specific way to work...
+                            val preview = if (isRecipeSaved(id)) {
+                                getSavedRecipe(id).recipePreview
+                            } else {
+                                getCachedRecipePreview(id)
+                            }
+
+                            Resource.success(
+                                data = FullRecipe(
+                                    preview = preview,
+                                    // Shouldn't be null at this point, but if it is we throw the
+                                    // NPE and catch it.
+                                    detail = detail.data!!
+                                )
+                            )
+                        }
+                        ERROR -> {
+                            Resource.error(msg = detail.message.toString())
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                // TODO: rethrow in debug
+                Resource.error(msg = e.message.toString())
+            }
+        }
+    }
+
+    private suspend fun getSavedRecipe(id: Int): SaveableRecipePreview {
+        return savedRecipeDao
+            .get()
+            .getRecipe(id)
+            .asSaveableRecipePreview()
+    }
+
+    private suspend fun getCachedRecipePreview(id: Int): RecipePreview {
+        return recipeSearchCacheDao
+            .get()
+            .getRecipe(id)
+            .asRecipePreview()
+    }
+
+    override suspend fun isRecipeCustom(id: Int): Boolean {
+        println("[OnHand] isRecipeCustom($id)")
+        return savedRecipeDao
+            .get()
+            .isRecipeCustom(id) == 1
+    }
+
+    private suspend fun getCachedRecipeSearchResults(): List<RecipePreview> {
         return recipeSearchCacheDao
             .get()
             .getRecipeSearchResult()
-            .map(RecipeSearchCacheEntity::asExternalModel)
+            .map(RecipeSearchCacheEntity::asRecipePreview)
     }
 
-    private suspend fun cacheRecipeSearchResults(recipes: List<Recipe>) {
+    private suspend fun cacheRecipeSearchResults(recipePreviews: List<RecipePreview>) {
         recipeSearchCacheDao
             .get()
             .cacheRecipeSearchResult(
-                recipes.map(Recipe::toSearchCacheEntity)
+                recipePreviews.map(RecipePreview::toSearchCacheEntity)
             )
     }
 }
 
 // TODO: potentially move to more appropriate spot...
-private fun NetworkRecipe.asExternalModel() = Recipe(
+private fun NetworkRecipeDetail.asExternalModel() = RecipeDetail(
+    instructions = instructions ?: "No instructions provided." // TODO: revisit
+)
+
+private fun NetworkRecipe.asExternalModel() = RecipePreview(
     id = id,
     title = title,
     image = image,
@@ -166,7 +276,8 @@ private fun NetworkRecipe.asExternalModel() = Recipe(
     usedIngredients = usedIngredients.map { it.asExternalModel() },
     missedIngredientCount = missedIngredientCount,
     missedIngredients = missedIngredients.map { it.asExternalModel() },
-    likes = likes
+    likes = likes,
+    isCustom = false
 )
 
 private fun NetworkRecipeIngredient.asExternalModel() = RecipeIngredient(
@@ -177,10 +288,4 @@ private fun NetworkRecipeIngredient.asExternalModel() = RecipeIngredient(
     image = image,
     amount = amount,
     unit = unit,
-)
-
-private fun NetworkRecipeDetail.asExternalModel() = RecipeDetail(
-    id = id,
-    // TODO: Determine whether it's best to just transmit an empty src url or some other state
-    sourceUrl = sourceUrl ?: ""
 )

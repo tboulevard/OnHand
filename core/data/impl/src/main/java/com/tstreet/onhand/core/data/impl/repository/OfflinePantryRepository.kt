@@ -5,7 +5,7 @@ import com.tstreet.onhand.core.common.Resource
 import com.tstreet.onhand.core.data.api.repository.PantryRepository
 import com.tstreet.onhand.core.database.dao.IngredientCatalogDao
 import com.tstreet.onhand.core.database.model.IngredientCatalogEntity
-import com.tstreet.onhand.core.database.model.asExternalModel
+import com.tstreet.onhand.core.database.model.asSaveableRecipePreview
 import com.tstreet.onhand.core.model.Ingredient
 import com.tstreet.onhand.core.model.PantryIngredient
 import kotlinx.coroutines.CoroutineDispatcher
@@ -55,7 +55,7 @@ class OfflinePantryRepository @Inject constructor(
         return ingredientCatalogDao
             .get()
             .getAllFromPantry()
-            .map { Resource.success(it.map(IngredientCatalogEntity::asExternalModel)) }
+            .map { Resource.success(it.map(IngredientCatalogEntity::asSaveableRecipePreview)) }
             .catch {
                 // TODO: rethrow in debug mode
                 println("[OnHand] Error retrieving pantry items: ${it.message}")

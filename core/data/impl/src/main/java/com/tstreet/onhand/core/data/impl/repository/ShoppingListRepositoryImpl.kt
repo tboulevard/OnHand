@@ -5,7 +5,7 @@ import com.tstreet.onhand.core.common.Resource
 import com.tstreet.onhand.core.data.api.repository.ShoppingListRepository
 import com.tstreet.onhand.core.database.dao.ShoppingListDao
 import com.tstreet.onhand.core.database.model.*
-import com.tstreet.onhand.core.model.Recipe
+import com.tstreet.onhand.core.model.RecipePreview
 import com.tstreet.onhand.core.model.ShoppingListIngredient
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -40,7 +40,7 @@ class ShoppingListRepositoryImpl @Inject constructor(
             .flowOn(ioDispatcher)
     }
 
-    override fun getRecipesInShoppingList(): Flow<Resource<List<Recipe>>> {
+    override fun getRecipesInShoppingList(): Flow<Resource<List<RecipePreview>>> {
         return shoppingListDao
             .get()
             .getRecipesInShoppingList()
@@ -103,9 +103,9 @@ class ShoppingListRepositoryImpl @Inject constructor(
             .isShoppingListIngredientPurchased(name)
     }
 
-    override suspend fun removeRecipe(recipe: Recipe): Resource<Unit> {
+    override suspend fun removeRecipePreview(recipePreview: RecipePreview): Resource<Unit> {
         return try {
-            shoppingListDao.get().removeRecipe(recipe)
+            shoppingListDao.get().removeRecipePreview(recipePreview)
             Resource.success(null)
         } catch (e: Exception) {
             // TODO: rethrow in debug
