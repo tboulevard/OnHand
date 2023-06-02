@@ -149,7 +149,7 @@ class RecipeRepositoryImpl @Inject constructor(
         return savedRecipeDao
             .get()
             .getAll()
-            .map { it.map(SavedRecipeEntity::asRecipePreview) }
+            .map { it.map(SavedRecipeEntity::asSaveableRecipePreview) }
     }
 
     override suspend fun updateSavedRecipesMissingIngredient(ingredient: Ingredient) {
@@ -180,6 +180,7 @@ class RecipeRepositoryImpl @Inject constructor(
         println("[OnHand] getCustomRecipeDetail($id)")
         return withContext(ioDispatcher) {
             try {
+                // Custom recipes have both preview and detail information stored locally
                 if (isRecipeCustom(id)) {
                     Resource.success(
                         data = savedRecipeDao
@@ -192,8 +193,17 @@ class RecipeRepositoryImpl @Inject constructor(
 
                     when (detail.status) {
                         SUCCESS -> {
-                            // This won't work if the search cache changed zzzzzzzz...
-                            val preview = getCachedRecipePreview(id)
+                            // Preview information from API sourced recipes will either be in the
+                            // saved recipe DB or search cache, return the info from whichever
+                            // its in.
+                            // TODO: revisit above comment because it relies on the app to operate
+                            //  a specific way to work...
+                            val preview = if (isRecipeSaved(id)) {
+                                getSavedRecipe(id).recipePreview
+                            } else {
+                                getCachedRecipePreview(id)
+                            }
+
                             Resource.success(
                                 data = FullRecipe(
                                     preview = preview,
@@ -213,6 +223,13 @@ class RecipeRepositoryImpl @Inject constructor(
                 Resource.error(msg = e.message.toString())
             }
         }
+    }
+
+    private suspend fun getSavedRecipe(id: Int): SaveableRecipe {
+        return savedRecipeDao
+            .get()
+            .getRecipe(id)
+            .asSaveableRecipePreview()
     }
 
     private suspend fun getCachedRecipePreview(id: Int): RecipePreview {

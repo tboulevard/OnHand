@@ -20,7 +20,7 @@ data class SavedRecipeEntity(
     @ColumnInfo(name = "isCustomRecipe") val isCustomRecipe: Boolean = false
 )
 
-fun SavedRecipeEntity.asRecipePreview(): SaveableRecipe {
+fun SavedRecipeEntity.asSaveableRecipePreview(): SaveableRecipe {
     return SaveableRecipe(
         RecipePreview(
             id = id,
