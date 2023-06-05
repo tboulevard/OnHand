@@ -16,7 +16,7 @@ interface RecipeRepository {
 
     suspend fun saveRecipePreview(recipePreview: RecipePreview)
 
-    suspend fun saveFullRecipe(recipe: FullRecipe): Resource<Unit>
+    suspend fun saveFullRecipe(fullRecipe: FullRecipe): SaveRecipeResult
 
     suspend fun unsaveRecipe(id: Int)
 

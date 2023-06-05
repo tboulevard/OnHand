@@ -8,6 +8,9 @@ import kotlinx.coroutines.flow.Flow
 abstract class SavedRecipeDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun replaceRecipe(recipe: SavedRecipeEntity)
+
+    @Insert
     abstract suspend fun addRecipe(recipe: SavedRecipeEntity)
 
     @Query("SELECT 1 from saved_recipes WHERE id = :id")
@@ -49,7 +52,7 @@ abstract class SavedRecipeDao {
         }.forEach { updatedEntity ->
             // If no entities are updated, no recipes are changed
             updatedEntity?.apply {
-                addRecipe(this)
+                replaceRecipe(this)
             }
         }
     }
@@ -75,7 +78,7 @@ abstract class SavedRecipeDao {
         }.forEach { updatedEntity ->
             // If no entities are updated, no recipes are changed
             updatedEntity?.apply {
-                addRecipe(this)
+                replaceRecipe(this)
             }
         }
     }

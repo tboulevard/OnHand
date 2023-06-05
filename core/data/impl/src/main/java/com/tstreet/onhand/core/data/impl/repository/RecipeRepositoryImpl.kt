@@ -1,5 +1,6 @@
 package com.tstreet.onhand.core.data.impl.repository
 
+import android.database.sqlite.SQLiteConstraintException
 import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.FetchStrategy
 import com.tstreet.onhand.core.common.FetchStrategy.*
@@ -114,18 +115,18 @@ class RecipeRepositoryImpl @Inject constructor(
     }
 
     override suspend fun saveFullRecipe(
-        recipe: FullRecipe
-    ): Resource<Unit> {
-        println("[OnHand] saveCustomRecipe($recipe)")
+        fullRecipe: FullRecipe
+    ): SaveRecipeResult {
+        println("[OnHand] saveCustomRecipe($fullRecipe)")
         return try {
             savedRecipeDao
                 .get()
-                .addRecipe(createCustomSavedRecipeEntity(recipe))
-            Resource.success(null)
-        } catch (e: Exception) {
+                .addRecipe(fullRecipe.toSavedRecipeEntity())
+            SaveRecipeResult.success()
+        } catch (e: SQLiteConstraintException) {
             // TODO: log analytics here
             // TODO: rethrow in debug
-            Resource.error(msg = e.message.toString())
+            SaveRecipeResult.namingConflict(e.message)
         }
     }
 
@@ -138,9 +139,11 @@ class RecipeRepositoryImpl @Inject constructor(
 
     override suspend fun isRecipeSaved(id: Int): Boolean {
         println("[OnHand] isRecipeSaved($id)")
-        return savedRecipeDao
-            .get()
-            .isRecipeSaved(id) == 1
+        return withContext(ioDispatcher) {
+            savedRecipeDao
+                .get()
+                .isRecipeSaved(id) == 1
+        }
     }
 
 

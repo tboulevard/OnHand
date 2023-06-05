@@ -39,8 +39,8 @@ class AddRecipeUseCase @Inject constructor(
                         )
                     } ?: emptyList()
 
-                    recipeRepository.get().saveFullRecipe(
-                        recipe = FullRecipe(
+                    val result: SaveRecipeResult = recipeRepository.get().saveFullRecipe(
+                        fullRecipe = FullRecipe(
                             preview = RecipePreview(
                                 // TODO: for now, we just assign id based on hash of title - potentially
                                 //  look into a more stable approach in the future.
@@ -61,6 +61,18 @@ class AddRecipeUseCase @Inject constructor(
                             )
                         )
                     )
+
+                    when (result.status) {
+                        Status.SUCCESS -> {
+                            Resource.success(null)
+                        }
+                        Status.NAME_CONFLICT -> {
+                            Resource.error(
+                                "Unable to save recipe: One already exists with that name. " +
+                                        "Please enter a different name."
+                            )
+                        }
+                    }
                 }
                 ERROR -> {
                     // TODO: revisit when saveRecipe() API is updated

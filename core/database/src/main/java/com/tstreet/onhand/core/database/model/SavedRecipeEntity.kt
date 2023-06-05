@@ -40,8 +40,8 @@ fun SavedRecipeEntity.asSaveableRecipePreview(): SaveableRecipePreview {
 
 // For non custom recipes, we expect all recipes to src detail from API. So no point in saving it
 // now. Could impl caching later though.
-fun RecipePreview.toSavedRecipeEntity(): SavedRecipeEntity {
-    return SavedRecipeEntity(
+fun RecipePreview.toSavedRecipeEntity() =
+    SavedRecipeEntity(
         id = id,
         RecipePreviewProperties(
             title = title,
@@ -55,7 +55,6 @@ fun RecipePreview.toSavedRecipeEntity(): SavedRecipeEntity {
         ),
         isCustomRecipe = false
     )
-}
 
 fun SavedRecipeEntity.asFullRecipe() =
     FullRecipe(
@@ -79,24 +78,20 @@ fun SavedRecipeEntity.asFullRecipe() =
 
 // We expect all detail info to be provided by user, so we save it with the recipe
 
-fun createCustomSavedRecipeEntity(
-    recipe: FullRecipe
-): SavedRecipeEntity {
-    return SavedRecipeEntity(
-        id = recipe.preview.id,
-        previewProperties = RecipePreviewProperties(
-            title = recipe.preview.title,
-            image = recipe.preview.image,
-            imageType = recipe.preview.imageType,
-            missedIngredients = recipe.preview.missedIngredients,
-            missedIngredientCount = recipe.preview.missedIngredientCount,
-            usedIngredients = recipe.preview.usedIngredients,
-            usedIngredientCount = recipe.preview.usedIngredientCount,
-            likes = recipe.preview.likes,
-        ),
-        detailProperties = RecipeDetailProperties(
-            instructions = recipe.detail.instructions
-        ),
-        isCustomRecipe = recipe.preview.isCustom
-    )
-}
+fun FullRecipe.toSavedRecipeEntity() = SavedRecipeEntity(
+    id = preview.id,
+    previewProperties = RecipePreviewProperties(
+        title = preview.title,
+        image = preview.image,
+        imageType = preview.imageType,
+        missedIngredients = preview.missedIngredients,
+        missedIngredientCount = preview.missedIngredientCount,
+        usedIngredients = preview.usedIngredients,
+        usedIngredientCount = preview.usedIngredientCount,
+        likes = preview.likes,
+    ),
+    detailProperties = RecipeDetailProperties(
+        instructions = detail.instructions
+    ),
+    isCustomRecipe = preview.isCustom
+)
