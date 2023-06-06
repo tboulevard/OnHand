@@ -21,7 +21,12 @@ class AddRecipeUseCase @Inject constructor(
     @Named(IO) private val ioDispatcher: CoroutineDispatcher,
 ) : UseCase() {
 
-    operator fun invoke(customRecipeInput: CustomRecipeInput): Flow<Resource<Unit>> {
+    /**
+     * @param customRecipeInput - Input received from the user, collected on custom recipe creation.
+     *
+     * @return A flow wrapped [Resource] containing the id of the recipe created.
+     */
+    operator fun invoke(customRecipeInput: CustomRecipeInput): Flow<Resource<Int>> {
         println("[OnHand] Adding recipe with input=${customRecipeInput.recipeTitle}")
         return pantryRepository.get().listPantry().map {
             when (it.status) {
@@ -42,8 +47,8 @@ class AddRecipeUseCase @Inject constructor(
                     val result: SaveRecipeResult = recipeRepository.get().saveFullRecipe(
                         fullRecipe = FullRecipe(
                             preview = RecipePreview(
-                                // TODO: for now, we just assign id based on hash of title - potentially
-                                //  look into a more stable approach in the future.
+                                // TODO: for now, we just assign id based on hash of title -
+                                //  potentially look into a more stable approach in the future.
                                 id = customRecipeInput.recipeTitle.hashCode(),
                                 title = customRecipeInput.recipeTitle,
                                 image = customRecipeInput.recipeImage,
@@ -64,7 +69,7 @@ class AddRecipeUseCase @Inject constructor(
 
                     when (result.status) {
                         Status.SUCCESS -> {
-                            Resource.success(null)
+                            Resource.success(result.recipeId)
                         }
                         Status.NAME_CONFLICT -> {
                             Resource.error(
@@ -72,6 +77,9 @@ class AddRecipeUseCase @Inject constructor(
                                         "Please enter a different name."
                             )
                         }
+                        Status.UNKNOWN_ERROR -> Resource.error(
+                            "Unable to save recipe: ${result.message}"
+                        )
                     }
                 }
                 ERROR -> {

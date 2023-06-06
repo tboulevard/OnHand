@@ -10,6 +10,8 @@ import com.tstreet.onhand.core.model.CustomRecipeInput
 import com.tstreet.onhand.core.model.RecipeIngredient
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.displayed
+import com.tstreet.onhand.feature.customrecipe.InputValidationState.Companion.hidden
+import com.tstreet.onhand.feature.customrecipe.InputValidationState.Companion.shown
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,37 +26,20 @@ class CreateCustomRecipeViewModel @Inject constructor(
         println("[OnHand] ${this.javaClass.simpleName} created")
     }
 
-    // required
+    // Required input fields
     private val _title = MutableStateFlow("")
     val title = _title
-        .onEach { checkSaveEnabled() }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = _title.value
         )
 
-    private val _isTitleValid = MutableStateFlow(false)
-    val isTitleValid = _isTitleValid
-        .onEach { checkSaveEnabled() }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = _isTitleValid.value
-        )
-
-    private val _inputValidationText = MutableStateFlow("")
-    val inputValidationText = _inputValidationText.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = _title.value
-    )
-
-    // required - at least 1
     private val _ingredients = mutableStateListOf<RecipeIngredient>()
     val ingredients: List<RecipeIngredient> = _ingredients
 
-    // optional - address in future PR
+    // Optional input fields
+    // TODO: address in future PR
     private val _coverImage = MutableStateFlow("")
     val coverImage = _coverImage.stateIn(
         scope = viewModelScope,
@@ -62,7 +47,6 @@ class CreateCustomRecipeViewModel @Inject constructor(
         initialValue = _coverImage.value
     )
 
-    // optional
     private val _instructions = MutableStateFlow<String?>(null)
     val instructions = _instructions.stateIn(
         scope = viewModelScope,
@@ -70,6 +54,7 @@ class CreateCustomRecipeViewModel @Inject constructor(
         initialValue = _instructions.value
     )
 
+    // Input state fields
     private val _errorDialogState = MutableStateFlow(dismissed())
     val errorDialogState = _errorDialogState
         .stateIn(
@@ -78,6 +63,13 @@ class CreateCustomRecipeViewModel @Inject constructor(
             initialValue = _errorDialogState.value
         )
 
+    private val _inputValidationState = MutableStateFlow(hidden())
+    val inputValidationText = _inputValidationState.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = _inputValidationState.value
+    )
+
     private val _saveEnabled = MutableStateFlow(false)
     val saveEnabled = _saveEnabled.stateIn(
         scope = viewModelScope,
@@ -85,26 +77,41 @@ class CreateCustomRecipeViewModel @Inject constructor(
         initialValue = _saveEnabled.value
     )
 
+    private var isTitleValid = false
+    private var ingredientSearchOpened = false
+
+    private val _createdRecipeId = MutableStateFlow<Int?>(null)
+    val createdRecipeId = _createdRecipeId.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = _createdRecipeId.value
+    )
 
     fun onTitleChanged(text: String) {
-        _title.update { text }
         viewModelScope.launch {
+            _title.update { text }
             // We don't show input validation text for empty input, just disable save
             if (text.isEmpty()) {
-                _isTitleValid.update { false }
-                _inputValidationText.update { "" }
-            } else if (validateInputUseCase.get().recipeWithTitleAlreadyExists(text)) {
-                _isTitleValid.update { false }
-                _inputValidationText.update { "Recipe with this name already exists" }
+                isTitleValid = false
+                _inputValidationState.update { hidden() }
+            } else if (validateInputUseCase.get().recipeAlreadyExists(text)) {
+                isTitleValid = false
+                _inputValidationState.update { shown("Recipe with this name already exists") }
             } else {
                 // Valid input
-                _isTitleValid.update { true }
-                _inputValidationText.update { "" }
+                isTitleValid = true
+                _inputValidationState.update { hidden() }
             }
+            checkSaveEnabled()
         }
     }
 
     fun onReceiveIngredients(ingredients: List<RecipeIngredient>) {
+        // Don't add received ingredients if we never opened ingredient search
+        if (!ingredientSearchOpened) {
+            return
+        }
+
         // In case the user wants to add more ingredients after adding some previously
         _ingredients += ingredients
         checkSaveEnabled()
@@ -126,12 +133,11 @@ class CreateCustomRecipeViewModel @Inject constructor(
     fun onDoneClicked() {
         viewModelScope.launch {
             addRecipeUseCase.get().invoke(createPartialRecipe()).collect { result ->
-                when (result.status) {
-                    SUCCESS -> {
-                        clearInputs()
-                        // TODO: show snackbar?
+                when {
+                    result.status == SUCCESS && result.data != null -> {
+                        _createdRecipeId.update { result.data }
                     }
-                    ERROR -> {
+                    else -> {
                         _errorDialogState.update {
                             displayed(
                                 title = "Error",
@@ -148,11 +154,14 @@ class CreateCustomRecipeViewModel @Inject constructor(
         _errorDialogState.update { dismissed() }
     }
 
-    private fun clearInputs() {
+    fun clear() {
         _title.update { "" }
         _instructions.update { null }
         _ingredients.clear()
         _coverImage.update { "" }
+        ingredientSearchOpened = false
+        isTitleValid = false
+        checkSaveEnabled()
     }
 
     private fun createPartialRecipe() = CustomRecipeInput(
@@ -165,6 +174,14 @@ class CreateCustomRecipeViewModel @Inject constructor(
     )
 
     private fun checkSaveEnabled() {
-        _saveEnabled.update { _ingredients.size > 0 && _isTitleValid.value }
+        _saveEnabled.update { _ingredients.size > 0 && isTitleValid }
+    }
+
+    fun resetRecipeId() {
+        _createdRecipeId.update { null }
+    }
+
+    fun ingredientSearchOpened() {
+        ingredientSearchOpened = true
     }
 }

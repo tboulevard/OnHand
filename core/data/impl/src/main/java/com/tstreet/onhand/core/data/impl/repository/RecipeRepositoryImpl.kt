@@ -122,11 +122,15 @@ class RecipeRepositoryImpl @Inject constructor(
             savedRecipeDao
                 .get()
                 .addRecipe(fullRecipe.toSavedRecipeEntity())
-            SaveRecipeResult.success()
+            SaveRecipeResult.success(fullRecipe.preview.id)
         } catch (e: SQLiteConstraintException) {
             // TODO: log analytics here
             // TODO: rethrow in debug
             SaveRecipeResult.namingConflict(e.message)
+        } catch (e: Exception) {
+            // TODO: log analytics here
+            // TODO: rethrow in debug
+            SaveRecipeResult.unknownError(e.message)
         }
     }
 

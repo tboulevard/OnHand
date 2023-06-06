@@ -9,7 +9,7 @@ class ValidateCustomRecipeInputUseCase @Inject constructor(
     private val recipeRepository: Provider<RecipeRepository>,
 ) : UseCase() {
 
-    suspend fun recipeWithTitleAlreadyExists(text: String): Boolean {
+    suspend fun recipeAlreadyExists(text: String): Boolean {
         return recipeRepository.get().isRecipeSaved(text.hashCode())
     }
 }

@@ -17,6 +17,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.tstreet.onhand.core.common.INGREDIENT_SEARCH_ROUTE
+import com.tstreet.onhand.core.common.RECIPE_DETAIL_ROUTE
 import com.tstreet.onhand.core.ui.INGREDIENT_SEARCH_ITEMS_KEY
 import com.tstreet.onhand.core.ui.OnHandAlertDialog
 import com.tstreet.onhand.core.ui.OnHandScreenHeader
@@ -37,16 +38,26 @@ fun CreateCustomRecipeScreen(
 
     val title = viewModel.title.collectAsState()
     val inputValidationText = viewModel.inputValidationText.collectAsStateWithLifecycle()
-    val isTitleValid = viewModel.isTitleValid.collectAsStateWithLifecycle()
     val ingredients = viewModel.ingredients
     val instructions = viewModel.instructions.collectAsState()
     val saveEnabled = viewModel.saveEnabled.collectAsStateWithLifecycle()
     val errorDialogState by viewModel.errorDialogState.collectAsStateWithLifecycle()
+    val recipeId = viewModel.createdRecipeId.collectAsStateWithLifecycle()
 
     LaunchedEffect(null) {
         viewModel.onReceiveIngredients(
             savedStateHandle[INGREDIENT_SEARCH_ITEMS_KEY] ?: emptyList()
         )
+    }
+
+    DisposableEffect(recipeId.value) {
+        recipeId.value?.let {
+            viewModel.clear()
+            navController.navigate("$RECIPE_DETAIL_ROUTE/${recipeId.value}")
+        }
+        onDispose {
+            viewModel.resetRecipeId()
+        }
     }
 
     // For general errors
@@ -64,7 +75,7 @@ fun CreateCustomRecipeScreen(
             textStyle = MaterialTheme.typography.bodyMedium,
         )
         // TODO: using then value of this is not the best, should use boolean
-        if (inputValidationText.value.isNotEmpty()) {
+        if (inputValidationText.value.shown) {
             Row {
                 Icon(
                     Icons.Default.Warning,
@@ -76,7 +87,7 @@ fun CreateCustomRecipeScreen(
                     tint = MaterialTheme.colorScheme.error
                 )
                 Text(
-                    text = inputValidationText.value
+                    text = inputValidationText.value.message
                 )
             }
         }
@@ -99,7 +110,10 @@ fun CreateCustomRecipeScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
-                .clickable { navController.navigate(INGREDIENT_SEARCH_ROUTE) },
+                .clickable {
+                    viewModel.ingredientSearchOpened()
+                    navController.navigate(INGREDIENT_SEARCH_ROUTE)
+                },
             horizontalArrangement = Arrangement.Start
         ) {
             Icon(
