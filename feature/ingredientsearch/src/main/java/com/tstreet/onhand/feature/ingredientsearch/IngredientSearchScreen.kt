@@ -1,8 +1,6 @@
 package com.tstreet.onhand.feature.ingredientsearch
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.indication
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -19,7 +17,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.tstreet.onhand.core.model.RecipeIngredient
 import com.tstreet.onhand.core.ui.INGREDIENT_SEARCH_ITEMS_KEY
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
 import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
@@ -28,7 +25,6 @@ import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
 // TODO: screen rotation wipes `isSearchBarFocused` -> look into used collectAsStateWithLifecycle
 // TODO: Using the hardware back/swipe back while in search doesn't nav back to pantry. Eventually
 //  we'll probably want IngredientSearch as a separate screen so we can add it to the nav backstack
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IngredientSearchScreen(
     navController: NavHostController,

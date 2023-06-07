@@ -18,6 +18,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.tstreet.onhand.core.common.INGREDIENT_SEARCH_ROUTE
 import com.tstreet.onhand.core.common.RECIPE_DETAIL_ROUTE
+import com.tstreet.onhand.core.model.RecipeIngredient
 import com.tstreet.onhand.core.ui.INGREDIENT_SEARCH_ITEMS_KEY
 import com.tstreet.onhand.core.ui.OnHandAlertDialog
 import com.tstreet.onhand.core.ui.OnHandScreenHeader
@@ -45,9 +46,10 @@ fun CreateCustomRecipeScreen(
     val recipeId = viewModel.createdRecipeId.collectAsStateWithLifecycle()
 
     LaunchedEffect(null) {
-        viewModel.onReceiveIngredients(
-            savedStateHandle[INGREDIENT_SEARCH_ITEMS_KEY] ?: emptyList()
-        )
+        savedStateHandle.get<List<RecipeIngredient>>(INGREDIENT_SEARCH_ITEMS_KEY)?.let {
+            viewModel.onReceiveData(it)
+            savedStateHandle.remove<List<RecipeIngredient>>(INGREDIENT_SEARCH_ITEMS_KEY)
+        }
     }
 
     DisposableEffect(recipeId.value) {
@@ -111,7 +113,6 @@ fun CreateCustomRecipeScreen(
                 .fillMaxWidth()
                 .padding(8.dp)
                 .clickable {
-                    viewModel.ingredientSearchOpened()
                     navController.navigate(INGREDIENT_SEARCH_ROUTE)
                 },
             horizontalArrangement = Arrangement.Start

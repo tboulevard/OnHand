@@ -16,6 +16,9 @@ abstract class SavedRecipeDao {
     @Query("SELECT 1 from saved_recipes WHERE id = :id")
     abstract suspend fun isRecipeSaved(id: Int): Int
 
+    @Query("SELECT 1 from saved_recipes WHERE title = :title")
+    abstract suspend fun isRecipeSaved(title: String): Int
+
     @Query("DELETE FROM saved_recipes WHERE id = :id")
     abstract suspend fun deleteRecipe(id: Int)
 
@@ -36,7 +39,8 @@ abstract class SavedRecipeDao {
                 ?.let { missedIngredient ->
                     val newMissedIngredients =
                         entity.previewProperties.missedIngredients.filterNot { it.ingredient.name == ingredientName }
-                    val newUsedIngredients = entity.previewProperties.usedIngredients + missedIngredient
+                    val newUsedIngredients =
+                        entity.previewProperties.usedIngredients + missedIngredient
                     // Copy all existing recipe properties except those that we want changed
                     val newProperties = entity.previewProperties.copy(
                         missedIngredients = newMissedIngredients,
@@ -64,7 +68,8 @@ abstract class SavedRecipeDao {
                 ?.let { usedIngredient ->
                     val newUsedIngredients =
                         entity.previewProperties.usedIngredients.filterNot { it.ingredient.name == ingredientName }
-                    val newMissedIngredients = entity.previewProperties.missedIngredients + usedIngredient
+                    val newMissedIngredients =
+                        entity.previewProperties.missedIngredients + usedIngredient
                     val newProperties = entity.previewProperties.copy(
                         missedIngredients = newMissedIngredients,
                         missedIngredientCount = newMissedIngredients.size,

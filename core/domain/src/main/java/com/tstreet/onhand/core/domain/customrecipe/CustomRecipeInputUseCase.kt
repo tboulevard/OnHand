@@ -5,11 +5,14 @@ import com.tstreet.onhand.core.data.api.repository.RecipeRepository
 import javax.inject.Inject
 import javax.inject.Provider
 
-class ValidateCustomRecipeInputUseCase @Inject constructor(
+class CustomRecipeInputUseCase @Inject constructor(
     private val recipeRepository: Provider<RecipeRepository>,
 ) : UseCase() {
 
-    suspend fun recipeAlreadyExists(text: String): Boolean {
-        return recipeRepository.get().isRecipeSaved(text.hashCode())
+    /**
+     * Given a recipe title, checks if one with that name is already saved.
+     */
+    suspend fun recipeExists(title: String): Boolean {
+        return recipeRepository.get().isRecipeSaved(title)
     }
 }

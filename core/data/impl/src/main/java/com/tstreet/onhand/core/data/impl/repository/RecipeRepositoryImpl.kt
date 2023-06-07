@@ -150,6 +150,14 @@ class RecipeRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun isRecipeSaved(title: String): Boolean {
+        println("[OnHand] isRecipeSaved($title)")
+        return withContext(ioDispatcher) {
+            savedRecipeDao
+                .get()
+                .isRecipeSaved(title) == 1
+        }
+    }
 
     override fun getSavedRecipes(): Flow<List<SaveableRecipePreview>> {
         println("[OnHand] getSavedRecipes()")

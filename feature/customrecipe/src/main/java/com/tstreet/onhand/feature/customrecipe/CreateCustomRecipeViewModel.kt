@@ -1,11 +1,10 @@
 package com.tstreet.onhand.feature.customrecipe
 
 import androidx.compose.runtime.mutableStateListOf
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.Status.*
 import com.tstreet.onhand.core.domain.customrecipe.AddRecipeUseCase
-import com.tstreet.onhand.core.domain.customrecipe.ValidateCustomRecipeInputUseCase
+import com.tstreet.onhand.core.domain.customrecipe.CustomRecipeInputUseCase
 import com.tstreet.onhand.core.model.CustomRecipeInput
 import com.tstreet.onhand.core.model.RecipeIngredient
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
@@ -19,8 +18,8 @@ import javax.inject.Provider
 
 class CreateCustomRecipeViewModel @Inject constructor(
     private val addRecipeUseCase: Provider<AddRecipeUseCase>,
-    private val validateInputUseCase: Provider<ValidateCustomRecipeInputUseCase>
-) : ViewModel() {
+    private val validateInputUseCase: Provider<CustomRecipeInputUseCase>
+) : ReceivableViewModel<List<RecipeIngredient>>() {
 
     init {
         println("[OnHand] ${this.javaClass.simpleName} created")
@@ -78,7 +77,6 @@ class CreateCustomRecipeViewModel @Inject constructor(
     )
 
     private var isTitleValid = false
-    private var ingredientSearchOpened = false
 
     private val _createdRecipeId = MutableStateFlow<Int?>(null)
     val createdRecipeId = _createdRecipeId.stateIn(
@@ -94,7 +92,7 @@ class CreateCustomRecipeViewModel @Inject constructor(
             if (text.isEmpty()) {
                 isTitleValid = false
                 _inputValidationState.update { hidden() }
-            } else if (validateInputUseCase.get().recipeAlreadyExists(text)) {
+            } else if (validateInputUseCase.get().recipeExists(text)) {
                 isTitleValid = false
                 _inputValidationState.update { shown("Recipe with this name already exists") }
             } else {
@@ -106,14 +104,8 @@ class CreateCustomRecipeViewModel @Inject constructor(
         }
     }
 
-    fun onReceiveIngredients(ingredients: List<RecipeIngredient>) {
-        // Don't add received ingredients if we never opened ingredient search
-        if (!ingredientSearchOpened) {
-            return
-        }
-
-        // In case the user wants to add more ingredients after adding some previously
-        _ingredients += ingredients
+    override fun onReceiveData(data: List<RecipeIngredient>) {
+        _ingredients += data
         checkSaveEnabled()
     }
 
@@ -132,7 +124,7 @@ class CreateCustomRecipeViewModel @Inject constructor(
 
     fun onDoneClicked() {
         viewModelScope.launch {
-            addRecipeUseCase.get().invoke(createPartialRecipe()).collect { result ->
+            addRecipeUseCase.get().invoke(collectCustomRecipeInput()).collect { result ->
                 when {
                     result.status == SUCCESS && result.data != null -> {
                         _createdRecipeId.update { result.data }
@@ -159,12 +151,15 @@ class CreateCustomRecipeViewModel @Inject constructor(
         _instructions.update { null }
         _ingredients.clear()
         _coverImage.update { "" }
-        ingredientSearchOpened = false
         isTitleValid = false
         checkSaveEnabled()
     }
 
-    private fun createPartialRecipe() = CustomRecipeInput(
+    fun resetRecipeId() {
+        _createdRecipeId.update { null }
+    }
+
+    private fun collectCustomRecipeInput() = CustomRecipeInput(
         recipeTitle = _title.value,
         instructions = _instructions.value,
         ingredients = _ingredients,
@@ -175,13 +170,5 @@ class CreateCustomRecipeViewModel @Inject constructor(
 
     private fun checkSaveEnabled() {
         _saveEnabled.update { _ingredients.size > 0 && isTitleValid }
-    }
-
-    fun resetRecipeId() {
-        _createdRecipeId.update { null }
-    }
-
-    fun ingredientSearchOpened() {
-        ingredientSearchOpened = true
     }
 }
