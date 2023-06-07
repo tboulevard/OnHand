@@ -7,15 +7,20 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.tstreet.onhand.core.common.INGREDIENT_SEARCH_ROUTE
+import com.tstreet.onhand.core.common.RECIPE_DETAIL_ROUTE
+import com.tstreet.onhand.core.model.RecipeIngredient
 import com.tstreet.onhand.core.ui.INGREDIENT_SEARCH_ITEMS_KEY
+import com.tstreet.onhand.core.ui.OnHandAlertDialog
 import com.tstreet.onhand.core.ui.OnHandScreenHeader
 
 // TODO: use @PreviewParameter + create module with fake models to populate composables
@@ -33,14 +38,35 @@ fun CreateCustomRecipeScreen(
     // TODO: nav away warn unsaved changes
 
     val title = viewModel.title.collectAsState()
+    val inputValidationText = viewModel.inputValidationText.collectAsStateWithLifecycle()
     val ingredients = viewModel.ingredients
     val instructions = viewModel.instructions.collectAsState()
+    val saveEnabled = viewModel.saveEnabled.collectAsStateWithLifecycle()
+    val errorDialogState by viewModel.errorDialogState.collectAsStateWithLifecycle()
+    val recipeId = viewModel.createdRecipeId.collectAsStateWithLifecycle()
 
     LaunchedEffect(null) {
-        viewModel.onReceiveIngredients(
-            savedStateHandle[INGREDIENT_SEARCH_ITEMS_KEY] ?: emptyList()
-        )
+        savedStateHandle.get<List<RecipeIngredient>>(INGREDIENT_SEARCH_ITEMS_KEY)?.let {
+            viewModel.onReceiveData(it)
+            savedStateHandle.remove<List<RecipeIngredient>>(INGREDIENT_SEARCH_ITEMS_KEY)
+        }
     }
+
+    DisposableEffect(recipeId.value) {
+        recipeId.value?.let {
+            viewModel.clear()
+            navController.navigate("$RECIPE_DETAIL_ROUTE/${recipeId.value}")
+        }
+        onDispose {
+            viewModel.resetRecipeId()
+        }
+    }
+
+    // For general errors
+    OnHandAlertDialog(
+        onDismiss = viewModel::dismissErrorDialog,
+        state = errorDialogState
+    )
 
     Column() {
         OnHandScreenHeader(text = "Create Recipe")
@@ -48,8 +74,26 @@ fun CreateCustomRecipeScreen(
             value = title.value,
             onValueChange = viewModel::onTitleChanged,
             label = { Text("Recipe Title") },
-            textStyle = MaterialTheme.typography.bodyMedium
+            textStyle = MaterialTheme.typography.bodyMedium,
         )
+        // TODO: using then value of this is not the best, should use boolean
+        if (inputValidationText.value.shown) {
+            Row {
+                Icon(
+                    Icons.Default.Warning,
+                    contentDescription = "title input error",
+                    modifier = Modifier
+                        .size(32.dp)
+                        .padding(4.dp)
+                        .align(Alignment.CenterVertically),
+                    tint = MaterialTheme.colorScheme.error
+                )
+                Text(
+                    text = inputValidationText.value.message
+                )
+            }
+        }
+
         IconButton(
             modifier = Modifier.size(144.dp),
             onClick = { viewModel.onImageChanged("") }
@@ -68,7 +112,9 @@ fun CreateCustomRecipeScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
-                .clickable { navController.navigate(INGREDIENT_SEARCH_ROUTE) },
+                .clickable {
+                    navController.navigate(INGREDIENT_SEARCH_ROUTE)
+                },
             horizontalArrangement = Arrangement.Start
         ) {
             Icon(
@@ -119,7 +165,8 @@ fun CreateCustomRecipeScreen(
                 viewModel.onDoneClicked()
 
                 // Show snackbar, clear inputs
-            }
+            },
+            enabled = saveEnabled.value
         ) {
             Text(text = "Done")
         }

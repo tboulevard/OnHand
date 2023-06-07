@@ -24,7 +24,12 @@ class IngredientSearchViewModel @Inject constructor(
     private var _mutableIngredients = mutableListOf<SelectableIngredient>()
 
     // List of all selected ingredients only
-    private val _selectedIngredients = mutableStateListOf<SelectableIngredient>()
+    private val _selectedIngredients =
+        mutableStateListOf<SelectableIngredient>().also {
+            //TODO: later - to disallow selecting duplicates
+            // share view model between screens that use this ?
+            it.addAll(emptyList())
+        }
     val displayedSelectedIngredients: List<SelectableIngredient> = _selectedIngredients
 
     // SharedFlow does not need to explicitly need to be collected, as it is a hot flow.

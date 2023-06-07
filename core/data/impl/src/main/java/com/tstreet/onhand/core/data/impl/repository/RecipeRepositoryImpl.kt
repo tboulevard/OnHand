@@ -1,5 +1,6 @@
 package com.tstreet.onhand.core.data.impl.repository
 
+import android.database.sqlite.SQLiteConstraintException
 import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.FetchStrategy
 import com.tstreet.onhand.core.common.FetchStrategy.*
@@ -114,18 +115,22 @@ class RecipeRepositoryImpl @Inject constructor(
     }
 
     override suspend fun saveFullRecipe(
-        recipe: FullRecipe
-    ): Resource<Unit> {
-        println("[OnHand] saveCustomRecipe($recipe)")
+        fullRecipe: FullRecipe
+    ): SaveRecipeResult {
+        println("[OnHand] saveCustomRecipe($fullRecipe)")
         return try {
             savedRecipeDao
                 .get()
-                .addRecipe(createCustomSavedRecipeEntity(recipe))
-            Resource.success(null)
+                .addRecipe(fullRecipe.toSavedRecipeEntity())
+            SaveRecipeResult.success(fullRecipe.preview.id)
+        } catch (e: SQLiteConstraintException) {
+            // TODO: log analytics here
+            // TODO: rethrow in debug
+            SaveRecipeResult.namingConflict(e.message)
         } catch (e: Exception) {
             // TODO: log analytics here
             // TODO: rethrow in debug
-            Resource.error(msg = e.message.toString())
+            SaveRecipeResult.unknownError(e.message)
         }
     }
 
@@ -138,11 +143,21 @@ class RecipeRepositoryImpl @Inject constructor(
 
     override suspend fun isRecipeSaved(id: Int): Boolean {
         println("[OnHand] isRecipeSaved($id)")
-        return savedRecipeDao
-            .get()
-            .isRecipeSaved(id) == 1
+        return withContext(ioDispatcher) {
+            savedRecipeDao
+                .get()
+                .isRecipeSaved(id) == 1
+        }
     }
 
+    override suspend fun isRecipeSaved(title: String): Boolean {
+        println("[OnHand] isRecipeSaved($title)")
+        return withContext(ioDispatcher) {
+            savedRecipeDao
+                .get()
+                .isRecipeSaved(title) == 1
+        }
+    }
 
     override fun getSavedRecipes(): Flow<List<SaveableRecipePreview>> {
         println("[OnHand] getSavedRecipes()")

@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
  * recipe. Shares many of the same fields as [RecipePreview].
  */
 @Serializable
-open class CustomRecipeInput(
+class CustomRecipeInput(
     val recipeTitle: String,
     val recipeImage: String,
     val recipeImageType: String,
