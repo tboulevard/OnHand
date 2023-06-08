@@ -13,15 +13,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.tstreet.onhand.core.common.INGREDIENT_SEARCH_ROUTE
 import com.tstreet.onhand.core.common.RECIPE_DETAIL_ROUTE
-import com.tstreet.onhand.core.model.RecipeIngredient
-import com.tstreet.onhand.core.ui.INGREDIENT_SEARCH_ITEMS_KEY
 import com.tstreet.onhand.core.ui.OnHandAlertDialog
 import com.tstreet.onhand.core.ui.OnHandScreenHeader
+import com.tstreet.onhand.feature.ingredientsearch.IngredientSearchViewModel
 
 // TODO: use @PreviewParameter + create module with fake models to populate composables
 // TODO: screen rotation wipes `isSearchBarFocused` -> look into used collectAsStateWithLifecycle
@@ -31,26 +29,19 @@ import com.tstreet.onhand.core.ui.OnHandScreenHeader
 @Composable
 fun CreateCustomRecipeScreen(
     navController: NavHostController,
-    savedStateHandle: SavedStateHandle,
-    viewModel: CreateCustomRecipeViewModel
+    viewModel: CreateCustomRecipeViewModel,
+    ingredientSearchViewModel: IngredientSearchViewModel
 ) {
 
     // TODO: nav away warn unsaved changes
 
     val title = viewModel.title.collectAsState()
     val inputValidationText = viewModel.inputValidationText.collectAsStateWithLifecycle()
-    val ingredients = viewModel.ingredients
+    val ingredients = ingredientSearchViewModel.displayedSelectedIngredients
     val instructions = viewModel.instructions.collectAsState()
     val saveEnabled = viewModel.saveEnabled.collectAsStateWithLifecycle()
     val errorDialogState by viewModel.errorDialogState.collectAsStateWithLifecycle()
     val recipeId = viewModel.createdRecipeId.collectAsStateWithLifecycle()
-
-    LaunchedEffect(null) {
-        savedStateHandle.get<List<RecipeIngredient>>(INGREDIENT_SEARCH_ITEMS_KEY)?.let {
-            viewModel.onReceiveData(it)
-            savedStateHandle.remove<List<RecipeIngredient>>(INGREDIENT_SEARCH_ITEMS_KEY)
-        }
-    }
 
     DisposableEffect(recipeId.value) {
         recipeId.value?.let {

@@ -1,6 +1,7 @@
 package com.tstreet.onhand.feature.customrecipe
 
 import androidx.compose.runtime.mutableStateListOf
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.Status.*
 import com.tstreet.onhand.core.domain.customrecipe.AddRecipeUseCase
@@ -9,8 +10,8 @@ import com.tstreet.onhand.core.model.CustomRecipeInput
 import com.tstreet.onhand.core.model.RecipeIngredient
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.displayed
-import com.tstreet.onhand.feature.customrecipe.InputValidationState.Companion.hidden
-import com.tstreet.onhand.feature.customrecipe.InputValidationState.Companion.shown
+import com.tstreet.onhand.core.ui.InputValidationState.Companion.hidden
+import com.tstreet.onhand.core.ui.InputValidationState.Companion.shown
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -19,7 +20,7 @@ import javax.inject.Provider
 class CreateCustomRecipeViewModel @Inject constructor(
     private val addRecipeUseCase: Provider<AddRecipeUseCase>,
     private val validateInputUseCase: Provider<CustomRecipeInputUseCase>
-) : ReceivableViewModel<List<RecipeIngredient>>() {
+) : ViewModel() {
 
     init {
         println("[OnHand] ${this.javaClass.simpleName} created")
@@ -104,7 +105,7 @@ class CreateCustomRecipeViewModel @Inject constructor(
         }
     }
 
-    override fun onReceiveData(data: List<RecipeIngredient>) {
+    fun onReceiveData(data: List<RecipeIngredient>) {
         _ingredients += data
         checkSaveEnabled()
     }

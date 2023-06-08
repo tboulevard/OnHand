@@ -5,16 +5,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
-import androidx.navigation.NavType
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.navArgument
+import com.tstreet.onhand.core.common.CommonComponentProvider
 import com.tstreet.onhand.core.common.LocalCommonProvider
 import com.tstreet.onhand.core.common.injectedViewModel
+import com.tstreet.onhand.core.data.api.di.DataComponentProvider
 import com.tstreet.onhand.core.data.api.di.LocalDataProvider
 import com.tstreet.onhand.core.ui.RECIPE_ID_NAV_KEY
 import com.tstreet.onhand.feature.customrecipe.CreateCustomRecipeScreen
@@ -22,6 +25,7 @@ import com.tstreet.onhand.feature.home.HomeScreen
 import com.tstreet.onhand.feature.customrecipe.di.DaggerCustomRecipeComponent
 import com.tstreet.onhand.feature.home.di.DaggerHomeComponent
 import com.tstreet.onhand.feature.ingredientsearch.IngredientSearchScreen
+import com.tstreet.onhand.feature.ingredientsearch.IngredientSearchViewModel
 import com.tstreet.onhand.feature.ingredientsearch.di.DaggerIngredientSearchComponent
 import com.tstreet.onhand.feature.recipedetail.RecipeDetailScreen
 import com.tstreet.onhand.feature.recipedetail.di.DaggerRecipeDetailComponent
@@ -137,37 +141,48 @@ private fun NavigationConfiguration(
                 }
             )
         }
-        composable(route = BottomNavigationScreen.AddCustomRecipe.route) {
-            CreateCustomRecipeScreen(
-                navController,
-                it.savedStateHandle,
-                injectedViewModel {
-                    DaggerCustomRecipeComponent
-                        .builder()
-                        .dataComponentProvider(dataProvider)
-                        .commonComponentProvider(commonProvider)
-                        .build()
-                        .viewModel
-                }
-            )
-        }
-        composable(
-            route = Screen.IngredientSearch.route
+        // subgraph
+        navigation(
+            startDestination = "new_add_custom_recipe",
+            route = BottomNavigationScreen.AddCustomRecipe.route
         ) {
-            IngredientSearchScreen(
-                navController,
-                injectedViewModel {
-                    DaggerIngredientSearchComponent
-                        .builder()
-                        .dataComponentProvider(dataProvider)
-                        .commonComponentProvider(commonProvider)
-                        .build()
-                        .viewModel
-                }
-            )
+            // TODO: Retains the viewmodel for entire application lifecycle...
+            val ingredientSearchViewModel =
+                DaggerIngredientSearchComponent
+                    .builder()
+                    .dataComponentProvider(dataProvider)
+                    .commonComponentProvider(commonProvider)
+                    .build()
+                    .viewModel
+
+            composable(route = "new_add_custom_recipe") {
+                CreateCustomRecipeScreen(
+                    navController = navController,
+                    viewModel = injectedViewModel {
+                        DaggerCustomRecipeComponent
+                            .builder()
+                            .dataComponentProvider(dataProvider)
+                            .commonComponentProvider(commonProvider)
+                            .build()
+                            .viewModel
+                    },
+                    // TODO: just pass in ingredients observed state, then custom recipe module
+                    //  doesn't have to depend on ingredient search feature module
+                    ingredientSearchViewModel = ingredientSearchViewModel
+                )
+            }
+            composable(
+                route = Screen.IngredientSearch.route
+            ) {
+                IngredientSearchScreen(
+                    navController,
+                    ingredientSearchViewModel
+                )
+            }
         }
     }
 }
+
 
 // TODO: Badged box for notification of new recipes available
 @Composable
