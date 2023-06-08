@@ -1,5 +1,6 @@
 package com.tstreet.onhand.nav
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
@@ -57,6 +58,7 @@ fun Navigation() {
     }
 }
 
+@SuppressLint("UnrememberedGetBackStackEntry")
 @Composable
 private fun NavigationConfiguration(
     navController: NavHostController
@@ -141,21 +143,27 @@ private fun NavigationConfiguration(
                 }
             )
         }
-        // subgraph
+        // subgraph for custom recipe creation
         navigation(
             startDestination = "new_add_custom_recipe",
             route = BottomNavigationScreen.AddCustomRecipe.route
         ) {
-            // TODO: Retains the viewmodel for entire application lifecycle...
-            val ingredientSearchViewModel =
-                DaggerIngredientSearchComponent
-                    .builder()
-                    .dataComponentProvider(dataProvider)
-                    .commonComponentProvider(commonProvider)
-                    .build()
-                    .viewModel
-
             composable(route = "new_add_custom_recipe") {
+                val parentEntry = remember(this) {
+                    navController.getBackStackEntry(BottomNavigationScreen.AddCustomRecipe.route)
+                }
+
+                val ingredientSearchViewModel =
+                    injectedViewModel(viewModelStoreOwner = parentEntry) {
+                        DaggerIngredientSearchComponent
+                            .builder()
+                            .dataComponentProvider(dataProvider)
+                            .commonComponentProvider(commonProvider)
+                            .build()
+                            .viewModel
+                    }
+
+
                 CreateCustomRecipeScreen(
                     navController = navController,
                     viewModel = injectedViewModel {
@@ -174,6 +182,20 @@ private fun NavigationConfiguration(
             composable(
                 route = Screen.IngredientSearch.route
             ) {
+                val parentEntry = remember(this) {
+                    navController.getBackStackEntry(BottomNavigationScreen.AddCustomRecipe.route)
+                }
+
+                val ingredientSearchViewModel =
+                    injectedViewModel(viewModelStoreOwner = parentEntry) {
+                        DaggerIngredientSearchComponent
+                            .builder()
+                            .dataComponentProvider(dataProvider)
+                            .commonComponentProvider(commonProvider)
+                            .build()
+                            .viewModel
+                    }
+
                 IngredientSearchScreen(
                     navController,
                     ingredientSearchViewModel

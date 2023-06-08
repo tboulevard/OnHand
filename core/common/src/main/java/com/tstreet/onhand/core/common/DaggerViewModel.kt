@@ -7,6 +7,8 @@ import androidx.compose.runtime.DisallowComposableCalls
 import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 /**
@@ -34,12 +36,16 @@ inline fun <reified T : ViewModel> daggerViewModel(
     )
 
 /**
- * Per:
+ * Adapted from:
  * https://www.droidcon.com/2021/12/14/navigating-through-multi-module-jetpack-compose-applications/
+ *
+ * Additionally allows us to specify a [ViewModelStoreOwner] to attach ViewModel instances
+ * to parts of the navigation subgraph.
  */
 @Composable
 inline fun <reified VM : ViewModel> injectedViewModel(
     key: String? = null,
+    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current),
     crossinline viewModelInstanceCreator: @DisallowComposableCalls () -> VM
 ): VM {
     val factory = remember(key) {
@@ -50,5 +56,9 @@ inline fun <reified VM : ViewModel> injectedViewModel(
             }
         }
     }
-    return viewModel(key = key, factory = factory)
+    return viewModel(
+        key = key,
+        factory = factory,
+        viewModelStoreOwner = viewModelStoreOwner
+    )
 }
