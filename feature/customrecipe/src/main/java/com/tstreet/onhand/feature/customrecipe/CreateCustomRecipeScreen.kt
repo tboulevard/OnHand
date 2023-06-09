@@ -36,20 +36,16 @@ fun CreateCustomRecipeScreen(
     // TODO: nav away warn unsaved changes
 
     val title = viewModel.title.collectAsState()
-    val inputValidationText = viewModel.inputValidationText.collectAsStateWithLifecycle()
-    val ingredients = ingredientSearchViewModel.displayedSelectedIngredients
+    val isTitleValid = viewModel.isTitleValid.collectAsStateWithLifecycle()
+    val inputValidationText = viewModel.titleInputValidationState.collectAsStateWithLifecycle()
+    val ingredients = ingredientSearchViewModel.selectedIngredients
     val instructions = viewModel.instructions.collectAsState()
-    val saveEnabled = viewModel.saveEnabled.collectAsStateWithLifecycle()
     val errorDialogState by viewModel.errorDialogState.collectAsStateWithLifecycle()
     val recipeId = viewModel.createdRecipeId.collectAsStateWithLifecycle()
 
-    DisposableEffect(recipeId.value) {
+    LaunchedEffect(recipeId.value) {
         recipeId.value?.let {
-            viewModel.clear()
             navController.navigate("$RECIPE_DETAIL_ROUTE/${recipeId.value}")
-        }
-        onDispose {
-            viewModel.resetRecipeId()
         }
     }
 
@@ -67,7 +63,6 @@ fun CreateCustomRecipeScreen(
             label = { Text("Recipe Title") },
             textStyle = MaterialTheme.typography.bodyMedium,
         )
-        // TODO: using then value of this is not the best, should use boolean
         if (inputValidationText.value.shown) {
             Row {
                 Icon(
@@ -135,7 +130,7 @@ fun CreateCustomRecipeScreen(
                         Icons.Default.Delete,
                         contentDescription = "remove ingredient",
                         modifier = Modifier
-                            .clickable { viewModel.onRemoveIngredient(index) }
+                            .clickable { ingredientSearchViewModel.onRemoveIngredient(index) }
                             .size(32.dp)
                             .padding(4.dp)
                             .align(Alignment.CenterVertically),
@@ -153,11 +148,9 @@ fun CreateCustomRecipeScreen(
         )
         Button(
             onClick = {
-                viewModel.onDoneClicked()
-
-                // Show snackbar, clear inputs
+                viewModel.onSaveRecipe(ingredients)
             },
-            enabled = saveEnabled.value
+            enabled = ingredients.isNotEmpty() && isTitleValid.value
         ) {
             Text(text = "Done")
         }
