@@ -103,7 +103,7 @@ class IngredientSearchViewModel @Inject constructor(
         _isSearchBarFocused.update { isFocused }
     }
 
-    fun onToggleIngredient(index: Int) {
+    fun onToggleSearchIngredient(index: Int) {
         viewModelScope.launch {
             val item = _mutableIngredients[index]
             val isSelected = item.isSelected
@@ -124,7 +124,7 @@ class IngredientSearchViewModel @Inject constructor(
         }
     }
 
-    fun onRemoveIngredient(index: Int) {
+    fun onRemoveSelectedIngredient(index: Int) {
         _selectedIngredients -= _selectedIngredients[index]
     }
 

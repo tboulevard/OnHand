@@ -45,8 +45,11 @@ fun CreateCustomRecipeScreen(
 
     LaunchedEffect(recipeId.value) {
         recipeId.value?.let {
-            navController.navigate("$RECIPE_DETAIL_ROUTE/${recipeId.value}")
+            navController.navigate("$RECIPE_DETAIL_ROUTE/${recipeId.value}") {
+                this.launchSingleTop = true
+            }
         }
+
     }
 
     // For general errors
@@ -130,7 +133,7 @@ fun CreateCustomRecipeScreen(
                         Icons.Default.Delete,
                         contentDescription = "remove ingredient",
                         modifier = Modifier
-                            .clickable { ingredientSearchViewModel.onRemoveIngredient(index) }
+                            .clickable { ingredientSearchViewModel.onRemoveSelectedIngredient(index) }
                             .size(32.dp)
                             .padding(4.dp)
                             .align(Alignment.CenterVertically),

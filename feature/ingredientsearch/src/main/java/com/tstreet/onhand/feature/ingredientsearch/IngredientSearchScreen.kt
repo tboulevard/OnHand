@@ -80,7 +80,7 @@ fun IngredientSearchScreen(
             isSearchBarFocused -> {
                 IngredientSearchCardList(
                     ingredients = ingredients,
-                    onItemClick = viewModel::onToggleIngredient,
+                    onItemClick = viewModel::onToggleSearchIngredient,
                     isPreSearchDebouncing,
                     searchText
                 )
