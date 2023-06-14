@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.tstreet.onhand.core.common.CREATE_RECIPE_ROUTE
 import com.tstreet.onhand.core.common.INGREDIENT_SEARCH_ROUTE
 import com.tstreet.onhand.core.common.RECIPE_DETAIL_ROUTE
 import com.tstreet.onhand.core.model.Ingredient
@@ -46,10 +47,9 @@ fun CreateCustomRecipeScreen(
     LaunchedEffect(recipeId.value) {
         recipeId.value?.let {
             navController.navigate("$RECIPE_DETAIL_ROUTE/${recipeId.value}") {
-                // TODO: Navigates us back home, revisit later. We do this because we don't properly
-                //  have the custom recipe navigation graph and the CreateCustomRecipeViewModel isn't
-                //  cleared properly (causing this code to trigger again on back nav)
-                popUpTo(navController.currentBackStackEntry?.destination?.route ?: "0") {
+                // To pop this and ingredient search viewmodels off backstack. Allows onCleared to
+                // be called for both in navigation subgraph.
+                popUpTo(CREATE_RECIPE_ROUTE) {
                     inclusive = true
                 }
             }
@@ -58,8 +58,7 @@ fun CreateCustomRecipeScreen(
 
     // For general errors
     OnHandAlertDialog(
-        onDismiss = viewModel::dismissErrorDialog,
-        state = errorDialogState
+        onDismiss = viewModel::dismissErrorDialog, state = errorDialogState
     )
 
     Column() {
@@ -87,10 +86,7 @@ fun CreateCustomRecipeScreen(
             }
         }
 
-        IconButton(
-            modifier = Modifier.size(144.dp),
-            onClick = { viewModel.onImageChanged("") }
-        ) {
+        IconButton(modifier = Modifier.size(144.dp), onClick = { viewModel.onImageChanged("") }) {
             Column() {
                 Icon(
                     Icons.Default.Add,
@@ -107,8 +103,7 @@ fun CreateCustomRecipeScreen(
                 .padding(8.dp)
                 .clickable {
                     navController.navigate(INGREDIENT_SEARCH_ROUTE)
-                },
-            horizontalArrangement = Arrangement.Start
+                }, horizontalArrangement = Arrangement.Start
         ) {
             Icon(
                 Icons.Default.Add,
@@ -125,24 +120,21 @@ fun CreateCustomRecipeScreen(
         // TODO: if this list exceeds bounds of screen, only this section is scrollable.
         //  make entire screen scrollable (similar approach to shopping list)
         LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
         ) {
             itemsIndexed(selectedIngredients) { index, item ->
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(text = item.name)
-                    Icon(
-                        Icons.Default.Delete,
+                    Icon(Icons.Default.Delete,
                         contentDescription = "remove ingredient",
                         modifier = Modifier
                             .clickable { onRemoveSelectedIngredient(index) }
                             .size(32.dp)
                             .padding(4.dp)
                             .align(Alignment.CenterVertically),
-                        tint = MaterialTheme.colorScheme.surfaceTint
-                    )
+                        tint = MaterialTheme.colorScheme.surfaceTint)
                 }
             }
         }
@@ -156,8 +148,7 @@ fun CreateCustomRecipeScreen(
         Button(
             onClick = {
                 viewModel.onSaveRecipe(selectedIngredients)
-            },
-            enabled = selectedIngredients.isNotEmpty() && isTitleValid.value
+            }, enabled = selectedIngredients.isNotEmpty() && isTitleValid.value
         ) {
             Text(text = "Done")
         }

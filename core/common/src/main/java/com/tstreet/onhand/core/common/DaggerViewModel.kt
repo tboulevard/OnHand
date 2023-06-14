@@ -36,6 +36,29 @@ inline fun <reified T : ViewModel> daggerViewModel(
     )
 
 /**
+ * From:
+ * https://www.droidcon.com/2021/12/14/navigating-through-multi-module-jetpack-compose-applications/
+ */
+@Composable
+inline fun <reified VM : ViewModel> injectedViewModel(
+    key: String? = null,
+    crossinline viewModelInstanceCreator: @DisallowComposableCalls () -> VM
+): VM {
+    val factory = remember(key) {
+        object : ViewModelProvider.Factory {
+            override fun <VM : ViewModel> create(modelClass: Class<VM>): VM {
+                @Suppress("UNCHECKED_CAST")
+                return viewModelInstanceCreator() as VM
+            }
+        }
+    }
+    return viewModel(
+        key = key,
+        factory = factory,
+    )
+}
+
+/**
  * Adapted from:
  * https://www.droidcon.com/2021/12/14/navigating-through-multi-module-jetpack-compose-applications/
  *
@@ -45,7 +68,7 @@ inline fun <reified T : ViewModel> daggerViewModel(
 @Composable
 inline fun <reified VM : ViewModel> injectedViewModel(
     key: String? = null,
-    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current),
+    viewModelStoreOwner: ViewModelStoreOwner,
     crossinline viewModelInstanceCreator: @DisallowComposableCalls () -> VM
 ): VM {
     val factory = remember(key) {

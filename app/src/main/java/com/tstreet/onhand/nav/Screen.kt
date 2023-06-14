@@ -51,6 +51,10 @@ val BottomNavigationScreens = listOf(
     BottomNavigationScreen.ShoppingList,
 )
 
+val RoutesWithHiddenNavBar = setOf(
+    BottomNavigationScreen.AddCustomRecipe.route
+)
+
 sealed class Screen(
     val route: String
 ) {

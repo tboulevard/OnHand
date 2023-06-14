@@ -145,7 +145,7 @@ private fun NavigationConfiguration(
             route = BottomNavigationScreen.AddCustomRecipe.route
         ) {
             composable(route = Screen.CreateRecipe.route) {
-                val parentEntry = remember(this) {
+                val parentEntry = remember(it) {
                     navController.getBackStackEntry(BottomNavigationScreen.AddCustomRecipe.route)
                 }
 
@@ -176,7 +176,7 @@ private fun NavigationConfiguration(
             composable(
                 route = Screen.IngredientSearch.route
             ) {
-                val parentEntry = remember(this) {
+                val parentEntry = remember(it) {
                     navController.getBackStackEntry(BottomNavigationScreen.AddCustomRecipe.route)
                 }
 
@@ -206,21 +206,27 @@ private fun OnHandBottomNavigationBar(
     navController: NavHostController,
     bottomNavigationItems: List<BottomNavigationScreen>
 ) {
-    NavigationBar {
-        val currentRoute = currentRoute(navController)
-        bottomNavigationItems.forEach { screen ->
-            NavigationBarItem(
-                icon = { Icon(imageVector = screen.icon, contentDescription = screen.route) },
-                label = { Text(screen.displayText) },
-                selected = currentRoute == screen.route,
-                onClick = {
-                    // For "singleTop" behavior where we do not create a second instance of the
-                    // composable if we already navigated
-                    if (currentRoute != screen.route) {
-                        navController.navigate(screen.route)
+    // If the current root route doesn't require us to hide all nav bar items, display nav bar
+    //  e.g.: We use this to hide the nav bar for the entire create custom recipe flow
+    // Only build the nav bar if the current parent route is found in the list of screens that
+    // need to hide the nav bar
+    if (!RoutesWithHiddenNavBar.contains(currentParentRoute(navController))) {
+        NavigationBar {
+            val currentRoute = currentRoute(navController)
+            bottomNavigationItems.forEach { screen ->
+                NavigationBarItem(
+                    icon = { Icon(imageVector = screen.icon, contentDescription = screen.route) },
+                    label = { Text(screen.displayText) },
+                    selected = currentRoute == screen.route,
+                    onClick = {
+                        // For "singleTop" behavior where we do not create a second instance of the
+                        // composable if we already navigated
+                        if (currentRoute != screen.route) {
+                            navController.navigate(screen.route)
+                        }
                     }
-                }
-            )
+                )
+            }
         }
     }
 }
@@ -229,4 +235,10 @@ private fun OnHandBottomNavigationBar(
 private fun currentRoute(navController: NavHostController): String? {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     return navBackStackEntry?.destination?.route
+}
+
+@Composable
+private fun currentParentRoute(navController: NavHostController): String? {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    return navBackStackEntry?.destination?.parent?.route
 }
