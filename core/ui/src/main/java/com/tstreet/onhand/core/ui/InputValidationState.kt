@@ -1,4 +1,4 @@
-package com.tstreet.onhand.feature.customrecipe
+package com.tstreet.onhand.core.ui
 
 class InputValidationState(
     val shown: Boolean,

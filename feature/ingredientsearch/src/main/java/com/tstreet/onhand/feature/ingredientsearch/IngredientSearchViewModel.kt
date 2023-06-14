@@ -4,7 +4,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.domain.ingredients.GetIngredientsUseCase
-import com.tstreet.onhand.core.model.RecipeIngredient
+import com.tstreet.onhand.core.model.SelectableIngredient
 import com.tstreet.onhand.core.ui.AlertDialogState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -24,13 +24,8 @@ class IngredientSearchViewModel @Inject constructor(
     private var _mutableIngredients = mutableListOf<SelectableIngredient>()
 
     // List of all selected ingredients only
-    private val _selectedIngredients =
-        mutableStateListOf<SelectableIngredient>().also {
-            //TODO: later - to disallow selecting duplicates
-            // share view model between screens that use this ?
-            it.addAll(emptyList())
-        }
-    val displayedSelectedIngredients: List<SelectableIngredient> = _selectedIngredients
+    private val _selectedIngredients = mutableStateListOf<SelectableIngredient>()
+    val selectedIngredients: List<SelectableIngredient> = _selectedIngredients
 
     // SharedFlow does not need to explicitly need to be collected, as it is a hot flow.
     // Additionally, we can replay to all new observers n times (in this case just the
@@ -109,7 +104,7 @@ class IngredientSearchViewModel @Inject constructor(
         _isSearchBarFocused.update { isFocused }
     }
 
-    fun onToggleIngredient(index: Int) {
+    fun onToggleSearchIngredient(index: Int) {
         viewModelScope.launch {
             val item = _mutableIngredients[index]
             val isSelected = item.isSelected
@@ -130,16 +125,7 @@ class IngredientSearchViewModel @Inject constructor(
         }
     }
 
-    fun getSelectedIngredients(): List<RecipeIngredient> {
-        return _selectedIngredients.map {
-            RecipeIngredient(
-                ingredient = it.ingredient,
-                // TODO: revisit when we handle images
-                image = "",
-                // TODO: revisit when we handle quantities
-                unit = "unit",
-                amount = 0.0
-            )
-        }
+    fun onRemoveSelectedIngredient(index: Int) {
+        _selectedIngredients -= _selectedIngredients[index]
     }
 }

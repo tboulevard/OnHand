@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.tstreet.onhand.core.ui.INGREDIENT_SEARCH_ITEMS_KEY
+import com.tstreet.onhand.core.model.SelectableIngredient
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
 import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
 
@@ -35,7 +35,7 @@ fun IngredientSearchScreen(
     val isSearching by viewModel.isSearching.collectAsState()
     val isSearchBarFocused by viewModel.isSearchBarFocused.collectAsState()
     val isPreSearchDebouncing by viewModel.isPreSearchDebounce.collectAsState()
-    val selectedIngredients = viewModel.displayedSelectedIngredients
+    val selectedIngredients = viewModel.selectedIngredients
     var hideKeyboard by remember { mutableStateOf(false) }
 
     Column(
@@ -56,7 +56,6 @@ fun IngredientSearchScreen(
             ) {
                 IconButton(
                     onClick = {
-                        // TODO: confirm unsaved changes lost dialog
                         navController.popBackStack()
                     }
                 ) {
@@ -64,21 +63,6 @@ fun IngredientSearchScreen(
                         imageVector = Icons.Filled.ArrowBack,
                         contentDescription = "go back",
                     )
-                }
-                Button(
-                    onClick = {
-                        navController.previousBackStackEntry
-                            ?.savedStateHandle
-                            ?.set(
-                                INGREDIENT_SEARCH_ITEMS_KEY,
-                                viewModel.getSelectedIngredients()
-                            )
-
-                        navController.popBackStack()
-                    },
-                    enabled = selectedIngredients.isNotEmpty()
-                ) {
-                    Text(text = "Save")
                 }
             }
         }
@@ -97,7 +81,7 @@ fun IngredientSearchScreen(
             isSearchBarFocused -> {
                 IngredientSearchCardList(
                     ingredients = ingredients,
-                    onItemClick = viewModel::onToggleIngredient,
+                    onItemClick = viewModel::onToggleSearchIngredient,
                     isPreSearchDebouncing,
                     searchText
                 )
@@ -284,6 +268,6 @@ fun SelectedIngredientList(
     ingredients: List<SelectableIngredient>
 ) {
     if (ingredients.isNotEmpty()) {
-        Text(text = "Selected ingredients: " + ingredients.map { it.ingredient.name }.toString())
+        Text(text = "Selected ingredients: " + ingredients.map { it.ingredient.name })
     }
 }

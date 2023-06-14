@@ -13,13 +13,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.tstreet.onhand.core.common.CREATE_RECIPE_ROUTE
 import com.tstreet.onhand.core.common.INGREDIENT_SEARCH_ROUTE
 import com.tstreet.onhand.core.common.RECIPE_DETAIL_ROUTE
-import com.tstreet.onhand.core.model.RecipeIngredient
-import com.tstreet.onhand.core.ui.INGREDIENT_SEARCH_ITEMS_KEY
+import com.tstreet.onhand.core.model.SelectableIngredient
 import com.tstreet.onhand.core.ui.OnHandAlertDialog
 import com.tstreet.onhand.core.ui.OnHandScreenHeader
 
@@ -31,41 +30,35 @@ import com.tstreet.onhand.core.ui.OnHandScreenHeader
 @Composable
 fun CreateCustomRecipeScreen(
     navController: NavHostController,
-    savedStateHandle: SavedStateHandle,
-    viewModel: CreateCustomRecipeViewModel
+    viewModel: CreateCustomRecipeViewModel,
+    selectedIngredients: List<SelectableIngredient>,
+    onRemoveSelectedIngredient: (Int) -> Unit
 ) {
 
     // TODO: nav away warn unsaved changes
 
     val title = viewModel.title.collectAsState()
-    val inputValidationText = viewModel.inputValidationText.collectAsStateWithLifecycle()
-    val ingredients = viewModel.ingredients
+    val isTitleValid = viewModel.isTitleValid.collectAsStateWithLifecycle()
+    val inputValidationText = viewModel.titleInputValidationState.collectAsStateWithLifecycle()
     val instructions = viewModel.instructions.collectAsState()
-    val saveEnabled = viewModel.saveEnabled.collectAsStateWithLifecycle()
     val errorDialogState by viewModel.errorDialogState.collectAsStateWithLifecycle()
     val recipeId = viewModel.createdRecipeId.collectAsStateWithLifecycle()
 
-    LaunchedEffect(null) {
-        savedStateHandle.get<List<RecipeIngredient>>(INGREDIENT_SEARCH_ITEMS_KEY)?.let {
-            viewModel.onReceiveData(it)
-            savedStateHandle.remove<List<RecipeIngredient>>(INGREDIENT_SEARCH_ITEMS_KEY)
-        }
-    }
-
-    DisposableEffect(recipeId.value) {
+    LaunchedEffect(recipeId.value) {
         recipeId.value?.let {
-            viewModel.clear()
-            navController.navigate("$RECIPE_DETAIL_ROUTE/${recipeId.value}")
-        }
-        onDispose {
-            viewModel.resetRecipeId()
+            navController.navigate("$RECIPE_DETAIL_ROUTE/${recipeId.value}") {
+                // To pop this and ingredient search viewmodels off backstack. Allows onCleared to
+                // be called for both in navigation subgraph.
+                popUpTo(CREATE_RECIPE_ROUTE) {
+                    inclusive = true
+                }
+            }
         }
     }
 
     // For general errors
     OnHandAlertDialog(
-        onDismiss = viewModel::dismissErrorDialog,
-        state = errorDialogState
+        onDismiss = viewModel::dismissErrorDialog, state = errorDialogState
     )
 
     Column() {
@@ -76,7 +69,6 @@ fun CreateCustomRecipeScreen(
             label = { Text("Recipe Title") },
             textStyle = MaterialTheme.typography.bodyMedium,
         )
-        // TODO: using then value of this is not the best, should use boolean
         if (inputValidationText.value.shown) {
             Row {
                 Icon(
@@ -94,10 +86,7 @@ fun CreateCustomRecipeScreen(
             }
         }
 
-        IconButton(
-            modifier = Modifier.size(144.dp),
-            onClick = { viewModel.onImageChanged("") }
-        ) {
+        IconButton(modifier = Modifier.size(144.dp), onClick = { viewModel.onImageChanged("") }) {
             Column() {
                 Icon(
                     Icons.Default.Add,
@@ -114,8 +103,7 @@ fun CreateCustomRecipeScreen(
                 .padding(8.dp)
                 .clickable {
                     navController.navigate(INGREDIENT_SEARCH_ROUTE)
-                },
-            horizontalArrangement = Arrangement.Start
+                }, horizontalArrangement = Arrangement.Start
         ) {
             Icon(
                 Icons.Default.Add,
@@ -132,24 +120,21 @@ fun CreateCustomRecipeScreen(
         // TODO: if this list exceeds bounds of screen, only this section is scrollable.
         //  make entire screen scrollable (similar approach to shopping list)
         LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
         ) {
-            itemsIndexed(ingredients) { index, item ->
+            itemsIndexed(selectedIngredients) { index, item ->
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(text = item.ingredient.name)
-                    Icon(
-                        Icons.Default.Delete,
+                    Icon(Icons.Default.Delete,
                         contentDescription = "remove ingredient",
                         modifier = Modifier
-                            .clickable { viewModel.onRemoveIngredient(index) }
+                            .clickable { onRemoveSelectedIngredient(index) }
                             .size(32.dp)
                             .padding(4.dp)
                             .align(Alignment.CenterVertically),
-                        tint = MaterialTheme.colorScheme.surfaceTint
-                    )
+                        tint = MaterialTheme.colorScheme.surfaceTint)
                 }
             }
         }
@@ -162,11 +147,8 @@ fun CreateCustomRecipeScreen(
         )
         Button(
             onClick = {
-                viewModel.onDoneClicked()
-
-                // Show snackbar, clear inputs
-            },
-            enabled = saveEnabled.value
+                viewModel.onSaveRecipe(selectedIngredients)
+            }, enabled = selectedIngredients.isNotEmpty() && isTitleValid.value
         ) {
             Text(text = "Done")
         }

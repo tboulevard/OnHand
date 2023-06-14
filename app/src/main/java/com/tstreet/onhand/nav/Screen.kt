@@ -3,6 +3,7 @@ package com.tstreet.onhand.nav
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.tstreet.onhand.core.common.CREATE_RECIPE_ROUTE
 import com.tstreet.onhand.core.common.INGREDIENT_SEARCH_ROUTE
 import com.tstreet.onhand.core.common.RECIPE_DETAIL_ROUTE
 
@@ -50,9 +51,15 @@ val BottomNavigationScreens = listOf(
     BottomNavigationScreen.ShoppingList,
 )
 
+val RoutesWithHiddenNavBar = setOf(
+    BottomNavigationScreen.AddCustomRecipe.route
+)
+
 sealed class Screen(
     val route: String
 ) {
     object RecipeDetail : Screen(RECIPE_DETAIL_ROUTE)
     object IngredientSearch : Screen(INGREDIENT_SEARCH_ROUTE)
+
+    object CreateRecipe : Screen(CREATE_RECIPE_ROUTE)
 }
