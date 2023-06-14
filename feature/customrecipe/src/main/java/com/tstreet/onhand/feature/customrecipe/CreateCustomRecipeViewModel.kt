@@ -149,9 +149,4 @@ class CreateCustomRecipeViewModel @Inject constructor(
             recipeImage = _coverImage.value,
             recipeImageType = "",
         )
-
-    override fun onCleared() {
-        super.onCleared()
-        println("[OnHand] CreateCustomRecipeViewModel cleared")
-    }
 }

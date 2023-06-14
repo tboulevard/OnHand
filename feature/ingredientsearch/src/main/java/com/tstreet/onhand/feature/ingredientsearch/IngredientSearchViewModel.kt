@@ -128,9 +128,4 @@ class IngredientSearchViewModel @Inject constructor(
     fun onRemoveSelectedIngredient(index: Int) {
         _selectedIngredients -= _selectedIngredients[index]
     }
-
-    override fun onCleared() {
-        super.onCleared()
-        println("[OnHand] IngredientSearchViewModel cleared")
-    }
 }
