@@ -17,9 +17,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.tstreet.onhand.core.common.INGREDIENT_SEARCH_ROUTE
 import com.tstreet.onhand.core.common.RECIPE_DETAIL_ROUTE
+import com.tstreet.onhand.core.model.Ingredient
 import com.tstreet.onhand.core.ui.OnHandAlertDialog
 import com.tstreet.onhand.core.ui.OnHandScreenHeader
-import com.tstreet.onhand.feature.ingredientsearch.IngredientSearchViewModel
 
 // TODO: use @PreviewParameter + create module with fake models to populate composables
 // TODO: screen rotation wipes `isSearchBarFocused` -> look into used collectAsStateWithLifecycle
@@ -30,7 +30,8 @@ import com.tstreet.onhand.feature.ingredientsearch.IngredientSearchViewModel
 fun CreateCustomRecipeScreen(
     navController: NavHostController,
     viewModel: CreateCustomRecipeViewModel,
-    ingredientSearchViewModel: IngredientSearchViewModel
+    selectedIngredients: List<Ingredient>,
+    onRemoveSelectedIngredient: (Int) -> Unit
 ) {
 
     // TODO: nav away warn unsaved changes
@@ -38,7 +39,6 @@ fun CreateCustomRecipeScreen(
     val title = viewModel.title.collectAsState()
     val isTitleValid = viewModel.isTitleValid.collectAsStateWithLifecycle()
     val inputValidationText = viewModel.titleInputValidationState.collectAsStateWithLifecycle()
-    val ingredients = ingredientSearchViewModel.selectedIngredients
     val instructions = viewModel.instructions.collectAsState()
     val errorDialogState by viewModel.errorDialogState.collectAsStateWithLifecycle()
     val recipeId = viewModel.createdRecipeId.collectAsStateWithLifecycle()
@@ -46,10 +46,14 @@ fun CreateCustomRecipeScreen(
     LaunchedEffect(recipeId.value) {
         recipeId.value?.let {
             navController.navigate("$RECIPE_DETAIL_ROUTE/${recipeId.value}") {
-                this.launchSingleTop = true
+                // TODO: Navigates us back home, revisit later. We do this because we don't properly
+                //  have the custom recipe navigation graph and the CreateCustomRecipeViewModel isn't
+                //  cleared properly (causing this code to trigger again on back nav)
+                popUpTo(navController.currentBackStackEntry?.destination?.route ?: "0") {
+                    inclusive = true
+                }
             }
         }
-
     }
 
     // For general errors
@@ -124,16 +128,16 @@ fun CreateCustomRecipeScreen(
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            itemsIndexed(ingredients) { index, item ->
+            itemsIndexed(selectedIngredients) { index, item ->
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = item.ingredient.name)
+                    Text(text = item.name)
                     Icon(
                         Icons.Default.Delete,
                         contentDescription = "remove ingredient",
                         modifier = Modifier
-                            .clickable { ingredientSearchViewModel.onRemoveSelectedIngredient(index) }
+                            .clickable { onRemoveSelectedIngredient(index) }
                             .size(32.dp)
                             .padding(4.dp)
                             .align(Alignment.CenterVertically),
@@ -151,9 +155,9 @@ fun CreateCustomRecipeScreen(
         )
         Button(
             onClick = {
-                viewModel.onSaveRecipe(ingredients)
+                viewModel.onSaveRecipe(selectedIngredients)
             },
-            enabled = ingredients.isNotEmpty() && isTitleValid.value
+            enabled = selectedIngredients.isNotEmpty() && isTitleValid.value
         ) {
             Text(text = "Done")
         }

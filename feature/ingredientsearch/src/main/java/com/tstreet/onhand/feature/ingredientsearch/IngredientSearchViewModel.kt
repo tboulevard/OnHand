@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.domain.ingredients.GetIngredientsUseCase
+import com.tstreet.onhand.core.model.Ingredient
 import com.tstreet.onhand.core.ui.AlertDialogState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -24,7 +25,7 @@ class IngredientSearchViewModel @Inject constructor(
 
     // List of all selected ingredients only
     private val _selectedIngredients = mutableStateListOf<SelectableIngredient>()
-    val selectedIngredients: List<SelectableIngredient> = _selectedIngredients
+    val selectedIngredients: List<Ingredient> = _selectedIngredients.map { it.ingredient }
 
     // SharedFlow does not need to explicitly need to be collected, as it is a hot flow.
     // Additionally, we can replay to all new observers n times (in this case just the

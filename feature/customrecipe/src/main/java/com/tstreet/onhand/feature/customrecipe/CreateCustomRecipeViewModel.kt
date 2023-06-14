@@ -6,12 +6,12 @@ import com.tstreet.onhand.core.common.Status.*
 import com.tstreet.onhand.core.domain.customrecipe.AddRecipeUseCase
 import com.tstreet.onhand.core.domain.customrecipe.CustomRecipeInputUseCase
 import com.tstreet.onhand.core.model.CustomRecipeInput
+import com.tstreet.onhand.core.model.Ingredient
 import com.tstreet.onhand.core.model.RecipeIngredient
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.displayed
 import com.tstreet.onhand.core.ui.InputValidationState.Companion.hidden
 import com.tstreet.onhand.core.ui.InputValidationState.Companion.shown
-import com.tstreet.onhand.feature.ingredientsearch.SelectableIngredient
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -107,7 +107,7 @@ class CreateCustomRecipeViewModel @Inject constructor(
         // TODO
     }
 
-    fun onSaveRecipe(ingredients: List<SelectableIngredient>) {
+    fun onSaveRecipe(ingredients: List<Ingredient>) {
         viewModelScope.launch {
             addRecipeUseCase.get().invoke(collectCustomRecipeInput(ingredients)).collect { result ->
                 when {
@@ -131,13 +131,13 @@ class CreateCustomRecipeViewModel @Inject constructor(
         _errorDialogState.update { dismissed() }
     }
 
-    private fun collectCustomRecipeInput(ingredients: List<SelectableIngredient>) =
+    private fun collectCustomRecipeInput(ingredients: List<Ingredient>) =
         CustomRecipeInput(
             recipeTitle = _title.value,
             instructions = _instructions.value,
             ingredients = ingredients.map {
                 RecipeIngredient(
-                    ingredient = it.ingredient,
+                    ingredient = it,
                     amount = 0.0,
                     unit = ""
                 )
