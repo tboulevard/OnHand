@@ -88,7 +88,7 @@ fun IngredientSearchScreen(
             }
             else -> {
                 SelectedIngredientList(
-                    ingredients = selectedIngredients
+                    ingredients = selectedIngredients.map { it.ingredient }
                 )
             }
         }

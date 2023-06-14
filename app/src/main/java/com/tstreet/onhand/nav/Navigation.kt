@@ -8,17 +8,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.tstreet.onhand.core.common.CommonComponentProvider
 import com.tstreet.onhand.core.common.LocalCommonProvider
 import com.tstreet.onhand.core.common.injectedViewModel
-import com.tstreet.onhand.core.data.api.di.DataComponentProvider
 import com.tstreet.onhand.core.data.api.di.LocalDataProvider
 import com.tstreet.onhand.core.ui.RECIPE_ID_NAV_KEY
 import com.tstreet.onhand.feature.customrecipe.CreateCustomRecipeScreen
@@ -26,7 +22,6 @@ import com.tstreet.onhand.feature.home.HomeScreen
 import com.tstreet.onhand.feature.customrecipe.di.DaggerCustomRecipeComponent
 import com.tstreet.onhand.feature.home.di.DaggerHomeComponent
 import com.tstreet.onhand.feature.ingredientsearch.IngredientSearchScreen
-import com.tstreet.onhand.feature.ingredientsearch.IngredientSearchViewModel
 import com.tstreet.onhand.feature.ingredientsearch.di.DaggerIngredientSearchComponent
 import com.tstreet.onhand.feature.recipedetail.RecipeDetailScreen
 import com.tstreet.onhand.feature.recipedetail.di.DaggerRecipeDetailComponent
@@ -144,11 +139,12 @@ private fun NavigationConfiguration(
             )
         }
         // subgraph for custom recipe creation
+        // TODO: This isn't done correctly, revisit later...
         navigation(
-            startDestination = "new_add_custom_recipe",
+            startDestination = Screen.CreateRecipe.route,
             route = BottomNavigationScreen.AddCustomRecipe.route
         ) {
-            composable(route = "new_add_custom_recipe") {
+            composable(route = Screen.CreateRecipe.route) {
                 val parentEntry = remember(this) {
                     navController.getBackStackEntry(BottomNavigationScreen.AddCustomRecipe.route)
                 }
@@ -163,7 +159,6 @@ private fun NavigationConfiguration(
                             .viewModel
                     }
 
-
                 CreateCustomRecipeScreen(
                     navController = navController,
                     viewModel = injectedViewModel {
@@ -174,9 +169,8 @@ private fun NavigationConfiguration(
                             .build()
                             .viewModel
                     },
-                    // TODO: just pass in ingredients observed state, then custom recipe module
-                    //  doesn't have to depend on ingredient search feature module
-                    ingredientSearchViewModel = ingredientSearchViewModel
+                    selectedIngredients = ingredientSearchViewModel.selectedIngredients.map { it.ingredient },
+                    onRemoveSelectedIngredient = ingredientSearchViewModel::onRemoveSelectedIngredient
                 )
             }
             composable(

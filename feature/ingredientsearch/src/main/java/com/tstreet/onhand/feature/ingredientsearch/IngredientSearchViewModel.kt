@@ -25,7 +25,7 @@ class IngredientSearchViewModel @Inject constructor(
 
     // List of all selected ingredients only
     private val _selectedIngredients = mutableStateListOf<SelectableIngredient>()
-    val selectedIngredients: List<Ingredient> = _selectedIngredients.map { it.ingredient }
+    val selectedIngredients: List<SelectableIngredient> = _selectedIngredients
 
     // SharedFlow does not need to explicitly need to be collected, as it is a hot flow.
     // Additionally, we can replay to all new observers n times (in this case just the
