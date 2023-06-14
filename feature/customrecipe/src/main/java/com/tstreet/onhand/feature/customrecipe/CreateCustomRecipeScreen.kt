@@ -18,7 +18,7 @@ import androidx.navigation.NavHostController
 import com.tstreet.onhand.core.common.CREATE_RECIPE_ROUTE
 import com.tstreet.onhand.core.common.INGREDIENT_SEARCH_ROUTE
 import com.tstreet.onhand.core.common.RECIPE_DETAIL_ROUTE
-import com.tstreet.onhand.core.model.Ingredient
+import com.tstreet.onhand.core.model.SelectableIngredient
 import com.tstreet.onhand.core.ui.OnHandAlertDialog
 import com.tstreet.onhand.core.ui.OnHandScreenHeader
 
@@ -31,7 +31,7 @@ import com.tstreet.onhand.core.ui.OnHandScreenHeader
 fun CreateCustomRecipeScreen(
     navController: NavHostController,
     viewModel: CreateCustomRecipeViewModel,
-    selectedIngredients: List<Ingredient>,
+    selectedIngredients: List<SelectableIngredient>,
     onRemoveSelectedIngredient: (Int) -> Unit
 ) {
 
@@ -126,7 +126,7 @@ fun CreateCustomRecipeScreen(
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = item.name)
+                    Text(text = item.ingredient.name)
                     Icon(Icons.Default.Delete,
                         contentDescription = "remove ingredient",
                         modifier = Modifier

@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.tstreet.onhand.core.model.Ingredient
+import com.tstreet.onhand.core.model.SelectableIngredient
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
 import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
 
@@ -88,7 +88,7 @@ fun IngredientSearchScreen(
             }
             else -> {
                 SelectedIngredientList(
-                    ingredients = selectedIngredients.map { it.ingredient }
+                    ingredients = selectedIngredients
                 )
             }
         }
@@ -265,9 +265,9 @@ fun IngredientSearchCardList(
 
 @Composable
 fun SelectedIngredientList(
-    ingredients: List<Ingredient>
+    ingredients: List<SelectableIngredient>
 ) {
     if (ingredients.isNotEmpty()) {
-        Text(text = "Selected ingredients: " + ingredients.map { it.name })
+        Text(text = "Selected ingredients: " + ingredients.map { it.ingredient.name })
     }
 }

@@ -169,7 +169,7 @@ private fun NavigationConfiguration(
                             .build()
                             .viewModel
                     },
-                    selectedIngredients = ingredientSearchViewModel.selectedIngredients.map { it.ingredient },
+                    selectedIngredients = ingredientSearchViewModel.selectedIngredients,
                     onRemoveSelectedIngredient = ingredientSearchViewModel::onRemoveSelectedIngredient
                 )
             }

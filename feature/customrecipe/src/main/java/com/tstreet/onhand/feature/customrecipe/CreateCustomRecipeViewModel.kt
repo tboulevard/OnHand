@@ -8,6 +8,7 @@ import com.tstreet.onhand.core.domain.customrecipe.CustomRecipeInputUseCase
 import com.tstreet.onhand.core.model.CustomRecipeInput
 import com.tstreet.onhand.core.model.Ingredient
 import com.tstreet.onhand.core.model.RecipeIngredient
+import com.tstreet.onhand.core.model.SelectableIngredient
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.displayed
 import com.tstreet.onhand.core.ui.InputValidationState.Companion.hidden
@@ -107,23 +108,25 @@ class CreateCustomRecipeViewModel @Inject constructor(
         // TODO
     }
 
-    fun onSaveRecipe(ingredients: List<Ingredient>) {
+    fun onSaveRecipe(ingredients: List<SelectableIngredient>) {
         viewModelScope.launch {
-            addRecipeUseCase.get().invoke(collectCustomRecipeInput(ingredients)).collect { result ->
-                when {
-                    result.status == SUCCESS && result.data != null -> {
-                        _createdRecipeId.update { result.data }
-                    }
-                    else -> {
-                        _errorDialogState.update {
-                            displayed(
-                                title = "Error",
-                                message = result.message.toString()
-                            )
+            addRecipeUseCase.get()
+                .invoke(collectCustomRecipeInput(ingredients.map { it.ingredient }))
+                .collect { result ->
+                    when {
+                        result.status == SUCCESS && result.data != null -> {
+                            _createdRecipeId.update { result.data }
+                        }
+                        else -> {
+                            _errorDialogState.update {
+                                displayed(
+                                    title = "Error",
+                                    message = result.message.toString()
+                                )
+                            }
                         }
                     }
                 }
-            }
         }
     }
 
