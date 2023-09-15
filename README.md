@@ -6,12 +6,13 @@ OnHand is a recipe generation app written with Kotlin, Jetpack Compose, Dagger 2
 
 ## Screenshots
 
-![Screenshot_20230915-144346](https://github.com/tboulevard/OnHand/assets/5940570/a81cd7a1-8a53-47a4-906f-6dedbffa0069)
-![Screenshot_20230915-144500](https://github.com/tboulevard/OnHand/assets/5940570/26217912-4c11-4631-95c2-36ef2b0a222c)
-![Screenshot_20230915-144356](https://github.com/tboulevard/OnHand/assets/5940570/c6a97d9b-58d1-4b90-adfe-8ca7ac125c7d)
-![Screenshot_20230915-144418](https://github.com/tboulevard/OnHand/assets/5940570/e52055af-a904-41a1-ba8e-8c802d977e33)
+<img src="https://github.com/tboulevard/OnHand/assets/5940570/2005ad20-add4-409b-aca1-b6e710b53042" width="400"/>
+<img src="https://github.com/tboulevard/OnHand/assets/5940570/91e0b5b4-ec58-40b1-82d6-61c0b5c5d85c" width="400"/> 
+<img src="https://github.com/tboulevard/OnHand/assets/5940570/af5126cf-9ffe-4708-aa5e-8a1f5b3346e2" width="400"/>
+<img src="https://github.com/tboulevard/OnHand/assets/5940570/bd6fd7e0-30f7-4f62-937a-4cd36f262965" width="400"/>
 
 ## Features
+
 - Pantry management (add/remove items)
 - Recipe search, derived from items in pantry
 - Ability to save recipes
