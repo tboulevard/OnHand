@@ -17,7 +17,7 @@ OnHand is a recipe generation app written with Kotlin, Jetpack Compose, Dagger 2
 - Pantry management (add/remove items)
 - Recipe search, derived from items in pantry
 - Ability to save recipes
-- Automatic shopping list calculation based marked recipes
+- Shoping list calculation on recipes for missing pantry items
 - Custom recipe creation
 
 ## File Structure
@@ -50,4 +50,4 @@ In addition, the following are used in the project:
 
 ## Architecture
 
-TBD (flow diagram breaking out application and feature scoped modules)
+TBD
