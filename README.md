@@ -4,6 +4,8 @@
 
 OnHand is a simple recipe generation app for Android written with Kotlin, Jetpack Compose and Dagger 2. It uses the latest architecture guidance laid out by Google as of 2023.
 
+**NOTE**: Work in progress.
+
 ## Screenshots
 
 <img src="https://github.com/tboulevard/OnHand/assets/5940570/2005ad20-add4-409b-aca1-b6e710b53042" width="185"/>
