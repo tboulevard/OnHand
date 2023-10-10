@@ -35,17 +35,16 @@ private interface RetrofitOnHandService {
     ): OnHandNetworkResponse<NetworkRecipeDetail>
 }
 
-private const val BASE_URL = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/"
-private const val HOST = "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com"
-private const val API_KEY = "3749218b77mshea638b2be581548p186f46jsn90edcd6e1d2c"
-
 @Singleton
 class RetrofitOnHandNetwork @Inject constructor(
-    networkJson: Json
+    networkJson: Json,
+    baseUrl: String,
+    host: String,
+    apiKey: String
 ) : OnHandNetworkDataSource {
 
     private val networkApi = Retrofit.Builder()
-        .baseUrl(BASE_URL)
+        .baseUrl(baseUrl)
         .addCallAdapterFactory(NetworkResponseAdapterFactory())
         .client(
             OkHttpClient.Builder()
@@ -57,8 +56,8 @@ class RetrofitOnHandNetwork @Inject constructor(
                 )
                 .addInterceptor { chain ->
                     val request = chain.request().newBuilder()
-                        .addHeader("X-RapidAPI-Host", HOST)
-                        .addHeader("X-RapidAPI-Key", API_KEY)
+                        .addHeader("X-RapidAPI-Host", host)
+                        .addHeader("X-RapidAPI-Key", apiKey)
                     chain.proceed(request.build())
                 }
                 .build()

@@ -2,7 +2,7 @@
 
 ![All Checks](https://github.com/tboulevard/OnHand/actions/workflows/build.yaml/badge.svg)
 
-OnHand is a simple recipe generation app for Android written with Kotlin, Jetpack Compose and Dagger 2. It uses the latest architecture guidance laid out by Google as of 2023.
+OnHand is a simple recipe generation app for Android written with Kotlin, Jetpack Compose and Dagger.
 
 ## Screenshots
 
@@ -47,6 +47,14 @@ In addition, the following are used in the project:
 - [**Kotlin Coroutines**](https://kotlinlang.org/docs/coroutines-overview.html)  - for the threading model and concurrency.
 - [**Retrofit**](https://square.github.io/retrofit/)  - for networking.
 - [**Room**](https://developer.android.com/training/data-storage/room)  - for persistence and offline mode.
+
+## Building Locally
+
+Generate an API key for [Spoonacular](https://rapidapi.com/spoonacular/api/recipe-food-nutrition) and add it as a property like this in `local.properties`:
+
+```xml
+spoonacular_api_key="<YOUR_API_KEY>"
+```
 
 ## Architecture
 
