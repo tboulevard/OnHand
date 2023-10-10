@@ -9,6 +9,13 @@ android {
     defaultConfig {
         consumerProguardFiles "consumer-rules.pro"
         buildConfigField "boolean", "useFakeDataSource", "false"
+
+        Properties properties = new Properties()
+        if (project.rootProject.file("local.properties").canRead()) {
+            properties.load(project.rootProject.file("local.properties").newDataInputStream())
+        }
+
+        buildConfigField "String", "spoonacularApiKey", properties.getProperty("spoonacular_api_key", "")
     }
 
     buildTypes {

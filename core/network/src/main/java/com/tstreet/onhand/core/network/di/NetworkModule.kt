@@ -13,6 +13,9 @@ import javax.inject.Singleton
 object NetworkModule {
 
     private const val USE_FAKE_DATASOURCE = BuildConfig.useFakeDataSource
+    private const val SPOONACULAR_API_KEY = BuildConfig.spoonacularApiKey
+    private const val HOST = "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com"
+    private const val BASE_URL = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/"
 
     @Provides
     @Singleton
@@ -22,7 +25,12 @@ object NetworkModule {
         if (USE_FAKE_DATASOURCE) {
             return FakeOnHandNetworkDataSource()
         }
-        return RetrofitOnHandNetwork(networkJson)
+        return RetrofitOnHandNetwork(
+            networkJson,
+            BASE_URL,
+            HOST,
+            SPOONACULAR_API_KEY
+        )
     }
 
     @Provides
