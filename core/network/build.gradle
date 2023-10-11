@@ -29,6 +29,7 @@ android {
             buildConfigField "boolean", "useFakeDataSource", "true"
         }
         release {
+            // TODO: strategy for inputting spoonacular_api_key if we decide to release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
