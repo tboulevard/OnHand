@@ -9,18 +9,19 @@ android {
     defaultConfig {
         consumerProguardFiles "consumer-rules.pro"
         buildConfigField "boolean", "useFakeDataSource", "false"
-
-        Properties properties = new Properties()
-        if (project.rootProject.file("local.properties").canRead()) {
-            properties.load(project.rootProject.file("local.properties").newDataInputStream())
-        }
-
-        buildConfigField "String", "spoonacularApiKey", properties.getProperty("spoonacular_api_key", "\"\"")
     }
 
     buildTypes {
         debug {
             debuggable true
+
+            // Only read local properties in debug since we don't need it in other build variants
+            Properties properties = new Properties()
+            if (project.rootProject.file("local.properties").canRead()) {
+                properties.load(project.rootProject.file("local.properties").newDataInputStream())
+            }
+
+            buildConfigField "String", "spoonacularApiKey", properties.getProperty("spoonacular_api_key", "\"\"")
         }
         mockDebug {
             initWith(debug)
