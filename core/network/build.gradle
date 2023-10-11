@@ -15,7 +15,7 @@ android {
             properties.load(project.rootProject.file("local.properties").newDataInputStream())
         }
 
-        buildConfigField "String", "spoonacularApiKey", properties.getProperty("spoonacular_api_key", "")
+        buildConfigField "String", "spoonacularApiKey", properties.getProperty("spoonacular_api_key", "\"\"")
     }
 
     buildTypes {
