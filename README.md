@@ -2,7 +2,7 @@
 
 ![All Checks](https://github.com/tboulevard/OnHand/actions/workflows/build.yaml/badge.svg)
 
-OnHand is a simple recipe generation app for Android written with Kotlin, Jetpack Compose and Dagger.
+OnHand is a simple recipe generation app for Android written with Kotlin, Jetpack Compose, and Dagger.
 
 ## Screenshots
 
@@ -14,10 +14,10 @@ OnHand is a simple recipe generation app for Android written with Kotlin, Jetpac
 
 ## Features
 
-- Pantry management (add/remove items)
+- Pantry management (add/remove ingredients)
 - Recipe search, derived from items in pantry
 - Ability to save recipes
-- Shoping list calculation on recipes for missing pantry items
+- Shopping list calculation on recipes for missing pantry ingredients
 - Custom recipe creation
 
 ## File Structure
