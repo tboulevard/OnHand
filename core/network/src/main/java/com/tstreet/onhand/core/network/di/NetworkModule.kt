@@ -36,7 +36,11 @@ object NetworkModule {
     @Provides
     @Singleton
     // TODO: Needed for kotlin serialization, look into why later. Copied from Google NIA project
-    fun providesNetworkJson(): Json = Json { ignoreUnknownKeys = true }
+    fun providesNetworkJson(): Json = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+        coerceInputValues = true
+    }
 
     // FYI: Above is shorthand of this:
     //    @Binds

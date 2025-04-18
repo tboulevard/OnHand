@@ -1,10 +1,11 @@
 package com.tstreet.onhand
 
 import android.app.Application
+import android.util.Log
 import coil.ImageLoader
 import coil.ImageLoaderFactory
 import com.tstreet.onhand.core.common.DaggerCommonComponent
-import com.tstreet.onhand.core.data.impl.di.DaggerDataComponent
+import com.tstreet.onhand.core.data.di.DaggerDataComponent
 
 class OnHandApplication : Application(), ImageLoaderFactory {
 
@@ -15,18 +16,16 @@ class OnHandApplication : Application(), ImageLoaderFactory {
     override fun onCreate() {
         super.onCreate()
 
+        Log.d("[OnHand]", "OnHandApplication onCreate")
+
         val commonComponent = DaggerCommonComponent.factory().create(this)
-        val dataComponent = DaggerDataComponent
-            .builder()
-            .commonComponentProvider(commonComponent)
-            .build()
         appComponent = DaggerOnHandApplicationComponent
             .builder()
-            .commonComponentProvider(commonComponent)
-            .dataComponentProvider(dataComponent)
+            .commonComponent(commonComponent)
             .build()
     }
 
+    // TODO: Move to module
     override fun newImageLoader(): ImageLoader {
         return ImageLoader.Builder(this)
             .crossfade(true)

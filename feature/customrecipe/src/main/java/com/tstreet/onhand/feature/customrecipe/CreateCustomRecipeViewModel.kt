@@ -1,18 +1,17 @@
 package com.tstreet.onhand.feature.customrecipe
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.Status.*
-import com.tstreet.onhand.core.domain.customrecipe.AddRecipeUseCase
-import com.tstreet.onhand.core.domain.customrecipe.CustomRecipeInputUseCase
+import com.tstreet.onhand.core.domain.usecase.customrecipe.AddRecipeUseCase
+import com.tstreet.onhand.core.domain.usecase.customrecipe.CustomRecipeInputUseCase
 import com.tstreet.onhand.core.model.CustomRecipeInput
-import com.tstreet.onhand.core.model.Ingredient
-import com.tstreet.onhand.core.model.RecipeIngredient
-import com.tstreet.onhand.core.model.SelectableIngredient
+import com.tstreet.onhand.core.model.data.Ingredient
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.displayed
-import com.tstreet.onhand.core.ui.InputValidationState.Companion.hidden
-import com.tstreet.onhand.core.ui.InputValidationState.Companion.shown
+import com.tstreet.onhand.core.model.ui.InputValidationState.Companion.hidden
+import com.tstreet.onhand.core.model.ui.InputValidationState.Companion.shown
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,7 +23,7 @@ class CreateCustomRecipeViewModel @Inject constructor(
 ) : ViewModel() {
 
     init {
-        println("[OnHand] ${this.javaClass.simpleName} created")
+        Log.d("[OnHand]", "${this.javaClass.simpleName} created")
     }
 
     // Required input fields
@@ -108,10 +107,10 @@ class CreateCustomRecipeViewModel @Inject constructor(
         // TODO
     }
 
-    fun onSaveRecipe(ingredients: List<SelectableIngredient>) {
+    fun onSaveRecipe(ingredients: List<Ingredient>) {
         viewModelScope.launch {
             addRecipeUseCase.get()
-                .invoke(collectCustomRecipeInput(ingredients.map { it.ingredient }))
+                .invoke(collectCustomRecipeInput(ingredients))
                 .collect { result ->
                     when {
                         result.status == SUCCESS && result.data != null -> {
@@ -138,13 +137,7 @@ class CreateCustomRecipeViewModel @Inject constructor(
         CustomRecipeInput(
             recipeTitle = _title.value,
             instructions = _instructions.value,
-            ingredients = ingredients.map {
-                RecipeIngredient(
-                    ingredient = it,
-                    amount = 0.0,
-                    unit = ""
-                )
-            },
+            ingredients = emptyList(),
             // TODO: revisit below when we allow submitting custom images
             recipeImage = _coverImage.value,
             recipeImageType = "",

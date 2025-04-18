@@ -27,14 +27,14 @@ OnHand is a simple recipe generation app for Android written with Kotlin, Jetpac
 |	`:app` | Contains MainActivity, navigation logic, AndroidManifest, and logic for the creation of root application component.          |
 |	`:build-logic` | Defines project-specific convention plugins, used to keep a single source of truth for common configurations across multiple modules.           |
 |	`:core`| Logic to the app used across multiple modules. Only `:feature` or other `:core` modules should depend on modules from here. |
-|	`:core:common`| Shared utility logic for `:core` or `:feature` modules. For example, `@FeatureScope` Dagger binding or `PantryStateManager` logic. |
-|	`:core:data`| Split into `:api` and `:impl`, the set of data operations the app can perform. Hides implementation details of where this data is retrieved/stored, whether it be local DB (Room) or remote. |
+|	`:core:common`| Shared utility logic for all other modules. |
+|	`:core:data`| Contains implementation details about repositories (which determine the source of truth for data). |
 |	`:core:database`| Room entities and configuration. |
-|	`:core:domain`| Platform agnostic business logic. For example, acting as an intermediary between a ViewModel and the data layer for removing an ingredient from the pantry. |
-|	`:core:model`| Non-network models used to propagate information throughout the app. |
+|	`:core:domain`| Platform agnostic business logic. For example, acting as an intermediary between a ViewModel and the data layer for removing an ingredient from the pantry. Also contains Repository interfaces for data communication model. |
+|	`:core:model`| Models (non-network) used to propagate information throughout the app. |
 |	`:core:network`| Network configuration (Retrofit) and network models. |
 |	`:core:ui`| Shared UI components. Primarily just `@Composable` functions that are used in multiple locations, like `OnHandAlertDialog`.|
-|	`:feature`|Root for all `:feature` modules. `:feature` modules contain UI logic associated with each feature only. They _only_ depend on `:core` modules and are only depended on by `:app` for navigation purposes.            |
+|	`:feature`| Root for all `:feature` modules. `:feature` modules contain UI logic associated with each feature only. Contains feature specific UI rendering logic. |
 
 ## Technologies
 

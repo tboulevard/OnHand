@@ -1,273 +1,205 @@
 package com.tstreet.onhand.feature.ingredientsearch
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import com.tstreet.onhand.core.model.SelectableIngredient
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.tstreet.onhand.core.model.ui.SearchUiState
+import com.tstreet.onhand.core.model.ui.UiSearchIngredient
+import com.tstreet.onhand.core.ui.IngredientSearchBar
+import com.tstreet.onhand.core.ui.OnHandAlertDialog
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
-import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
-
-// TODO: use @PreviewParameter + create module with fake models to populate composables
-// TODO: screen rotation wipes `isSearchBarFocused` -> look into used collectAsStateWithLifecycle
-// TODO: Using the hardware back/swipe back while in search doesn't nav back to pantry. Eventually
-//  we'll probably want IngredientSearch as a separate screen so we can add it to the nav backstack
-@Composable
-fun IngredientSearchScreen(
-    navController: NavHostController,
-    viewModel: IngredientSearchViewModel
-) {
-    val ingredients by viewModel.displayedIngredients.collectAsState()
-    val searchText by viewModel.displayedSearchText.collectAsState(initial = "")
-    val isSearching by viewModel.isSearching.collectAsState()
-    val isSearchBarFocused by viewModel.isSearchBarFocused.collectAsState()
-    val isPreSearchDebouncing by viewModel.isPreSearchDebounce.collectAsState()
-    val selectedIngredients = viewModel.selectedIngredients
-    var hideKeyboard by remember { mutableStateOf(false) }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .clickable {
-                hideKeyboard = true
-            },
-        verticalArrangement = Arrangement.Top
-    ) {
-        Surface(
-            color = MaterialTheme.colorScheme.inverseOnSurface,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                IconButton(
-                    onClick = {
-                        navController.popBackStack()
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = "go back",
-                    )
-                }
-            }
-        }
-        IngredientSearchBar(
-            searchText = searchText,
-            onTextChanged = viewModel::onSearchTextChanged,
-            onFocusChanged = viewModel::onSearchBarFocusChanged,
-            isFocused = isSearchBarFocused,
-            hideKeyboard = hideKeyboard,
-            showKeyboard = { hideKeyboard = false }
-        )
-        when {
-            isSearching -> {
-                OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
-            }
-            isSearchBarFocused -> {
-                IngredientSearchCardList(
-                    ingredients = ingredients,
-                    onItemClick = viewModel::onToggleSearchIngredient,
-                    isPreSearchDebouncing,
-                    searchText
-                )
-            }
-            else -> {
-                SelectedIngredientList(
-                    ingredients = selectedIngredients
-                )
-            }
-        }
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun IngredientSearchBar(
-    searchText: String,
-    onTextChanged: (String) -> Unit,
-    onFocusChanged: (Boolean) -> Unit,
-    isFocused: Boolean,
-    hideKeyboard: Boolean,
-    showKeyboard: () -> Unit
+fun IngredientSearchScreen(
+    viewModel: IngredientSearchViewModel,
+    onBackClicked: () -> Unit
 ) {
-    val focusManager = LocalFocusManager.current
+    val uiState by viewModel.searchUiState.collectAsStateWithLifecycle()
+    val searchText by viewModel.displayedSearchText.collectAsState()
+    val errorDialogState = viewModel.errorDialogState.collectAsState()
 
-    TextField(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { showKeyboard() }
-            .padding(start = 8.dp, top = 16.dp, end = 8.dp, bottom = 8.dp)
-            .onFocusChanged { onFocusChanged(it.isFocused) },
-        value = searchText,
-        onValueChange = { onTextChanged(it) },
-        placeholder = { Text("Search Ingredients") },
-        trailingIcon = {
-            if (searchText.isNotEmpty()) {
-                Icon(
-                    modifier = Modifier.clickable {
-                        onTextChanged("")
-                    },
-                    imageVector = Icons.Filled.Close,
-                    contentDescription = "close"
-                )
-            }
-        },
-        leadingIcon = {
-            if (!isFocused) {
-                Icon(
-                    imageVector = Icons.Filled.Search,
-                    contentDescription = "search",
-                )
-            } else {
-                IconButton(onClick = {
-                    onTextChanged("")
-                    onFocusChanged(false)
-                    focusManager.clearFocus()
-                }) {
-                    Icon(
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = "search",
-                    )
-                }
-            }
-        },
-        textStyle = MaterialTheme.typography.bodyMedium,
-        shape = RoundedCornerShape(50),
-        colors = TextFieldDefaults.textFieldColors(
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-        ),
-        keyboardActions = KeyboardActions(onAny = {
-            focusManager.clearFocus()
-        })
+    val onIngredientSearchTextChanged = remember { viewModel::onSearchTextChanged }
+    val dismissErrorDialog = remember { viewModel::dismissErrorDialog }
+
+    OnHandAlertDialog(
+        onDismiss = dismissErrorDialog,
+        state = errorDialogState.value
     )
 
-    if (hideKeyboard) {
-        onTextChanged("")
-        onFocusChanged(false)
-        focusManager.clearFocus()
-        showKeyboard()
+    Scaffold(
+        topBar = {
+            IngredientSearchBar(
+                searchText = searchText,
+                onTextChanged = onIngredientSearchTextChanged,
+                onBackClicked = onBackClicked
+            )
+        }
+    ) { paddingValues ->
+        IngredientSearchCardList(
+            modifier = Modifier.padding(paddingValues),
+            searchUiState = uiState,
+            onItemClick = { ingredient ->
+                viewModel.onItemClick(ingredient)
+            }
+        )
     }
 }
 
 private class IngredientSearchCard(
     val name: String,
-    val isSelected: Boolean
+    val isSelected: Boolean,
+    val inPantry: Boolean
 )
 
 @Composable
 private fun IngredientSearchListItem(
     card: IngredientSearchCard,
-    index: Int,
-    onItemClicked: (Int) -> Unit
+    ingredient: UiSearchIngredient,
+    onItemClicked: (UiSearchIngredient) -> Unit
 ) {
-    Card(
-        shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(
-            containerColor = if (card.isSelected) {
-                MATTE_GREEN
-            } else {
-                MaterialTheme.colorScheme.surfaceVariant
-            },
-        ),
+    ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = { onItemClicked(index) }),
+            .padding(vertical = 4.dp)
+            .clickable(onClick = { onItemClicked(ingredient) }),
+        elevation = CardDefaults.elevatedCardElevation(
+            defaultElevation = 2.dp
+        ),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = if (card.isSelected) MaterialTheme.colorScheme.primaryContainer 
+                            else MaterialTheme.colorScheme.surface
+        )
     ) {
         Row(
             modifier = Modifier
-                .padding(16.dp)
-                .fillMaxSize(),
-            horizontalArrangement = Arrangement.SpaceBetween
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = card.name,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-            )
-            if (card.isSelected) {
-                Icon(
-                    imageVector = Icons.Default.Clear,
-                    contentDescription = "Added to pantry",
-                    tint = MaterialTheme.colorScheme.inverseOnSurface,
-                    modifier = Modifier.align(Alignment.CenterVertically)
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = card.name,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = if (card.isSelected) MaterialTheme.colorScheme.onPrimaryContainer 
+                           else MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
-            } else {
-                Icon(
-                    imageVector = Icons.Default.AddCircle,
-                    contentDescription = "Not in pantry",
-                    tint = MaterialTheme.colorScheme.inverseOnSurface,
-                    modifier = Modifier.align(Alignment.CenterVertically)
-                )
+                
+                if (card.inPantry) {
+                    Text(
+                        text = "In pantry",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (card.isSelected) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f) 
+                               else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
+
+            Icon(
+                imageVector = if (card.isSelected) Icons.Outlined.Check else Icons.Outlined.Add,
+                contentDescription = if (card.isSelected) "Remove ingredient" else "Add ingredient",
+                tint = if (card.isSelected) MaterialTheme.colorScheme.onPrimaryContainer 
+                      else MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(start = 8.dp)
+            )
         }
     }
 }
 
 @Composable
 fun IngredientSearchCardList(
-    ingredients: List<SelectableIngredient>,
-    onItemClick: (Int) -> Unit,
-    isPreDebounce: Boolean,
-    searchText: String,
+    modifier: Modifier = Modifier,
+    searchUiState: SearchUiState,
+    onItemClick: (UiSearchIngredient) -> Unit
+) {
+    Log.d("[OnHand]", "IngredientSearchCardList recomposition")
 
-    ) {
-    when (ingredients.isEmpty() && !isPreDebounce && searchText.isNotEmpty()) {
-        true -> {
-            Row(
-                modifier = Modifier.fillMaxSize(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = "No results.",
-                    style = MaterialTheme.typography.bodyLarge,
-                )
+    Box(modifier = modifier.fillMaxSize()) {
+        when (searchUiState) {
+            is SearchUiState.Empty -> {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Search,
+                        contentDescription = null,
+                        modifier = Modifier.size(48.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "No results found",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
-        }
-        else -> {
-            LazyColumn(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                itemsIndexed(
-                    items = ingredients
-                ) { index, item ->
-                    IngredientSearchListItem(
-                        card = IngredientSearchCard(
-                            name = item.ingredient.name,
-                            isSelected = item.isSelected
-                        ),
-                        index,
-                        onItemClicked = onItemClick
+
+            is SearchUiState.Loading -> {
+                OnHandProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
+
+            is SearchUiState.Content -> {
+                LazyColumn(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    contentPadding = PaddingValues(vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    itemsIndexed(
+                        key = { _, item -> item.ingredient.id },
+                        items = searchUiState.ingredients
+                    ) { _, item ->
+                        IngredientSearchListItem(
+                            card = IngredientSearchCard(
+                                name = item.ingredient.name,
+                                isSelected = item.isSelected.value,
+                                inPantry = item.inPantry.value
+                            ),
+                            item,
+                            onItemClicked = onItemClick
+                        )
+                    }
+                }
+            }
+
+            is SearchUiState.Error -> {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Warning,
+                        contentDescription = null,
+                        modifier = Modifier.size(48.dp),
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Something went wrong",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.error
                     )
                 }
             }
         }
-    }
-}
-
-@Composable
-fun SelectedIngredientList(
-    ingredients: List<SelectableIngredient>
-) {
-    if (ingredients.isNotEmpty()) {
-        Text(text = "Selected ingredients: " + ingredients.map { it.ingredient.name })
     }
 }

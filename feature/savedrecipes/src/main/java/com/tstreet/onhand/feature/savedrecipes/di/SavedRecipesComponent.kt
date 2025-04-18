@@ -1,17 +1,20 @@
 package com.tstreet.onhand.feature.savedrecipes.di
 
-import com.tstreet.onhand.core.common.CommonComponentProvider
+import com.tstreet.onhand.core.common.CommonComponent
 import com.tstreet.onhand.core.common.FeatureScope
-import com.tstreet.onhand.core.data.api.di.DataComponentProvider
+import com.tstreet.onhand.core.data.di.DataComponent
+import com.tstreet.onhand.core.domain.di.UseCaseModule
 import com.tstreet.onhand.feature.savedrecipes.SavedRecipesViewModel
 import dagger.Component
 
 @Component(
     dependencies = [
-        DataComponentProvider::class,
-        CommonComponentProvider::class
+        DataComponent::class,
+        CommonComponent::class
     ],
-    modules = [SavedRecipesModule::class]
+    modules = [
+        UseCaseModule::class
+    ]
 )
 @FeatureScope
 interface SavedRecipesComponent {

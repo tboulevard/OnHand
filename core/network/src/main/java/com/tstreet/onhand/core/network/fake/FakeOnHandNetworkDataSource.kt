@@ -1,5 +1,6 @@
 package com.tstreet.onhand.core.network.fake
 
+import android.util.Log
 import com.tstreet.onhand.core.network.OnHandNetworkDataSource
 import com.tstreet.onhand.core.network.model.*
 import com.tstreet.onhand.core.network.retrofit.NetworkResponse
@@ -11,7 +12,7 @@ import javax.inject.Inject
 class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSource {
 
     init {
-        println("[OnHand] Creating ${this.javaClass.simpleName}")
+        Log.d("[OnHand]", "Creating ${this.javaClass.simpleName}")
     }
 
     override suspend fun getIngredients(prefix: String): OnHandNetworkResponse<NetworkIngredientSearchResult> {
@@ -217,7 +218,7 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
                 preparationMinutes = 20,
                 cookingMinutes = 30,
                 aggregateLikes = 500,
-                healthScore = 90,
+                healthScore = 90f,
                 creditsText = "Food Network",
                 //license = "CC BY-SA 4.0", TODO:
                 sourceName = "Food Network",

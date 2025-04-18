@@ -1,46 +1,44 @@
 package com.tstreet.onhand.feature.home
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.*
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.tstreet.onhand.core.model.PantryIngredient
+import com.tstreet.onhand.core.model.ui.PantryUiState
+import com.tstreet.onhand.core.model.ui.SearchUiState
+import com.tstreet.onhand.core.model.ui.UiPantryIngredient
+import com.tstreet.onhand.core.model.ui.UiSearchIngredient
+import com.tstreet.onhand.core.ui.IngredientSearchBar
 import com.tstreet.onhand.core.ui.OnHandAlertDialog
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
-import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
 
-// TODO: use @PreviewParameter + create module with fake models to populate composables
-// TODO: screen rotation wipes `isSearchBarFocused` -> look into used collectAsStateWithLifecycle
-// TODO: Using the hardware back/swipe back while in search doesn't nav back to pantry. Eventually
-//  we'll probably want IngredientSearch as a separate screen so we can add it to the nav backstack
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel
+    viewModel: HomeViewModel,
+    onIngredientSearchClick: () -> Unit
 ) {
-    val searchText by viewModel.displayedSearchText.collectAsState(initial = "")
-    val pantry by viewModel.pantry.collectAsStateWithLifecycle()
-    val ingredients by viewModel.ingredients.collectAsStateWithLifecycle()
-    val isSearching by viewModel.isSearching.collectAsState()
-    val isSearchBarFocused by viewModel.isSearchBarFocused.collectAsState()
-    val isPreSearchDebouncing by viewModel.isPreSearchDebounce.collectAsState()
-    val errorDialogState = viewModel.errorDialogState.collectAsState()
+    Log.d("[OnHand]", "HomeScreen recomposition")
+    val pantryUiState by viewModel.pantryUiState.collectAsStateWithLifecycle()
+    val suggestedIngredientsUiState by viewModel.suggestedIngredientsUiState.collectAsStateWithLifecycle()
+    val errorDialogState = viewModel.errorDialogState.collectAsStateWithLifecycle()
+
+    val onIngredientClick = remember { viewModel::onToggleIngredient }
+    val dismissErrorDialog = remember { viewModel::dismissErrorDialog }
 
     OnHandAlertDialog(
-        onDismiss = viewModel::dismissErrorDialog,
+        onDismiss = dismissErrorDialog,
         state = errorDialogState.value
     )
 
@@ -49,28 +47,74 @@ fun HomeScreen(
         verticalArrangement = Arrangement.Top
     ) {
         IngredientSearchBar(
-            searchText = searchText,
-            onTextChanged = viewModel::onSearchTextChanged,
-            onFocusChanged = viewModel::onSearchBarFocusChanged,
-            isFocused = isSearchBarFocused
+            onClick = onIngredientSearchClick,
+            enabled = false
         )
-        when {
-            isSearching -> {
-                OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
+        
+        SuggestedIngredients(
+            suggestedIngredientsState = suggestedIngredientsUiState,
+            onIngredientClick = onIngredientClick
+        )
+        
+        PantryItemList(
+            pantryUiState,
+            onIngredientClick
+        )
+    }
+}
+
+@Composable
+private fun SuggestedIngredients(
+    suggestedIngredientsState: SearchUiState,
+    onIngredientClick: (UiPantryIngredient) -> Unit
+) {
+    Text(
+        modifier = Modifier.padding(12.dp),
+        text = "Suggested Ingredients",
+        style = MaterialTheme.typography.titleLarge
+    )
+    
+    when (suggestedIngredientsState) {
+        SearchUiState.Loading -> {
+            Box(modifier = Modifier.height(120.dp)) {
+                OnHandProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
-            isSearchBarFocused -> {
-                IngredientSearchCardList(
-                    ingredients = ingredients,
-                    onItemClick = viewModel::onToggleFromSearch,
-                    isPreSearchDebouncing,
-                    searchText
-                )
-            }
-            else -> {
-                PantryItemList(
-                    pantry,
-                    viewModel::onToggleFromPantry
-                )
+        }
+        
+        SearchUiState.Error -> {
+            Text(
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                text = "Unable to load suggestions",
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
+        
+        SearchUiState.Empty -> {
+            Text(
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                text = "No suggestions available",
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
+        
+        is SearchUiState.Content -> {
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(bottom = 16.dp)
+            ) {
+                items(suggestedIngredientsState.ingredients) { item ->
+                    val uiPantryIngredient = UiPantryIngredient(
+                        ingredient = item.ingredient,
+                        inPantry = item.inPantry
+                    )
+                    SuggestedIngredientItem(
+                        ingredient = item,
+                        onClick = {
+                            onIngredientClick(uiPantryIngredient)
+                        }
+                    )
+                }
             }
         }
     }
@@ -78,154 +122,52 @@ fun HomeScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun IngredientSearchBar(
-    searchText: String,
-    onTextChanged: (String) -> Unit,
-    onFocusChanged: (Boolean) -> Unit,
-    isFocused: Boolean,
+private fun SuggestedIngredientItem(
+    ingredient: UiSearchIngredient,
+    onClick: () -> Unit
 ) {
-    val focusManager = LocalFocusManager.current
-
-    TextField(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 8.dp, top = 16.dp, end = 8.dp, bottom = 8.dp)
-            .onFocusChanged { onFocusChanged(it.isFocused) },
-        value = searchText,
-        onValueChange = { onTextChanged(it) },
-        placeholder = { Text("Search Ingredients") },
-        trailingIcon = {
-            if (searchText.isNotEmpty()) {
-                Icon(
-                    modifier = Modifier.clickable {
-                        onTextChanged("")
-                    },
-                    imageVector = Icons.Filled.Close,
-                    contentDescription = "close"
-                )
-            }
-        },
-        leadingIcon = {
-            if (!isFocused) {
-                Icon(
-                    imageVector = Icons.Filled.Search,
-                    contentDescription = "search",
-                )
-            } else {
-                IconButton(onClick = {
-                    onTextChanged("")
-                    onFocusChanged(false)
-                    focusManager.clearFocus()
-                }) {
-                    Icon(
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = "search",
-                    )
-                }
-            }
-        },
-        textStyle = MaterialTheme.typography.bodyMedium,
-        shape = RoundedCornerShape(50),
-        colors = TextFieldDefaults.textFieldColors(
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-        )
-    )
-}
-
-private class IngredientSearchCard(
-    val name: String,
-    val inPantry: Boolean
-)
-
-@Composable
-private fun IngredientSearchListItem(
-    card: IngredientSearchCard,
-    index: Int,
-    onItemClicked: (Int) -> Unit
-) {
+    val isInPantry = ingredient.inPantry.value
+    
     Card(
-        shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(
-            containerColor = if (card.inPantry) {
-                MATTE_GREEN
-            } else {
-                MaterialTheme.colorScheme.surfaceVariant
-            },
-        ),
         modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = { onItemClicked(index) }),
+            .height(40.dp)
+            .clickable(onClick = onClick),
+        shape = MaterialTheme.shapes.medium,
+        colors = if (isInPantry) {
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+        } else {
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     ) {
         Row(
             modifier = Modifier
-                .padding(16.dp)
-                .fillMaxSize(),
-            horizontalArrangement = Arrangement.SpaceBetween
+                .padding(horizontal = 12.dp, vertical = 8.dp)
+                .fillMaxHeight(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(
-                text = card.name,
+                text = ingredient.ingredient.name,
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
             )
-            if (card.inPantry) {
+            if (isInPantry) {
                 Icon(
-                    imageVector = Icons.Default.Clear,
-                    contentDescription = "Added to pantry",
-                    tint = MaterialTheme.colorScheme.inverseOnSurface,
-                    modifier = Modifier.align(Alignment.CenterVertically)
+                    imageVector = Icons.Default.Check,
+                    contentDescription = "In pantry",
+                    modifier = Modifier.size(16.dp)
                 )
             } else {
                 Icon(
-                    imageVector = Icons.Default.AddCircle,
-                    contentDescription = "Not in pantry",
-                    tint = MaterialTheme.colorScheme.inverseOnSurface,
-                    modifier = Modifier.align(Alignment.CenterVertically)
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add to pantry",
+                    modifier = Modifier.size(16.dp)
                 )
-            }
-        }
-    }
-}
-
-@Composable
-fun IngredientSearchCardList(
-    ingredients: List<PantryIngredient>,
-    onItemClick: (Int) -> Unit,
-    isPreDebounce: Boolean,
-    searchText: String,
-
-    ) {
-    when (ingredients.isEmpty() && !isPreDebounce && searchText.isNotEmpty()) {
-        true -> {
-            Row(
-                modifier = Modifier.fillMaxSize(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = "No results.",
-                    style = MaterialTheme.typography.bodyLarge,
-                )
-            }
-        }
-        else -> {
-            LazyColumn(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                itemsIndexed(
-                    items = ingredients
-                ) { index, item ->
-                    IngredientSearchListItem(
-                        card = IngredientSearchCard(
-                            name = item.ingredient.name,
-                            inPantry = item.inPantry
-                        ),
-                        index,
-                        onItemClicked = onItemClick
-                    )
-                }
             }
         }
     }
@@ -233,17 +175,30 @@ fun IngredientSearchCardList(
 
 @Composable
 private fun PantryItemList(
-    pantry: List<PantryIngredient>,
-    onToggleFromPantry: (Int) -> Unit
+    pantryUiState: PantryUiState,
+    onToggleFromPantry: (UiPantryIngredient) -> Unit
 ) {
+    Log.d("[OnHand]", "PantryItemList recomposition")
+
     Text(
         modifier = Modifier.padding(12.dp),
         text = "Your Pantry",
         style = MaterialTheme.typography.displayMedium
     )
 
-    when {
-        pantry.isEmpty() -> {
+    when (pantryUiState) {
+        PantryUiState.Loading -> {
+            OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
+        }
+
+        is PantryUiState.Content -> {
+            PantryCardList(
+                pantry = pantryUiState.ingredients,
+                onItemClick = onToggleFromPantry
+            )
+        }
+
+        PantryUiState.Empty -> {
             Text(
                 modifier = Modifier.padding(16.dp),
                 text = "Your pantry is empty. You can add items by searching for " +
@@ -251,78 +206,85 @@ private fun PantryItemList(
                 style = MaterialTheme.typography.bodyLarge
             )
         }
-        else -> {
-            PantryCardList(
-                pantry = pantry,
-                onItemClick = onToggleFromPantry
-            )
+
+        PantryUiState.Error -> {
+            Log.d("[OnHand], ", "Error in PantryItemList")
         }
     }
 }
 
 private class PantryItemCard(
-    val ingredientName: String
+    val pantryIngredient: UiPantryIngredient
 )
 
 @Composable
 private fun PantryListItem(
     card: PantryItemCard,
-    index: Int,
-    onItemClicked: (Int) -> Unit
+    onItemClicked: (UiPantryIngredient) -> Unit
 ) {
     Card(
         modifier = Modifier
             .clickable {
-                onItemClicked(index)
+                onItemClicked(card.pantryIngredient)
             }
-            .padding(2.dp),
-        shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.tertiary),
-        elevation = CardDefaults.cardElevation(2.dp)
+            .fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium,
+        colors = if (card.pantryIngredient.inPantry.value) {
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+        } else {
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        },
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceAround,
+            horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp)
-                .align(Alignment.End)
+                .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
             Text(
-                text = card.ingredientName,
-                style = MaterialTheme.typography.bodySmall,
+                text = card.pantryIngredient.ingredient.name,
+                style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1f)
             )
-            Icon(
-                imageVector = Icons.Default.Clear,
-                contentDescription = "Clear from pantry",
-                tint = MaterialTheme.colorScheme.inverseOnSurface,
-                modifier = Modifier.size(18.dp)
-            )
+            if (card.pantryIngredient.inPantry.value) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = "In pantry",
+                    modifier = Modifier.size(20.dp)
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add to pantry",
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
     }
 }
 
 @Composable
 private fun PantryCardList(
-    pantry: List<PantryIngredient>,
-    onItemClick: (Int) -> Unit
+    pantry: List<UiPantryIngredient>,
+    onItemClick: (UiPantryIngredient) -> Unit
 ) {
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(96.dp),
-        modifier = Modifier
-            .padding(horizontal = 8.dp)
-            .padding(bottom = 8.dp),
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.Top),
-        horizontalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.Start),
+        columns = GridCells.Fixed(2),
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        itemsIndexed(pantry, key = { _, item -> item.ingredient.id }) { index, item ->
+        itemsIndexed(pantry, key = { _, item -> item.ingredient.id }) { _, item ->
             PantryListItem(
-                card = PantryItemCard(
-                    item.ingredient.name,
-                ),
-                index = index,
+                card = PantryItemCard(item),
                 onItemClicked = onItemClick
             )
         }

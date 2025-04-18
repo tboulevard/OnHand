@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "e833908e3df368692c5fc87b59956e5d",
+    "identityHash": "e9de1cbece7fa6de86660a97bd110cd7",
     "entities": [
       {
         "tableName": "ingredient_catalog",
@@ -15,7 +15,7 @@
             "notNull": true
           },
           {
-            "fieldPath": "name",
+            "fieldPath": "ingredientName",
             "columnName": "name",
             "affinity": "TEXT",
             "notNull": true
@@ -24,6 +24,32 @@
             "fieldPath": "inPantry",
             "columnName": "inPantry",
             "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "pantry",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `ingredientName` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ingredientName",
+            "columnName": "ingredientName",
+            "affinity": "TEXT",
             "notNull": true
           }
         ],
@@ -186,11 +212,17 @@
       },
       {
         "tableName": "shopping_list",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ingredientName` TEXT NOT NULL, `mappedRecipePreview` TEXT, `isPurchased` INTEGER NOT NULL, PRIMARY KEY(`ingredientName`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ingredientId` INTEGER NOT NULL, `ingredient` TEXT NOT NULL, `mappedRecipePreview` TEXT NOT NULL, PRIMARY KEY(`ingredientId`))",
         "fields": [
           {
-            "fieldPath": "ingredientName",
-            "columnName": "ingredientName",
+            "fieldPath": "ingredientId",
+            "columnName": "ingredientId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ingredient",
+            "columnName": "ingredient",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -198,19 +230,13 @@
             "fieldPath": "mappedRecipePreview",
             "columnName": "mappedRecipePreview",
             "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "isPurchased",
-            "columnName": "isPurchased",
-            "affinity": "INTEGER",
             "notNull": true
           }
         ],
         "primaryKey": {
           "autoGenerate": false,
           "columnNames": [
-            "ingredientName"
+            "ingredientId"
           ]
         },
         "indices": [],
@@ -220,7 +246,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e833908e3df368692c5fc87b59956e5d')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e9de1cbece7fa6de86660a97bd110cd7')"
     ]
   }
 }

@@ -1,8 +1,8 @@
 package com.tstreet.onhand.feature.customrecipe.di
 
-import com.tstreet.onhand.core.common.UseCase
-import com.tstreet.onhand.core.domain.customrecipe.AddRecipeUseCase
-import com.tstreet.onhand.core.domain.customrecipe.CustomRecipeInputUseCase
+import com.tstreet.onhand.core.domain.usecase.UseCase
+import com.tstreet.onhand.core.domain.usecase.customrecipe.AddRecipeUseCase
+import com.tstreet.onhand.core.domain.usecase.customrecipe.CustomRecipeInputUseCase
 import dagger.Binds
 import dagger.Module
 

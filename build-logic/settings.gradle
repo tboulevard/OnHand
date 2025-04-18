@@ -1,3 +1,15 @@
+plugins {
+    // The Develocity Gradle plugin enables integration with Develocity and scans.gradle.com
+    id "com.gradle.develocity" version "4.0.1"
+}
+
+buildCache {
+    local {
+        directory = file("${rootDir}/build-cache")
+        removeUnusedEntriesAfterDays = 30
+    }
+}
+
 dependencyResolutionManagement {
     repositories {
         gradlePluginPortal()
