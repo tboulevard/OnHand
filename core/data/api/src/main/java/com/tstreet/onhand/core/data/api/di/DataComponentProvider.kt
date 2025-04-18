@@ -1,5 +1,6 @@
 package com.tstreet.onhand.core.data.api.di
 
+import android.util.Log
 import androidx.compose.runtime.compositionLocalOf
 import com.tstreet.onhand.core.data.api.repository.IngredientSearchRepository
 import com.tstreet.onhand.core.data.api.repository.PantryRepository
@@ -15,5 +16,6 @@ interface DataComponentProvider {
 }
 
 val LocalDataProvider = compositionLocalOf<DataComponentProvider> {
+    Log.d("[OnHand]", "LocalDataProvider not found.")
     error("DataComponentProvider not found.")
 }

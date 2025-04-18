@@ -11,7 +11,6 @@ import javax.inject.Provider
 class RemoveFromPantryUseCase @Inject constructor(
     private val pantryRepository: Provider<PantryRepository>,
     private val recipeRepository: Provider<RecipeRepository>,
-    private val pantryStateManager: Provider<PantryStateManager>,
 ) : UseCase() {
 
     suspend operator fun invoke(ingredient: Ingredient): Resource<Unit> {
@@ -21,7 +20,6 @@ class RemoveFromPantryUseCase @Inject constructor(
 
         return when {
             affectedEntities > 0 -> {
-                pantryStateManager.get().onPantryStateChange()
                 recipeRepository.get().updateSavedRecipesUsingIngredient(ingredient)
                 Resource.success(null)
             }

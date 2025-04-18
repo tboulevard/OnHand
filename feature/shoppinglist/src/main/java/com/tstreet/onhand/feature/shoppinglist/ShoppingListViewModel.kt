@@ -1,5 +1,6 @@
 package com.tstreet.onhand.feature.shoppinglist
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.Status.ERROR
@@ -27,7 +28,7 @@ class ShoppingListViewModel @Inject constructor(
 ) : ViewModel() {
 
     init {
-        println("[OnHand] ${this.javaClass.simpleName} created")
+        Log.d("[OnHand]", "${this.javaClass.simpleName} created")
     }
 
     private var ingredients = listOf<ShoppingListIngredient>()

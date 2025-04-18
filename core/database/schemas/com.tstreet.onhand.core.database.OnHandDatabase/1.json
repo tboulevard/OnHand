@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "e833908e3df368692c5fc87b59956e5d",
+    "identityHash": "87487434c209e791f5fdaada1bf28fc5",
     "entities": [
       {
         "tableName": "ingredient_catalog",
@@ -15,7 +15,7 @@
             "notNull": true
           },
           {
-            "fieldPath": "name",
+            "fieldPath": "ingredientName",
             "columnName": "name",
             "affinity": "TEXT",
             "notNull": true
@@ -24,6 +24,32 @@
             "fieldPath": "inPantry",
             "columnName": "inPantry",
             "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "pantry",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `ingredientName` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ingredientName",
+            "columnName": "ingredientName",
+            "affinity": "TEXT",
             "notNull": true
           }
         ],
@@ -220,7 +246,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e833908e3df368692c5fc87b59956e5d')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '87487434c209e791f5fdaada1bf28fc5')"
     ]
   }
 }

@@ -1,5 +1,6 @@
 package com.tstreet.onhand.core.network.retrofit
 
+import android.util.Log
 import com.tstreet.onhand.core.network.OnHandNetworkDataSource
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.tstreet.onhand.core.network.model.*
@@ -93,18 +94,18 @@ class RetrofitOnHandNetwork @Inject constructor(
     }
 
     private fun <T : Any> logInfo(response: OnHandNetworkResponse<T>) {
-        return when (response) {
+        when (response) {
             is NetworkResponse.Success -> {
-                println("[OnHand] Success: " + response.body)
+                Log.d("[OnHand]", "Success: " + response.body)
             }
             is NetworkResponse.ApiError -> {
-                println("[OnHand] ApiError: HTTP ${response.code} error: " + response.body)
+                Log.d("[OnHand]", "ApiError: HTTP ${response.code} error: " + response.body)
             }
             is NetworkResponse.NetworkError -> {
-                println("[OnHand] NetworkError: Device does not appear to have network connectivity.")
+                Log.d("[OnHand]", "NetworkError: Device does not appear to have network connectivity.")
             }
             is NetworkResponse.UnknownError -> {
-                println("[OnHand] Unknown non-network error: " + response.error?.message)
+                Log.d("[OnHand]", "Unknown non-network error: " + response.error?.message)
             }
         }
     }

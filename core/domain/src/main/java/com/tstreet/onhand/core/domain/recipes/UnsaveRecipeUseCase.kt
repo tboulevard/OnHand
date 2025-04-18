@@ -1,8 +1,8 @@
 package com.tstreet.onhand.core.domain.recipes
 
+import android.util.Log
 import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.FeatureScope
-import com.tstreet.onhand.core.common.SavedRecipeStateManager
 import com.tstreet.onhand.core.common.UseCase
 import com.tstreet.onhand.core.data.api.repository.RecipeRepository
 import com.tstreet.onhand.core.model.RecipePreview
@@ -18,25 +18,21 @@ import javax.inject.Provider
 @FeatureScope
 class UnsaveRecipeUseCase @Inject constructor(
     private val repository: Provider<RecipeRepository>,
-    private val savedRecipeStateManager: Provider<SavedRecipeStateManager>,
     @Named(IO) private val ioDispatcher: CoroutineDispatcher,
 ) : UseCase() {
 
     // TODO: Model state using an object (Success/Failure) rather than boolean?
     operator fun invoke(recipePreview: RecipePreview): Flow<Boolean> {
-        println("[OnHand] UnsaveRecipeUseCase.invoke()")
+        Log.d("[OnHand]", "UnsaveRecipeUseCase.invoke()")
         val unsaveRecipeFlow = flow {
             repository
                 .get()
                 .unsaveRecipe(recipePreview.id)
 
-            // Only invoke state change is the recipe was unsaved successfully
-            savedRecipeStateManager.get().onSavedRecipeStateChange()
-
             emit(true)
         }.catch {
             // TODO: better error handling, and make sure this actually works.
-            println("[OnHand] Error removing $recipePreview from database. Error=${it.message}")
+            Log.d("[OnHand]", "Error removing $recipePreview from database. Error=${it.message}")
             emit(false)
         }
 

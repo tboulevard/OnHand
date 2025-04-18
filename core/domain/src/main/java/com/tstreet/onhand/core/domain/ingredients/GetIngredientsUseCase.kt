@@ -3,7 +3,7 @@ package com.tstreet.onhand.core.domain.ingredients
 import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.common.UseCase
 import com.tstreet.onhand.core.data.api.repository.IngredientSearchRepository
-import com.tstreet.onhand.core.model.PantryIngredient
+import com.tstreet.onhand.core.model.Ingredient
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
@@ -17,13 +17,11 @@ class GetIngredientsUseCase @Inject constructor(
     private val repository: Provider<IngredientSearchRepository>
 ) : UseCase() {
 
-    operator fun invoke(query: String?): Flow<List<PantryIngredient>> {
+    operator fun invoke(query: String?): Flow<List<Ingredient>> {
         val sanitizedQuery = query.sanitize()
         return when {
             sanitizedQuery.isNotBlank() -> {
-                repository
-                    .get()
-                    .searchIngredients(sanitizedQuery)
+                flowOf(emptyList())
             }
             else -> {
                 flowOf(emptyList())

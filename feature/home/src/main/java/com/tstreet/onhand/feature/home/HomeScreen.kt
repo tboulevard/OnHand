@@ -18,7 +18,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.tstreet.onhand.core.model.PantryIngredient
+import com.tstreet.onhand.core.model.Ingredient
+import com.tstreet.onhand.core.model.domain.IngredientSearchResult
 import com.tstreet.onhand.core.ui.OnHandAlertDialog
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
 import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
@@ -33,10 +34,9 @@ fun HomeScreen(
 ) {
     val searchText by viewModel.displayedSearchText.collectAsState(initial = "")
     val pantry by viewModel.pantry.collectAsStateWithLifecycle()
-    val ingredients by viewModel.ingredients.collectAsStateWithLifecycle()
+    val searchResult by viewModel.ingredients.collectAsStateWithLifecycle()
     val isSearching by viewModel.isSearching.collectAsState()
     val isSearchBarFocused by viewModel.isSearchBarFocused.collectAsState()
-    val isPreSearchDebouncing by viewModel.isPreSearchDebounce.collectAsState()
     val errorDialogState = viewModel.errorDialogState.collectAsState()
 
     OnHandAlertDialog(
@@ -60,10 +60,8 @@ fun HomeScreen(
             }
             isSearchBarFocused -> {
                 IngredientSearchCardList(
-                    ingredients = ingredients,
-                    onItemClick = viewModel::onToggleFromSearch,
-                    isPreSearchDebouncing,
-                    searchText
+                    searchResult = searchResult,
+                    onItemClick = viewModel::onToggleFromSearch
                 )
             }
             else -> {
@@ -190,14 +188,11 @@ private fun IngredientSearchListItem(
 
 @Composable
 fun IngredientSearchCardList(
-    ingredients: List<PantryIngredient>,
-    onItemClick: (Int) -> Unit,
-    isPreDebounce: Boolean,
-    searchText: String,
-
-    ) {
-    when (ingredients.isEmpty() && !isPreDebounce && searchText.isNotEmpty()) {
-        true -> {
+    searchResult: IngredientSearchResult,
+    onItemClick: (Int) -> Unit
+) {
+    when (searchResult) {
+        is IngredientSearchResult.Empty -> {
             Row(
                 modifier = Modifier.fillMaxSize(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -209,17 +204,20 @@ fun IngredientSearchCardList(
                 )
             }
         }
-        else -> {
+        is IngredientSearchResult.Loading -> {
+            OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
+        }
+        is IngredientSearchResult.Content -> {
             LazyColumn(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 itemsIndexed(
-                    items = ingredients
+                    items = searchResult.ingredients
                 ) { index, item ->
                     IngredientSearchListItem(
                         card = IngredientSearchCard(
-                            name = item.ingredient.name,
+                            name = item.name,
                             inPantry = item.inPantry
                         ),
                         index,
@@ -228,12 +226,15 @@ fun IngredientSearchCardList(
                 }
             }
         }
+        is IngredientSearchResult.Error -> {
+            // TODO:
+        }
     }
 }
 
 @Composable
 private fun PantryItemList(
-    pantry: List<PantryIngredient>,
+    pantry: List<Ingredient>,
     onToggleFromPantry: (Int) -> Unit
 ) {
     Text(
@@ -305,7 +306,7 @@ private fun PantryListItem(
 
 @Composable
 private fun PantryCardList(
-    pantry: List<PantryIngredient>,
+    pantry: List<Ingredient>,
     onItemClick: (Int) -> Unit
 ) {
     LazyVerticalGrid(
@@ -317,10 +318,10 @@ private fun PantryCardList(
         verticalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.Top),
         horizontalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.Start),
     ) {
-        itemsIndexed(pantry, key = { _, item -> item.ingredient.id }) { index, item ->
+        itemsIndexed(pantry, key = { _, item -> item.id }) { index, item ->
             PantryListItem(
                 card = PantryItemCard(
-                    item.ingredient.name,
+                    item.name,
                 ),
                 index = index,
                 onItemClicked = onItemClick

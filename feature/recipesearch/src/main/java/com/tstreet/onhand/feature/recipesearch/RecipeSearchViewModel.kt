@@ -1,5 +1,6 @@
 package com.tstreet.onhand.feature.recipesearch
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -28,7 +29,7 @@ class RecipeSearchViewModel @Inject constructor(
 ) : ViewModel() {
 
     init {
-        println("[OnHand] ${this.javaClass.simpleName} created")
+        Log.d("[OnHand]", "${this.javaClass.simpleName} created")
     }
 
     private val _sortOrder = MutableStateFlow(DEFAULT_SORTING)

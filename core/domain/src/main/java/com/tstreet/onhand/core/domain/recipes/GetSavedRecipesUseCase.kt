@@ -1,5 +1,6 @@
 package com.tstreet.onhand.core.domain.recipes
 
+import android.util.Log
 import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.common.UseCase
@@ -18,7 +19,7 @@ class GetSavedRecipesUseCase @Inject constructor(
 ) : UseCase() {
 
     operator fun invoke(): Flow<List<SaveableRecipePreview>> {
-        println("[OnHand] GetSavedRecipesUseCase.invoke()")
+        Log.d("[OnHand]", "GetSavedRecipesUseCase.invoke()")
         val savedRecipeFlow = recipeRepository
             .get()
             .getSavedRecipes()

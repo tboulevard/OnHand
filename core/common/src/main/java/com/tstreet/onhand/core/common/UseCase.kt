@@ -1,9 +1,11 @@
 package com.tstreet.onhand.core.common
 
+import android.util.Log
+
 // TODO: doc cleanup
 // Represents an invokable use case in the domain layer of app
 abstract class UseCase {
     init {
-        println("[OnHand] ${this.javaClass.simpleName} created")
+        Log.d("[OnHand]", "${this.javaClass.simpleName} created")
     }
 }

@@ -25,20 +25,4 @@ object CommonModule {
     fun provideSharedPreferences(context: Context): SharedPreferences {
         return context.getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE)
     }
-
-    @Provides
-    @Singleton
-    fun providePantryStateManager(
-        @Named(SHARED_PREF_FILE) sharedPreferences: SharedPreferences
-    ): PantryStateManager {
-        return PantryStateManagerImpl(sharedPreferences)
-    }
-
-    @Provides
-    @Singleton
-    fun provideSavedRecipeStateManager(
-        @Named(SHARED_PREF_FILE) sharedPreferences: SharedPreferences
-    ): SavedRecipeStateManager {
-        return SavedRecipeStateManagerImpl(sharedPreferences)
-    }
 }

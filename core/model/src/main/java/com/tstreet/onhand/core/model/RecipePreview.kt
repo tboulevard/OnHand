@@ -1,13 +1,10 @@
 package com.tstreet.onhand.core.model
 
-import kotlinx.serialization.Serializable
-
 /**
  * High-level representation of a recipe, containing identifying information and ingredients
  * to make it. More detailed information to be modeled in [RecipeDetail], which with this class form
  * the complete information for a recipe in [FullRecipe].
  */
-@Serializable
 data class RecipePreview(
     val id: Int,
     val title: String,
