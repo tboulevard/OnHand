@@ -10,7 +10,6 @@ import com.tstreet.onhand.core.model.Ingredient
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -33,10 +32,7 @@ class OfflineIngredientSearchRepository @Inject constructor(
                 // Artificial delay to simulate loading
                 delay((500L..1000L).random())
                 it.map(IngredientEntity::toIngredient)
-            }.catch {
-                Log.d("[OnHand] - $TAG", "Error: $it")
-            }
-            .flowOn(ioDispatcher)
+            }.flowOn(ioDispatcher)
     }
 }
 

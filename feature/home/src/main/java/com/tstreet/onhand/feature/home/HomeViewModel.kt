@@ -1,38 +1,35 @@
 package com.tstreet.onhand.feature.home
 
 import android.util.Log
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.Status.*
 import com.tstreet.onhand.core.domain.ingredientsearch.IngredientSearchUseCase
 import com.tstreet.onhand.core.domain.pantry.AddToPantryUseCase
 import com.tstreet.onhand.core.domain.pantry.GetPantryUseCase
 import com.tstreet.onhand.core.domain.pantry.RemoveFromPantryUseCase
 import com.tstreet.onhand.core.model.Ingredient
-import com.tstreet.onhand.core.model.PantryIngredient
-import com.tstreet.onhand.core.model.UiPantryIngredient
-import com.tstreet.onhand.core.model.domain.IngredientSearchResult
 import com.tstreet.onhand.core.model.ui.HomeViewUiState
+import com.tstreet.onhand.core.model.ui.UiPantryIngredient
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.displayed
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Named
 import javax.inject.Provider
 import kotlin.jvm.javaClass
 
-// TODO: Each time we emit a value for either ingredient or pantry, the entire list recomposes.
-//  Tried giving each element a key to avoid this but didn't work. Look into later. For now this
-//  class is mostly just an example of how to use Flows from room really cleanly.
 @OptIn(kotlinx.coroutines.FlowPreview::class)
 class HomeViewModel @Inject constructor(
     private val searchIngredients: Provider<IngredientSearchUseCase>,
     private val addToPantry: Provider<AddToPantryUseCase>,
     private val removeFromPantry: Provider<RemoveFromPantryUseCase>,
     getPantry: Provider<GetPantryUseCase>,
+    @Named(IO) private val ioDispatcher: CoroutineDispatcher,
+    private val mapper: HomeUiStateMapper
 ) : ViewModel() {
 
     init {
@@ -45,43 +42,22 @@ class HomeViewModel @Inject constructor(
 
     // However this is a regular Flow (cold), and needs to be collected. We collect it via
     // .collectAsState()
-    val displayedSearchText: Flow<String> = _searchTextFlow
-
-
-    private val _ingredients = mutableStateListOf<PantryIngredient>()
-    val ingredients: List<PantryIngredient> get() = _ingredients
+    val displayedSearchText: StateFlow<String> = _searchTextFlow
+        .stateIn(
+            // Note: Child jobs launched in this scope are automatically cancelled when
+            //  onCleared() is called for this ViewModel.
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = ""
+        )
 
     private val _uiState: Flow<HomeViewUiState> = _searchTextFlow
         .debounce(250L)
         .flatMapLatest { searchQuery ->
-            searchIngredients.get().observeIngredientsPantryMapped(searchQuery)
+            searchIngredients.get().getPantryMapped(searchQuery)
         }.map { searchResult ->
-
-            when (searchResult) {
-                is IngredientSearchResult.Success -> {
-                    if (searchResult.ingredients.isEmpty()) {
-                        HomeViewUiState.Empty
-                    } else {
-                        HomeViewUiState.Content(
-                            ingredients = searchResult.ingredients.map {
-                                UiPantryIngredient(
-                                    ingredient = it.ingredient,
-                                    inPantry = mutableStateOf(it.inPantry)
-                                )
-                            }
-                        )
-                    }
-                }
-
-                is IngredientSearchResult.Error -> {
-                    HomeViewUiState.Error
-                }
-
-                is IngredientSearchResult.Loading -> {
-                    HomeViewUiState.Loading
-                }
-            }
-        }
+            mapper.mapSearchResultToHomeUi(searchResult)
+        }.flowOn(ioDispatcher)
 
     val uiState: StateFlow<HomeViewUiState> =
         _uiState
@@ -113,17 +89,20 @@ class HomeViewModel @Inject constructor(
         )
 
     fun onSearchTextChanged(text: String) {
+        println("[OnHand] onSearchTextChanged: $text")
         _searchTextFlow.tryEmit(text)
     }
 
     fun onToggleFromSearch(pantryIngredient: UiPantryIngredient) {
         viewModelScope.launch {
+            val inPantry = pantryIngredient.inPantry.value
             when {
                 pantryIngredient.inPantry.value -> {
                     when (removeFromPantry.get().invoke(pantryIngredient.ingredient).status) {
                         SUCCESS -> {
-                            pantryIngredient.inPantry.value = !pantryIngredient.inPantry.value
+                            pantryIngredient.inPantry.value = !inPantry
                         }
+
                         ERROR -> {
                             _errorDialogState.update {
                                 displayed(
@@ -138,8 +117,9 @@ class HomeViewModel @Inject constructor(
                 else -> {
                     when (addToPantry.get().invoke(pantryIngredient.ingredient).status) {
                         SUCCESS -> {
-                            pantryIngredient.inPantry.value = !pantryIngredient.inPantry.value
+                            pantryIngredient.inPantry.value = !inPantry
                         }
+
                         ERROR -> {
                             _errorDialogState.update {
                                 displayed(

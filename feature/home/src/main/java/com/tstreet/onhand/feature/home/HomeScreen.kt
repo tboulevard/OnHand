@@ -20,9 +20,8 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tstreet.onhand.core.model.Ingredient
-import com.tstreet.onhand.core.model.PantryIngredient
-import com.tstreet.onhand.core.model.UiPantryIngredient
 import com.tstreet.onhand.core.model.ui.HomeViewUiState
+import com.tstreet.onhand.core.model.ui.UiPantryIngredient
 import com.tstreet.onhand.core.ui.OnHandAlertDialog
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
 import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
@@ -35,14 +34,20 @@ import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
 fun HomeScreen(
     viewModel: HomeViewModel
 ) {
-    val searchText by viewModel.displayedSearchText.collectAsState(initial = "")
     val pantry by viewModel.pantry.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val isSearchBarFocused by viewModel.isSearchBarFocused.collectAsState()
-    val errorDialogState = viewModel.errorDialogState.collectAsState()
+
+    val searchText by viewModel.displayedSearchText.collectAsStateWithLifecycle()
+    val isSearchBarFocused by viewModel.isSearchBarFocused.collectAsStateWithLifecycle()
+    val errorDialogState = viewModel.errorDialogState.collectAsStateWithLifecycle()
+
+    val onIngredientSearchTextChanged = remember { viewModel::onSearchTextChanged}
+    val onIngredientSearchListClick = remember { viewModel::onToggleFromSearch }
+    val onSearchBarFocusChanged = remember { viewModel::onSearchBarFocusChanged }
+    val dismissErrorDialog = remember { viewModel::dismissErrorDialog }
 
     OnHandAlertDialog(
-        onDismiss = viewModel::dismissErrorDialog,
+        onDismiss = dismissErrorDialog,
         state = errorDialogState.value
     )
 
@@ -52,17 +57,18 @@ fun HomeScreen(
     ) {
         IngredientSearchBar(
             searchText = searchText,
-            onTextChanged = viewModel::onSearchTextChanged,
-            onFocusChanged = viewModel::onSearchBarFocusChanged,
+            onTextChanged = onIngredientSearchTextChanged,
+            onFocusChanged = onSearchBarFocusChanged,
             isFocused = isSearchBarFocused
         )
         when {
             isSearchBarFocused -> {
                 IngredientSearchCardList(
                     uiState = uiState,
-                    onItemClick = viewModel::onToggleFromSearch
+                    onItemClick = onIngredientSearchListClick
                 )
             }
+
             else -> {
                 PantryItemList(
                     pantry,
@@ -89,7 +95,9 @@ private fun IngredientSearchBar(
             .padding(start = 8.dp, top = 16.dp, end = 8.dp, bottom = 8.dp)
             .onFocusChanged { onFocusChanged(it.isFocused) },
         value = searchText,
-        onValueChange = { onTextChanged(it) },
+        onValueChange = {
+            onTextChanged(it)
+        },
         placeholder = { Text("Search Ingredients") },
         trailingIcon = {
             if (searchText.isNotEmpty()) {
@@ -204,9 +212,11 @@ fun IngredientSearchCardList(
                 )
             }
         }
+
         is HomeViewUiState.Loading -> {
             OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
         }
+
         is HomeViewUiState.Content -> {
             LazyColumn(
                 modifier = Modifier.padding(horizontal = 16.dp),
@@ -227,6 +237,7 @@ fun IngredientSearchCardList(
                 }
             }
         }
+
         is HomeViewUiState.Error -> {
             Log.d("[OnHand], ", "Error in IngredientSearchCardList")
         }
@@ -253,6 +264,7 @@ private fun PantryItemList(
                 style = MaterialTheme.typography.bodyLarge
             )
         }
+
         else -> {
             PantryCardList(
                 pantry = pantry,

@@ -8,7 +8,6 @@ import com.tstreet.onhand.core.model.PantryIngredient
 import com.tstreet.onhand.core.model.domain.IngredientSearchResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
@@ -19,7 +18,7 @@ class IngredientSearchUseCase @Inject constructor(
     private val pantryRepository: PantryRepository
 ) : UseCase() {
 
-    fun observeIngredientsPantryMapped(
+    fun getPantryMapped(
         query: String,
         isExactIngredient: Boolean = false,
         limit: Int = 10,
@@ -45,12 +44,9 @@ class IngredientSearchUseCase @Inject constructor(
     /**
      * Given a [Flow] of [Ingredient]s and a [Flow] of [PantryIngredient]s, combine them
      * to create a list of Ingredients that are marked in pantry or not.
-     *
-     * TODO: In a future iteration, make the referential equality more stable so we don't triggered
-     *  recomposition for all list items UI each time one changes.
      */
-    private fun Flow<List<Ingredient>>.mapItemsInPantry(): Flow<IngredientSearchResult> {
-        return this.map { ingredients ->
+    private fun Flow<List<Ingredient>>.mapItemsInPantry(): Flow<IngredientSearchResult> =
+        map { ingredients ->
             val pantrySet = pantryRepository.listPantry(ingredients).toSet()
             IngredientSearchResult.Success(
                 ingredients = ingredients.map { ingredient ->
@@ -61,5 +57,4 @@ class IngredientSearchUseCase @Inject constructor(
                 }
             )
         }
-    }
 }

@@ -47,7 +47,7 @@ class IngredientSearchViewModel @Inject constructor(
             .flatMapLatest { searchQuery ->
                 _isSearching.update { true }
                 // NOTE: This is retriggered when changing pantry state in search list too.
-                getSearchResults.get().observeIngredientsPantryMapped(searchQuery ?: "")
+                getSearchResults.get().getPantryMapped(searchQuery ?: "")
             }
             .onEach {
                 _isSearching.update { false }
