@@ -4,5 +4,6 @@ import com.tstreet.onhand.core.model.Ingredient
 
 data class SelectableIngredient(
     val ingredient: Ingredient,
-    val isSelected: Boolean
+    val isSelected: Boolean,
+    val onSelect: ((Ingredient) -> Unit)? = null
 )

@@ -4,10 +4,11 @@ import com.tstreet.onhand.core.common.UseCase
 import com.tstreet.onhand.core.data.api.repository.IngredientSearchRepository
 import com.tstreet.onhand.core.data.api.repository.PantryRepository
 import com.tstreet.onhand.core.model.Ingredient
+import com.tstreet.onhand.core.model.PantryIngredient
 import com.tstreet.onhand.core.model.domain.IngredientSearchResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
@@ -18,44 +19,22 @@ class IngredientSearchUseCase @Inject constructor(
     private val pantryRepository: PantryRepository
 ) : UseCase() {
 
-    fun getPantryMapped(
+    fun observeIngredientsPantryMapped(
         query: String,
         isExactIngredient: Boolean = false,
         limit: Int = 10,
     ): Flow<IngredientSearchResult> {
 
         if (query.isBlank()) {
-            return flowOf(IngredientSearchResult.Empty)
-        }
-
-        return searchIngredients(query).mapItemsInPantry(
-            pantryRepository.listPantry()
-        )
-            .catch {
-                IngredientSearchResult.Error
-            }
-            .onStart {
-                IngredientSearchResult.Loading
-            }
-    }
-
-    operator fun invoke(
-        query: String,
-        isExactIngredient: Boolean = false,
-        limit: Int = 10,
-    ): Flow<IngredientSearchResult> {
-        if (query.isBlank()) {
-            return flowOf(IngredientSearchResult.Empty)
+            return flowOf(IngredientSearchResult.Success(emptyList()))
         }
 
         return searchIngredients(query)
-            .map {
-                IngredientSearchResult.Content(it)
-            }
+            .mapItemsInPantry()
             .catch {
-                IngredientSearchResult.Error
+                emit(IngredientSearchResult.Error)
             }.onStart {
-                IngredientSearchResult.Loading
+                emit(IngredientSearchResult.Loading)
             }
     }
 
@@ -63,23 +42,24 @@ class IngredientSearchUseCase @Inject constructor(
         return ingredientRepository.searchIngredients(query)
     }
 
-
     /**
      * Given a [Flow] of [Ingredient]s and a [Flow] of [PantryIngredient]s, combine them
      * to create a list of Ingredients that are marked in pantry or not.
+     *
+     * TODO: In a future iteration, make the referential equality more stable so we don't triggered
+     *  recomposition for all list items UI each time one changes.
      */
-    private fun Flow<List<Ingredient>>.mapItemsInPantry(
-        pantryIngredients: Flow<List<Ingredient>>
-    ): Flow<IngredientSearchResult> =
-        this.combine(pantryIngredients) { searchIngredients, pantryItems ->
-            IngredientSearchResult.Content(
-                ingredients = searchIngredients.map { ingredient ->
-                    Ingredient(
-                        id = ingredient.id,
-                        name = ingredient.name,
-                        inPantry = pantryItems.find { ingredient.id == it.id } != null
+    private fun Flow<List<Ingredient>>.mapItemsInPantry(): Flow<IngredientSearchResult> {
+        return this.map { ingredients ->
+            val pantrySet = pantryRepository.listPantry(ingredients).toSet()
+            IngredientSearchResult.Success(
+                ingredients = ingredients.map { ingredient ->
+                    PantryIngredient(
+                        ingredient = ingredient,
+                        inPantry = pantrySet.contains(ingredient)
                     )
                 }
             )
         }
+    }
 }

@@ -1,6 +1,9 @@
 package com.tstreet.onhand.feature.home
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.Status.*
@@ -9,7 +12,10 @@ import com.tstreet.onhand.core.domain.pantry.AddToPantryUseCase
 import com.tstreet.onhand.core.domain.pantry.GetPantryUseCase
 import com.tstreet.onhand.core.domain.pantry.RemoveFromPantryUseCase
 import com.tstreet.onhand.core.model.Ingredient
+import com.tstreet.onhand.core.model.PantryIngredient
+import com.tstreet.onhand.core.model.UiPantryIngredient
 import com.tstreet.onhand.core.model.domain.IngredientSearchResult
+import com.tstreet.onhand.core.model.ui.HomeViewUiState
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.displayed
 import kotlinx.coroutines.flow.*
@@ -41,27 +47,50 @@ class HomeViewModel @Inject constructor(
     // .collectAsState()
     val displayedSearchText: Flow<String> = _searchTextFlow
 
-    private val _ingredients: Flow<IngredientSearchResult> = _searchTextFlow
+
+    private val _ingredients = mutableStateListOf<PantryIngredient>()
+    val ingredients: List<PantryIngredient> get() = _ingredients
+
+    private val _uiState: Flow<HomeViewUiState> = _searchTextFlow
         .debounce(250L)
         .flatMapLatest { searchQuery ->
-            // TODO: Ideally loading state emitted by call to use case. Since empty query should have no loading state
-            _isSearching.update { true }
-            // NOTE: This is retriggered when changing pantry state in search list too.
-            searchIngredients.get().getPantryMapped(searchQuery)
-        }
-        .onEach { result ->
-            // Perform mapping from domain layer
-            _isSearching.update { false }
+            searchIngredients.get().observeIngredientsPantryMapped(searchQuery)
+        }.map { searchResult ->
+
+            when (searchResult) {
+                is IngredientSearchResult.Success -> {
+                    if (searchResult.ingredients.isEmpty()) {
+                        HomeViewUiState.Empty
+                    } else {
+                        HomeViewUiState.Content(
+                            ingredients = searchResult.ingredients.map {
+                                UiPantryIngredient(
+                                    ingredient = it.ingredient,
+                                    inPantry = mutableStateOf(it.inPantry)
+                                )
+                            }
+                        )
+                    }
+                }
+
+                is IngredientSearchResult.Error -> {
+                    HomeViewUiState.Error
+                }
+
+                is IngredientSearchResult.Loading -> {
+                    HomeViewUiState.Loading
+                }
+            }
         }
 
-    val ingredients: StateFlow<IngredientSearchResult> =
-        _ingredients
+    val uiState: StateFlow<HomeViewUiState> =
+        _uiState
             .stateIn(
                 // Note: Child jobs launched in this scope are automatically cancelled when
                 //  onCleared() is called for this ViewModel.
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
-                initialValue = IngredientSearchResult.Empty
+                initialValue = HomeViewUiState.Empty
             )
 
     val pantry: StateFlow<List<Ingredient>> =
@@ -71,9 +100,6 @@ class HomeViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(5000),
                 initialValue = emptyList()
             )
-
-    private val _isSearching = MutableStateFlow(false)
-    val isSearching = _isSearching.asStateFlow()
 
     private val _isSearchBarFocused = MutableStateFlow(false)
     val isSearchBarFocused = _isSearchBarFocused.asStateFlow()
@@ -90,39 +116,42 @@ class HomeViewModel @Inject constructor(
         _searchTextFlow.tryEmit(text)
     }
 
-    fun onToggleFromSearch(index: Int) {
-//        viewModelScope.launch {
-//            val item = ingredients.value.ingredients[index]
-//            when {
-//                item.inPantry -> {
-//                    when (removeFromPantry.get().invoke(item).status) {
-//                        SUCCESS -> {}
-//                        ERROR -> {
-//                            _errorDialogState.update {
-//                                displayed(
-//                                    title = "Error",
-//                                    message = "Unable to remove item from pantry. Please try again."
-//                                )
-//                            }
-//                        }
-//                    }
-//                }
-//
-//                else -> {
-//                    when (addToPantry.get().invoke(item).status) {
-//                        SUCCESS -> {}
-//                        ERROR -> {
-//                            _errorDialogState.update {
-//                                displayed(
-//                                    title = "Error",
-//                                    message = "Unable to add item to pantry. Please try again."
-//                                )
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
+    fun onToggleFromSearch(pantryIngredient: UiPantryIngredient) {
+        viewModelScope.launch {
+            when {
+                pantryIngredient.inPantry.value -> {
+                    when (removeFromPantry.get().invoke(pantryIngredient.ingredient).status) {
+                        SUCCESS -> {
+                            pantryIngredient.inPantry.value = !pantryIngredient.inPantry.value
+                        }
+                        ERROR -> {
+                            _errorDialogState.update {
+                                displayed(
+                                    title = "Error",
+                                    message = "Unable to remove item from pantry. Please try again."
+                                )
+                            }
+                        }
+                    }
+                }
+
+                else -> {
+                    when (addToPantry.get().invoke(pantryIngredient.ingredient).status) {
+                        SUCCESS -> {
+                            pantryIngredient.inPantry.value = !pantryIngredient.inPantry.value
+                        }
+                        ERROR -> {
+                            _errorDialogState.update {
+                                displayed(
+                                    title = "Error",
+                                    message = "Unable to add item to pantry. Please try again."
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     fun onToggleFromPantry(index: Int) {
@@ -130,19 +159,19 @@ class HomeViewModel @Inject constructor(
             val item = pantry.value[index]
             // TODO: probably an unnecessary check, but put here to make sure we didn't somehow
             // get an ingredient in the pantry that isn't marked as in the pantry
-            if (item.inPantry) {
-                when (removeFromPantry.get().invoke(item).status) {
-                    SUCCESS -> {}
-                    ERROR -> {
-                        _errorDialogState.update {
-                            displayed(
-                                title = "Error",
-                                message = "Unable to remove item from pantry. Please try again."
-                            )
-                        }
-                    }
-                }
-            }
+//            if (item.inPantry) {
+//                when (removeFromPantry.get().invoke(item).status) {
+//                    SUCCESS -> {}
+//                    ERROR -> {
+//                        _errorDialogState.update {
+//                            displayed(
+//                                title = "Error",
+//                                message = "Unable to remove item from pantry. Please try again."
+//                            )
+//                        }
+//                    }
+//                }
+//            }
         }
     }
 

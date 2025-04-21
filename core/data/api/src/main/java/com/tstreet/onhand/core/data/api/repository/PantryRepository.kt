@@ -24,4 +24,6 @@ interface PantryRepository {
      * table.
      */
     fun listPantry() : Flow<List<Ingredient>>
+
+    suspend fun listPantry(ingredients: List<Ingredient>): List<Ingredient>
 }

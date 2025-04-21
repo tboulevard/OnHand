@@ -10,6 +10,7 @@ import com.tstreet.onhand.core.database.model.toPantryEntity
 import com.tstreet.onhand.core.model.Ingredient
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -58,6 +59,12 @@ class OfflinePantryRepository @Inject constructor(
                 it.map(PantryEntity::toIngredient)
             }
             .flowOn(ioDispatcher)
+    }
 
+    override suspend fun listPantry(ingredients: List<Ingredient>): List<Ingredient> {
+        return pantryDao
+            .get()
+            .getPantryItemsWithIds(ingredients.map { it.id })
+            .map { it.toIngredient() }
     }
 }

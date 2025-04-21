@@ -1,5 +1,6 @@
 package com.tstreet.onhand.feature.home
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
@@ -19,7 +20,9 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tstreet.onhand.core.model.Ingredient
-import com.tstreet.onhand.core.model.domain.IngredientSearchResult
+import com.tstreet.onhand.core.model.PantryIngredient
+import com.tstreet.onhand.core.model.UiPantryIngredient
+import com.tstreet.onhand.core.model.ui.HomeViewUiState
 import com.tstreet.onhand.core.ui.OnHandAlertDialog
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
 import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
@@ -34,8 +37,7 @@ fun HomeScreen(
 ) {
     val searchText by viewModel.displayedSearchText.collectAsState(initial = "")
     val pantry by viewModel.pantry.collectAsStateWithLifecycle()
-    val searchResult by viewModel.ingredients.collectAsStateWithLifecycle()
-    val isSearching by viewModel.isSearching.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isSearchBarFocused by viewModel.isSearchBarFocused.collectAsState()
     val errorDialogState = viewModel.errorDialogState.collectAsState()
 
@@ -55,12 +57,9 @@ fun HomeScreen(
             isFocused = isSearchBarFocused
         )
         when {
-            isSearching -> {
-                OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
-            }
             isSearchBarFocused -> {
                 IngredientSearchCardList(
-                    searchResult = searchResult,
+                    uiState = uiState,
                     onItemClick = viewModel::onToggleFromSearch
                 )
             }
@@ -139,8 +138,8 @@ private class IngredientSearchCard(
 @Composable
 private fun IngredientSearchListItem(
     card: IngredientSearchCard,
-    index: Int,
-    onItemClicked: (Int) -> Unit
+    ingredient: UiPantryIngredient,
+    onItemClicked: (UiPantryIngredient) -> Unit
 ) {
     Card(
         shape = MaterialTheme.shapes.medium,
@@ -153,12 +152,13 @@ private fun IngredientSearchListItem(
         ),
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = { onItemClicked(index) }),
+            .clickable(onClick = { onItemClicked(ingredient) }),
     ) {
         Row(
             modifier = Modifier
                 .padding(16.dp)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .recomposeHighlighter(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
@@ -188,11 +188,11 @@ private fun IngredientSearchListItem(
 
 @Composable
 fun IngredientSearchCardList(
-    searchResult: IngredientSearchResult,
-    onItemClick: (Int) -> Unit
+    uiState: HomeViewUiState,
+    onItemClick: (UiPantryIngredient) -> Unit
 ) {
-    when (searchResult) {
-        is IngredientSearchResult.Empty -> {
+    when (uiState) {
+        is HomeViewUiState.Empty -> {
             Row(
                 modifier = Modifier.fillMaxSize(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -204,30 +204,31 @@ fun IngredientSearchCardList(
                 )
             }
         }
-        is IngredientSearchResult.Loading -> {
+        is HomeViewUiState.Loading -> {
             OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
         }
-        is IngredientSearchResult.Content -> {
+        is HomeViewUiState.Content -> {
             LazyColumn(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 itemsIndexed(
-                    items = searchResult.ingredients
+                    key = { position, item -> item.ingredient.id },
+                    items = uiState.ingredients
                 ) { index, item ->
                     IngredientSearchListItem(
                         card = IngredientSearchCard(
-                            name = item.name,
-                            inPantry = item.inPantry
+                            name = item.ingredient.name,
+                            inPantry = item.inPantry.value
                         ),
-                        index,
+                        item,
                         onItemClicked = onItemClick
                     )
                 }
             }
         }
-        is IngredientSearchResult.Error -> {
-            // TODO:
+        is HomeViewUiState.Error -> {
+            Log.d("[OnHand], ", "Error in IngredientSearchCardList")
         }
     }
 }

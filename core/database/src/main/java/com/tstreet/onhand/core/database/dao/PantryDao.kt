@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.tstreet.onhand.core.database.model.PantryEntity
+import com.tstreet.onhand.core.model.Ingredient
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -28,5 +29,8 @@ interface PantryDao {
 
     @Query("SELECT * FROM pantry")
     fun getAllFromPantry(): Flow<List<PantryEntity>>
+
+    @Query("SELECT * FROM pantry WHERE id IN (:ids)")
+    suspend fun getPantryItemsWithIds(ids: List<Int>): List<PantryEntity>
 
 }
