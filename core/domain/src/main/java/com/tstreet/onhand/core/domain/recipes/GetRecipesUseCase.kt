@@ -26,7 +26,6 @@ import javax.inject.Provider
 class GetRecipesUseCase @Inject constructor(
     private val recipeRepository: Provider<RecipeRepository>,
     private val pantryRepository: Provider<PantryRepository>,
-    private val pantryStateManager: Provider<PantryStateManager>,
     @Named(IO) private val ioDispatcher: CoroutineDispatcher,
 ) : UseCase() {
 
@@ -42,8 +41,6 @@ class GetRecipesUseCase @Inject constructor(
                 }
                 when (recipes.status) {
                     SUCCESS -> {
-                        // TODO: pantry reset logic messed up, look into before merging...
-                        pantryStateManager.get().onResetPantryState()
                         Resource.success(data = sortedRecipes)
                     }
                     ERROR -> {
@@ -65,7 +62,7 @@ class GetRecipesUseCase @Inject constructor(
 
     private suspend fun findSaveableRecipes(ingredientNames: List<String>): Resource<List<SaveableRecipePreview>> {
         val recipeResource = recipeRepository.get().findRecipes(
-            fetchStrategy = getFetchStrategy(), ingredients = ingredientNames
+            fetchStrategy = FetchStrategy.DATABASE, ingredients = ingredientNames
         )
 
         val saveableRecipeResource = recipeResource.data?.let {
@@ -94,28 +91,8 @@ class GetRecipesUseCase @Inject constructor(
     }
 
     private fun getPantryIngredients(): Flow<List<String>> {
-        return pantryRepository.get().listPantry().map {
-            when (it.status) {
-                SUCCESS -> {
-                    it.data?.map { item -> item.ingredient.name } ?: emptyList()
-                }
-                ERROR -> {
-                    println(
-                        "[OnHand] There was an error getting the pantry ingredients" + "for recipes."
-                    )
-                    emptyList()
-                }
-            }
-        }
+        return flowOf(emptyList())
     }
-
-    private fun getFetchStrategy() =
-    // TODO: Think about adding centralized network check logic or similar to prevent
-        //  network error dialog from showing every time sort order is changed
-        when (pantryStateManager.get().hasPantryStateChanged()) {
-            true -> FetchStrategy.NETWORK
-            false -> FetchStrategy.DATABASE
-        }
 }
 
 enum class SortBy {

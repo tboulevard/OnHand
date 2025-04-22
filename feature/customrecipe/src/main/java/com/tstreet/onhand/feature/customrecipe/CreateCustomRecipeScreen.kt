@@ -18,7 +18,7 @@ import androidx.navigation.NavHostController
 import com.tstreet.onhand.core.common.CREATE_RECIPE_ROUTE
 import com.tstreet.onhand.core.common.INGREDIENT_SEARCH_ROUTE
 import com.tstreet.onhand.core.common.RECIPE_DETAIL_ROUTE
-import com.tstreet.onhand.core.model.SelectableIngredient
+import com.tstreet.onhand.core.model.ui.SelectableIngredient
 import com.tstreet.onhand.core.ui.OnHandAlertDialog
 import com.tstreet.onhand.core.ui.OnHandScreenHeader
 

@@ -1,14 +1,15 @@
 package com.tstreet.onhand.feature.customrecipe
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.Status.*
 import com.tstreet.onhand.core.domain.customrecipe.AddRecipeUseCase
 import com.tstreet.onhand.core.domain.customrecipe.CustomRecipeInputUseCase
 import com.tstreet.onhand.core.model.CustomRecipeInput
-import com.tstreet.onhand.core.model.Ingredient
-import com.tstreet.onhand.core.model.RecipeIngredient
-import com.tstreet.onhand.core.model.SelectableIngredient
+import com.tstreet.onhand.core.model.data.Ingredient
+import com.tstreet.onhand.core.model.data.RecipeIngredient
+import com.tstreet.onhand.core.model.ui.SelectableIngredient
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.displayed
 import com.tstreet.onhand.core.ui.InputValidationState.Companion.hidden
@@ -24,7 +25,7 @@ class CreateCustomRecipeViewModel @Inject constructor(
 ) : ViewModel() {
 
     init {
-        println("[OnHand] ${this.javaClass.simpleName} created")
+        Log.d("[OnHand]", "${this.javaClass.simpleName} created")
     }
 
     // Required input fields

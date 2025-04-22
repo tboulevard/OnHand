@@ -1,5 +1,6 @@
 package com.tstreet.onhand.feature.home
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
@@ -18,7 +19,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.tstreet.onhand.core.model.PantryIngredient
+import com.tstreet.onhand.core.common.recomposeHighlighter
+import com.tstreet.onhand.core.model.ui.PantryUiState
+import com.tstreet.onhand.core.model.ui.SearchUiState
+import com.tstreet.onhand.core.model.ui.UiPantryIngredient
 import com.tstreet.onhand.core.ui.OnHandAlertDialog
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
 import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
@@ -31,16 +35,20 @@ import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
 fun HomeScreen(
     viewModel: HomeViewModel
 ) {
-    val searchText by viewModel.displayedSearchText.collectAsState(initial = "")
-    val pantry by viewModel.pantry.collectAsStateWithLifecycle()
-    val ingredients by viewModel.ingredients.collectAsStateWithLifecycle()
-    val isSearching by viewModel.isSearching.collectAsState()
-    val isSearchBarFocused by viewModel.isSearchBarFocused.collectAsState()
-    val isPreSearchDebouncing by viewModel.isPreSearchDebounce.collectAsState()
-    val errorDialogState = viewModel.errorDialogState.collectAsState()
+    val pantryUiState by viewModel.pantryUiState.collectAsStateWithLifecycle()
+    val searchUiState by viewModel.searchUiState.collectAsStateWithLifecycle()
+
+    val searchText by viewModel.displayedSearchText.collectAsStateWithLifecycle()
+    val isSearchBarFocused by viewModel.isSearchBarFocused.collectAsStateWithLifecycle()
+    val errorDialogState = viewModel.errorDialogState.collectAsStateWithLifecycle()
+
+    val onIngredientClick = remember { viewModel::onToggleIngredient }
+    val onIngredientSearchTextChanged = remember { viewModel::onSearchTextChanged }
+    val onSearchBarFocusChanged = remember { viewModel::onSearchBarFocusChanged }
+    val dismissErrorDialog = remember { viewModel::dismissErrorDialog }
 
     OnHandAlertDialog(
-        onDismiss = viewModel::dismissErrorDialog,
+        onDismiss = dismissErrorDialog,
         state = errorDialogState.value
     )
 
@@ -50,26 +58,22 @@ fun HomeScreen(
     ) {
         IngredientSearchBar(
             searchText = searchText,
-            onTextChanged = viewModel::onSearchTextChanged,
-            onFocusChanged = viewModel::onSearchBarFocusChanged,
+            onTextChanged = onIngredientSearchTextChanged,
+            onFocusChanged = onSearchBarFocusChanged,
             isFocused = isSearchBarFocused
         )
         when {
-            isSearching -> {
-                OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
-            }
             isSearchBarFocused -> {
                 IngredientSearchCardList(
-                    ingredients = ingredients,
-                    onItemClick = viewModel::onToggleFromSearch,
-                    isPreSearchDebouncing,
-                    searchText
+                    searchUiState,
+                    onIngredientClick
                 )
             }
+
             else -> {
                 PantryItemList(
-                    pantry,
-                    viewModel::onToggleFromPantry
+                    pantryUiState,
+                    onIngredientClick
                 )
             }
         }
@@ -92,7 +96,9 @@ private fun IngredientSearchBar(
             .padding(start = 8.dp, top = 16.dp, end = 8.dp, bottom = 8.dp)
             .onFocusChanged { onFocusChanged(it.isFocused) },
         value = searchText,
-        onValueChange = { onTextChanged(it) },
+        onValueChange = {
+            onTextChanged(it)
+        },
         placeholder = { Text("Search Ingredients") },
         trailingIcon = {
             if (searchText.isNotEmpty()) {
@@ -141,8 +147,8 @@ private class IngredientSearchCard(
 @Composable
 private fun IngredientSearchListItem(
     card: IngredientSearchCard,
-    index: Int,
-    onItemClicked: (Int) -> Unit
+    ingredient: UiPantryIngredient,
+    onItemClicked: (UiPantryIngredient) -> Unit
 ) {
     Card(
         shape = MaterialTheme.shapes.medium,
@@ -155,7 +161,7 @@ private fun IngredientSearchListItem(
         ),
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = { onItemClicked(index) }),
+            .clickable(onClick = { onItemClicked(ingredient) }),
     ) {
         Row(
             modifier = Modifier
@@ -190,14 +196,13 @@ private fun IngredientSearchListItem(
 
 @Composable
 fun IngredientSearchCardList(
-    ingredients: List<PantryIngredient>,
-    onItemClick: (Int) -> Unit,
-    isPreDebounce: Boolean,
-    searchText: String,
+    searchUiState: SearchUiState,
+    onItemClick: (UiPantryIngredient) -> Unit
+) {
+    Log.d("[OnHand]", "IngredientSearchCardList recomposition")
 
-    ) {
-    when (ingredients.isEmpty() && !isPreDebounce && searchText.isNotEmpty()) {
-        true -> {
+    when (searchUiState) {
+        is SearchUiState.Empty -> {
             Row(
                 modifier = Modifier.fillMaxSize(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -209,41 +214,64 @@ fun IngredientSearchCardList(
                 )
             }
         }
-        else -> {
+
+        is SearchUiState.Loading -> {
+            OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
+        }
+
+        is SearchUiState.Content -> {
             LazyColumn(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 itemsIndexed(
-                    items = ingredients
+                    key = { position, item -> item.ingredient.id },
+                    items = searchUiState.ingredients
                 ) { index, item ->
                     IngredientSearchListItem(
                         card = IngredientSearchCard(
                             name = item.ingredient.name,
-                            inPantry = item.inPantry
+                            inPantry = item.inPantry.value
                         ),
-                        index,
+                        item,
                         onItemClicked = onItemClick
                     )
                 }
             }
+        }
+
+        is SearchUiState.Error -> {
+            Log.d("[OnHand], ", "Error in IngredientSearchCardList")
         }
     }
 }
 
 @Composable
 private fun PantryItemList(
-    pantry: List<PantryIngredient>,
-    onToggleFromPantry: (Int) -> Unit
+    pantryUiState: PantryUiState,
+    onToggleFromPantry: (UiPantryIngredient) -> Unit
 ) {
+    Log.d("[OnHand]", "PantryItemList recomposition")
+
     Text(
         modifier = Modifier.padding(12.dp),
         text = "Your Pantry",
         style = MaterialTheme.typography.displayMedium
     )
 
-    when {
-        pantry.isEmpty() -> {
+    when (pantryUiState) {
+        PantryUiState.Loading -> {
+            OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
+        }
+
+        is PantryUiState.Content -> {
+            PantryCardList(
+                pantry = pantryUiState.ingredients,
+                onItemClick = onToggleFromPantry
+            )
+        }
+
+        PantryUiState.Empty -> {
             Text(
                 modifier = Modifier.padding(16.dp),
                 text = "Your pantry is empty. You can add items by searching for " +
@@ -251,33 +279,39 @@ private fun PantryItemList(
                 style = MaterialTheme.typography.bodyLarge
             )
         }
-        else -> {
-            PantryCardList(
-                pantry = pantry,
-                onItemClick = onToggleFromPantry
-            )
+
+        PantryUiState.Error -> {
+            Log.d("[OnHand], ", "Error in PantryItemList")
+        }
+
+        PantryUiState.None -> {
+            // Do nothing
         }
     }
 }
 
 private class PantryItemCard(
-    val ingredientName: String
+    val pantryIngredient: UiPantryIngredient
 )
 
 @Composable
 private fun PantryListItem(
     card: PantryItemCard,
-    index: Int,
-    onItemClicked: (Int) -> Unit
+    onItemClicked: (UiPantryIngredient) -> Unit
 ) {
     Card(
         modifier = Modifier
             .clickable {
-                onItemClicked(index)
+                onItemClicked(card.pantryIngredient)
             }
+            .recomposeHighlighter()
             .padding(2.dp),
         shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.tertiary),
+        colors = if (card.pantryIngredient.inPantry.value) {
+            CardDefaults.cardColors(MaterialTheme.colorScheme.tertiary)
+        } else {
+            CardDefaults.cardColors(Color.Transparent)
+        },
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Row(
@@ -289,7 +323,7 @@ private fun PantryListItem(
                 .align(Alignment.End)
         ) {
             Text(
-                text = card.ingredientName,
+                text = card.pantryIngredient.ingredient.name,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.weight(1f)
             )
@@ -305,8 +339,8 @@ private fun PantryListItem(
 
 @Composable
 private fun PantryCardList(
-    pantry: List<PantryIngredient>,
-    onItemClick: (Int) -> Unit
+    pantry: List<UiPantryIngredient>,
+    onItemClick: (UiPantryIngredient) -> Unit
 ) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(96.dp),
@@ -319,10 +353,7 @@ private fun PantryCardList(
     ) {
         itemsIndexed(pantry, key = { _, item -> item.ingredient.id }) { index, item ->
             PantryListItem(
-                card = PantryItemCard(
-                    item.ingredient.name,
-                ),
-                index = index,
+                card = PantryItemCard(item),
                 onItemClicked = onItemClick
             )
         }

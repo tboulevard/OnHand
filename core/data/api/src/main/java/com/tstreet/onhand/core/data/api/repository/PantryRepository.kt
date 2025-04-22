@@ -1,29 +1,29 @@
 package com.tstreet.onhand.core.data.api.repository
 
-import com.tstreet.onhand.core.common.Resource
-import com.tstreet.onhand.core.model.Ingredient
-import com.tstreet.onhand.core.model.PantryIngredient
+import com.tstreet.onhand.core.model.data.Ingredient
 import kotlinx.coroutines.flow.Flow
 
 interface PantryRepository {
 
     /**
-     * Adds the given [Ingredient] to pantry by marking inPantry=true
+     * Adds the given [Ingredient] to pantry
      *
      * @return the number of rows updates in DB
      */
-    suspend fun addIngredient(ingredient: Ingredient) : Int
+    suspend fun addIngredient(ingredient: Ingredient) : Long
 
     /**
-     * Removes the given [Ingredient] to pantry by marking inPantry=false
+     * Removes the given [Ingredient] to pantry
      *
      * @return the number of rows updates in DB
      */
     suspend fun removeIngredient(ingredient: Ingredient) : Int
 
     /**
-     * Emits [PantryIngredient]s where inPantry=true each time there's an update to the underlying
+     * Emits [Ingredient]s in pantry each time there's an update to the underlying
      * table.
      */
-    fun listPantry() : Flow<Resource<List<PantryIngredient>>>
+    suspend fun listPantry() : List<Ingredient>
+
+    suspend fun listPantry(ingredients: List<Ingredient>): List<Ingredient>
 }

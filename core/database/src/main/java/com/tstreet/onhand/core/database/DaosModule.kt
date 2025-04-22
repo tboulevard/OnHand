@@ -1,6 +1,8 @@
 package com.tstreet.onhand.core.database
 
-import com.tstreet.onhand.core.database.dao.IngredientCatalogDao
+import android.util.Log
+import com.tstreet.onhand.core.database.dao.IngredientDao
+import com.tstreet.onhand.core.database.dao.PantryDao
 import com.tstreet.onhand.core.database.dao.RecipeSearchCacheDao
 import com.tstreet.onhand.core.database.dao.SavedRecipeDao
 import com.tstreet.onhand.core.database.dao.ShoppingListDao
@@ -15,27 +17,34 @@ object DaosModule {
     @Singleton
     fun providesIngredientDao(
         database: OnHandDatabase,
-    ): IngredientCatalogDao = database.ingredientDao()
-        .also { println("[OnHand] IngredientCatalogDao created") }
+    ): IngredientDao = database.ingredientDao()
+        .also { Log.d("[OnHand]", "IngredientDao created") }
 
     @Provides
     @Singleton
     fun providesSavedRecipeDao(
         database: OnHandDatabase,
     ): SavedRecipeDao = database.savedRecipeDao()
-        .also { println("[OnHand] SavedRecipeDao created") }
+        .also { Log.d("[OnHand]", "SavedRecipeDao created") }
 
     @Provides
     @Singleton
     fun providesRecipeSearchCacheDao(
         database: OnHandDatabase,
     ): RecipeSearchCacheDao = database.recipeSearchCacheDao()
-        .also { println("[OnHand] RecipeSearchCacheDao created") }
+        .also { Log.d("[OnHand]", "RecipeSearchCacheDao created") }
 
     @Provides
     @Singleton
     fun providesShoppingListDao(
         database: OnHandDatabase,
     ): ShoppingListDao = database.shoppingListDao()
-        .also { println("[OnHand] ShoppingListDao created") }
+        .also { Log.d("[OnHand]", "ShoppingListDao created") }
+
+    @Provides
+    @Singleton
+    fun providesPantryDao(
+        database: OnHandDatabase,
+    ): PantryDao = database.pantryDao()
+        .also { Log.d("[OnHand]", "PantryDao created") }
 }

@@ -1,7 +1,7 @@
 package com.tstreet.onhand.core.database.model
 
 import androidx.room.ColumnInfo
-import com.tstreet.onhand.core.model.RecipeIngredient
+import com.tstreet.onhand.core.model.data.RecipeIngredient
 
 /**
  * Minimum set of information expected for a saved Recipe, regardless of if sourced from user or

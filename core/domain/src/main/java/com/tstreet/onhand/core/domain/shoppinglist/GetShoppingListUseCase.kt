@@ -1,5 +1,6 @@
 package com.tstreet.onhand.core.domain.shoppinglist
 
+import android.util.Log
 import com.tstreet.onhand.core.common.*
 import com.tstreet.onhand.core.data.api.repository.ShoppingListRepository
 import com.tstreet.onhand.core.model.*
@@ -12,7 +13,7 @@ class GetShoppingListUseCase @Inject constructor(
 ) : UseCase() {
 
     operator fun invoke(): Flow<Resource<List<ShoppingListIngredient>>> {
-        println("[OnHand] GetShoppingListUseCase.invoke()")
+        Log.d("[OnHand]", "GetShoppingListUseCase.invoke()")
         return shoppingListRepository
             .get()
             .getShoppingList()

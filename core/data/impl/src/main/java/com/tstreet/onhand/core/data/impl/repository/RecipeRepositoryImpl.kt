@@ -1,6 +1,7 @@
 package com.tstreet.onhand.core.data.impl.repository
 
 import android.database.sqlite.SQLiteConstraintException
+import android.util.Log
 import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.FetchStrategy
 import com.tstreet.onhand.core.common.FetchStrategy.*
@@ -11,6 +12,8 @@ import com.tstreet.onhand.core.database.dao.RecipeSearchCacheDao
 import com.tstreet.onhand.core.database.dao.SavedRecipeDao
 import com.tstreet.onhand.core.database.model.*
 import com.tstreet.onhand.core.model.*
+import com.tstreet.onhand.core.model.data.Ingredient
+import com.tstreet.onhand.core.model.data.RecipeIngredient
 import com.tstreet.onhand.core.network.OnHandNetworkDataSource
 import com.tstreet.onhand.core.network.model.NetworkRecipe
 import com.tstreet.onhand.core.network.model.NetworkRecipeDetail
@@ -32,14 +35,14 @@ class RecipeRepositoryImpl @Inject constructor(
 ) : RecipeRepository {
 
     init {
-        println("[OnHand] Creating ${this.javaClass.simpleName}")
+        Log.d("[OnHand]", "Creating ${this.javaClass.simpleName}")
     }
 
     override suspend fun findRecipes(
         fetchStrategy: FetchStrategy,
         ingredients: List<String>
     ): Resource<List<RecipePreview>> {
-        println("[OnHand] findRecipes($fetchStrategy, $ingredients)")
+        Log.d("[OnHand]", "findRecipes($fetchStrategy, $ingredients)")
 
         return when (fetchStrategy) {
             DATABASE -> {
@@ -48,7 +51,7 @@ class RecipeRepositoryImpl @Inject constructor(
                 } catch (e: Exception) {
                     // TODO: log analytics here
                     // TODO: rethrow in debug
-                    println("[OnHand] Error retrieving cached recipes: ${e.message}")
+                    Log.d("[OnHand]", "Error retrieving cached recipes: ${e.message}")
                     Resource.error(msg = e.message.toString())
                 }
             }
@@ -83,7 +86,7 @@ class RecipeRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getRecipeDetail(id: Int): Resource<RecipeDetail> {
-        println("[OnHand] getRecipeDetail($id)")
+        Log.d("[OnHand]", "getRecipeDetail($id)")
         val networkResponse = onHandNetworkDataSource
             .get()
             .getRecipeDetail(id)
@@ -108,7 +111,7 @@ class RecipeRepositoryImpl @Inject constructor(
     override suspend fun saveRecipePreview(
         recipePreview: RecipePreview
     ) {
-        println("[OnHand] saveRecipe($recipePreview)")
+        Log.d("[OnHand]", "saveRecipe($recipePreview)")
         savedRecipeDao
             .get()
             .addRecipe(recipePreview.toSavedRecipeEntity())
@@ -117,7 +120,7 @@ class RecipeRepositoryImpl @Inject constructor(
     override suspend fun saveFullRecipe(
         fullRecipe: FullRecipe
     ): SaveRecipeResult {
-        println("[OnHand] saveCustomRecipe($fullRecipe)")
+        Log.d("[OnHand]", "saveCustomRecipe($fullRecipe)")
         return try {
             savedRecipeDao
                 .get()
@@ -135,14 +138,14 @@ class RecipeRepositoryImpl @Inject constructor(
     }
 
     override suspend fun unsaveRecipe(id: Int) {
-        println("[OnHand] unsaveRecipe($id)")
+        Log.d("[OnHand]", "unsaveRecipe($id)")
         savedRecipeDao
             .get()
             .deleteRecipe(id)
     }
 
     override suspend fun isRecipeSaved(id: Int): Boolean {
-        println("[OnHand] isRecipeSaved($id)")
+        Log.d("[OnHand]", "isRecipeSaved($id)")
         return withContext(ioDispatcher) {
             savedRecipeDao
                 .get()
@@ -151,7 +154,7 @@ class RecipeRepositoryImpl @Inject constructor(
     }
 
     override suspend fun isRecipeSaved(title: String): Boolean {
-        println("[OnHand] isRecipeSaved($title)")
+        Log.d("[OnHand]", "isRecipeSaved($title)")
         return withContext(ioDispatcher) {
             savedRecipeDao
                 .get()
@@ -160,7 +163,7 @@ class RecipeRepositoryImpl @Inject constructor(
     }
 
     override fun getSavedRecipes(): Flow<List<SaveableRecipePreview>> {
-        println("[OnHand] getSavedRecipes()")
+        Log.d("[OnHand]", "getSavedRecipes()")
         return savedRecipeDao
             .get()
             .getAll()
@@ -168,7 +171,7 @@ class RecipeRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateSavedRecipesMissingIngredient(ingredient: Ingredient) {
-        println("[OnHand] updateSavedRecipesMissingIngredient($ingredient)")
+        Log.d("[OnHand]", "updateSavedRecipesMissingIngredient($ingredient)")
         try {
             savedRecipeDao
                 .get()
@@ -180,7 +183,7 @@ class RecipeRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateSavedRecipesUsingIngredient(ingredient: Ingredient) {
-        println("[OnHand] updateSavedRecipesUsingIngredient($ingredient)")
+        Log.d("[OnHand]", "updateSavedRecipesUsingIngredient($ingredient)")
         try {
             savedRecipeDao
                 .get()
@@ -192,7 +195,7 @@ class RecipeRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getFullRecipe(id: Int): Resource<FullRecipe> {
-        println("[OnHand] getCustomRecipeDetail($id)")
+        Log.d("[OnHand]", "getCustomRecipeDetail($id)")
         return withContext(ioDispatcher) {
             try {
                 // Custom recipes have both preview and detail information stored locally
@@ -255,7 +258,7 @@ class RecipeRepositoryImpl @Inject constructor(
     }
 
     override suspend fun isRecipeCustom(id: Int): Boolean {
-        println("[OnHand] isRecipeCustom($id)")
+        Log.d("[OnHand]", "isRecipeCustom($id)")
         return savedRecipeDao
             .get()
             .isRecipeCustom(id) == 1

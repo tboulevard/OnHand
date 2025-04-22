@@ -1,5 +1,6 @@
 package com.tstreet.onhand.core.domain.shoppinglist
 
+import android.util.Log
 import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.Resource
 import com.tstreet.onhand.core.common.Status
@@ -18,7 +19,7 @@ class RemoveRecipeInShoppingListUseCase @Inject constructor(
 ) : UseCase() {
 
     operator suspend fun invoke(recipePreview: RecipePreview): Resource<Unit> {
-        println("[OnHand] RemoveRecipeInShoppingListUseCase.invoke()")
+        Log.d("[OnHand]", "RemoveRecipeInShoppingListUseCase.invoke()")
         return withContext(ioDispatcher) {
             val result = shoppingListRepository.get().removeRecipePreview(recipePreview)
             when (result.status) {

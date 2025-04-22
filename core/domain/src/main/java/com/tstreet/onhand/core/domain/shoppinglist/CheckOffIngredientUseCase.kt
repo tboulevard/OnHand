@@ -1,5 +1,6 @@
 package com.tstreet.onhand.core.domain.shoppinglist
 
+import android.util.Log
 import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.common.Resource
@@ -26,7 +27,7 @@ class CheckOffIngredientUseCase @Inject constructor(
         // function on diff dispatcher (using flow API for now so we don't use ViewModel coroutine
         // dispatcher)
         return flow {
-            println("[OnHand] Checking off shoppingListIngredient=${shoppingListIngredient}")
+            Log.d("[OnHand]", "Checking off shoppingListIngredient=${shoppingListIngredient}")
             val result = shoppingListRepository
                 .get()
                 .checkOffIngredient(shoppingListIngredient)

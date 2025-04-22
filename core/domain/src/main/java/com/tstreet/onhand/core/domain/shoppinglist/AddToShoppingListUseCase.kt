@@ -1,11 +1,12 @@
 package com.tstreet.onhand.core.domain.shoppinglist
 
+import android.util.Log
 import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.Resource
 import com.tstreet.onhand.core.common.Status
 import com.tstreet.onhand.core.common.UseCase
 import com.tstreet.onhand.core.data.api.repository.ShoppingListRepository
-import com.tstreet.onhand.core.model.Ingredient
+import com.tstreet.onhand.core.model.data.Ingredient
 import com.tstreet.onhand.core.model.RecipePreview
 import com.tstreet.onhand.core.model.ShoppingListIngredient
 import kotlinx.coroutines.CoroutineDispatcher
@@ -29,7 +30,7 @@ class AddToShoppingListUseCase @Inject constructor(
         // function on diff dispatcher (using flow API for now so we don't use ViewModel coroutine
         // dispatcher)
         return flow {
-            println("[OnHand] Adding ingredients=$ingredients, recipe=$recipePreview to shopping list")
+            Log.d("[OnHand]", "Adding ingredients=$ingredients, recipe=$recipePreview to shopping list")
             val result = shoppingListRepository.get().insertIngredients(
                 ingredients.map {
                     ShoppingListIngredient(
@@ -47,7 +48,7 @@ class AddToShoppingListUseCase @Inject constructor(
                 Status.ERROR -> {
                     // TODO: ViewModel layer ignores the full stacktrace - keeping here as reminder
                     //  to transmit via analytics here
-                    println("[OnHand] Error adding to shopping list - ${result.message}")
+                    Log.d("[OnHand]", "Error adding to shopping list - ${result.message}")
                     emit(Resource.error(msg = result.message.toString()))
                 }
             }

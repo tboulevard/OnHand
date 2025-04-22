@@ -1,6 +1,7 @@
 package com.tstreet.onhand.core.database
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Room
 import dagger.Module
 import dagger.Provides
@@ -18,7 +19,7 @@ object DatabaseModule {
         OnHandDatabase::class.java,
         "onhand-database"
     )
-        .createFromAsset("database/ingredient_catalog.db")
+            .createFromAsset("database/local_mock_ingredients.db")
         .build()
-        .also { println("[OnHand] onhand-database created") }
+        .also { Log.d("[OnHand]", "onhand-database created") }
 }

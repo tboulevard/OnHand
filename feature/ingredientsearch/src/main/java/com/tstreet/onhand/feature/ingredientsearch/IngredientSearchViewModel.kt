@@ -1,10 +1,11 @@
 package com.tstreet.onhand.feature.ingredientsearch
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.tstreet.onhand.core.domain.ingredients.GetIngredientsUseCase
-import com.tstreet.onhand.core.model.SelectableIngredient
+import com.tstreet.onhand.core.domain.ingredientsearch.IngredientSearchUseCase
+import com.tstreet.onhand.core.model.ui.SelectableIngredient
 import com.tstreet.onhand.core.ui.AlertDialogState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -12,11 +13,11 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 class IngredientSearchViewModel @Inject constructor(
-    private val getIngredients: Provider<GetIngredientsUseCase>,
+    private val getSearchResults: Provider<IngredientSearchUseCase>,
 ) : ViewModel() {
 
     init {
-        println("[OnHand] ${this.javaClass.simpleName} created")
+        Log.d("[OnHand]", "${this.javaClass.simpleName} created")
     }
 
     // Backing list for _selectableIngredientsFlow - mirrors what search query returns but allows
@@ -46,21 +47,21 @@ class IngredientSearchViewModel @Inject constructor(
             .flatMapLatest { searchQuery ->
                 _isSearching.update { true }
                 // NOTE: This is retriggered when changing pantry state in search list too.
-                getIngredients.get().invoke(searchQuery)
+                getSearchResults.get().getPantryMapped(searchQuery ?: "")
             }
             .onEach {
                 _isSearching.update { false }
             }
             .map {
-                val newSearchResults = it.map { pantryIngredient ->
-                    val ingredient = pantryIngredient.ingredient
-                    SelectableIngredient(
-                        ingredient = ingredient,
-                        isSelected = _selectedIngredients.find { selectedIngredient -> selectedIngredient.ingredient.name == ingredient.name } != null
-                    )
-                }
-                _mutableIngredients = newSearchResults.toMutableList()
-                newSearchResults
+//                val newSearchResults = it.ingredients.map { pantryIngredient ->
+//                    SelectableIngredient(
+//                        ingredient = pantryIngredient,
+//                        isSelected = _selectedIngredients.find { selectedIngredient -> selectedIngredient.ingredient.name == pantryIngredient.name } != null
+//                    )
+//                }
+//                _mutableIngredients = newSearchResults.toMutableList()
+//                newSearchResults
+                emptyList()
             }
 
     private val _selectableIngredientsFlow =

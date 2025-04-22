@@ -2,6 +2,7 @@ package com.tstreet.onhand.core.common
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.compose.runtime.compositionLocalOf
 import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.CommonModule.SHARED_PREF_FILE
@@ -17,9 +18,10 @@ interface CommonComponentProvider {
 
     @get:Named(SHARED_PREF_FILE)
     val sharedPreferences: SharedPreferences
-    val pantryStateManager: PantryStateManager
-    val savedRecipeStateManager: SavedRecipeStateManager
 }
 
 val LocalCommonProvider =
-    compositionLocalOf<CommonComponentProvider> { error("No common provider found!") }
+    compositionLocalOf<CommonComponentProvider> {
+        Log.d("[OnHand]", "LocalCommonProvider not found.")
+        error("No common provider found!")
+    }

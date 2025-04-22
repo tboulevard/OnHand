@@ -1,5 +1,6 @@
 package com.tstreet.onhand.core.data.impl.repository
 
+import android.util.Log
 import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.Resource
 import com.tstreet.onhand.core.data.api.repository.ShoppingListRepository
@@ -33,7 +34,7 @@ class ShoppingListRepositoryImpl @Inject constructor(
             }
             .catch {
                 // TODO: rethrow in debug mode
-                println("[OnHand] Error retrieving shopping list ingredients: ${it.message}")
+                Log.d("[OnHand]", "Error retrieving shopping list ingredients: ${it.message}")
                 // In the context of a FlowCollector, so we need to emit
                 emit(Resource.error<Nothing>(msg = it.message.toString()))
             }
@@ -52,7 +53,7 @@ class ShoppingListRepositoryImpl @Inject constructor(
             }
             .catch {
                 // TODO: rethrow in debug mode
-                println("[OnHand] Error retrieving shopping list recipes: ${it.message}")
+                Log.d("[OnHand]", "Error retrieving shopping list recipes: ${it.message}")
                 // In the context of a FlowCollector, so we need to emit
                 emit(Resource.error<Nothing>(msg = it.message.toString()))
             }
@@ -128,7 +129,7 @@ class ShoppingListRepositoryImpl @Inject constructor(
                 Resource.success(null)
             } catch (e: Exception) {
                 // TODO: rethrow in debug
-                println("[OnHand] Error removing $ingredient from Shopping List, msg=${e.message}")
+                Log.d("[OnHand]", "Error removing $ingredient from Shopping List, msg=${e.message}")
                 Resource.error(msg = e.message.toString())
             }
         }
