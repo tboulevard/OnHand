@@ -12,6 +12,8 @@ import com.tstreet.onhand.core.database.dao.RecipeSearchCacheDao
 import com.tstreet.onhand.core.database.dao.SavedRecipeDao
 import com.tstreet.onhand.core.database.model.*
 import com.tstreet.onhand.core.model.*
+import com.tstreet.onhand.core.model.data.Ingredient
+import com.tstreet.onhand.core.model.data.RecipeIngredient
 import com.tstreet.onhand.core.network.OnHandNetworkDataSource
 import com.tstreet.onhand.core.network.model.NetworkRecipe
 import com.tstreet.onhand.core.network.model.NetworkRecipeDetail

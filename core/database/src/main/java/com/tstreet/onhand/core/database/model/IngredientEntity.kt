@@ -3,7 +3,7 @@ package com.tstreet.onhand.core.database.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.tstreet.onhand.core.model.Ingredient
+import com.tstreet.onhand.core.model.data.Ingredient
 
 @Entity(
     tableName = "ingredient_catalog"

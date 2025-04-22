@@ -6,7 +6,7 @@ import com.tstreet.onhand.core.data.api.repository.IngredientSearchRepository
 import com.tstreet.onhand.core.database.dao.IngredientDao
 import com.tstreet.onhand.core.database.model.IngredientEntity
 import com.tstreet.onhand.core.database.model.toIngredient
-import com.tstreet.onhand.core.model.Ingredient
+import com.tstreet.onhand.core.model.data.Ingredient
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow

@@ -4,19 +4,21 @@ import android.util.Log
 import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.data.api.repository.PantryRepository
 import com.tstreet.onhand.core.database.dao.PantryDao
+import com.tstreet.onhand.core.database.model.IngredientEntity
 import com.tstreet.onhand.core.database.model.PantryEntity
 import com.tstreet.onhand.core.database.model.toIngredient
 import com.tstreet.onhand.core.database.model.toPantryEntity
-import com.tstreet.onhand.core.model.Ingredient
+import com.tstreet.onhand.core.model.data.Ingredient
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Provider
+import kotlin.collections.map
 
 class OfflinePantryRepository @Inject constructor(
     private val pantryDao: Provider<PantryDao>,
@@ -51,14 +53,14 @@ class OfflinePantryRepository @Inject constructor(
         }
     }
 
-    override fun listPantry(): Flow<List<Ingredient>> {
+    override suspend fun listPantry(): List<Ingredient> {
+        // Artificial delay to simulate loading
+        delay((1000..2000L).random())
+
         return pantryDao
             .get()
             .getAllFromPantry()
-            .map {
-                it.map(PantryEntity::toIngredient)
-            }
-            .flowOn(ioDispatcher)
+            .map(PantryEntity::toIngredient)
     }
 
     override suspend fun listPantry(ingredients: List<Ingredient>): List<Ingredient> {

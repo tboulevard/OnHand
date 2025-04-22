@@ -2,7 +2,7 @@ package com.tstreet.onhand.core.database
 
 import androidx.room.TypeConverter
 import com.tstreet.onhand.core.model.RecipePreview
-import com.tstreet.onhand.core.model.RecipeIngredient
+import com.tstreet.onhand.core.model.data.RecipeIngredient
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.decodeFromString

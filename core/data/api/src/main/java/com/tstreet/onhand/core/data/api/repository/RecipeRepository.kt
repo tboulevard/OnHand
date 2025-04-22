@@ -3,6 +3,7 @@ package com.tstreet.onhand.core.data.api.repository
 import com.tstreet.onhand.core.common.FetchStrategy
 import com.tstreet.onhand.core.common.Resource
 import com.tstreet.onhand.core.model.*
+import com.tstreet.onhand.core.model.data.Ingredient
 import kotlinx.coroutines.flow.Flow
 
 interface RecipeRepository {

@@ -3,7 +3,7 @@ package com.tstreet.onhand.core.domain.pantry
 import com.tstreet.onhand.core.common.*
 import com.tstreet.onhand.core.data.api.repository.PantryRepository
 import com.tstreet.onhand.core.data.api.repository.RecipeRepository
-import com.tstreet.onhand.core.model.Ingredient
+import com.tstreet.onhand.core.model.data.Ingredient
 import javax.inject.Inject
 import javax.inject.Provider
 

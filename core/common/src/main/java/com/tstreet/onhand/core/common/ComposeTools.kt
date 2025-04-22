@@ -1,4 +1,4 @@
-package com.tstreet.onhand.feature.home
+package com.tstreet.onhand.core.common
 
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -18,6 +18,8 @@ import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.dp
 import kotlin.math.min
 import kotlinx.coroutines.delay
+
+// TODO: Move to package only available in debug mode
 
 /**
  * A [Modifier] that draws a border around elements that are recomposing. The border increases in

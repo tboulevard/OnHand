@@ -3,8 +3,8 @@ package com.tstreet.onhand.core.domain.ingredientsearch
 import com.tstreet.onhand.core.common.UseCase
 import com.tstreet.onhand.core.data.api.repository.IngredientSearchRepository
 import com.tstreet.onhand.core.data.api.repository.PantryRepository
-import com.tstreet.onhand.core.model.Ingredient
-import com.tstreet.onhand.core.model.PantryIngredient
+import com.tstreet.onhand.core.model.data.Ingredient
+import com.tstreet.onhand.core.model.data.PantryIngredient
 import com.tstreet.onhand.core.model.domain.IngredientSearchResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch

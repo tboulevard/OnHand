@@ -19,8 +19,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.tstreet.onhand.core.model.Ingredient
-import com.tstreet.onhand.core.model.ui.HomeViewUiState
+import com.tstreet.onhand.core.common.recomposeHighlighter
+import com.tstreet.onhand.core.model.ui.PantryUiState
+import com.tstreet.onhand.core.model.ui.SearchUiState
 import com.tstreet.onhand.core.model.ui.UiPantryIngredient
 import com.tstreet.onhand.core.ui.OnHandAlertDialog
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
@@ -34,15 +35,15 @@ import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
 fun HomeScreen(
     viewModel: HomeViewModel
 ) {
-    val pantry by viewModel.pantry.collectAsStateWithLifecycle()
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val pantryUiState by viewModel.pantryUiState.collectAsStateWithLifecycle()
+    val searchUiState by viewModel.searchUiState.collectAsStateWithLifecycle()
 
     val searchText by viewModel.displayedSearchText.collectAsStateWithLifecycle()
     val isSearchBarFocused by viewModel.isSearchBarFocused.collectAsStateWithLifecycle()
     val errorDialogState = viewModel.errorDialogState.collectAsStateWithLifecycle()
 
-    val onIngredientSearchTextChanged = remember { viewModel::onSearchTextChanged}
-    val onIngredientSearchListClick = remember { viewModel::onToggleFromSearch }
+    val onIngredientClick = remember { viewModel::onToggleIngredient }
+    val onIngredientSearchTextChanged = remember { viewModel::onSearchTextChanged }
     val onSearchBarFocusChanged = remember { viewModel::onSearchBarFocusChanged }
     val dismissErrorDialog = remember { viewModel::dismissErrorDialog }
 
@@ -64,15 +65,15 @@ fun HomeScreen(
         when {
             isSearchBarFocused -> {
                 IngredientSearchCardList(
-                    uiState = uiState,
-                    onItemClick = onIngredientSearchListClick
+                    searchUiState,
+                    onIngredientClick
                 )
             }
 
             else -> {
                 PantryItemList(
-                    pantry,
-                    viewModel::onToggleFromPantry
+                    pantryUiState,
+                    onIngredientClick
                 )
             }
         }
@@ -165,8 +166,7 @@ private fun IngredientSearchListItem(
         Row(
             modifier = Modifier
                 .padding(16.dp)
-                .fillMaxSize()
-                .recomposeHighlighter(),
+                .fillMaxSize(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
@@ -196,11 +196,13 @@ private fun IngredientSearchListItem(
 
 @Composable
 fun IngredientSearchCardList(
-    uiState: HomeViewUiState,
+    searchUiState: SearchUiState,
     onItemClick: (UiPantryIngredient) -> Unit
 ) {
-    when (uiState) {
-        is HomeViewUiState.Empty -> {
+    Log.d("[OnHand]", "IngredientSearchCardList recomposition")
+
+    when (searchUiState) {
+        is SearchUiState.Empty -> {
             Row(
                 modifier = Modifier.fillMaxSize(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -213,18 +215,18 @@ fun IngredientSearchCardList(
             }
         }
 
-        is HomeViewUiState.Loading -> {
+        is SearchUiState.Loading -> {
             OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
         }
 
-        is HomeViewUiState.Content -> {
+        is SearchUiState.Content -> {
             LazyColumn(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 itemsIndexed(
                     key = { position, item -> item.ingredient.id },
-                    items = uiState.ingredients
+                    items = searchUiState.ingredients
                 ) { index, item ->
                     IngredientSearchListItem(
                         card = IngredientSearchCard(
@@ -238,7 +240,7 @@ fun IngredientSearchCardList(
             }
         }
 
-        is HomeViewUiState.Error -> {
+        is SearchUiState.Error -> {
             Log.d("[OnHand], ", "Error in IngredientSearchCardList")
         }
     }
@@ -246,17 +248,30 @@ fun IngredientSearchCardList(
 
 @Composable
 private fun PantryItemList(
-    pantry: List<Ingredient>,
-    onToggleFromPantry: (Int) -> Unit
+    pantryUiState: PantryUiState,
+    onToggleFromPantry: (UiPantryIngredient) -> Unit
 ) {
+    Log.d("[OnHand]", "PantryItemList recomposition")
+
     Text(
         modifier = Modifier.padding(12.dp),
         text = "Your Pantry",
         style = MaterialTheme.typography.displayMedium
     )
 
-    when {
-        pantry.isEmpty() -> {
+    when (pantryUiState) {
+        PantryUiState.Loading -> {
+            OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
+        }
+
+        is PantryUiState.Content -> {
+            PantryCardList(
+                pantry = pantryUiState.ingredients,
+                onItemClick = onToggleFromPantry
+            )
+        }
+
+        PantryUiState.Empty -> {
             Text(
                 modifier = Modifier.padding(16.dp),
                 text = "Your pantry is empty. You can add items by searching for " +
@@ -265,33 +280,38 @@ private fun PantryItemList(
             )
         }
 
-        else -> {
-            PantryCardList(
-                pantry = pantry,
-                onItemClick = onToggleFromPantry
-            )
+        PantryUiState.Error -> {
+            Log.d("[OnHand], ", "Error in PantryItemList")
+        }
+
+        PantryUiState.None -> {
+            // Do nothing
         }
     }
 }
 
 private class PantryItemCard(
-    val ingredientName: String
+    val pantryIngredient: UiPantryIngredient
 )
 
 @Composable
 private fun PantryListItem(
     card: PantryItemCard,
-    index: Int,
-    onItemClicked: (Int) -> Unit
+    onItemClicked: (UiPantryIngredient) -> Unit
 ) {
     Card(
         modifier = Modifier
             .clickable {
-                onItemClicked(index)
+                onItemClicked(card.pantryIngredient)
             }
+            .recomposeHighlighter()
             .padding(2.dp),
         shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.tertiary),
+        colors = if (card.pantryIngredient.inPantry.value) {
+            CardDefaults.cardColors(MaterialTheme.colorScheme.tertiary)
+        } else {
+            CardDefaults.cardColors(Color.Transparent)
+        },
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Row(
@@ -303,7 +323,7 @@ private fun PantryListItem(
                 .align(Alignment.End)
         ) {
             Text(
-                text = card.ingredientName,
+                text = card.pantryIngredient.ingredient.name,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.weight(1f)
             )
@@ -319,8 +339,8 @@ private fun PantryListItem(
 
 @Composable
 private fun PantryCardList(
-    pantry: List<Ingredient>,
-    onItemClick: (Int) -> Unit
+    pantry: List<UiPantryIngredient>,
+    onItemClick: (UiPantryIngredient) -> Unit
 ) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(96.dp),
@@ -331,12 +351,9 @@ private fun PantryCardList(
         verticalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.Top),
         horizontalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.Start),
     ) {
-        itemsIndexed(pantry, key = { _, item -> item.id }) { index, item ->
+        itemsIndexed(pantry, key = { _, item -> item.ingredient.id }) { index, item ->
             PantryListItem(
-                card = PantryItemCard(
-                    item.name,
-                ),
-                index = index,
+                card = PantryItemCard(item),
                 onItemClicked = onItemClick
             )
         }

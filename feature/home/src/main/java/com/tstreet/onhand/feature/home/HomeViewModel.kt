@@ -9,8 +9,8 @@ import com.tstreet.onhand.core.domain.ingredientsearch.IngredientSearchUseCase
 import com.tstreet.onhand.core.domain.pantry.AddToPantryUseCase
 import com.tstreet.onhand.core.domain.pantry.GetPantryUseCase
 import com.tstreet.onhand.core.domain.pantry.RemoveFromPantryUseCase
-import com.tstreet.onhand.core.model.Ingredient
-import com.tstreet.onhand.core.model.ui.HomeViewUiState
+import com.tstreet.onhand.core.model.ui.PantryUiState
+import com.tstreet.onhand.core.model.ui.SearchUiState
 import com.tstreet.onhand.core.model.ui.UiPantryIngredient
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.displayed
@@ -51,34 +51,47 @@ class HomeViewModel @Inject constructor(
             initialValue = ""
         )
 
-    private val _uiState: Flow<HomeViewUiState> = _searchTextFlow
+    private val _searchUiState: Flow<SearchUiState> = _searchTextFlow
         .debounce(250L)
         .flatMapLatest { searchQuery ->
             searchIngredients.get().getPantryMapped(searchQuery)
         }.map { searchResult ->
-            mapper.mapSearchResultToHomeUi(searchResult)
+            mapper.mapSearchResultToSearchUi(searchResult)
         }.flowOn(ioDispatcher)
 
-    val uiState: StateFlow<HomeViewUiState> =
-        _uiState
+    val searchUiState: StateFlow<SearchUiState> =
+        _searchUiState
             .stateIn(
                 // Note: Child jobs launched in this scope are automatically cancelled when
                 //  onCleared() is called for this ViewModel.
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
-                initialValue = HomeViewUiState.Empty
-            )
-
-    val pantry: StateFlow<List<Ingredient>> =
-        getPantry.get().invoke()
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5000),
-                initialValue = emptyList()
+                initialValue = SearchUiState.Empty
             )
 
     private val _isSearchBarFocused = MutableStateFlow(false)
     val isSearchBarFocused = _isSearchBarFocused.asStateFlow()
+
+    val pantryUiState: StateFlow<PantryUiState> =
+        _isSearchBarFocused.flatMapLatest { searchBarFocused ->
+            // If we're not focused on search bar, re-evaluate
+            if (!searchBarFocused) {
+                getPantry.get().invoke()
+                    .map {
+                        mapper.mapPantryListResultToPantryUi(it)
+                    }
+            } else {
+                flowOf(PantryUiState.None)
+            }
+        }.filter {
+            it !is PantryUiState.None
+        }
+            .flowOn(ioDispatcher)
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = PantryUiState.Loading
+            )
 
     private val _errorDialogState = MutableStateFlow(dismissed())
     val errorDialogState = _errorDialogState
@@ -93,7 +106,7 @@ class HomeViewModel @Inject constructor(
         _searchTextFlow.tryEmit(text)
     }
 
-    fun onToggleFromSearch(pantryIngredient: UiPantryIngredient) {
+    fun onToggleIngredient(pantryIngredient: UiPantryIngredient) {
         viewModelScope.launch {
             val inPantry = pantryIngredient.inPantry.value
             when {
@@ -131,27 +144,6 @@ class HomeViewModel @Inject constructor(
                     }
                 }
             }
-        }
-    }
-
-    fun onToggleFromPantry(index: Int) {
-        viewModelScope.launch {
-            val item = pantry.value[index]
-            // TODO: probably an unnecessary check, but put here to make sure we didn't somehow
-            // get an ingredient in the pantry that isn't marked as in the pantry
-//            if (item.inPantry) {
-//                when (removeFromPantry.get().invoke(item).status) {
-//                    SUCCESS -> {}
-//                    ERROR -> {
-//                        _errorDialogState.update {
-//                            displayed(
-//                                title = "Error",
-//                                message = "Unable to remove item from pantry. Please try again."
-//                            )
-//                        }
-//                    }
-//                }
-//            }
         }
     }
 

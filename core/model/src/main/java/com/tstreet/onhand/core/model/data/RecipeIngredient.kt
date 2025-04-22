@@ -1,18 +1,4 @@
-package com.tstreet.onhand.core.model
-
-
-/**
- * External model representation for an Ingredient.
- */
-data class Ingredient(
-    val id: Int,
-    val name: String
-)
-
-data class PantryIngredient(
-    val ingredient: Ingredient,
-    val inPantry: Boolean = false
-)
+package com.tstreet.onhand.core.model.data
 
 /**
  * Representation for an ingredient as part of a recipe - includes information about how much

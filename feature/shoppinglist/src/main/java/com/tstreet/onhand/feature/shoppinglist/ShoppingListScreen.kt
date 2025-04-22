@@ -19,6 +19,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tstreet.onhand.core.model.*
+import com.tstreet.onhand.core.model.data.Ingredient
+import com.tstreet.onhand.core.model.data.RecipeIngredient
 import com.tstreet.onhand.core.ui.*
 
 @Composable

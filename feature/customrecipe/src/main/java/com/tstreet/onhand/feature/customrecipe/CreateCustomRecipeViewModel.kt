@@ -7,8 +7,8 @@ import com.tstreet.onhand.core.common.Status.*
 import com.tstreet.onhand.core.domain.customrecipe.AddRecipeUseCase
 import com.tstreet.onhand.core.domain.customrecipe.CustomRecipeInputUseCase
 import com.tstreet.onhand.core.model.CustomRecipeInput
-import com.tstreet.onhand.core.model.Ingredient
-import com.tstreet.onhand.core.model.RecipeIngredient
+import com.tstreet.onhand.core.model.data.Ingredient
+import com.tstreet.onhand.core.model.data.RecipeIngredient
 import com.tstreet.onhand.core.model.ui.SelectableIngredient
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.displayed
