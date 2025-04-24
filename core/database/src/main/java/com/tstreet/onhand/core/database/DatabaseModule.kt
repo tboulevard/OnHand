@@ -11,7 +11,6 @@ import javax.inject.Singleton
 object DatabaseModule {
 
     @Provides
-    @Singleton
     fun providesOnHandDatabase(
         context: Context,
     ): OnHandDatabase = Room.databaseBuilder(

@@ -18,7 +18,6 @@ object NetworkModule {
     private const val BASE_URL = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/"
 
     @Provides
-    @Singleton
     fun providesRetrofitOnHandNetwork(
         networkJson: Json
     ): OnHandNetworkDataSource {
@@ -34,7 +33,6 @@ object NetworkModule {
     }
 
     @Provides
-    @Singleton
     // TODO: Needed for kotlin serialization, look into why later. Copied from Google NIA project
     fun providesNetworkJson(): Json = Json { ignoreUnknownKeys = true }
 

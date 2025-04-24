@@ -7,7 +7,7 @@ import com.tstreet.onhand.core.common.FetchStrategy
 import com.tstreet.onhand.core.common.FetchStrategy.*
 import com.tstreet.onhand.core.common.Resource
 import com.tstreet.onhand.core.common.Status.*
-import com.tstreet.onhand.core.data.api.repository.RecipeRepository
+import com.tstreet.onhand.core.domain.repository.RecipeRepository
 import com.tstreet.onhand.core.database.dao.RecipeSearchCacheDao
 import com.tstreet.onhand.core.database.dao.SavedRecipeDao
 import com.tstreet.onhand.core.database.model.*

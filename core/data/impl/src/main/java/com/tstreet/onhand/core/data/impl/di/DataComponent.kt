@@ -1,19 +1,22 @@
 package com.tstreet.onhand.core.data.impl.di
 
-import com.tstreet.onhand.core.common.CommonComponentProvider
-import com.tstreet.onhand.core.data.api.di.DataComponentProvider
+import com.tstreet.onhand.core.common.CommonComponent
+import com.tstreet.onhand.core.domain.repository.IngredientSearchRepository
+import com.tstreet.onhand.core.domain.repository.PantryRepository
+import com.tstreet.onhand.core.domain.repository.RecipeRepository
+import com.tstreet.onhand.core.domain.repository.ShoppingListRepository
 import dagger.Component
-import javax.inject.Singleton
 
-@Singleton
 @Component(
-    dependencies = [CommonComponentProvider::class],
+    dependencies = [
+        CommonComponent::class
+    ],
     modules = [DataModule::class]
 )
-/**
- * TODO: For some reason, attaching [DataComponentProvider] here allows us to to circumvent the
- * 'Singleton component cannot depend on scoped components' error Dagger throws from the
- * [OnHandApplicationComponent]. Look into this further later. For now everything appears to work
- * though...
- */
-interface DataComponent : DataComponentProvider
+interface DataComponent {
+
+    val ingredientSearchRepository: IngredientSearchRepository
+    val recipeRepository: RecipeRepository
+    val pantryRepository: PantryRepository
+    val shoppingListRepository: ShoppingListRepository
+}

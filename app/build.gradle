@@ -50,6 +50,7 @@ dependencies {
     implementation project(path: ':core:data:impl')
     implementation project(path: ':core:common')
     implementation project(path: ':core:ui')
+    implementation project(path: ':core:domain')
 
     // On implementation vs. api:
     // If you are a library maintainer you should use 'api' for every dependency which is needed for

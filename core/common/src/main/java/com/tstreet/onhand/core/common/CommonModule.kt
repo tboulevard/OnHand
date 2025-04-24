@@ -7,7 +7,6 @@ import dagger.Provides
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import javax.inject.Named
-import javax.inject.Singleton
 
 @Module
 object CommonModule {
@@ -16,7 +15,6 @@ object CommonModule {
     const val SHARED_PREF_FILE = "onhand"
 
     @Provides
-    @Singleton
     @Named(IO)
     fun provideIODispatcher(): CoroutineDispatcher = Dispatchers.IO
 

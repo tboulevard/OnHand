@@ -3,7 +3,7 @@ package com.tstreet.onhand.core.data.impl.repository
 import android.util.Log
 import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.Resource
-import com.tstreet.onhand.core.data.api.repository.ShoppingListRepository
+import com.tstreet.onhand.core.domain.repository.ShoppingListRepository
 import com.tstreet.onhand.core.database.dao.ShoppingListDao
 import com.tstreet.onhand.core.database.model.*
 import com.tstreet.onhand.core.model.RecipePreview
@@ -22,6 +22,10 @@ class ShoppingListRepositoryImpl @Inject constructor(
     private val shoppingListDao: Provider<ShoppingListDao>,
     @Named(IO) private val ioDispatcher: CoroutineDispatcher,
 ) : ShoppingListRepository {
+
+    init {
+        Log.d("[OnHand]", "Creating ${this.javaClass.simpleName}")
+    }
 
     override fun getShoppingList(): Flow<Resource<List<ShoppingListIngredient>>> {
         return shoppingListDao

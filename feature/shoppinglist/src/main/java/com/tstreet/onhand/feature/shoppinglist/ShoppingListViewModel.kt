@@ -5,7 +5,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.Status.ERROR
 import com.tstreet.onhand.core.common.Status.SUCCESS
-import com.tstreet.onhand.core.domain.shoppinglist.*
+import com.tstreet.onhand.core.domain.usecase.shoppinglist.CheckOffIngredientUseCase
+import com.tstreet.onhand.core.domain.usecase.shoppinglist.GetRecipesInShoppingListUseCase
+import com.tstreet.onhand.core.domain.usecase.shoppinglist.GetShoppingListUseCase
+import com.tstreet.onhand.core.domain.usecase.shoppinglist.RemoveIngredientUseCase
+import com.tstreet.onhand.core.domain.usecase.shoppinglist.RemoveRecipeInShoppingListUseCase
+import com.tstreet.onhand.core.domain.usecase.shoppinglist.UncheckIngredientUseCase
 import com.tstreet.onhand.core.model.RecipePreview
 import com.tstreet.onhand.core.model.ShoppingListIngredient
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed

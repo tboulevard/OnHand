@@ -18,12 +18,12 @@ class OnHandApplication : Application(), ImageLoaderFactory {
         val commonComponent = DaggerCommonComponent.factory().create(this)
         val dataComponent = DaggerDataComponent
             .builder()
-            .commonComponentProvider(commonComponent)
+            .commonComponent(commonComponent)
             .build()
         appComponent = DaggerOnHandApplicationComponent
             .builder()
-            .commonComponentProvider(commonComponent)
-            .dataComponentProvider(dataComponent)
+            .dataComponent(dataComponent)
+            .commonComponent(commonComponent)
             .build()
     }
 

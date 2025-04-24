@@ -6,9 +6,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.Status.ERROR
 import com.tstreet.onhand.core.common.Status.SUCCESS
-import com.tstreet.onhand.core.domain.*
-import com.tstreet.onhand.core.domain.recipes.*
-import com.tstreet.onhand.core.domain.shoppinglist.AddToShoppingListUseCase
+import com.tstreet.onhand.core.domain.usecase.shoppinglist.AddToShoppingListUseCase
+import com.tstreet.onhand.core.domain.usecase.recipes.DEFAULT_SORTING
+import com.tstreet.onhand.core.domain.usecase.recipes.GetRecipesUseCase
+import com.tstreet.onhand.core.domain.usecase.recipes.SaveRecipeUseCase
+import com.tstreet.onhand.core.domain.usecase.recipes.SortBy
+import com.tstreet.onhand.core.domain.usecase.recipes.UnsaveRecipeUseCase
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.displayed
 import com.tstreet.onhand.core.ui.RecipeSaveState.*

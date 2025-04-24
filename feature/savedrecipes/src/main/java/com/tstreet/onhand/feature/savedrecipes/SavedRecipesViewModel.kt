@@ -5,10 +5,10 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.Status
-import com.tstreet.onhand.core.domain.recipes.GetSavedRecipesUseCase
-import com.tstreet.onhand.core.domain.recipes.SaveRecipeUseCase
-import com.tstreet.onhand.core.domain.recipes.UnsaveRecipeUseCase
-import com.tstreet.onhand.core.domain.shoppinglist.AddToShoppingListUseCase
+import com.tstreet.onhand.core.domain.usecase.recipes.GetSavedRecipesUseCase
+import com.tstreet.onhand.core.domain.usecase.recipes.SaveRecipeUseCase
+import com.tstreet.onhand.core.domain.usecase.recipes.UnsaveRecipeUseCase
+import com.tstreet.onhand.core.domain.usecase.shoppinglist.AddToShoppingListUseCase
 import com.tstreet.onhand.core.ui.*
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
 import kotlinx.coroutines.flow.*

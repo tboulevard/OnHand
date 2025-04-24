@@ -8,14 +8,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.tstreet.onhand.core.common.LocalCommonProvider
+import com.tstreet.onhand.core.common.CommonComponent
+import com.tstreet.onhand.core.common.DaggerCommonComponent
 import com.tstreet.onhand.core.common.injectedViewModel
-import com.tstreet.onhand.core.data.api.di.LocalDataProvider
+import com.tstreet.onhand.core.data.impl.di.DaggerDataComponent
+import com.tstreet.onhand.core.data.impl.di.DataComponent
 import com.tstreet.onhand.core.ui.RECIPE_ID_NAV_KEY
 import com.tstreet.onhand.feature.customrecipe.CreateCustomRecipeScreen
 import com.tstreet.onhand.feature.home.HomeScreen
@@ -36,6 +39,9 @@ import com.tstreet.onhand.feature.shoppinglist.di.DaggerShoppingListComponent
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
+    val context = LocalContext.current
+    val commonComponent = remember { DaggerCommonComponent.factory().create(context) }
+    val dataComponent = remember { DaggerDataComponent.builder().commonComponent(commonComponent).build() }
 
     Scaffold(
         bottomBar = {
@@ -48,7 +54,11 @@ fun Navigation() {
         Column(
             modifier = Modifier.padding(padding)
         ) {
-            NavigationConfiguration(navController)
+            NavigationConfiguration(
+                commonComponent,
+                dataComponent,
+                navController
+            )
         }
     }
 }
@@ -56,10 +66,10 @@ fun Navigation() {
 @SuppressLint("UnrememberedGetBackStackEntry")
 @Composable
 private fun NavigationConfiguration(
+    commonComponent: CommonComponent,
+    dataComponent: DataComponent,
     navController: NavHostController
 ) {
-    val dataProvider = LocalDataProvider.current
-    val commonProvider = LocalCommonProvider.current
 
     NavHost(
         navController = navController,
@@ -72,8 +82,8 @@ private fun NavigationConfiguration(
                 injectedViewModel {
                     DaggerHomeComponent
                         .builder()
-                        .dataComponentProvider(dataProvider)
-                        .commonComponentProvider(commonProvider)
+                        .commonComponent(commonComponent)
+                        .dataComponent(dataComponent)
                         .build()
                         .viewModel
                 }
@@ -87,8 +97,8 @@ private fun NavigationConfiguration(
                 injectedViewModel {
                     DaggerRecipeSearchComponent
                         .builder()
-                        .dataComponentProvider(dataProvider)
-                        .commonComponentProvider(commonProvider)
+                        .commonComponent(commonComponent)
+                        .dataComponent(dataComponent)
                         .build()
                         .viewModel
                 }
@@ -106,9 +116,9 @@ private fun NavigationConfiguration(
                 navController,
                 injectedViewModel {
                     DaggerRecipeDetailComponent.factory().create(
-                        dataComponentProvider = dataProvider,
-                        commonComponentProvider = commonProvider,
-                        recipeId = recipeId
+                        recipeId = recipeId,
+                        dataComponent,
+                        commonComponent
                     ).viewModel
                 }
             )
@@ -119,8 +129,8 @@ private fun NavigationConfiguration(
                 injectedViewModel {
                     DaggerSavedRecipesComponent
                         .builder()
-                        .dataComponentProvider(dataProvider)
-                        .commonComponentProvider(commonProvider)
+                        .commonComponent(commonComponent)
+                        .dataComponent(dataComponent)
                         .build()
                         .viewModel
                 }
@@ -131,8 +141,8 @@ private fun NavigationConfiguration(
                 injectedViewModel {
                     DaggerShoppingListComponent
                         .builder()
-                        .dataComponentProvider(dataProvider)
-                        .commonComponentProvider(commonProvider)
+                        .commonComponent(commonComponent)
+                        .dataComponent(dataComponent)
                         .build()
                         .viewModel
                 }
@@ -153,8 +163,8 @@ private fun NavigationConfiguration(
                     injectedViewModel(viewModelStoreOwner = parentEntry) {
                         DaggerIngredientSearchComponent
                             .builder()
-                            .dataComponentProvider(dataProvider)
-                            .commonComponentProvider(commonProvider)
+                            .commonComponent(commonComponent)
+                            .dataComponent(dataComponent)
                             .build()
                             .viewModel
                     }
@@ -164,8 +174,8 @@ private fun NavigationConfiguration(
                     viewModel = injectedViewModel {
                         DaggerCustomRecipeComponent
                             .builder()
-                            .dataComponentProvider(dataProvider)
-                            .commonComponentProvider(commonProvider)
+                            .commonComponent(commonComponent)
+                            .dataComponent(dataComponent)
                             .build()
                             .viewModel
                     },
@@ -184,8 +194,8 @@ private fun NavigationConfiguration(
                     injectedViewModel(viewModelStoreOwner = parentEntry) {
                         DaggerIngredientSearchComponent
                             .builder()
-                            .dataComponentProvider(dataProvider)
-                            .commonComponentProvider(commonProvider)
+                            .commonComponent(commonComponent)
+                            .dataComponent(dataComponent)
                             .build()
                             .viewModel
                     }

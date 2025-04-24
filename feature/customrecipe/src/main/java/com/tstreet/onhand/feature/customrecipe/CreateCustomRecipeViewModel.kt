@@ -4,8 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.Status.*
-import com.tstreet.onhand.core.domain.customrecipe.AddRecipeUseCase
-import com.tstreet.onhand.core.domain.customrecipe.CustomRecipeInputUseCase
+import com.tstreet.onhand.core.domain.usecase.customrecipe.AddRecipeUseCase
+import com.tstreet.onhand.core.domain.usecase.customrecipe.CustomRecipeInputUseCase
 import com.tstreet.onhand.core.model.CustomRecipeInput
 import com.tstreet.onhand.core.model.data.Ingredient
 import com.tstreet.onhand.core.model.data.RecipeIngredient

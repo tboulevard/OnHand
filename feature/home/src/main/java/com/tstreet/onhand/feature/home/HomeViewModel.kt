@@ -5,10 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.Status.*
-import com.tstreet.onhand.core.domain.ingredientsearch.IngredientSearchUseCase
-import com.tstreet.onhand.core.domain.pantry.AddToPantryUseCase
-import com.tstreet.onhand.core.domain.pantry.GetPantryUseCase
-import com.tstreet.onhand.core.domain.pantry.RemoveFromPantryUseCase
+import com.tstreet.onhand.core.domain.usecase.ingredientsearch.IngredientSearchUseCase
+import com.tstreet.onhand.core.domain.usecase.pantry.AddToPantryUseCase
+import com.tstreet.onhand.core.domain.usecase.pantry.GetPantryUseCase
+import com.tstreet.onhand.core.domain.usecase.pantry.RemoveFromPantryUseCase
 import com.tstreet.onhand.core.model.ui.PantryUiState
 import com.tstreet.onhand.core.model.ui.SearchUiState
 import com.tstreet.onhand.core.model.ui.UiPantryIngredient
