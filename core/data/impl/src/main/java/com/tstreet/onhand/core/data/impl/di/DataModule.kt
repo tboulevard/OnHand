@@ -28,6 +28,7 @@ interface DataModule {
     // TODO: scope annotations at the module level seems to do nothing and are only
     //  needed at the class level? Look into later. For @Provides methods, class level
     //  scope annotations do nothing - you need to annotate on the @Provides methods
+    @Singleton
     fun bindsIngredientSearchRepository(
         ingredientSearchRepository: OfflineIngredientSearchRepositoryImpl
     ): IngredientSearchRepository
@@ -35,6 +36,7 @@ interface DataModule {
     @Binds
     // TODO: scope annotations at the module level seems to do nothing and are only
     //  needed at the class level? Look into later
+    @Singleton
     fun bindsRecipeSearchRepository(
         recipeSearchRepository: RecipeRepositoryImpl
     ): RecipeRepository
@@ -42,6 +44,7 @@ interface DataModule {
     @Binds
     // TODO: scope annotations at the module level seems to do nothing and are only
     //  needed at the class level? Look into later
+    @Singleton
     fun bindsPantryRepository(
         pantryRepository: OfflinePantryRepositoryImpl
     ): PantryRepository
@@ -49,6 +52,7 @@ interface DataModule {
     @Binds
     // TODO: scope annotations at the module level seems to do nothing and are only
     //  needed at the class level? Look into later
+    @Singleton
     fun bindsShoppingListRepository(
         shoppingListRepository: ShoppingListRepositoryImpl
     ): ShoppingListRepository

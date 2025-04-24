@@ -8,16 +8,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.tstreet.onhand.core.common.CommonComponent
-import com.tstreet.onhand.core.common.DaggerCommonComponent
 import com.tstreet.onhand.core.common.injectedViewModel
-import com.tstreet.onhand.core.data.impl.di.DaggerDataComponent
 import com.tstreet.onhand.core.data.impl.di.DataComponent
 import com.tstreet.onhand.core.ui.RECIPE_ID_NAV_KEY
 import com.tstreet.onhand.feature.customrecipe.CreateCustomRecipeScreen
@@ -37,11 +34,11 @@ import com.tstreet.onhand.feature.shoppinglist.di.DaggerShoppingListComponent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Navigation() {
+fun Navigation(
+    commonComponent: CommonComponent,
+    dataComponent: DataComponent
+) {
     val navController = rememberNavController()
-    val context = LocalContext.current
-    val commonComponent = remember { DaggerCommonComponent.factory().create(context) }
-    val dataComponent = remember { DaggerDataComponent.builder().commonComponent(commonComponent).build() }
 
     Scaffold(
         bottomBar = {

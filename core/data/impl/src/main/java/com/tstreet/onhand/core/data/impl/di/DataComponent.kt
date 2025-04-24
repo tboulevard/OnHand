@@ -6,7 +6,9 @@ import com.tstreet.onhand.core.domain.repository.PantryRepository
 import com.tstreet.onhand.core.domain.repository.RecipeRepository
 import com.tstreet.onhand.core.domain.repository.ShoppingListRepository
 import dagger.Component
+import javax.inject.Singleton
 
+@Singleton
 @Component(
     dependencies = [
         CommonComponent::class

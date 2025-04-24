@@ -16,13 +16,8 @@ class OnHandApplication : Application(), ImageLoaderFactory {
         super.onCreate()
 
         val commonComponent = DaggerCommonComponent.factory().create(this)
-        val dataComponent = DaggerDataComponent
-            .builder()
-            .commonComponent(commonComponent)
-            .build()
         appComponent = DaggerOnHandApplicationComponent
             .builder()
-            .dataComponent(dataComponent)
             .commonComponent(commonComponent)
             .build()
     }
