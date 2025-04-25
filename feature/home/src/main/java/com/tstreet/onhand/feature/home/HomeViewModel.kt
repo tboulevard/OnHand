@@ -33,7 +33,7 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     init {
-        println("[OnHand] ${this.javaClass.simpleName} created")
+        Log.d("[OnHand]", "${this.javaClass.simpleName} created")
     }
 
     // SharedFlow does not need to explicitly need to be collected, as it is a hot flow.
@@ -102,7 +102,6 @@ class HomeViewModel @Inject constructor(
         )
 
     fun onSearchTextChanged(text: String) {
-        println("[OnHand] onSearchTextChanged: $text")
         _searchTextFlow.tryEmit(text)
     }
 
@@ -157,7 +156,7 @@ class HomeViewModel @Inject constructor(
 
     override fun onCleared() {
         // TODO: Not called, lifecycle not properly managed
-        Log.d("OnHand", "$TAG cleared")
+        Log.d("[OnHand]", "$TAG cleared")
         super.onCleared()
     }
 }

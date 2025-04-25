@@ -13,7 +13,9 @@ import javax.inject.Singleton
     dependencies = [
         CommonComponent::class
     ],
-    modules = [DataModule::class]
+    modules = [
+        DataModule::class
+    ]
 )
 interface DataComponent {
 

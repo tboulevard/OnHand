@@ -14,30 +14,35 @@ import javax.inject.Singleton
 object DaosModule {
 
     @Provides
+    @Singleton
     fun providesIngredientDao(
         database: OnHandDatabase,
     ): IngredientDao = database.ingredientDao()
         .also { Log.d("[OnHand]", "IngredientDao created") }
 
     @Provides
+    @Singleton
     fun providesSavedRecipeDao(
         database: OnHandDatabase,
     ): SavedRecipeDao = database.savedRecipeDao()
         .also { Log.d("[OnHand]", "SavedRecipeDao created") }
 
     @Provides
+    @Singleton
     fun providesRecipeSearchCacheDao(
         database: OnHandDatabase,
     ): RecipeSearchCacheDao = database.recipeSearchCacheDao()
         .also { Log.d("[OnHand]", "RecipeSearchCacheDao created") }
 
     @Provides
+    @Singleton
     fun providesShoppingListDao(
         database: OnHandDatabase,
     ): ShoppingListDao = database.shoppingListDao()
         .also { Log.d("[OnHand]", "ShoppingListDao created") }
 
     @Provides
+    @Singleton
     fun providesPantryDao(
         database: OnHandDatabase,
     ): PantryDao = database.pantryDao()

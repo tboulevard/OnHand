@@ -32,10 +32,6 @@ dependencies {
     implementation libs.androidx.appcompat
     implementation libs.dagger
     kapt libs.dagger.compiler
-
-    // TODO: Needed for compositionLocalOf...consider refactoring, domain layer shouldn't be aware of
-    //  UI components
-    implementation libs.androidx.compose.runtime
     
     testImplementation libs.junit4
     androidTestImplementation libs.androidx.test.ext

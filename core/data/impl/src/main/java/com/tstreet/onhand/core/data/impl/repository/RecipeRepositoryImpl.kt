@@ -171,7 +171,6 @@ class RecipeRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateSavedRecipesMissingIngredient(ingredient: Ingredient) {
-        Log.d("[OnHand]", "updateSavedRecipesMissingIngredient($ingredient)")
         try {
             savedRecipeDao
                 .get()
@@ -183,7 +182,6 @@ class RecipeRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateSavedRecipesUsingIngredient(ingredient: Ingredient) {
-        Log.d("[OnHand]", "updateSavedRecipesUsingIngredient($ingredient)")
         try {
             savedRecipeDao
                 .get()

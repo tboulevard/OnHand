@@ -1,6 +1,7 @@
 package com.tstreet.onhand.nav
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
@@ -38,6 +39,8 @@ fun Navigation(
     commonComponent: CommonComponent,
     dataComponent: DataComponent
 ) {
+    Log.d("[OnHand]", "Navigation root recomposition")
+
     val navController = rememberNavController()
 
     Scaffold(

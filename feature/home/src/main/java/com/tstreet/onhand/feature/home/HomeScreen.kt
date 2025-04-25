@@ -35,6 +35,7 @@ import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
 fun HomeScreen(
     viewModel: HomeViewModel
 ) {
+    Log.d("[OnHand]", "HomeScreen recomposition")
     val pantryUiState by viewModel.pantryUiState.collectAsStateWithLifecycle()
     val searchUiState by viewModel.searchUiState.collectAsStateWithLifecycle()
 

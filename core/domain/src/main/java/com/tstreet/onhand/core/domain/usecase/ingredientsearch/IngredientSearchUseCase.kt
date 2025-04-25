@@ -1,5 +1,6 @@
 package com.tstreet.onhand.core.domain.usecase.ingredientsearch
 
+import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.domain.usecase.UseCase
 import com.tstreet.onhand.core.domain.repository.IngredientSearchRepository
 import com.tstreet.onhand.core.domain.repository.PantryRepository
@@ -12,7 +13,10 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@FeatureScope
+// TODO: DO this for all future use cases potentially
 class IngredientSearchUseCase @Inject constructor(
     private val ingredientRepository: IngredientSearchRepository,
     private val pantryRepository: PantryRepository

@@ -1,7 +1,6 @@
 package com.tstreet.onhand
 
 import com.tstreet.onhand.core.common.CommonComponent
-import com.tstreet.onhand.core.domain.di.UseCaseModule
 import dagger.Component
 import javax.inject.Singleton
 
@@ -15,9 +14,6 @@ import javax.inject.Singleton
 @Component(
     dependencies = [
         CommonComponent::class
-    ],
-    modules = [
-        UseCaseModule::class
     ]
 )
 interface OnHandApplicationComponent {

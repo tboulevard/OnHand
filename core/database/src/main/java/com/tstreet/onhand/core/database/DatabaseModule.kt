@@ -10,6 +10,7 @@ import javax.inject.Singleton
 @Module
 object DatabaseModule {
 
+    @Singleton
     @Provides
     fun providesOnHandDatabase(
         context: Context,

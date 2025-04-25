@@ -17,76 +17,91 @@ import com.tstreet.onhand.core.domain.usecase.shoppinglist.RemoveRecipeInShoppin
 import com.tstreet.onhand.core.domain.usecase.shoppinglist.UncheckIngredientUseCase
 import dagger.Binds
 import dagger.Module
+import javax.inject.Singleton
 
 @Module
 interface UseCaseModule {
 
     @Binds
+    @Singleton
     fun bindsGetIngredientsUseCase(
         useCase: GetIngredientsUseCase
     ): UseCase
 
     @Binds
+    @Singleton
     fun bindsAddToPantryUseCase(
         useCase: AddToPantryUseCase
     ): UseCase
 
     @Binds
+    @Singleton
     fun bindsRemoveFromPantryUseCase(
         useCase: RemoveFromPantryUseCase
     ): UseCase
 
     @Binds
+    @Singleton
     fun bindsGetRecipesUseCase(
         useCase: GetRecipesUseCase
     ): UseCase
 
     @Binds
+    @Singleton
     fun bindsSaveRecipesUseCase(
         useCase: SaveRecipeUseCase
     ): UseCase
 
     @Binds
+    @Singleton
     fun bindsUnsaveRecipesUseCase(
         useCase: UnsaveRecipeUseCase
     ): UseCase
 
     @Binds
+    @Singleton
     fun bindsAddToShoppingListUseCase(
         useCase: AddToShoppingListUseCase
     ): UseCase
 
     @Binds
+    @Singleton
     fun bindsCheckOffIngredientUseCase(
         useCase: CheckOffIngredientUseCase
     ): UseCase
 
     @Binds
+    @Singleton
     fun bindsUncheckIngredientUseCase(
         useCase: UncheckIngredientUseCase
     ): UseCase
 
     @Binds
+    @Singleton
     fun bindsGetRecipesInShoppingListUseCase(
         useCase: GetRecipesInShoppingListUseCase
     ): UseCase
 
     @Binds
+    @Singleton
     fun bindsRemoveRecipeInShoppingListUseCase(
         useCase: RemoveRecipeInShoppingListUseCase
     ): UseCase
 
     @Binds
+    @Singleton
     fun bindsRemoveIngredientInShoppingListUseCase(
         useCase: RemoveIngredientUseCase
     ): UseCase
 
     @Binds
+    @Singleton
     fun bindsGetSavedRecipeUseCase(
         useCase: GetSavedRecipesUseCase
     ): UseCase
 
     @Binds
+    @Singleton
     fun bindsGetShoppingListUseCase(
         useCase: GetShoppingListUseCase
     ): UseCase
