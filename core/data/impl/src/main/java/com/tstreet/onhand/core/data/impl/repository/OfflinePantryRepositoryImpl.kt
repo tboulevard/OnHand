@@ -14,8 +14,10 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Provider
+import javax.inject.Singleton
 import kotlin.collections.map
 
+@Singleton
 class OfflinePantryRepositoryImpl @Inject constructor(
     private val pantryDao: Provider<PantryDao>,
     @Named(IO) private val ioDispatcher: CoroutineDispatcher,

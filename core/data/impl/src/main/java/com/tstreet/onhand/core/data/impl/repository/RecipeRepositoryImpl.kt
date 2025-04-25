@@ -26,7 +26,9 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Provider
+import javax.inject.Singleton
 
+@Singleton
 class RecipeRepositoryImpl @Inject constructor(
     private val onHandNetworkDataSource: Provider<OnHandNetworkDataSource>,
     private val savedRecipeDao: Provider<SavedRecipeDao>,

@@ -15,7 +15,9 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Provider
+import javax.inject.Singleton
 
+@Singleton
 class OfflineIngredientSearchRepositoryImpl @Inject constructor(
     private val dao: Provider<IngredientDao>,
     @Named(IO) private val ioDispatcher: CoroutineDispatcher,

@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.CommonModule.IO
+import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.common.Status.*
 import com.tstreet.onhand.core.domain.usecase.ingredientsearch.IngredientSearchUseCase
 import com.tstreet.onhand.core.domain.usecase.pantry.AddToPantryUseCase
@@ -23,6 +24,7 @@ import javax.inject.Provider
 import kotlin.jvm.javaClass
 
 @OptIn(kotlinx.coroutines.FlowPreview::class)
+@FeatureScope
 class HomeViewModel @Inject constructor(
     private val searchIngredients: Provider<IngredientSearchUseCase>,
     private val addToPantry: Provider<AddToPantryUseCase>,

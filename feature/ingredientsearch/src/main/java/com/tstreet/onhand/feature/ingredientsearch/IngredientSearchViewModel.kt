@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.domain.usecase.ingredientsearch.IngredientSearchUseCase
 import com.tstreet.onhand.core.model.ui.SelectableIngredient
 import com.tstreet.onhand.core.ui.AlertDialogState
@@ -12,6 +13,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Provider
 
+@FeatureScope
 class IngredientSearchViewModel @Inject constructor(
     private val getSearchResults: Provider<IngredientSearchUseCase>,
 ) : ViewModel() {

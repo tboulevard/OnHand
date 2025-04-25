@@ -13,7 +13,6 @@ import com.tstreet.onhand.core.database.DatabaseModule
 import com.tstreet.onhand.core.network.di.NetworkModule
 import dagger.Binds
 import dagger.Module
-import javax.inject.Singleton
 
 @Module(
     includes = [
@@ -25,25 +24,21 @@ import javax.inject.Singleton
 interface DataModule {
 
     @Binds
-    @Singleton
     fun bindsIngredientSearchRepository(
         ingredientSearchRepository: OfflineIngredientSearchRepositoryImpl
     ): IngredientSearchRepository
 
     @Binds
-    @Singleton
     fun bindsRecipeSearchRepository(
         recipeSearchRepository: RecipeRepositoryImpl
     ): RecipeRepository
 
     @Binds
-    @Singleton
     fun bindsPantryRepository(
         pantryRepository: OfflinePantryRepositoryImpl
     ): PantryRepository
 
     @Binds
-    @Singleton
     fun bindsShoppingListRepository(
         shoppingListRepository: ShoppingListRepositoryImpl
     ): ShoppingListRepository

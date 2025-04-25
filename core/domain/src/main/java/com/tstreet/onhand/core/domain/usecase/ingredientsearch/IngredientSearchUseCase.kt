@@ -13,10 +13,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
-import javax.inject.Singleton
 
 @FeatureScope
-// TODO: DO this for all future use cases potentially
 class IngredientSearchUseCase @Inject constructor(
     private val ingredientRepository: IngredientSearchRepository,
     private val pantryRepository: PantryRepository

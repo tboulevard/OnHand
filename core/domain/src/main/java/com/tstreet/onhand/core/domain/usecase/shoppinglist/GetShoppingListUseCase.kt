@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 import javax.inject.Provider
 
+@FeatureScope
 class GetShoppingListUseCase @Inject constructor(
     private val shoppingListRepository: Provider<ShoppingListRepository>,
 ) : UseCase() {

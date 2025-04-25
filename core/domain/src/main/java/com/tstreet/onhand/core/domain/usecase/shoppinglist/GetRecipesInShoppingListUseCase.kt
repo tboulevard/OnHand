@@ -1,5 +1,6 @@
 package com.tstreet.onhand.core.domain.usecase.shoppinglist
 
+import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.common.Resource
 import com.tstreet.onhand.core.domain.usecase.UseCase
 import com.tstreet.onhand.core.domain.repository.ShoppingListRepository
@@ -8,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Provider
 
+@FeatureScope
 class GetRecipesInShoppingListUseCase @Inject constructor(
     private val shoppingListRepository: Provider<ShoppingListRepository>,
 ) : UseCase() {

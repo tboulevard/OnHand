@@ -17,91 +17,81 @@ import com.tstreet.onhand.core.domain.usecase.shoppinglist.RemoveRecipeInShoppin
 import com.tstreet.onhand.core.domain.usecase.shoppinglist.UncheckIngredientUseCase
 import dagger.Binds
 import dagger.Module
-import javax.inject.Singleton
 
+/**
+ * We declare Dagger scopes on the classes themselves because of @Inject constructor().
+ *
+ * Each UseCase is intended to live as long as the parent ViewModel instance.
+ */
 @Module
 interface UseCaseModule {
 
     @Binds
-    @Singleton
     fun bindsGetIngredientsUseCase(
         useCase: GetIngredientsUseCase
     ): UseCase
 
     @Binds
-    @Singleton
     fun bindsAddToPantryUseCase(
         useCase: AddToPantryUseCase
     ): UseCase
 
     @Binds
-    @Singleton
     fun bindsRemoveFromPantryUseCase(
         useCase: RemoveFromPantryUseCase
     ): UseCase
 
     @Binds
-    @Singleton
     fun bindsGetRecipesUseCase(
         useCase: GetRecipesUseCase
     ): UseCase
 
     @Binds
-    @Singleton
     fun bindsSaveRecipesUseCase(
         useCase: SaveRecipeUseCase
     ): UseCase
 
     @Binds
-    @Singleton
     fun bindsUnsaveRecipesUseCase(
         useCase: UnsaveRecipeUseCase
     ): UseCase
 
     @Binds
-    @Singleton
     fun bindsAddToShoppingListUseCase(
         useCase: AddToShoppingListUseCase
     ): UseCase
 
     @Binds
-    @Singleton
     fun bindsCheckOffIngredientUseCase(
         useCase: CheckOffIngredientUseCase
     ): UseCase
 
     @Binds
-    @Singleton
     fun bindsUncheckIngredientUseCase(
         useCase: UncheckIngredientUseCase
     ): UseCase
 
     @Binds
-    @Singleton
     fun bindsGetRecipesInShoppingListUseCase(
         useCase: GetRecipesInShoppingListUseCase
     ): UseCase
 
     @Binds
-    @Singleton
     fun bindsRemoveRecipeInShoppingListUseCase(
         useCase: RemoveRecipeInShoppingListUseCase
     ): UseCase
 
     @Binds
-    @Singleton
     fun bindsRemoveIngredientInShoppingListUseCase(
         useCase: RemoveIngredientUseCase
     ): UseCase
 
     @Binds
-    @Singleton
     fun bindsGetSavedRecipeUseCase(
         useCase: GetSavedRecipesUseCase
     ): UseCase
 
     @Binds
-    @Singleton
     fun bindsGetShoppingListUseCase(
         useCase: GetShoppingListUseCase
     ): UseCase

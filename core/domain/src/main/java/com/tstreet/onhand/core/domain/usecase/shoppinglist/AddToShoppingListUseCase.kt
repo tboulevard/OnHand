@@ -2,6 +2,7 @@ package com.tstreet.onhand.core.domain.usecase.shoppinglist
 
 import android.util.Log
 import com.tstreet.onhand.core.common.CommonModule.IO
+import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.common.Resource
 import com.tstreet.onhand.core.common.Status
 import com.tstreet.onhand.core.domain.usecase.UseCase
@@ -17,6 +18,7 @@ import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Provider
 
+@FeatureScope
 class AddToShoppingListUseCase @Inject constructor(
     private val shoppingListRepository: Provider<ShoppingListRepository>,
     @Named(IO) private val ioDispatcher: CoroutineDispatcher,

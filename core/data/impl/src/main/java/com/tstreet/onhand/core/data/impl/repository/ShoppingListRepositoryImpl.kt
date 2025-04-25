@@ -17,7 +17,9 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Provider
+import javax.inject.Singleton
 
+@Singleton
 class ShoppingListRepositoryImpl @Inject constructor(
     private val shoppingListDao: Provider<ShoppingListDao>,
     @Named(IO) private val ioDispatcher: CoroutineDispatcher,
