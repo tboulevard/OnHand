@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace 'com.tstreet.onhand.core.data.impl'
+    namespace 'com.tstreet.onhand.core.data'
 
     defaultConfig {
         consumerProguardFiles "consumer-rules.pro"
@@ -26,7 +26,9 @@ android {
 }
 
 dependencies {
+    // Provides repository interfaces for implementation in this module
     api project(path: ':core:domain')
+
     implementation project(path: ':core:model')
     implementation project(path: ':core:common')
     implementation project(path: ':core:network')
@@ -40,4 +42,4 @@ dependencies {
     testImplementation libs.junit4
 }
 
-println 'Executing core/data/impl build.gradle - configuration phase'
+println 'Executing core/data build.gradle - configuration phase'

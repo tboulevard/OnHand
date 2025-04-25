@@ -5,6 +5,7 @@ import android.util.Log
 import coil.ImageLoader
 import coil.ImageLoaderFactory
 import com.tstreet.onhand.core.common.DaggerCommonComponent
+import com.tstreet.onhand.core.data.di.DaggerDataComponent
 
 class OnHandApplication : Application(), ImageLoaderFactory {
 

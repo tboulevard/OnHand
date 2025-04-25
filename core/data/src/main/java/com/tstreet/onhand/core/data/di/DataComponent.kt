@@ -1,4 +1,4 @@
-package com.tstreet.onhand.core.data.impl.di
+package com.tstreet.onhand.core.data.di
 
 import com.tstreet.onhand.core.common.CommonComponent
 import com.tstreet.onhand.core.domain.repository.IngredientSearchRepository

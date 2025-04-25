@@ -16,7 +16,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.tstreet.onhand.core.common.CommonComponent
 import com.tstreet.onhand.core.common.injectedViewModel
-import com.tstreet.onhand.core.data.impl.di.DataComponent
+import com.tstreet.onhand.core.data.di.DataComponent
 import com.tstreet.onhand.core.ui.RECIPE_ID_NAV_KEY
 import com.tstreet.onhand.feature.customrecipe.CreateCustomRecipeScreen
 import com.tstreet.onhand.feature.home.HomeScreen

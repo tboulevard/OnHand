@@ -5,7 +5,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.content.ContextCompat
-import com.tstreet.onhand.core.data.impl.di.DaggerDataComponent
+import com.tstreet.onhand.core.data.di.DaggerDataComponent
 import com.tstreet.onhand.core.ui.theming.OnHandTheme
 import com.tstreet.onhand.nav.Navigation
 
