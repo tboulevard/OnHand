@@ -3,12 +3,16 @@ package com.tstreet.onhand.nav
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.navigation.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
@@ -42,17 +46,32 @@ fun Navigation(
     Log.d("[OnHand]", "Navigation root recomposition")
 
     val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    // Don't show bottom navigation bar on certain screens
+    val shouldShowBottomBar = remember(currentRoute) {
+        // Hide bottom navigation when in ingredient search
+        currentRoute != Screen.IngredientSearch.route
+    }
 
     Scaffold(
         bottomBar = {
-            OnHandBottomNavigationBar(
-                navController,
-                BottomNavigationScreens
-            )
+            if (shouldShowBottomBar) {
+                OnHandBottomNavigationBar(
+                    navController,
+                    BottomNavigationScreens
+                )
+            }
         }
     ) { padding ->
         Column(
-            modifier = Modifier.padding(padding)
+            modifier = Modifier.padding(
+                bottom = if (shouldShowBottomBar) padding.calculateBottomPadding() else 0.dp,
+                top = padding.calculateTopPadding(),
+                start = padding.calculateStartPadding(LocalLayoutDirection.current),
+                end = padding.calculateEndPadding(LocalLayoutDirection.current)
+            )
         ) {
             NavigationConfiguration(
                 commonComponent,
@@ -86,6 +105,9 @@ private fun NavigationConfiguration(
                         .dataComponent(dataComponent)
                         .build()
                         .viewModel
+                },
+                onIngredientSearchClick = {
+                    navController.navigate(Screen.IngredientSearch.route)
                 }
             )
         }
@@ -148,64 +170,78 @@ private fun NavigationConfiguration(
                 }
             )
         }
-        // subgraph for custom recipe creation
-        // TODO: This isn't done correctly, revisit later...
-        navigation(
-            startDestination = Screen.CreateRecipe.route,
-            route = BottomNavigationScreen.AddCustomRecipe.route
-        ) {
-            composable(route = Screen.CreateRecipe.route) {
-                val parentEntry = remember(it) {
-                    navController.getBackStackEntry(BottomNavigationScreen.AddCustomRecipe.route)
+        
+        // Standalone IngredientSearch screen (accessible from HomeScreen + Custom Recipe)
+        composable(route = Screen.IngredientSearch.route) {
+
+            // TODO: If parent route is custom recipe vs home, different logic
+            IngredientSearchScreen(
+                injectedViewModel {
+                    DaggerIngredientSearchComponent
+                        .builder()
+                        .commonComponent(commonComponent)
+                        .dataComponent(dataComponent)
+                        .build()
+                        .viewModel
                 }
-
-                val ingredientSearchViewModel =
-                    injectedViewModel(viewModelStoreOwner = parentEntry) {
-                        DaggerIngredientSearchComponent
-                            .builder()
-                            .commonComponent(commonComponent)
-                            .dataComponent(dataComponent)
-                            .build()
-                            .viewModel
-                    }
-
-                CreateCustomRecipeScreen(
-                    navController = navController,
-                    viewModel = injectedViewModel {
-                        DaggerCustomRecipeComponent
-                            .builder()
-                            .commonComponent(commonComponent)
-                            .dataComponent(dataComponent)
-                            .build()
-                            .viewModel
-                    },
-                    selectedIngredients = ingredientSearchViewModel.selectedIngredients,
-                    onRemoveSelectedIngredient = ingredientSearchViewModel::onRemoveSelectedIngredient
-                )
-            }
-            composable(
-                route = Screen.IngredientSearch.route
-            ) {
-                val parentEntry = remember(it) {
-                    navController.getBackStackEntry(BottomNavigationScreen.AddCustomRecipe.route)
-                }
-
-                val ingredientSearchViewModel =
-                    injectedViewModel(viewModelStoreOwner = parentEntry) {
-                        DaggerIngredientSearchComponent
-                            .builder()
-                            .commonComponent(commonComponent)
-                            .dataComponent(dataComponent)
-                            .build()
-                            .viewModel
-                    }
-
-                IngredientSearchScreen(
-                    navController,
-                    ingredientSearchViewModel
-                )
-            }
+            )
         }
+        
+//        // subgraph for custom recipe creation
+//        // TODO: This isn't done correctly, revisit later...
+//        navigation(
+//            startDestination = Screen.CreateRecipe.route,
+//            route = BottomNavigationScreen.AddCustomRecipe.route
+//        ) {
+//            composable(route = Screen.CreateRecipe.route) {
+//                val parentEntry = remember(it) {
+//                    navController.getBackStackEntry(BottomNavigationScreen.AddCustomRecipe.route)
+//                }
+//
+//                val ingredientSearchViewModel =
+//                    injectedViewModel(viewModelStoreOwner = parentEntry) {
+//                        DaggerIngredientSearchComponent
+//                            .builder()
+//                            .commonComponent(commonComponent)
+//                            .dataComponent(dataComponent)
+//                            .build()
+//                            .viewModel
+//                    }
+//
+//                CreateCustomRecipeScreen(
+//                    navController = navController,
+//                    viewModel = injectedViewModel {
+//                        DaggerCustomRecipeComponent
+//                            .builder()
+//                            .commonComponent(commonComponent)
+//                            .dataComponent(dataComponent)
+//                            .build()
+//                            .viewModel
+//                    }
+//                )
+//            }
+//            composable(
+//                route = Screen.IngredientSearch.route
+//            ) {
+//                val parentEntry = remember(it) {
+//                    navController.getBackStackEntry(BottomNavigationScreen.AddCustomRecipe.route)
+//                }
+//
+//                val ingredientSearchViewModel =
+//                    injectedViewModel(viewModelStoreOwner = parentEntry) {
+//                        DaggerIngredientSearchComponent
+//                            .builder()
+//                            .commonComponent(commonComponent)
+//                            .dataComponent(dataComponent)
+//                            .build()
+//                            .viewModel
+//                    }
+//
+//                IngredientSearchScreen(
+//                    ingredientSearchViewModel
+//                )
+//            }
+//        }
     }
 }
 

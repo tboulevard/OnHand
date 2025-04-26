@@ -31,8 +31,8 @@ import com.tstreet.onhand.core.ui.OnHandScreenHeader
 fun CreateCustomRecipeScreen(
     navController: NavHostController,
     viewModel: CreateCustomRecipeViewModel,
-    selectedIngredients: List<SelectableIngredient>,
-    onRemoveSelectedIngredient: (Int) -> Unit
+    selectedIngredients: List<SelectableIngredient> = emptyList(),
+    onRemoveSelectedIngredient: (Int) -> Unit = { }
 ) {
 
     // TODO: nav away warn unsaved changes

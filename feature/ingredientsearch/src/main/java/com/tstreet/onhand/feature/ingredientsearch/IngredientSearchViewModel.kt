@@ -1,97 +1,64 @@
 package com.tstreet.onhand.feature.ingredientsearch
 
 import android.util.Log
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.domain.usecase.ingredientsearch.IngredientSearchUseCase
-import com.tstreet.onhand.core.model.ui.SelectableIngredient
-import com.tstreet.onhand.core.ui.AlertDialogState
+import com.tstreet.onhand.core.model.ui.SearchUiState
+import com.tstreet.onhand.core.model.ui.UiSearchIngredient
+import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
-import javax.inject.Inject
 import javax.inject.Provider
 
-@FeatureScope
-class IngredientSearchViewModel @Inject constructor(
-    private val getSearchResults: Provider<IngredientSearchUseCase>,
+abstract class IngredientSearchViewModel(
+    private val searchIngredients: Provider<IngredientSearchUseCase>,
+    private val mapper: SearchUiStateMapper,
+    ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     init {
         Log.d("[OnHand]", "${this.javaClass.simpleName} created")
     }
 
-    // Backing list for _selectableIngredientsFlow - mirrors what search query returns but allows
-    // for mutations that are later sync
-    private var _mutableIngredients = mutableListOf<SelectableIngredient>()
-
-    // List of all selected ingredients only
-    private val _selectedIngredients = mutableStateListOf<SelectableIngredient>()
-    val selectedIngredients: List<SelectableIngredient> = _selectedIngredients
-
     // SharedFlow does not need to explicitly need to be collected, as it is a hot flow.
-    // Additionally, we can replay to all new observers n times (in this case just the
-    // most recent value).
-    private val _searchTextFlow = MutableSharedFlow<String?>(replay = 1)
+    // Addtionally, we can replay to all observers n times.
+    private val _searchTextFlow = MutableSharedFlow<String>(replay = 1)
 
     // However this is a regular Flow (cold), and needs to be collected. We collect it via
     // .collectAsState()
-    val displayedSearchText: Flow<String> = _searchTextFlow.map { it.orEmpty() }
+    val displayedSearchText: StateFlow<String> = _searchTextFlow
+        .stateIn(
+            // Note: Child jobs launched in this scope are automatically cancelled when
+            //  onCleared() is called for this ViewModel.
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = ""
+        )
 
-    // Flow that intercepts changes in search query text
-    private val _ingredients: Flow<List<SelectableIngredient>> =
-        _searchTextFlow.onEach {
-            _isPreSearchDebounce.update { true }
-        }
-            .debounce(250L)
-            .onEach { _isPreSearchDebounce.update { false } }
-            .flatMapLatest { searchQuery ->
-                _isSearching.update { true }
-                // NOTE: This is retriggered when changing pantry state in search list too.
-                getSearchResults.get().getPantryMapped(searchQuery ?: "")
-            }
-            .onEach {
-                _isSearching.update { false }
-            }
-            .map {
-//                val newSearchResults = it.ingredients.map { pantryIngredient ->
-//                    SelectableIngredient(
-//                        ingredient = pantryIngredient,
-//                        isSelected = _selectedIngredients.find { selectedIngredient -> selectedIngredient.ingredient.name == pantryIngredient.name } != null
-//                    )
-//                }
-//                _mutableIngredients = newSearchResults.toMutableList()
-//                newSearchResults
-                emptyList()
-            }
+    private val _searchUiState: Flow<SearchUiState> = _searchTextFlow
+        .debounce(250L)
+        .flatMapLatest { searchQuery ->
+            searchIngredients.get().getPantryMapped(searchQuery)
+        }.map { searchResult ->
+            mapper.mapSearchResultToSearchUi(searchResult)
+        }.flowOn(ioDispatcher)
 
-    private val _selectableIngredientsFlow =
-        MutableSharedFlow<List<SelectableIngredient>>(replay = 1)
-
-    val displayedIngredients: StateFlow<List<SelectableIngredient>> =
-        flowOf(_ingredients, _selectableIngredientsFlow)
-            // Allows us to collect only the most recently emitted value from the original
-            // flows
-            .flattenMerge()
+    val searchUiState: StateFlow<SearchUiState> =
+        _searchUiState
             .stateIn(
                 // Note: Child jobs launched in this scope are automatically cancelled when
                 //  onCleared() is called for this ViewModel.
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
-                initialValue = emptyList()
+                initialValue = SearchUiState.Empty
             )
 
-    private val _isSearching = MutableStateFlow(false)
-    val isSearching = _isSearching.asStateFlow()
+    fun onSearchTextChanged(text: String) {
+        _searchTextFlow.tryEmit(text)
+    }
 
-    private val _isSearchBarFocused = MutableStateFlow(false)
-    val isSearchBarFocused = _isSearchBarFocused.asStateFlow()
-
-    private val _isPreSearchDebounce = MutableStateFlow(false)
-    val isPreSearchDebounce = _isPreSearchDebounce.asStateFlow()
-
-    private val _errorDialogState = MutableStateFlow(AlertDialogState.dismissed())
+    protected val _errorDialogState = MutableStateFlow(dismissed())
     val errorDialogState = _errorDialogState
         .stateIn(
             scope = viewModelScope,
@@ -99,36 +66,5 @@ class IngredientSearchViewModel @Inject constructor(
             initialValue = _errorDialogState.value
         )
 
-    fun onSearchTextChanged(text: String) {
-        _searchTextFlow.tryEmit(text)
-    }
-
-    fun onSearchBarFocusChanged(isFocused: Boolean) {
-        _isSearchBarFocused.update { isFocused }
-    }
-
-    fun onToggleSearchIngredient(index: Int) {
-        viewModelScope.launch {
-            val item = _mutableIngredients[index]
-            val isSelected = item.isSelected
-            _mutableIngredients[index] = item.copy(isSelected = !isSelected)
-
-            // Mirror the change by either adding or removing the element from the list of
-            // selected ingredients
-            if (isSelected) {
-                _selectedIngredients.removeIf { it.ingredient.name == item.ingredient.name }
-            } else {
-                _selectedIngredients.add(_mutableIngredients[index])
-            }
-
-            _selectableIngredientsFlow.tryEmit(
-                // To pass a new reference and trigger recomposition downstream
-                _mutableIngredients.toList()
-            )
-        }
-    }
-
-    fun onRemoveSelectedIngredient(index: Int) {
-        _selectedIngredients -= _selectedIngredients[index]
-    }
+    abstract fun onItemClick(uiSearchIngredient: UiSearchIngredient)
 }
