@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.Status.ERROR
 import com.tstreet.onhand.core.common.Status.SUCCESS
 import com.tstreet.onhand.core.domain.usecase.recipes.GetFullRecipeUseCase
-import com.tstreet.onhand.core.ui.RecipeDetailUiState
+import com.tstreet.onhand.core.model.ui.RecipeDetailUiState
 import com.tstreet.onhand.feature.recipedetail.di.RecipeId
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject

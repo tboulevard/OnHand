@@ -1,4 +1,4 @@
-package com.tstreet.onhand.core.ui
+package com.tstreet.onhand.core.model.ui
 
 class InputValidationState(
     val shown: Boolean,

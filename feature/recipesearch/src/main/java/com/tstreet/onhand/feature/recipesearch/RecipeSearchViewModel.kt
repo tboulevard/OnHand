@@ -12,12 +12,12 @@ import com.tstreet.onhand.core.domain.usecase.recipes.GetRecipesUseCase
 import com.tstreet.onhand.core.domain.usecase.recipes.SaveRecipeUseCase
 import com.tstreet.onhand.core.domain.usecase.recipes.SortBy
 import com.tstreet.onhand.core.domain.usecase.recipes.UnsaveRecipeUseCase
+import com.tstreet.onhand.core.model.ui.RecipeSearchUiState
+import com.tstreet.onhand.core.model.ui.RecipeWithSaveState
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.displayed
-import com.tstreet.onhand.core.ui.RecipeSaveState.*
-import com.tstreet.onhand.core.ui.RecipeWithSaveState
-import com.tstreet.onhand.core.ui.RecipeSearchUiState
-import com.tstreet.onhand.core.ui.toRecipeWithSaveStateItemList
+import com.tstreet.onhand.core.model.ui.RecipeSaveState.*
+import com.tstreet.onhand.core.model.ui.toRecipeWithSaveStateItemList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch

@@ -15,8 +15,8 @@ import com.tstreet.onhand.core.model.RecipePreview
 import com.tstreet.onhand.core.model.ShoppingListIngredient
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.displayed
-import com.tstreet.onhand.core.ui.RecipeDetailUiState
-import com.tstreet.onhand.core.ui.ShoppingListUiState
+import com.tstreet.onhand.core.model.ui.RecipeDetailUiState
+import com.tstreet.onhand.core.model.ui.ShoppingListUiState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean

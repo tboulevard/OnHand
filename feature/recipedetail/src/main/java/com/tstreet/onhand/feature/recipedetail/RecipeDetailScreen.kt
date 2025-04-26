@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
-import com.tstreet.onhand.core.ui.RecipeDetailUiState.*
+import com.tstreet.onhand.core.model.ui.RecipeDetailUiState.*
 
 @Composable
 fun RecipeDetailScreen(

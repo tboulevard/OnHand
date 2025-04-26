@@ -16,6 +16,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import com.tstreet.onhand.core.common.RECIPE_DETAIL_ROUTE
 import com.tstreet.onhand.core.model.RecipePreview
+import com.tstreet.onhand.core.model.ui.RecipeSaveState
+import com.tstreet.onhand.core.model.ui.RecipeWithSaveState
 import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
 
 @Composable
@@ -214,12 +216,6 @@ fun RecipeCardItem(
         }
     }
 }
-
-// Recipe wrapped in save state to allow the view model to toggle it
-data class RecipeWithSaveState(
-    val recipePreview: RecipePreview,
-    val recipeSaveState: RecipeSaveState
-)
 
 // TODO: move all below to a better location...
 class RecipeCardPreviewParamProvider : PreviewParameterProvider<RecipeWithSaveState> {

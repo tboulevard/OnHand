@@ -15,7 +15,7 @@ import androidx.navigation.NavController
 import com.tstreet.onhand.core.domain.usecase.recipes.DEFAULT_SORTING
 import com.tstreet.onhand.core.domain.usecase.recipes.SortBy
 import com.tstreet.onhand.core.ui.*
-import com.tstreet.onhand.core.ui.RecipeSearchUiState.*
+import com.tstreet.onhand.core.model.ui.RecipeSearchUiState.*
 
 @Composable
 fun RecipeSearchScreen(
