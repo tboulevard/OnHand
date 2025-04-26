@@ -66,5 +66,9 @@ abstract class IngredientSearchViewModel(
             initialValue = _errorDialogState.value
         )
 
+    fun dismissErrorDialog() {
+        _errorDialogState.update { dismissed() }
+    }
+
     abstract fun onItemClick(uiSearchIngredient: UiSearchIngredient)
 }

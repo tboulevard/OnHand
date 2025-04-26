@@ -52,7 +52,8 @@ fun Navigation(
     // Don't show bottom navigation bar on certain screens
     val shouldShowBottomBar = remember(currentRoute) {
         // Hide bottom navigation when in ingredient search
-        currentRoute != Screen.IngredientSearch.route
+        currentRoute != Screen.SelectableIngredientSearch.route &&
+                currentRoute != Screen.PantryIngredientSearch.route
     }
 
     Scaffold(
@@ -107,7 +108,7 @@ private fun NavigationConfiguration(
                         .viewModel
                 },
                 onIngredientSearchClick = {
-                    navController.navigate(Screen.IngredientSearch.route)
+                    navController.navigate(Screen.PantryIngredientSearch.route)
                 }
             )
         }
@@ -170,11 +171,8 @@ private fun NavigationConfiguration(
                 }
             )
         }
-        
-        // Standalone IngredientSearch screen (accessible from HomeScreen + Custom Recipe)
-        composable(route = Screen.IngredientSearch.route) {
 
-            // TODO: If parent route is custom recipe vs home, different logic
+        composable(route = Screen.PantryIngredientSearch.route) {
             IngredientSearchScreen(
                 injectedViewModel {
                     DaggerIngredientSearchComponent
@@ -182,66 +180,65 @@ private fun NavigationConfiguration(
                         .commonComponent(commonComponent)
                         .dataComponent(dataComponent)
                         .build()
-                        .viewModel
+                        .pantryViewModel
                 }
-            )
+            ) {
+                navController.popBackStack()
+            }
         }
-        
-//        // subgraph for custom recipe creation
-//        // TODO: This isn't done correctly, revisit later...
-//        navigation(
-//            startDestination = Screen.CreateRecipe.route,
-//            route = BottomNavigationScreen.AddCustomRecipe.route
-//        ) {
-//            composable(route = Screen.CreateRecipe.route) {
-//                val parentEntry = remember(it) {
-//                    navController.getBackStackEntry(BottomNavigationScreen.AddCustomRecipe.route)
-//                }
-//
-//                val ingredientSearchViewModel =
-//                    injectedViewModel(viewModelStoreOwner = parentEntry) {
-//                        DaggerIngredientSearchComponent
-//                            .builder()
-//                            .commonComponent(commonComponent)
-//                            .dataComponent(dataComponent)
-//                            .build()
-//                            .viewModel
-//                    }
-//
-//                CreateCustomRecipeScreen(
-//                    navController = navController,
-//                    viewModel = injectedViewModel {
-//                        DaggerCustomRecipeComponent
-//                            .builder()
-//                            .commonComponent(commonComponent)
-//                            .dataComponent(dataComponent)
-//                            .build()
-//                            .viewModel
-//                    }
-//                )
-//            }
-//            composable(
-//                route = Screen.IngredientSearch.route
-//            ) {
-//                val parentEntry = remember(it) {
-//                    navController.getBackStackEntry(BottomNavigationScreen.AddCustomRecipe.route)
-//                }
-//
-//                val ingredientSearchViewModel =
-//                    injectedViewModel(viewModelStoreOwner = parentEntry) {
-//                        DaggerIngredientSearchComponent
-//                            .builder()
-//                            .commonComponent(commonComponent)
-//                            .dataComponent(dataComponent)
-//                            .build()
-//                            .viewModel
-//                    }
-//
-//                IngredientSearchScreen(
-//                    ingredientSearchViewModel
-//                )
-//            }
-//        }
+
+        // subgraph for custom recipe creation
+        // TODO: This isn't done correctly, revisit later...
+        navigation(
+            startDestination = Screen.CreateRecipe.route,
+            route = BottomNavigationScreen.AddCustomRecipe.route,
+        ) {
+            composable(route = Screen.CreateRecipe.route) {
+                CreateCustomRecipeScreen(
+                    navController = navController,
+                    viewModel = injectedViewModel {
+                        DaggerCustomRecipeComponent
+                            .builder()
+                            .commonComponent(commonComponent)
+                            .dataComponent(dataComponent)
+                            .build()
+                            .viewModel
+                    },
+                    ingredientSearchViewModel = injectedViewModel {
+                        DaggerIngredientSearchComponent
+                            .builder()
+                            .commonComponent(commonComponent)
+                            .dataComponent(dataComponent)
+                            .build()
+                            .selectableIngredientViewModel
+                    }
+                )
+            }
+            composable(
+                route = Screen.SelectableIngredientSearch.route
+            ) {
+                val parentEntry = remember(it) {
+                    navController.getBackStackEntry(Screen.CreateRecipe.route)
+                }
+
+                val ingredientSearchViewModel =
+                    // Bind ViewModel lifecycle to parent
+                    injectedViewModel(viewModelStoreOwner = parentEntry) {
+                        DaggerIngredientSearchComponent
+                            .builder()
+                            .commonComponent(commonComponent)
+                            .dataComponent(dataComponent)
+                            .build()
+                            .selectableIngredientViewModel
+                    }
+
+                IngredientSearchScreen(
+                    ingredientSearchViewModel
+                ) {
+                    navController.popBackStack()
+                }
+            }
+        }
     }
 }
 
@@ -254,6 +251,7 @@ private fun OnHandBottomNavigationBar(
 ) {
     NavigationBar {
         val currentRoute = currentRoute(navController)
+        val currentParentRoute = currentParentRoute(navController)
         bottomNavigationItems.forEach { screen ->
             NavigationBarItem(
                 icon = { Icon(imageVector = screen.icon, contentDescription = screen.route) },
@@ -262,7 +260,12 @@ private fun OnHandBottomNavigationBar(
                 onClick = {
                     // For "singleTop" behavior where we do not create a second instance of the
                     // composable if we already navigated
-                    if (currentRoute != screen.route) {
+                    if (currentRoute != screen.route &&
+                        // TODO: Note - if we want to reset within Create Custom recipe flow, need
+                        //  to change this logic. Otherwise this prevents us from launching second
+                        // subgraph
+                        currentParentRoute != screen.route
+                    ) {
                         navController.navigate(screen.route)
                     }
                 }

@@ -9,7 +9,6 @@ import com.tstreet.onhand.core.domain.usecase.customrecipe.CustomRecipeInputUseC
 import com.tstreet.onhand.core.model.CustomRecipeInput
 import com.tstreet.onhand.core.model.data.Ingredient
 import com.tstreet.onhand.core.model.data.RecipeIngredient
-import com.tstreet.onhand.core.model.ui.SelectableIngredient
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.displayed
 import com.tstreet.onhand.core.model.ui.InputValidationState.Companion.hidden
@@ -109,10 +108,10 @@ class CreateCustomRecipeViewModel @Inject constructor(
         // TODO
     }
 
-    fun onSaveRecipe(ingredients: List<SelectableIngredient>) {
+    fun onSaveRecipe(ingredients: List<Ingredient>) {
         viewModelScope.launch {
             addRecipeUseCase.get()
-                .invoke(collectCustomRecipeInput(ingredients.map { it.ingredient }))
+                .invoke(collectCustomRecipeInput(ingredients))
                 .collect { result ->
                     when {
                         result.status == SUCCESS && result.data != null -> {

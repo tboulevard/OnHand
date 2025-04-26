@@ -5,6 +5,7 @@ import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.data.di.DataComponent
 import com.tstreet.onhand.core.domain.di.UseCaseModule
 import com.tstreet.onhand.feature.ingredientsearch.PantryIngredientSearchViewModel
+import com.tstreet.onhand.feature.ingredientsearch.SelectableIngredientSearchViewModel
 import dagger.Component
 
 @Component(
@@ -19,5 +20,6 @@ import dagger.Component
 @FeatureScope
 interface IngredientSearchComponent {
 
-    val viewModel: PantryIngredientSearchViewModel
+    val pantryViewModel: PantryIngredientSearchViewModel
+    val selectableIngredientViewModel: SelectableIngredientSearchViewModel
 }

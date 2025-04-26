@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.tstreet.onhand.core.model.ui.SearchUiState
 import com.tstreet.onhand.core.model.ui.UiSearchIngredient
+import com.tstreet.onhand.core.ui.OnHandAlertDialog
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
 import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
 
@@ -26,12 +27,20 @@ import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
 // list item
 @Composable
 fun IngredientSearchScreen(
-    viewModel: IngredientSearchViewModel
+    viewModel: IngredientSearchViewModel,
+    onBackClicked: () -> Unit
 ) {
     val uiState by viewModel.searchUiState.collectAsState()
     val searchText by viewModel.displayedSearchText.collectAsState()
+    val errorDialogState = viewModel.errorDialogState.collectAsState()
 
     val onIngredientSearchTextChanged = remember { viewModel::onSearchTextChanged }
+    val dismissErrorDialog = remember { viewModel::dismissErrorDialog }
+
+    OnHandAlertDialog(
+        onDismiss = dismissErrorDialog,
+        state = errorDialogState.value
+    )
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -39,7 +48,8 @@ fun IngredientSearchScreen(
     ) {
         IngredientSearchBar(
             searchText = searchText,
-            onTextChanged = onIngredientSearchTextChanged
+            onTextChanged = onIngredientSearchTextChanged,
+            onBackClicked = onBackClicked
         )
         IngredientSearchCardList(
             searchUiState = uiState,
@@ -54,7 +64,8 @@ fun IngredientSearchScreen(
 @Composable
 private fun IngredientSearchBar(
     searchText: String,
-    onTextChanged: (String) -> Unit
+    onTextChanged: (String) -> Unit,
+    onBackClicked: () -> Unit
 ) {
     val isFocused = remember { mutableStateOf<Boolean>(false) }
     val focusRequester = remember { FocusRequester() }
@@ -96,7 +107,7 @@ private fun IngredientSearchBar(
                 )
             } else {
                 IconButton(onClick = {
-                    // TODO: GO BACK ACTION
+                    onBackClicked.invoke()
                 }) {
                     Icon(
                         imageVector = Icons.Filled.ArrowBack,
@@ -151,11 +162,11 @@ private fun IngredientSearchListItem(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             if (card.inPantry) {
-                Icon(
-                    imageVector = Icons.Default.Star,
-                    contentDescription = "In pantry",
-                    tint = MaterialTheme.colorScheme.inverseOnSurface,
-                    modifier = Modifier.align(Alignment.CenterVertically)
+                Text(
+                    text = "(in pantry)",
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
                 )
             }
 

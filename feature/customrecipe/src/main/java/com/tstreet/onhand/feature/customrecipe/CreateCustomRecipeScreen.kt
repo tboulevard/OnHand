@@ -16,11 +16,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.tstreet.onhand.core.common.CREATE_RECIPE_ROUTE
-import com.tstreet.onhand.core.common.INGREDIENT_SEARCH_ROUTE
+import com.tstreet.onhand.core.common.PANTRY_INGREDIENT_SEARCH_ROUTE
 import com.tstreet.onhand.core.common.RECIPE_DETAIL_ROUTE
 import com.tstreet.onhand.core.model.ui.SelectableIngredient
 import com.tstreet.onhand.core.ui.OnHandAlertDialog
 import com.tstreet.onhand.core.ui.OnHandScreenHeader
+import com.tstreet.onhand.feature.ingredientsearch.SelectableIngredientSearchViewModel
 
 // TODO: use @PreviewParameter + create module with fake models to populate composables
 // TODO: screen rotation wipes `isSearchBarFocused` -> look into used collectAsStateWithLifecycle
@@ -31,13 +32,13 @@ import com.tstreet.onhand.core.ui.OnHandScreenHeader
 fun CreateCustomRecipeScreen(
     navController: NavHostController,
     viewModel: CreateCustomRecipeViewModel,
-    selectedIngredients: List<SelectableIngredient> = emptyList(),
-    onRemoveSelectedIngredient: (Int) -> Unit = { }
+    ingredientSearchViewModel: SelectableIngredientSearchViewModel
 ) {
 
     // TODO: nav away warn unsaved changes
 
     val title = viewModel.title.collectAsState()
+    val ingredients = ingredientSearchViewModel.selectedIngredients
     val isTitleValid = viewModel.isTitleValid.collectAsStateWithLifecycle()
     val inputValidationText = viewModel.titleInputValidationState.collectAsStateWithLifecycle()
     val instructions = viewModel.instructions.collectAsState()
@@ -102,7 +103,7 @@ fun CreateCustomRecipeScreen(
                 .fillMaxWidth()
                 .padding(8.dp)
                 .clickable {
-                    navController.navigate(INGREDIENT_SEARCH_ROUTE)
+                    navController.navigate(PANTRY_INGREDIENT_SEARCH_ROUTE)
                 }, horizontalArrangement = Arrangement.Start
         ) {
             Icon(
@@ -122,15 +123,17 @@ fun CreateCustomRecipeScreen(
         LazyColumn(
             modifier = Modifier.fillMaxWidth()
         ) {
-            itemsIndexed(selectedIngredients) { index, item ->
+            itemsIndexed(ingredientSearchViewModel.selectedIngredients) { index, item ->
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = item.ingredient.name)
+                    Text(text = item.name)
                     Icon(Icons.Default.Delete,
                         contentDescription = "remove ingredient",
                         modifier = Modifier
-                            .clickable { onRemoveSelectedIngredient(index) }
+                            .clickable {
+                                // TODO: handle remove ingredient
+                            }
                             .size(32.dp)
                             .padding(4.dp)
                             .align(Alignment.CenterVertically),
@@ -147,8 +150,8 @@ fun CreateCustomRecipeScreen(
         )
         Button(
             onClick = {
-                viewModel.onSaveRecipe(selectedIngredients)
-            }, enabled = selectedIngredients.isNotEmpty() && isTitleValid.value
+                viewModel.onSaveRecipe(ingredientSearchViewModel.selectedIngredients)
+            }, enabled = ingredientSearchViewModel.selectedIngredients.isNotEmpty() && isTitleValid.value
         ) {
             Text(text = "Done")
         }
