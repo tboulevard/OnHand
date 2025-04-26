@@ -1,97 +1,62 @@
 package com.tstreet.onhand.feature.ingredientsearch
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import com.tstreet.onhand.core.model.ui.SelectableIngredient
+import com.tstreet.onhand.core.model.ui.SearchUiState
+import com.tstreet.onhand.core.model.ui.UiSearchIngredient
+import com.tstreet.onhand.core.ui.OnHandAlertDialog
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
 import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
 
-// TODO: use @PreviewParameter + create module with fake models to populate composables
-// TODO: screen rotation wipes `isSearchBarFocused` -> look into used collectAsStateWithLifecycle
-// TODO: Using the hardware back/swipe back while in search doesn't nav back to pantry. Eventually
-//  we'll probably want IngredientSearch as a separate screen so we can add it to the nav backstack
+// TODO: should be reusable with the only difference being the onclick behavior of the ingredient search
+// list item
 @Composable
 fun IngredientSearchScreen(
-    navController: NavHostController,
-    viewModel: IngredientSearchViewModel
+    viewModel: IngredientSearchViewModel,
+    onBackClicked: () -> Unit
 ) {
-    val ingredients by viewModel.displayedIngredients.collectAsState()
-    val searchText by viewModel.displayedSearchText.collectAsState(initial = "")
-    val isSearching by viewModel.isSearching.collectAsState()
-    val isSearchBarFocused by viewModel.isSearchBarFocused.collectAsState()
-    val isPreSearchDebouncing by viewModel.isPreSearchDebounce.collectAsState()
-    val selectedIngredients = viewModel.selectedIngredients
-    var hideKeyboard by remember { mutableStateOf(false) }
+    val uiState by viewModel.searchUiState.collectAsState()
+    val searchText by viewModel.displayedSearchText.collectAsState()
+    val errorDialogState = viewModel.errorDialogState.collectAsState()
+
+    val onIngredientSearchTextChanged = remember { viewModel::onSearchTextChanged }
+    val dismissErrorDialog = remember { viewModel::dismissErrorDialog }
+
+    OnHandAlertDialog(
+        onDismiss = dismissErrorDialog,
+        state = errorDialogState.value
+    )
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .clickable {
-                hideKeyboard = true
-            },
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Top
     ) {
-        Surface(
-            color = MaterialTheme.colorScheme.inverseOnSurface,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                IconButton(
-                    onClick = {
-                        navController.popBackStack()
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = "go back",
-                    )
-                }
-            }
-        }
         IngredientSearchBar(
             searchText = searchText,
-            onTextChanged = viewModel::onSearchTextChanged,
-            onFocusChanged = viewModel::onSearchBarFocusChanged,
-            isFocused = isSearchBarFocused,
-            hideKeyboard = hideKeyboard,
-            showKeyboard = { hideKeyboard = false }
+            onTextChanged = onIngredientSearchTextChanged,
+            onBackClicked = onBackClicked
         )
-        when {
-            isSearching -> {
-                OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
+        IngredientSearchCardList(
+            searchUiState = uiState,
+            onItemClick = { ingredient ->
+                viewModel.onItemClick(ingredient)
             }
-            isSearchBarFocused -> {
-                IngredientSearchCardList(
-                    ingredients = ingredients,
-                    onItemClick = viewModel::onToggleSearchIngredient,
-                    isPreSearchDebouncing,
-                    searchText
-                )
-            }
-            else -> {
-                SelectedIngredientList(
-                    ingredients = selectedIngredients
-                )
-            }
-        }
+        )
     }
 }
 
@@ -100,21 +65,28 @@ fun IngredientSearchScreen(
 private fun IngredientSearchBar(
     searchText: String,
     onTextChanged: (String) -> Unit,
-    onFocusChanged: (Boolean) -> Unit,
-    isFocused: Boolean,
-    hideKeyboard: Boolean,
-    showKeyboard: () -> Unit
+    onBackClicked: () -> Unit
 ) {
-    val focusManager = LocalFocusManager.current
+    val isFocused = remember { mutableStateOf<Boolean>(false) }
+    val focusRequester = remember { FocusRequester() }
+
+    // Difference b/w this and launched effect?
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
 
     TextField(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { showKeyboard() }
             .padding(start = 8.dp, top = 16.dp, end = 8.dp, bottom = 8.dp)
-            .onFocusChanged { onFocusChanged(it.isFocused) },
+            .onFocusChanged {
+                isFocused.value = it.isFocused
+            }.focusRequester(focusRequester),
         value = searchText,
-        onValueChange = { onTextChanged(it) },
+        singleLine = true,
+        onValueChange = {
+            onTextChanged(it)
+        },
         placeholder = { Text("Search Ingredients") },
         trailingIcon = {
             if (searchText.isNotEmpty()) {
@@ -128,16 +100,14 @@ private fun IngredientSearchBar(
             }
         },
         leadingIcon = {
-            if (!isFocused) {
+            if (!isFocused.value) {
                 Icon(
                     imageVector = Icons.Filled.Search,
                     contentDescription = "search",
                 )
             } else {
                 IconButton(onClick = {
-                    onTextChanged("")
-                    onFocusChanged(false)
-                    focusManager.clearFocus()
+                    onBackClicked.invoke()
                 }) {
                     Icon(
                         imageVector = Icons.Filled.ArrowBack,
@@ -151,30 +121,26 @@ private fun IngredientSearchBar(
         colors = TextFieldDefaults.textFieldColors(
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
-        ),
-        keyboardActions = KeyboardActions(onAny = {
-            focusManager.clearFocus()
-        })
+            disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            disabledIndicatorColor = Color.Transparent,
+            disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     )
-
-    if (hideKeyboard) {
-        onTextChanged("")
-        onFocusChanged(false)
-        focusManager.clearFocus()
-        showKeyboard()
-    }
 }
 
 private class IngredientSearchCard(
     val name: String,
-    val isSelected: Boolean
+    val isSelected: Boolean,
+    val inPantry: Boolean
 )
 
 @Composable
 private fun IngredientSearchListItem(
     card: IngredientSearchCard,
-    index: Int,
-    onItemClicked: (Int) -> Unit
+    ingredient: UiSearchIngredient,
+    onItemClicked: (UiSearchIngredient) -> Unit
 ) {
     Card(
         shape = MaterialTheme.shapes.medium,
@@ -187,7 +153,7 @@ private fun IngredientSearchListItem(
         ),
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = { onItemClicked(index) }),
+            .clickable(onClick = { onItemClicked(ingredient) }),
     ) {
         Row(
             modifier = Modifier
@@ -195,23 +161,33 @@ private fun IngredientSearchListItem(
                 .fillMaxSize(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            if (card.inPantry) {
+                Text(
+                    text = "(in pantry)",
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                )
+            }
+
             Text(
                 text = card.name,
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
             )
+
             if (card.isSelected) {
                 Icon(
                     imageVector = Icons.Default.Clear,
-                    contentDescription = "Added to pantry",
+                    contentDescription = "Selected",
                     tint = MaterialTheme.colorScheme.inverseOnSurface,
                     modifier = Modifier.align(Alignment.CenterVertically)
                 )
             } else {
                 Icon(
                     imageVector = Icons.Default.AddCircle,
-                    contentDescription = "Not in pantry",
+                    contentDescription = "Not selected",
                     tint = MaterialTheme.colorScheme.inverseOnSurface,
                     modifier = Modifier.align(Alignment.CenterVertically)
                 )
@@ -222,14 +198,13 @@ private fun IngredientSearchListItem(
 
 @Composable
 fun IngredientSearchCardList(
-    ingredients: List<SelectableIngredient>,
-    onItemClick: (Int) -> Unit,
-    isPreDebounce: Boolean,
-    searchText: String,
+    searchUiState: SearchUiState,
+    onItemClick: (UiSearchIngredient) -> Unit
+) {
+    Log.d("[OnHand]", "IngredientSearchCardList recomposition")
 
-    ) {
-    when (ingredients.isEmpty() && !isPreDebounce && searchText.isNotEmpty()) {
-        true -> {
+    when (searchUiState) {
+        is SearchUiState.Empty -> {
             Row(
                 modifier = Modifier.fillMaxSize(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -241,33 +216,36 @@ fun IngredientSearchCardList(
                 )
             }
         }
-        else -> {
+
+        is SearchUiState.Loading -> {
+            OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
+        }
+
+        is SearchUiState.Content -> {
             LazyColumn(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 itemsIndexed(
-                    items = ingredients
+                    key = { position, item -> item.ingredient.id },
+                    items = searchUiState.ingredients
                 ) { index, item ->
                     IngredientSearchListItem(
                         card = IngredientSearchCard(
                             name = item.ingredient.name,
-                            isSelected = item.isSelected
+                            isSelected = item.isSelected.value,
+                            inPantry = item.inPantry.value
                         ),
-                        index,
+                        item,
                         onItemClicked = onItemClick
                     )
                 }
             }
         }
+
+        is SearchUiState.Error -> {
+            Log.d("[OnHand]", "Error in IngredientSearchCardList")
+        }
     }
 }
 
-@Composable
-fun SelectedIngredientList(
-    ingredients: List<SelectableIngredient>
-) {
-    if (ingredients.isNotEmpty()) {
-        Text(text = "Selected ingredients: " + ingredients.map { it.ingredient.name })
-    }
-}

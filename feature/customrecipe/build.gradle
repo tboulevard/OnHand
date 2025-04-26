@@ -24,3 +24,7 @@ android {
         }
     }
 }
+
+dependencies {
+    api project(path: ':feature:ingredientsearch')
+}
