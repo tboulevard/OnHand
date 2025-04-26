@@ -10,8 +10,8 @@ import javax.inject.Singleton
 @Module
 object DatabaseModule {
 
-    @Provides
     @Singleton
+    @Provides
     fun providesOnHandDatabase(
         context: Context,
     ): OnHandDatabase = Room.databaseBuilder(

@@ -4,11 +4,12 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.CommonModule.IO
+import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.common.Status.*
-import com.tstreet.onhand.core.domain.ingredientsearch.IngredientSearchUseCase
-import com.tstreet.onhand.core.domain.pantry.AddToPantryUseCase
-import com.tstreet.onhand.core.domain.pantry.GetPantryUseCase
-import com.tstreet.onhand.core.domain.pantry.RemoveFromPantryUseCase
+import com.tstreet.onhand.core.domain.usecase.ingredientsearch.IngredientSearchUseCase
+import com.tstreet.onhand.core.domain.usecase.pantry.AddToPantryUseCase
+import com.tstreet.onhand.core.domain.usecase.pantry.GetPantryUseCase
+import com.tstreet.onhand.core.domain.usecase.pantry.RemoveFromPantryUseCase
 import com.tstreet.onhand.core.model.ui.PantryUiState
 import com.tstreet.onhand.core.model.ui.SearchUiState
 import com.tstreet.onhand.core.model.ui.UiPantryIngredient
@@ -23,6 +24,7 @@ import javax.inject.Provider
 import kotlin.jvm.javaClass
 
 @OptIn(kotlinx.coroutines.FlowPreview::class)
+@FeatureScope
 class HomeViewModel @Inject constructor(
     private val searchIngredients: Provider<IngredientSearchUseCase>,
     private val addToPantry: Provider<AddToPantryUseCase>,
@@ -33,7 +35,7 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     init {
-        println("[OnHand] ${this.javaClass.simpleName} created")
+        Log.d("[OnHand]", "${this.javaClass.simpleName} created")
     }
 
     // SharedFlow does not need to explicitly need to be collected, as it is a hot flow.
@@ -102,7 +104,6 @@ class HomeViewModel @Inject constructor(
         )
 
     fun onSearchTextChanged(text: String) {
-        println("[OnHand] onSearchTextChanged: $text")
         _searchTextFlow.tryEmit(text)
     }
 
@@ -157,7 +158,7 @@ class HomeViewModel @Inject constructor(
 
     override fun onCleared() {
         // TODO: Not called, lifecycle not properly managed
-        Log.d("OnHand", "$TAG cleared")
+        Log.d("[OnHand]", "$TAG cleared")
         super.onCleared()
     }
 }

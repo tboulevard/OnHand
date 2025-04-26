@@ -19,65 +19,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import com.tstreet.onhand.core.model.RecipePreview
-import com.tstreet.onhand.core.model.ShoppingListIngredient
-
-sealed class ShoppingListUiState(
-    val ingredients: List<ShoppingListIngredient>,
-    val recipePreviews: List<RecipePreview>
-) {
-    object Loading : ShoppingListUiState(emptyList(), emptyList())
-
-    // TODO: refactor duplicate screen content functions...
-    data class Success(
-        val shoppingListIngredients: List<ShoppingListIngredient>,
-        val mappedRecipePreviews: List<RecipePreview>
-    ) : ShoppingListUiState(shoppingListIngredients, mappedRecipePreviews)
-
-    data class Error(
-        val message: String,
-        val shoppingListIngredients: List<ShoppingListIngredient>,
-        val mappedRecipePreviews: List<RecipePreview>
-    ) : ShoppingListUiState(shoppingListIngredients, mappedRecipePreviews)
-
-    fun screenContent() = listOf(
-        ShoppingListItem.Header(
-            text = "Shopping List"
-        ),
-        ShoppingListItem.Summary(
-            numberOfRecipes = recipePreviews.size,
-            numberOfIngredients = ingredients.size
-        ),
-        ShoppingListItem.MappedRecipes(
-            recipePreviews = recipePreviews
-        ),
-        ShoppingListItem.Ingredients(
-            ingredients = ingredients
-        )
-    )
-}
-
-sealed interface ShoppingListItem {
-
-    data class Header(
-        val text: String
-    ) : ShoppingListItem
-
-    data class Summary(
-        private val numberOfRecipes: Int,
-        private val numberOfIngredients: Int
-    ) : ShoppingListItem {
-
-        val text = "$numberOfRecipes recipes - $numberOfIngredients items"
-    }
-
-    data class MappedRecipes(
-        val recipePreviews: List<RecipePreview>
-    ) : ShoppingListItem
-
-    data class Ingredients(
-        val ingredients: List<ShoppingListIngredient>
-    ) : ShoppingListItem
-}
 
 @Composable
 fun ShoppingListRecipeCards(

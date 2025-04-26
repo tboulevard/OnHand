@@ -1,6 +1,7 @@
 package com.tstreet.onhand.feature.home
 
 import androidx.compose.runtime.mutableStateOf
+import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.model.domain.IngredientSearchResult
 import com.tstreet.onhand.core.model.domain.PantryListResult
 import com.tstreet.onhand.core.model.ui.PantryUiState
@@ -8,6 +9,7 @@ import com.tstreet.onhand.core.model.ui.SearchUiState
 import com.tstreet.onhand.core.model.ui.UiPantryIngredient
 import javax.inject.Inject
 
+@FeatureScope
 class HomeUiStateMapper @Inject constructor() {
 
     fun mapSearchResultToSearchUi(
