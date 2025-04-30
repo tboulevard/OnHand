@@ -1,4 +1,4 @@
-package com.tstreet.onhand.core.data.impl.repository
+package com.tstreet.onhand.core.data.repository
 
 import android.database.sqlite.SQLiteConstraintException
 import android.util.Log

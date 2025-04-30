@@ -1,4 +1,4 @@
-package com.tstreet.onhand.core.data.impl.repository
+package com.tstreet.onhand.core.data.repository
 
 import android.util.Log
 import com.tstreet.onhand.core.common.CommonModule.IO
@@ -30,6 +30,16 @@ class OfflineIngredientSearchRepositoryImpl @Inject constructor(
     override fun searchIngredients(query: String): Flow<List<Ingredient>> {
         return dao.get()
             .getIngredients(query)
+            .map {
+                // Artificial delay to simulate loading
+                delay((500L..1000L).random())
+                it.map(IngredientEntity::toIngredient)
+            }.flowOn(ioDispatcher)
+    }
+
+    override fun mostPopularIngredients(): Flow<List<Ingredient>> {
+        return dao.get()
+            .getRandomIngredients()
             .map {
                 // Artificial delay to simulate loading
                 delay((500L..1000L).random())

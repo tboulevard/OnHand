@@ -6,10 +6,12 @@ import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.common.Status.*
+import com.tstreet.onhand.core.domain.usecase.ingredientsearch.IngredientSearchUseCase
 import com.tstreet.onhand.core.domain.usecase.pantry.AddToPantryUseCase
 import com.tstreet.onhand.core.domain.usecase.pantry.GetPantryUseCase
 import com.tstreet.onhand.core.domain.usecase.pantry.RemoveFromPantryUseCase
 import com.tstreet.onhand.core.model.ui.PantryUiState
+import com.tstreet.onhand.core.model.ui.SearchUiState
 import com.tstreet.onhand.core.model.ui.UiPantryIngredient
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.displayed
@@ -27,6 +29,7 @@ class HomeViewModel @Inject constructor(
     getPantry: Provider<GetPantryUseCase>,
     private val addToPantry: Provider<AddToPantryUseCase>,
     private val removeFromPantry: Provider<RemoveFromPantryUseCase>,
+    ingredientSearchUseCase: Provider<IngredientSearchUseCase>,
     @Named(IO) private val ioDispatcher: CoroutineDispatcher,
     private val mapper: HomeUiStateMapper
 ) : ViewModel() {
@@ -45,6 +48,17 @@ class HomeViewModel @Inject constructor(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
                 initialValue = PantryUiState.Loading
+            )
+
+    val suggestedIngredientsUiState: StateFlow<SearchUiState> =
+        ingredientSearchUseCase.get().getSuggestedIngredients()
+            .map { result ->
+                mapper.mapSuggestedIngredientsToSearchUiState(result)
+            }.flowOn(ioDispatcher)
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = SearchUiState.Loading
             )
 
     private val _errorDialogState = MutableStateFlow(dismissed())

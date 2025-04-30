@@ -14,4 +14,7 @@ interface IngredientDao {
     // TODO: Filtering, paging, etc.
     @Query("SELECT * FROM ingredient_catalog WHERE name LIKE '%' || :query || '%' LIMIT 10")
     fun getIngredients(query: String): Flow<List<IngredientEntity>>
+
+    @Query("SELECT * FROM ingredient_catalog ORDER BY RANDOM() LIMIT 10")
+    fun getRandomIngredients(): Flow<List<IngredientEntity>>
 }

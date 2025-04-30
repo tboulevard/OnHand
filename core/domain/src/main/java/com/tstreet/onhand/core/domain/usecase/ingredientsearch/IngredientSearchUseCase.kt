@@ -7,6 +7,7 @@ import com.tstreet.onhand.core.domain.repository.PantryRepository
 import com.tstreet.onhand.core.model.data.Ingredient
 import com.tstreet.onhand.core.model.data.PantryIngredient
 import com.tstreet.onhand.core.model.domain.IngredientSearchResult
+import com.tstreet.onhand.core.model.domain.SuggestedIngredientsResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOf
@@ -39,8 +40,22 @@ class IngredientSearchUseCase @Inject constructor(
             }
     }
 
+    fun getSuggestedIngredients(): Flow<SuggestedIngredientsResult> {
+        return suggestedIngredients()
+            .mapSuggestions()
+            .catch {
+                emit(SuggestedIngredientsResult.Error)
+            }.onStart {
+                emit(SuggestedIngredientsResult.Loading)
+            }
+    }
+
     private fun searchIngredients(query: String): Flow<List<Ingredient>> {
         return ingredientRepository.searchIngredients(query)
+    }
+
+    private fun suggestedIngredients(): Flow<List<Ingredient>> {
+        return ingredientRepository.mostPopularIngredients()
     }
 
     /**
@@ -55,6 +70,22 @@ class IngredientSearchUseCase @Inject constructor(
                     PantryIngredient(
                         ingredient = ingredient,
                         inPantry = pantrySet.contains(ingredient)
+                    )
+                }
+            )
+        }
+
+
+    private fun Flow<List<Ingredient>>.mapSuggestions(): Flow<SuggestedIngredientsResult> =
+        map { ingredients ->
+            val pantrySet = pantryRepository.listPantry(ingredients).toSet()
+            SuggestedIngredientsResult.Success(
+                ingredients = ingredients.filter { ingredient ->
+                    !pantrySet.contains(ingredient)
+                }.map { nonPantryIngredient ->
+                    PantryIngredient(
+                        ingredient = nonPantryIngredient,
+                        inPantry = false
                     )
                 }
             )
