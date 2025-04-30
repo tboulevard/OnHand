@@ -7,7 +7,6 @@ import com.tstreet.onhand.core.common.Status.SUCCESS
 import com.tstreet.onhand.core.domain.repository.PantryRepository
 import com.tstreet.onhand.core.domain.repository.RecipeRepository
 import com.tstreet.onhand.core.domain.usecase.UseCase
-import com.tstreet.onhand.core.domain.usecase.recipes.SortBy.*
 import com.tstreet.onhand.core.model.SaveableRecipePreview
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
@@ -37,8 +36,8 @@ class GetRecipesUseCase @Inject constructor(
             if (ingredients.isNotEmpty()) {
                 val recipes = findSaveableRecipes(ingredients)
                 val sortedRecipes = when (sortBy) {
-                    POPULARITY -> recipes.data?.sortedByDescending { it.recipePreview.likes }
-                    MISSING_INGREDIENTS -> recipes.data?.sortedBy { it.recipePreview.missedIngredientCount }
+                    SortBy.POPULARITY -> recipes.data?.sortedByDescending { it.recipePreview.likes }
+                    SortBy.MISSING_INGREDIENTS -> recipes.data?.sortedBy { it.recipePreview.missedIngredientCount }
                 }
                 when (recipes.status) {
                     SUCCESS -> {
@@ -63,7 +62,7 @@ class GetRecipesUseCase @Inject constructor(
 
     private suspend fun findSaveableRecipes(ingredientNames: List<String>): Resource<List<SaveableRecipePreview>> {
         val recipeResource = recipeRepository.get().findRecipes(
-            fetchStrategy = FetchStrategy.DATABASE, ingredients = ingredientNames
+            fetchStrategy = FetchStrategy.NETWORK, ingredients = ingredientNames
         )
 
         val saveableRecipeResource = recipeResource.data?.let {
@@ -92,7 +91,9 @@ class GetRecipesUseCase @Inject constructor(
     }
 
     private fun getPantryIngredients(): Flow<List<String>> {
-        return flowOf(emptyList())
+        return flow {
+            emit(pantryRepository.get().listPantry().map { it.name })
+        }
     }
 }
 
@@ -100,4 +101,4 @@ enum class SortBy {
     POPULARITY, MISSING_INGREDIENTS
 }
 
-val DEFAULT_SORTING = POPULARITY
+val DEFAULT_SORTING = SortBy.POPULARITY

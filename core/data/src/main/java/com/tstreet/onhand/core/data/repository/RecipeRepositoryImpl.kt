@@ -1,4 +1,4 @@
-package com.tstreet.onhand.core.data.impl.repository
+package com.tstreet.onhand.core.data.repository
 
 import android.database.sqlite.SQLiteConstraintException
 import android.util.Log
@@ -66,7 +66,8 @@ class RecipeRepositoryImpl @Inject constructor(
                 return when (networkResponse) {
                     is Success -> {
                         val externalModel = networkResponse.body.map(NetworkRecipe::asExternalModel)
-                        cacheRecipeSearchResults(externalModel)
+                        // TODO: disable until further evaluation
+                        //cacheRecipeSearchResults(externalModel)
                         Resource.success(data = externalModel)
                     }
                     is ApiError,
@@ -285,7 +286,7 @@ private fun NetworkRecipeDetail.asExternalModel() = RecipeDetail(
     instructions = instructions ?: "No instructions provided." // TODO: revisit
 )
 
-private fun NetworkRecipe.asExternalModel() = RecipePreview(
+fun NetworkRecipe.asExternalModel() = RecipePreview(
     id = id,
     title = title,
     image = image,

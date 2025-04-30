@@ -4,10 +4,10 @@ import com.tstreet.onhand.core.domain.repository.IngredientSearchRepository
 import com.tstreet.onhand.core.domain.repository.PantryRepository
 import com.tstreet.onhand.core.domain.repository.RecipeRepository
 import com.tstreet.onhand.core.domain.repository.ShoppingListRepository
-import com.tstreet.onhand.core.data.impl.repository.OfflineIngredientSearchRepositoryImpl
-import com.tstreet.onhand.core.data.impl.repository.OfflinePantryRepositoryImpl
-import com.tstreet.onhand.core.data.impl.repository.RecipeRepositoryImpl
-import com.tstreet.onhand.core.data.impl.repository.ShoppingListRepositoryImpl
+import com.tstreet.onhand.core.data.repository.OfflineIngredientSearchRepositoryImpl
+import com.tstreet.onhand.core.data.repository.OfflinePantryRepositoryImpl
+import com.tstreet.onhand.core.data.repository.RecipeRepositoryImpl
+import com.tstreet.onhand.core.data.repository.ShoppingListRepositoryImpl
 import com.tstreet.onhand.core.database.DaosModule
 import com.tstreet.onhand.core.database.DatabaseModule
 import com.tstreet.onhand.core.network.di.NetworkModule

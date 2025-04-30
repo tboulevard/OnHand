@@ -6,4 +6,6 @@ import kotlinx.coroutines.flow.Flow
 interface IngredientSearchRepository {
 
     fun searchIngredients(query: String): Flow<List<Ingredient>>
+
+    fun mostPopularIngredients(): Flow<List<Ingredient>>
 }

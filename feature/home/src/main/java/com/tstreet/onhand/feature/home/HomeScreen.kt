@@ -6,23 +6,24 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tstreet.onhand.core.model.ui.PantryUiState
+import com.tstreet.onhand.core.model.ui.SearchUiState
 import com.tstreet.onhand.core.model.ui.UiPantryIngredient
+import com.tstreet.onhand.core.model.ui.UiSearchIngredient
+import com.tstreet.onhand.core.ui.IngredientSearchBar
 import com.tstreet.onhand.core.ui.OnHandAlertDialog
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
 
-// TODO: use @PreviewParameter + create module with fake models to populate composables
-// TODO: screen rotation wipes `isSearchBarFocused` -> look into used collectAsStateWithLifecycle
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
@@ -30,6 +31,7 @@ fun HomeScreen(
 ) {
     Log.d("[OnHand]", "HomeScreen recomposition")
     val pantryUiState by viewModel.pantryUiState.collectAsStateWithLifecycle()
+    val suggestedIngredientsUiState by viewModel.suggestedIngredientsUiState.collectAsStateWithLifecycle()
     val errorDialogState = viewModel.errorDialogState.collectAsStateWithLifecycle()
 
     val onIngredientClick = remember { viewModel::onToggleIngredient }
@@ -45,8 +47,15 @@ fun HomeScreen(
         verticalArrangement = Arrangement.Top
     ) {
         IngredientSearchBar(
-            onIngredientSearch = onIngredientSearchClick
+            onClick = onIngredientSearchClick,
+            enabled = false
         )
+        
+        SuggestedIngredients(
+            suggestedIngredientsState = suggestedIngredientsUiState,
+            onIngredientClick = onIngredientClick
+        )
+        
         PantryItemList(
             pantryUiState,
             onIngredientClick
@@ -54,41 +63,114 @@ fun HomeScreen(
     }
 }
 
+@Composable
+private fun SuggestedIngredients(
+    suggestedIngredientsState: SearchUiState,
+    onIngredientClick: (UiPantryIngredient) -> Unit
+) {
+    Text(
+        modifier = Modifier.padding(12.dp),
+        text = "Suggested Ingredients",
+        style = MaterialTheme.typography.titleLarge
+    )
+    
+    when (suggestedIngredientsState) {
+        SearchUiState.Loading -> {
+            Box(modifier = Modifier.height(120.dp)) {
+                OnHandProgressIndicator(modifier = Modifier.fillMaxWidth())
+            }
+        }
+        
+        SearchUiState.Error -> {
+            Text(
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                text = "Unable to load suggestions",
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
+        
+        SearchUiState.Empty -> {
+            Text(
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                text = "No suggestions available",
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
+        
+        is SearchUiState.Content -> {
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(bottom = 16.dp)
+            ) {
+                items(suggestedIngredientsState.ingredients) { item ->
+                    val uiPantryIngredient = UiPantryIngredient(
+                        ingredient = item.ingredient,
+                        inPantry = item.inPantry
+                    )
+                    SuggestedIngredientItem(
+                        ingredient = item,
+                        onClick = {
+                            onIngredientClick(uiPantryIngredient)
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun IngredientSearchBar(
-    onIngredientSearch: () -> Unit
+private fun SuggestedIngredientItem(
+    ingredient: UiSearchIngredient,
+    onClick: () -> Unit
 ) {
-    TextField(
+    val isInPantry = ingredient.inPantry.value
+    
+    Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 8.dp, top = 16.dp, end = 8.dp, bottom = 8.dp)
-            .clickable {
-                // Navigate to the ingredient search screen when clicking on the search bar
-                onIngredientSearch.invoke()
-            },
-        value = "",
-        onValueChange = {},
-        enabled = false, // Disable the TextField since we're now using it as a button
-        placeholder = { Text("Search Ingredients") },
-        leadingIcon = {
-            Icon(
-                imageVector = Icons.Filled.Search,
-                contentDescription = "search",
+            .height(40.dp)
+            .clickable(onClick = onClick),
+        shape = MaterialTheme.shapes.medium,
+        colors = if (isInPantry) {
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
             )
-        },
-        textStyle = MaterialTheme.typography.bodyMedium,
-        shape = RoundedCornerShape(50),
-        colors = TextFieldDefaults.textFieldColors(
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-            disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            disabledIndicatorColor = Color.Transparent,
-            disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    )
+        } else {
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 12.dp, vertical = 8.dp)
+                .fillMaxHeight(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = ingredient.ingredient.name,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            if (isInPantry) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = "In pantry",
+                    modifier = Modifier.size(16.dp)
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add to pantry",
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -145,34 +227,45 @@ private fun PantryListItem(
             .clickable {
                 onItemClicked(card.pantryIngredient)
             }
-            .padding(2.dp),
-        shape = RoundedCornerShape(8.dp),
+            .fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium,
         colors = if (card.pantryIngredient.inPantry.value) {
-            CardDefaults.cardColors(MaterialTheme.colorScheme.tertiary)
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            )
         } else {
-            CardDefaults.cardColors(Color.Transparent)
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         },
-        elevation = CardDefaults.cardElevation(2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceAround,
+            horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp)
-                .align(Alignment.End)
+                .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
             Text(
                 text = card.pantryIngredient.ingredient.name,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1f)
             )
-            Icon(
-                imageVector = Icons.Default.Clear,
-                contentDescription = "Clear from pantry",
-                tint = MaterialTheme.colorScheme.inverseOnSurface,
-                modifier = Modifier.size(18.dp)
-            )
+            if (card.pantryIngredient.inPantry.value) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = "In pantry",
+                    modifier = Modifier.size(20.dp)
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add to pantry",
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
     }
 }
@@ -183,15 +276,13 @@ private fun PantryCardList(
     onItemClick: (UiPantryIngredient) -> Unit
 ) {
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(96.dp),
-        modifier = Modifier
-            .padding(horizontal = 8.dp)
-            .padding(bottom = 8.dp),
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.Top),
-        horizontalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.Start),
+        columns = GridCells.Fixed(2),
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        itemsIndexed(pantry, key = { _, item -> item.ingredient.id }) { index, item ->
+        itemsIndexed(pantry, key = { _, item -> item.ingredient.id }) { _, item ->
             PantryListItem(
                 card = PantryItemCard(item),
                 onItemClicked = onItemClick
