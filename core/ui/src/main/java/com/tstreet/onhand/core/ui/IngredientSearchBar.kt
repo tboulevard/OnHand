@@ -56,7 +56,8 @@ fun IngredientSearchBar(
         onValueChange = onTextChanged,
         enabled = enabled,
         singleLine = true,
-        placeholder = { Text(R.string.search_ingredients.toString()) },
+        // TODO: Centralize strings
+        placeholder = { "Search Ingredients" },
         leadingIcon = {
             if (enabled) {
                 IconButton(onClick = onBackClicked) {

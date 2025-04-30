@@ -19,12 +19,9 @@ class GetPantryUseCase @Inject constructor(
 
     operator fun invoke(): Flow<PantryListResult> {
         return flow<PantryListResult> {
-            println("TESTINGTESTING: List Pantry - start")
             val pantry = repository.get().listPantry().map { PantryIngredient(it, true) }
-            println("TESTINGTESTING: List Pantry - done")
             emit(PantryListResult.Success(pantry))
         }.onStart {
-            println("TESTINGTESTING: Loading")
             emit(PantryListResult.Loading)
         }.catch {
             emit(PantryListResult.Error)
