@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import com.tstreet.onhand.core.common.RECIPE_DETAIL_ROUTE
 import com.tstreet.onhand.core.model.RecipePreview
+import com.tstreet.onhand.core.model.ui.IngredientAvailability
 import com.tstreet.onhand.core.model.ui.RecipeSaveState
 import com.tstreet.onhand.core.model.ui.RecipeWithSaveState
 
@@ -29,17 +30,16 @@ fun RecipeCardList(
     onItemClick: (String) -> Unit,
     onSaveClick: (RecipeWithSaveState) -> Unit,
     onUnSaveClick: (RecipeWithSaveState) -> Unit,
-    onAddToShoppingListClick: (Int) -> Unit
+    onAddToShoppingListClick: (RecipeWithSaveState) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(8.dp)
     ) {
-        itemsIndexed(recipes) { index, item ->
+        itemsIndexed(recipes) { _, item ->
             RecipeCardItem(
                 recipeWithSaveState = item,
-                index = index,
                 onItemClick = onItemClick,
                 onSaveClick = onSaveClick,
                 onUnSaveClick = onUnSaveClick,
@@ -52,11 +52,10 @@ fun RecipeCardList(
 @Composable
 fun RecipeCardItem(
     recipeWithSaveState: RecipeWithSaveState,
-    index: Int = 0,
     onItemClick: (String) -> Unit = { },
     onSaveClick: (RecipeWithSaveState) -> Unit = { },
     onUnSaveClick: (RecipeWithSaveState) -> Unit = { },
-    onAddToShoppingListClick: (Int) -> Unit = { }
+    onAddToShoppingListClick: (RecipeWithSaveState) -> Unit = { }
 ) {
     val recipe = recipeWithSaveState.preview
 
@@ -120,7 +119,7 @@ fun RecipeCardItem(
                         }
                     }
                 }
-                
+
                 // Save/Unsave button
                 when (recipeWithSaveState.saveState.value) {
                     RecipeSaveState.SAVED -> {
@@ -132,6 +131,7 @@ fun RecipeCardItem(
                             )
                         }
                     }
+
                     RecipeSaveState.NOT_SAVED -> {
                         IconButton(onClick = { onSaveClick(recipeWithSaveState) }) {
                             Icon(
@@ -141,6 +141,7 @@ fun RecipeCardItem(
                             )
                         }
                     }
+
                     RecipeSaveState.LOADING -> {
                         // TODO: Refactor to show loading indicator later, if needed.
                         IconButton(onClick = { }) {
@@ -153,28 +154,13 @@ fun RecipeCardItem(
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             // Recipe info
             Column(
                 modifier = Modifier.padding(vertical = 4.dp)
             ) {
-                if (recipe.usedIngredientCount > 0) {
-                    Text(
-                        text = "${if (recipe.usedIngredientCount > 1) "${recipe.usedIngredientCount} ingredients" else "1 ingredient"} used",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                if (recipe.missedIngredientCount > 0) {
-                    Text(
-                        text = "${if (recipe.missedIngredientCount > 1) "${recipe.missedIngredientCount} ingredients" else "1 ingredient"} missing",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(vertical = 4.dp)
@@ -192,39 +178,107 @@ fun RecipeCardItem(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+
+                if (recipeWithSaveState.ingredientState.value == IngredientAvailability.MISSING_INGREDIENTS) {
+                    Row(
+                        modifier = Modifier.padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Surface(
+                            shape = MaterialTheme.shapes.small,
+                            color = MaterialTheme.colorScheme.errorContainer,
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.Warning,
+                                    contentDescription = "Missing ingredients",
+                                    modifier = Modifier.size(16.dp),
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = if (recipe.missedIngredientCount == 1) "Missing 1 ingredient" else "Missing ${recipe.missedIngredientCount} ingredients",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onErrorContainer
+                                )
+                            }
+                        }
+                    }
+                }
             }
-            
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Display missing ingredients in cart if any
+            if (recipeWithSaveState.missingIngredientsInCart.value.isNotEmpty()) {
+                Row(
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Surface(
+                        shape = MaterialTheme.shapes.small,
+                        color = MaterialTheme.colorScheme.tertiaryContainer,
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.ShoppingCart,
+                                contentDescription = "Missing ingredients in cart",
+                                modifier = Modifier.size(16.dp),
+                                tint = MaterialTheme.colorScheme.tertiary
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "${recipeWithSaveState.missingIngredientsInCart.value.size} in shopping cart",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onTertiaryContainer
+                            )
+                        }
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(8.dp))
 
             // Add to shopping list button
             Button(
-                onClick = { onAddToShoppingListClick(index) },
-                enabled = recipe.missedIngredientCount > 0,
+                onClick = { onAddToShoppingListClick(recipeWithSaveState) },
+                enabled = recipeWithSaveState.ingredientState.value == IngredientAvailability.MISSING_INGREDIENTS,
                 modifier = Modifier.fillMaxWidth(),
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
             ) {
-                if (recipe.missedIngredientCount > 0) {
-                    Icon(
-                        Icons.Outlined.ShoppingCart,
-                        contentDescription = "Add to shopping cart",
-                        modifier = Modifier
-                            .size(18.dp)
-                            .padding(end = 8.dp)
-                    )
-                    Text(
-                        "Add missing ingredients",
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                } else {
-                    Icon(
-                        Icons.Default.Check,
-                        contentDescription = "All ingredients available",
-                        modifier = Modifier
-                            .size(18.dp)
-                            .padding(end = 8.dp)
-                    )
-                    Text("You have all ingredients")
+
+                when (recipeWithSaveState.ingredientState.value) {
+                    IngredientAvailability.MISSING_INGREDIENTS -> {
+                        Icon(
+                            Icons.Outlined.ShoppingCart,
+                            contentDescription = "Add to shopping cart",
+                            modifier = Modifier
+                                .size(18.dp)
+                                .padding(end = 8.dp)
+                        )
+                        Text(
+                            "Add missing ingredients",
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+
+                    IngredientAvailability.ALL_INGREDIENTS_AVAILABLE -> {
+                        Icon(
+                            Icons.Default.Check,
+                            contentDescription = "All ingredients available",
+                            modifier = Modifier
+                                .size(18.dp)
+                                .padding(end = 8.dp)
+                        )
+                        Text("You have all ingredients")
+                    }
                 }
             }
         }
@@ -257,6 +311,8 @@ class RecipeCardPreviewParamProvider : PreviewParameterProvider<RecipeWithSaveSt
                 isCustom = true
             ),
             saveState = mutableStateOf(RecipeSaveState.SAVED),
+            ingredientState = mutableStateOf(IngredientAvailability.ALL_INGREDIENTS_AVAILABLE),
+            missingIngredientsInCart = mutableStateOf(emptyList())
         )
     )
 }

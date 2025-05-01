@@ -10,6 +10,7 @@ import com.tstreet.onhand.core.domain.repository.ShoppingListRepository
 import com.tstreet.onhand.core.model.data.Ingredient
 import com.tstreet.onhand.core.model.RecipePreview
 import com.tstreet.onhand.core.model.ShoppingListIngredient
+import com.tstreet.onhand.core.model.data.RecipeIngredient
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -25,18 +26,18 @@ class AddToShoppingListUseCase @Inject constructor(
 ) : UseCase() {
 
     operator fun invoke(
-        ingredients: List<Ingredient>,
+        missingIngredients: List<RecipeIngredient>,
         recipePreview: RecipePreview? = null
     ): Flow<Resource<Unit>> {
         // TODO: using flow here is probably unnecessary - look into proper way to run suspending
         // function on diff dispatcher (using flow API for now so we don't use ViewModel coroutine
         // dispatcher)
         return flow {
-            Log.d("[OnHand]", "Adding ingredients=$ingredients, recipe=$recipePreview to shopping list")
+            Log.d("[OnHand]", "Adding ingredients=$missingIngredients, recipe=$recipePreview to shopping list")
             val result = shoppingListRepository.get().insertIngredients(
-                ingredients.map {
+                missingIngredients.map {
                     ShoppingListIngredient(
-                        it.name,
+                        it.ingredient.name,
                         recipePreview,
                         false
                     )

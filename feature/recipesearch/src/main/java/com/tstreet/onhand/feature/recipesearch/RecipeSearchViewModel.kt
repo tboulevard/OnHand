@@ -3,6 +3,7 @@ package com.tstreet.onhand.feature.recipesearch
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tstreet.onhand.core.common.Status
 import com.tstreet.onhand.core.domain.usecase.shoppinglist.AddToShoppingListUseCase
 import com.tstreet.onhand.core.domain.usecase.recipes.DEFAULT_SORTING
 import com.tstreet.onhand.core.domain.usecase.recipes.GetRecipesUseCase
@@ -136,30 +137,28 @@ class RecipeSearchViewModel @Inject constructor(
         }
     }
 
-    fun onAddToShoppingList(index: Int) {
+    fun onAddToShoppingList(recipe: RecipeWithSaveState) {
         viewModelScope.launch {
-//            val item = _recipes[index]
-//            addToShoppingList.get().invoke(
-//                // TODO: .map for getting from RecipeIngredient -> Ingredient
-//                ingredients = item.recipePreview.missedIngredients.map { it.ingredient },
-//                recipePreview = item.recipePreview
-//            ).collect {
-//                when (it.status) {
-//                    SUCCESS -> {
-//                        // TODO: implement logic to transmit state back to UI
-//                    }
-//
-//                    ERROR -> {
-//                        _errorDialogState.update {
-//                            displayed(
-//                                title = "Error",
-//                                message = "Unable to add ingredients to shopping list. Please " +
-//                                        "try again."
-//                            )
-//                        }
-//                    }
-//                }
-//            }
+            addToShoppingList.get().invoke(
+                // TODO: .map for getting from RecipeIngredient -> Ingredient
+                missingIngredients = recipe.preview.missedIngredients,
+                recipePreview = recipe.preview
+            ).collect {
+                when (it.status) {
+                    Status.SUCCESS -> {
+                        // TODO: Adding items to cart - propogate that missing items are in the cart?
+                    }
+                    Status.ERROR -> {
+                        _errorDialogState.update {
+                            displayed(
+                                title = "Error",
+                                message = "Unable to add ingredients to shopping list. Please " +
+                                        "try again."
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 

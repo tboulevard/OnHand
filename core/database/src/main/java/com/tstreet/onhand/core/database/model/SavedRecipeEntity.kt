@@ -36,6 +36,7 @@ fun SavedRecipeEntity.asSaveableRecipePreview(): RecipePreviewWithSaveState {
             isCustom = isCustomRecipe,
         ),
         isSaved = true, // TODO: refactor, for now assume true - all recipes in this table are saved
+        ingredientsMissingButInShoppingList = emptyList()
     )
 }
 

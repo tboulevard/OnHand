@@ -7,5 +7,6 @@ import com.tstreet.onhand.core.model.RecipePreview
  */
 data class RecipePreviewWithSaveState(
     val preview: RecipePreview,
-    val isSaved: Boolean = false
+    val isSaved: Boolean = false,
+    val ingredientsMissingButInShoppingList: List<Ingredient>
 )
