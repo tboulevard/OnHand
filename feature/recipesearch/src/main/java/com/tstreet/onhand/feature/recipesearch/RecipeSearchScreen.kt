@@ -41,16 +41,8 @@ fun RecipeSearchScreen(
     @OptIn(ExperimentalMaterial3Api::class)
     Scaffold(
         topBar = {
-            Surface(
-                tonalElevation = 2.dp,
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+            Surface {
+                Row {
                     Text(
                         text = "Search Recipes",
                         style = MaterialTheme.typography.headlineMedium,
