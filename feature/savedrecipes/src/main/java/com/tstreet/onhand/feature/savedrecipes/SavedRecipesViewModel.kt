@@ -9,10 +9,8 @@ import com.tstreet.onhand.core.domain.usecase.recipes.GetSavedRecipesUseCase
 import com.tstreet.onhand.core.domain.usecase.recipes.SaveRecipeUseCase
 import com.tstreet.onhand.core.domain.usecase.recipes.UnsaveRecipeUseCase
 import com.tstreet.onhand.core.domain.usecase.shoppinglist.AddToShoppingListUseCase
-import com.tstreet.onhand.core.model.ui.RecipeSaveState
 import com.tstreet.onhand.core.model.ui.RecipeWithSaveState
 import com.tstreet.onhand.core.model.ui.SavedRecipesUiState
-import com.tstreet.onhand.core.model.ui.toRecipeWithSaveStateItemList
 import com.tstreet.onhand.core.ui.*
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
 import kotlinx.coroutines.flow.*
@@ -37,7 +35,7 @@ class SavedRecipesViewModel @Inject constructor(
         .get()
         .invoke()
         .map {
-            _recipes = it.toRecipeWithSaveStateItemList()
+            _recipes = mutableStateListOf()
             // TODO NOTE: By passing this here and making mutations on _recipes in this class, we
             //  trigger a recomposition each time. This is causing uiState to retrigger (and call
             //  getSavedRecipes each time an item is added/removed from the list.
@@ -63,17 +61,14 @@ class SavedRecipesViewModel @Inject constructor(
         //  mutable states visible to only one thread
         viewModelScope.launch {
             val item = _recipes[index]
-            val saveState = item.recipeSaveState
+            val saveState = item.saveState
             // Mark the recipe as saving
-            _recipes[index] = item.copy(recipeSaveState = RecipeSaveState.SAVING)
+            //_recipes[index] = item.copy(recipeSaveState = RecipeSaveState.SAVING)
             // Save the recipe
-            saveRecipe.get().invoke(item.recipePreview).collect {
+            saveRecipe.get().invoke(item.preview).collect {
                 when (it) {
                     // When save is successful, update UI state
                     true -> {
-                        _recipes[index] = item.copy(
-                            recipeSaveState = RecipeSaveState.SAVED
-                        )
                     }
                     else -> {
                         // TODO: todo better error handling
@@ -83,7 +78,7 @@ class SavedRecipesViewModel @Inject constructor(
                         )
                         // Retain the previous save state on error
                         _recipes[index] = item.copy(
-                            recipeSaveState = saveState
+                            saveState = saveState
                         )
                     }
                 }
@@ -96,7 +91,7 @@ class SavedRecipesViewModel @Inject constructor(
         viewModelScope.launch {
             val item = _recipes[index]
             // Just unsave the recipe - no loading indicator
-            unsaveRecipe.get().invoke(item.recipePreview).collect {
+            unsaveRecipe.get().invoke(item.preview).collect {
                 when (it) {
                     // We just rely on the flow to retrigger and update the UI for now
                     true -> { }
@@ -117,8 +112,8 @@ class SavedRecipesViewModel @Inject constructor(
             val item = _recipes[index]
             addToShoppingList.get().invoke(
                 // TODO: .map for getting from RecipeIngredient -> Ingredient
-                ingredients = item.recipePreview.missedIngredients.map { it.ingredient },
-                recipePreview = item.recipePreview
+                ingredients = item.preview.missedIngredients.map { it.ingredient },
+                recipePreview = item.preview
             ).collect {
                 when (it.status) {
                     Status.SUCCESS -> {

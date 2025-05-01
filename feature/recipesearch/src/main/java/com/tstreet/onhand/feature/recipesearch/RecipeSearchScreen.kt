@@ -33,7 +33,6 @@ fun RecipeSearchScreen(
         state = openInfoDialog.value
     )
 
-    // TODO: duplicated alert dialogs, refactor
     OnHandAlertDialog(
         onDismiss = { viewModel.dismissErrorDialog() },
         state = errorDialogState.value
@@ -57,7 +56,7 @@ fun RecipeSearchScreen(
                         style = MaterialTheme.typography.headlineMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                    
+
                     IconButton(onClick = { viewModel.showInfoDialog() }) {
                         Icon(
                             imageVector = Icons.Outlined.Info,
@@ -80,55 +79,32 @@ fun RecipeSearchScreen(
                         CircularProgressIndicator()
                     }
                 }
-                
-                is Success -> {
-                    when (state.recipes.isNotEmpty()) {
-                        true -> {
-                            Column(modifier = Modifier.fillMaxSize()) {
-                                SortBySpinner(
-                                    sortOrder = sortOrder,
-                                    onSelectionChanged = viewModel::onSortOrderChanged
-                                )
-                                
-                                RecipeCardList(
-                                    recipes = state.recipes,
-                                    onItemClick = navController::navigate,
-                                    onSaveClick = viewModel::onRecipeSaved,
-                                    onUnSaveClick = viewModel::onRecipeUnsaved,
-                                    onAddToShoppingListClick = viewModel::onAddToShoppingList
-                                )
-                            }
-                        }
-                        
-                        else -> {
-                            EmptyStateMessage()
-                        }
-                    }
-                }
-                
-                is Error -> {
-                    if (errorDialogState.value.shouldDisplay) {
-                        OnHandAlertDialog(
-                            onDismiss = { viewModel.dismissErrorDialog() },
-                            state = errorDialogState.value
+
+                is Content -> {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        SortBySpinner(
+                            sortOrder = sortOrder,
+                            onSelectionChanged = viewModel::onSortOrderChanged
                         )
-                    } else {
-                        Column(modifier = Modifier.fillMaxSize()) {
-                            SortBySpinner(
-                                sortOrder = sortOrder,
-                                onSelectionChanged = viewModel::onSortOrderChanged
-                            )
-                            
-                            RecipeCardList(
-                                recipes = state.recipes,
-                                onItemClick = navController::navigate,
-                                onSaveClick = viewModel::onRecipeSaved,
-                                onUnSaveClick = viewModel::onRecipeUnsaved,
-                                onAddToShoppingListClick = viewModel::onAddToShoppingList
-                            )
-                        }
+
+                        RecipeCardList(
+                            recipes = state.recipes,
+                            onItemClick = navController::navigate,
+                            onSaveClick = viewModel::onRecipeSaved,
+                            onUnSaveClick = viewModel::onRecipeUnsaved,
+                            onAddToShoppingListClick = viewModel::onAddToShoppingList
+                        )
                     }
                 }
+
+                is Error -> {
+                    OnHandAlertDialog(
+                        onDismiss = { viewModel.dismissErrorDialog() },
+                        state = errorDialogState.value
+                    )
+                }
+
+                Empty -> EmptyStateMessage()
             }
         }
     }
@@ -163,7 +139,7 @@ fun EmptyStateMessage() {
                         .padding(bottom = 16.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )
-                
+
                 Text(
                     text = "Add ingredients to your pantry to see recipes.",
                     style = MaterialTheme.typography.bodyLarge,
@@ -215,7 +191,7 @@ fun SortBySpinner(
                     )
                 )
                 ExposedDropdownMenu(
-                    expanded = sortSpinnerExpanded, 
+                    expanded = sortSpinnerExpanded,
                     onDismissRequest = { sortSpinnerExpanded = false }
                 ) {
                     SortBy.values().forEach { selectionOption ->

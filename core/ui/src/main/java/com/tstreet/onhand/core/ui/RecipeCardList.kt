@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,8 +25,8 @@ import com.tstreet.onhand.core.ui.theming.MATTE_GREEN
 fun RecipeCardList(
     recipes: List<RecipeWithSaveState>,
     onItemClick: (String) -> Unit,
-    onSaveClick: (Int) -> Unit,
-    onUnSaveClick: (Int) -> Unit,
+    onSaveClick: (RecipeWithSaveState) -> Unit,
+    onUnSaveClick: (RecipeWithSaveState) -> Unit,
     onAddToShoppingListClick: (Int) -> Unit
 ) {
     LazyColumn(
@@ -34,7 +35,7 @@ fun RecipeCardList(
             .padding(8.dp)
     ) {
         itemsIndexed(recipes) { index, item ->
-            val recipe = item.recipePreview
+            val recipe = item.preview
             RecipeCardItem(
                 recipeWithSaveState = RecipeWithSaveState(
                     RecipePreview(
@@ -49,7 +50,7 @@ fun RecipeCardList(
                         likes = recipe.likes,
                         isCustom = recipe.isCustom
                     ),
-                    recipeSaveState = item.recipeSaveState,
+                    saveState = item.saveState,
                 ),
                 index = index,
                 onItemClick = onItemClick,
@@ -67,11 +68,11 @@ fun RecipeCardItem(
     @PreviewParameter(RecipeCardPreviewParamProvider::class) recipeWithSaveState: RecipeWithSaveState,
     index: Int = 0,
     onItemClick: (String) -> Unit = { },
-    onSaveClick: (Int) -> Unit = { },
-    onUnSaveClick: (Int) -> Unit = { },
+    onSaveClick: (RecipeWithSaveState) -> Unit = { },
+    onUnSaveClick: (RecipeWithSaveState) -> Unit = { },
     onAddToShoppingListClick: (Int) -> Unit = { }
 ) {
-    val recipe = recipeWithSaveState.recipePreview
+    val recipe = recipeWithSaveState.preview
 
     Surface(
         modifier = Modifier
@@ -79,7 +80,7 @@ fun RecipeCardItem(
             .padding(
                 vertical = 8.dp, horizontal = 16.dp
             ), shadowElevation = 8.dp, shape = MaterialTheme.shapes.medium,
-        color = if (recipeWithSaveState.recipeSaveState == RecipeSaveState.SAVED) {
+        color = if (recipeWithSaveState.saveState.value == RecipeSaveState.SAVED) {
             MATTE_GREEN
         } else {
             MaterialTheme.colorScheme.surfaceTint
@@ -100,7 +101,7 @@ fun RecipeCardItem(
                     .weight(1f)
             ) {
                 Row {
-                    if (recipeWithSaveState.recipePreview.isCustom) {
+                    if (recipeWithSaveState.preview.isCustom) {
                         Icon(
                             Icons.Default.Edit,
                             contentDescription = "is custom recipe",
@@ -187,28 +188,30 @@ fun RecipeCardItem(
                     .align(Alignment.CenterVertically)
                     .padding(16.dp)
             ) {
-                when (recipeWithSaveState.recipeSaveState) {
+                when (recipeWithSaveState.saveState.value) {
                     RecipeSaveState.SAVED -> {
                         Icon(
                             Icons.Default.Clear,
                             contentDescription = "saved",
                             modifier = Modifier
                                 .size(36.dp)
-                                .clickable { onUnSaveClick(index) },
+                                .clickable { onUnSaveClick(recipeWithSaveState) },
                             tint = MaterialTheme.colorScheme.inverseOnSurface
                         )
                     }
+
                     RecipeSaveState.NOT_SAVED -> {
                         Icon(
                             Icons.Default.AddCircle,
                             contentDescription = "save",
                             modifier = Modifier
                                 .size(36.dp)
-                                .clickable { onSaveClick(index) },
+                                .clickable { onSaveClick(recipeWithSaveState) },
                             tint = MaterialTheme.colorScheme.inverseOnSurface
                         )
                     }
-                    RecipeSaveState.SAVING -> {
+
+                    RecipeSaveState.LOADING -> {
                         OnHandProgressIndicator(modifier = Modifier.size(36.dp))
                     }
                 }
@@ -233,7 +236,7 @@ class RecipeCardPreviewParamProvider : PreviewParameterProvider<RecipeWithSaveSt
                 likes = 100,
                 isCustom = true
             ),
-            recipeSaveState = RecipeSaveState.SAVED,
+            saveState = mutableStateOf(RecipeSaveState.SAVED),
         )
     )
 }

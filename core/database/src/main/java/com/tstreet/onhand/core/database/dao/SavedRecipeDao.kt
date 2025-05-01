@@ -10,7 +10,7 @@ abstract class SavedRecipeDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun replaceRecipe(recipe: SavedRecipeEntity)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun addRecipe(recipe: SavedRecipeEntity)
 
     @Query("SELECT 1 from saved_recipes WHERE id = :id")

@@ -1,9 +1,12 @@
 package com.tstreet.onhand.core.model.data
 
+import kotlinx.serialization.Serializable
+
 /**
  * Representation for an ingredient as part of a recipe - includes information about how much
  * of that ingredient is needed for the recipe, etc.
  */
+@Serializable
 data class RecipeIngredient(
     val ingredient: Ingredient,
     val image: String? = null,

@@ -41,8 +41,8 @@ fun SavedRecipesScreen(
                         RecipeCardList(
                             recipes = state.recipes,
                             onItemClick = navController::navigate,
-                            onSaveClick = viewModel::onRecipeSaved,
-                            onUnSaveClick = viewModel::onRecipeUnsaved,
+                            onSaveClick = { viewModel::onRecipeSaved },
+                            onUnSaveClick = { viewModel::onRecipeUnsaved },
                             onAddToShoppingListClick = viewModel::onAddToShoppingList
                         )
                     }

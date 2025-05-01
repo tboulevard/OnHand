@@ -5,6 +5,7 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.tstreet.onhand.core.model.*
+import com.tstreet.onhand.core.model.data.RecipePreviewWithSaveState
 
 @Entity(
     tableName = "saved_recipes"
@@ -20,8 +21,8 @@ data class SavedRecipeEntity(
     @ColumnInfo(name = "isCustomRecipe") val isCustomRecipe: Boolean = false
 )
 
-fun SavedRecipeEntity.asSaveableRecipePreview(): SaveableRecipePreview {
-    return SaveableRecipePreview(
+fun SavedRecipeEntity.asSaveableRecipePreview(): RecipePreviewWithSaveState {
+    return RecipePreviewWithSaveState(
         RecipePreview(
             id = id,
             title = previewProperties.title,
