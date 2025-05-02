@@ -11,7 +11,7 @@ import com.tstreet.onhand.core.model.ShoppingListIngredient
 )
 data class ShoppingListEntity(
     @PrimaryKey val ingredientName: String,
-    @ColumnInfo val mappedRecipePreview: RecipePreview? = null,
+    @ColumnInfo val mappedRecipePreview: RecipePreview,
     @ColumnInfo val isPurchased: Boolean
 )
 
@@ -26,7 +26,7 @@ fun ShoppingListEntity.toExternalModel(): ShoppingListIngredient {
 fun ShoppingListIngredient.asEntity(): ShoppingListEntity {
     return ShoppingListEntity(
         ingredientName = name,
-        mappedRecipePreview = mappedRecipePreview,
+        mappedRecipePreview = mappedRecipePreview!!,
         isPurchased = isPurchased
     )
 }

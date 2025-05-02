@@ -14,6 +14,7 @@ import com.tstreet.onhand.core.database.model.*
 import com.tstreet.onhand.core.model.*
 import com.tstreet.onhand.core.model.data.Ingredient
 import com.tstreet.onhand.core.model.data.RecipeIngredient
+import com.tstreet.onhand.core.model.data.RecipePreviewWithSaveState
 import com.tstreet.onhand.core.network.OnHandNetworkDataSource
 import com.tstreet.onhand.core.network.model.NetworkRecipe
 import com.tstreet.onhand.core.network.model.NetworkRecipeDetail
@@ -114,10 +115,12 @@ class RecipeRepositoryImpl @Inject constructor(
     override suspend fun saveRecipePreview(
         recipePreview: RecipePreview
     ) {
-        Log.d("[OnHand]", "saveRecipe($recipePreview)")
+
+        val convertedEntity = recipePreview.toSavedRecipeEntity()
+        Log.d("[OnHand]", "saveRecipe($convertedEntity)")
         savedRecipeDao
             .get()
-            .addRecipe(recipePreview.toSavedRecipeEntity())
+            .addRecipe(convertedEntity)
     }
 
     override suspend fun saveFullRecipe(
@@ -165,7 +168,7 @@ class RecipeRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getSavedRecipes(): Flow<List<SaveableRecipePreview>> {
+    override fun getSavedRecipes(): Flow<List<RecipePreviewWithSaveState>> {
         Log.d("[OnHand]", "getSavedRecipes()")
         return savedRecipeDao
             .get()
@@ -218,7 +221,7 @@ class RecipeRepositoryImpl @Inject constructor(
                             // TODO: revisit above comment because it relies on the app to operate
                             //  a specific way to work...
                             val preview = if (isRecipeSaved(id)) {
-                                getSavedRecipe(id).recipePreview
+                                getSavedRecipe(id).preview
                             } else {
                                 getCachedRecipePreview(id)
                             }
@@ -244,7 +247,7 @@ class RecipeRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun getSavedRecipe(id: Int): SaveableRecipePreview {
+    private suspend fun getSavedRecipe(id: Int): RecipePreviewWithSaveState {
         return savedRecipeDao
             .get()
             .getRecipe(id)

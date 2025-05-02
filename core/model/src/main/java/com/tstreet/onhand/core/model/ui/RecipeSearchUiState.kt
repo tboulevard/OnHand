@@ -1,42 +1,14 @@
 package com.tstreet.onhand.core.model.ui
 
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.toMutableStateList
-import com.tstreet.onhand.core.model.SaveableRecipePreview
-
 sealed interface RecipeSearchUiState {
 
+    data class Content(
+        val recipes: List<RecipeWithSaveState>,
+    ) : RecipeSearchUiState
+
+    object Empty : RecipeSearchUiState
+
+    object Error : RecipeSearchUiState
+
     object Loading : RecipeSearchUiState
-
-    data class Success(
-        val recipes: SnapshotStateList<RecipeWithSaveState>,
-    ) : RecipeSearchUiState
-
-    data class Error(
-        val recipes: SnapshotStateList<RecipeWithSaveState>
-    ) : RecipeSearchUiState
-}
-
-enum class RecipeSaveState {
-    SAVED,
-    NOT_SAVED,
-    SAVING
-}
-
-fun List<SaveableRecipePreview>?.toRecipeWithSaveStateItemList(): SnapshotStateList<RecipeWithSaveState> {
-    return this?.map {
-        RecipeWithSaveState(
-            recipePreview = it.recipePreview,
-            recipeSaveState =
-            when {
-                it.isSaved -> {
-                    RecipeSaveState.SAVED
-                }
-                else -> {
-                    RecipeSaveState.NOT_SAVED
-                }
-            }
-        )
-    }?.toMutableStateList() ?: mutableStateListOf()
 }

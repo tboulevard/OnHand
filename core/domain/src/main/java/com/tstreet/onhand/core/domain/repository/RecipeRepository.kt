@@ -4,6 +4,7 @@ import com.tstreet.onhand.core.common.FetchStrategy
 import com.tstreet.onhand.core.common.Resource
 import com.tstreet.onhand.core.model.*
 import com.tstreet.onhand.core.model.data.Ingredient
+import com.tstreet.onhand.core.model.data.RecipePreviewWithSaveState
 import kotlinx.coroutines.flow.Flow
 
 interface RecipeRepository {
@@ -25,7 +26,7 @@ interface RecipeRepository {
 
     suspend fun isRecipeSaved(title: String): Boolean
 
-    fun getSavedRecipes(): Flow<List<SaveableRecipePreview>>
+    fun getSavedRecipes(): Flow<List<RecipePreviewWithSaveState>>
 
     suspend fun updateSavedRecipesMissingIngredient(ingredient: Ingredient)
 

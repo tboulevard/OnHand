@@ -57,7 +57,7 @@ fun IngredientSearchBar(
         enabled = enabled,
         singleLine = true,
         // TODO: Centralize strings
-        placeholder = { "Search Ingredients" },
+        placeholder = { Text("Search Ingredients") },
         leadingIcon = {
             if (enabled) {
                 IconButton(onClick = onBackClicked) {
