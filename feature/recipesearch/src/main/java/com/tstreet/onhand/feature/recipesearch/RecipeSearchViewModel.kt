@@ -80,6 +80,7 @@ class RecipeSearchViewModel @Inject constructor(
             // Save the recipe
             saveRecipe.get().invoke(recipe.preview)
                 .onStart {
+                    // TODO: make the entire item unclickable during this time
                     recipe.saveState.value = RecipeSaveState.LOADING
                 }
                 .collect {

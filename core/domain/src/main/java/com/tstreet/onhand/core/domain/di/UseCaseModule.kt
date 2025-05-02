@@ -1,7 +1,6 @@
 package com.tstreet.onhand.core.domain.di
 
 import com.tstreet.onhand.core.domain.usecase.UseCase
-import com.tstreet.onhand.core.domain.usecase.ingredients.GetIngredientsUseCase
 import com.tstreet.onhand.core.domain.usecase.pantry.AddToPantryUseCase
 import com.tstreet.onhand.core.domain.usecase.pantry.RemoveFromPantryUseCase
 import com.tstreet.onhand.core.domain.usecase.recipes.GetRecipesUseCase
@@ -25,11 +24,6 @@ import dagger.Module
  */
 @Module
 interface UseCaseModule {
-
-    @Binds
-    fun bindsGetIngredientsUseCase(
-        useCase: GetIngredientsUseCase
-    ): UseCase
 
     @Binds
     fun bindsAddToPantryUseCase(

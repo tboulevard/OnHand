@@ -1,34 +1,35 @@
-package com.tstreet.onhand.feature.recipesearch
+package com.tstreet.onhand.feature.savedrecipes
 
 import androidx.compose.runtime.mutableStateOf
 import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.model.data.RecipePreviewWithSaveState
-import com.tstreet.onhand.core.model.domain.RecipeSearchResult
+import com.tstreet.onhand.core.model.domain.SavedRecipesResult
 import com.tstreet.onhand.core.model.ui.IngredientAvailability
 import com.tstreet.onhand.core.model.ui.RecipeSaveState
-import com.tstreet.onhand.core.model.ui.RecipeSearchUiState
 import com.tstreet.onhand.core.model.ui.RecipeWithSaveState
+import com.tstreet.onhand.core.model.ui.SavedRecipesUiState
 import javax.inject.Inject
 
 @FeatureScope
-class SearchRecipeUiStateMapper @Inject constructor() {
+class SavedRecipeUiStateMapper @Inject constructor() {
 
-    fun mapGetRecipesResultToUi(result: RecipeSearchResult): RecipeSearchUiState {
+    fun mapSavedRecipesResultToUi(result: SavedRecipesResult): SavedRecipesUiState {
         return when (result) {
-            is RecipeSearchResult.Success -> {
+            is SavedRecipesResult.Success -> {
                 if (result.recipes.isEmpty()) {
-                    RecipeSearchUiState.Empty
+                    SavedRecipesUiState.Empty
                 } else {
-                    RecipeSearchUiState.Content(recipes = result.recipes.toRecipeWithSaveStateItemList())
+                    SavedRecipesUiState.Content(recipes = result.recipes.toRecipeWithSaveStateItemList())
                 }
             }
 
-            is RecipeSearchResult.Error -> RecipeSearchUiState.Error
-            is RecipeSearchResult.Loading -> RecipeSearchUiState.Loading
+            is SavedRecipesResult.Error -> SavedRecipesUiState.Error
+            is SavedRecipesResult.Loading -> SavedRecipesUiState.Loading
         }
     }
 }
 
+// TODO: duplicated - centralize later
 fun List<RecipePreviewWithSaveState>.toRecipeWithSaveStateItemList(): List<RecipeWithSaveState> {
     return map {
         RecipeWithSaveState(

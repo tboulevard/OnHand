@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tstreet.onhand.core.domain.usecase.recipes.GetRecipesUseCase
 import com.tstreet.onhand.core.domain.usecase.recipes.GetSavedRecipesUseCase
 import com.tstreet.onhand.core.domain.usecase.recipes.SaveRecipeUseCase
 import com.tstreet.onhand.core.domain.usecase.recipes.UnsaveRecipeUseCase
@@ -16,29 +17,23 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 class SavedRecipesViewModel @Inject constructor(
-    getSavedRecipes: Provider<GetSavedRecipesUseCase>,
+    getRecipes: Provider<GetRecipesUseCase>,
     private val unsaveRecipe: Provider<UnsaveRecipeUseCase>,
     private val saveRecipe: Provider<SaveRecipeUseCase>,
-    private val addToShoppingList: Provider<AddToShoppingListUseCase>
+    private val addToShoppingList: Provider<AddToShoppingListUseCase>,
+    private val mapper: SavedRecipeUiStateMapper
 ) : ViewModel() {
 
     init {
         Log.d("[OnHand]", "${this.javaClass.simpleName} created")
     }
 
-    private var _recipes = mutableStateListOf<RecipeWithSaveState>()
-
-    val uiState = getSavedRecipes
+    val uiState: StateFlow<SavedRecipesUiState> = getRecipes
         .get()
-        .invoke()
+        .getSavedRecipes()
         .map {
-            _recipes = mutableStateListOf()
-            // TODO NOTE: By passing this here and making mutations on _recipes in this class, we
-            //  trigger a recomposition each time. This is causing uiState to retrigger (and call
-            //  getSavedRecipes each time an item is added/removed from the list.
-            _recipes
+            mapper.mapSavedRecipesResultToUi(it)
         }
-        .map(SavedRecipesUiState::Success)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),

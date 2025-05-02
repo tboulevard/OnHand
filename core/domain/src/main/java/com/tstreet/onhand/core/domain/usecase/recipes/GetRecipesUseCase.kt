@@ -9,12 +9,13 @@ import com.tstreet.onhand.core.model.ShoppingListIngredient
 import com.tstreet.onhand.core.model.data.Ingredient
 import com.tstreet.onhand.core.model.data.RecipePreviewWithSaveState
 import com.tstreet.onhand.core.model.domain.RecipeSearchResult
+import com.tstreet.onhand.core.model.domain.SavedRecipesResult
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 import javax.inject.Provider
 
 /**
- * Retrieves recipes based on contents of pantry.
+ * Retrieves recipes and contextualizes information about the pantry and shopping list.
  */
 @FeatureScope
 class GetRecipesUseCase @Inject constructor(
@@ -34,6 +35,20 @@ class GetRecipesUseCase @Inject constructor(
             .onStart {
                 emit(RecipeSearchResult.Loading)
             }
+    }
+
+    fun getSavedRecipes(): Flow<SavedRecipesResult> {
+        return recipeRepository.get().getSavedRecipes()
+            .mapToSavedRecipesResult()
+            .onStart {
+                emit(SavedRecipesResult.Loading)
+            }.catch {
+                emit(SavedRecipesResult.Error)
+            }
+    }
+
+    private fun Flow<List<RecipePreviewWithSaveState>>.mapToSavedRecipesResult(): Flow<SavedRecipesResult> {
+        return map { SavedRecipesResult.Success(it) }
     }
 
     private fun Flow<List<Ingredient>>.mapPantryToSortedRecipes(
