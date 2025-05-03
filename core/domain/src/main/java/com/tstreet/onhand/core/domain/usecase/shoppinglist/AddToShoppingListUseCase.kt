@@ -7,7 +7,6 @@ import com.tstreet.onhand.core.common.Resource
 import com.tstreet.onhand.core.common.Status
 import com.tstreet.onhand.core.domain.usecase.UseCase
 import com.tstreet.onhand.core.domain.repository.ShoppingListRepository
-import com.tstreet.onhand.core.model.data.Ingredient
 import com.tstreet.onhand.core.model.RecipePreview
 import com.tstreet.onhand.core.model.ShoppingListIngredient
 import com.tstreet.onhand.core.model.data.RecipeIngredient
@@ -25,20 +24,17 @@ class AddToShoppingListUseCase @Inject constructor(
     @Named(IO) private val ioDispatcher: CoroutineDispatcher,
 ) : UseCase() {
 
-    operator fun invoke(
+    operator suspend fun invoke(
         missingIngredients: List<RecipeIngredient>,
-        recipePreview: RecipePreview? = null
+        recipe: RecipePreview? = null
     ): Flow<Resource<Unit>> {
-        // TODO: using flow here is probably unnecessary - look into proper way to run suspending
-        // function on diff dispatcher (using flow API for now so we don't use ViewModel coroutine
-        // dispatcher)
         return flow {
-            Log.d("[OnHand]", "Adding ingredients=$missingIngredients, recipe=$recipePreview to shopping list")
-            val result = shoppingListRepository.get().insertIngredients(
+            Log.d("[OnHand]", "Adding ingredients=$missingIngredients, recipe=$recipe to shopping list")
+            val result = shoppingListRepository.get().addIngredients(
                 missingIngredients.map {
                     ShoppingListIngredient(
                         it.ingredient.name,
-                        recipePreview,
+                        recipe,
                         false
                     )
                 }

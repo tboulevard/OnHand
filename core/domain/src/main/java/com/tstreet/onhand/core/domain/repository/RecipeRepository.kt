@@ -11,7 +11,7 @@ interface RecipeRepository {
 
     suspend fun findRecipes(
         fetchStrategy: FetchStrategy,
-        ingredients: List<String>
+        ingredients: List<Ingredient>
     ): Resource<List<RecipePreview>>
 
     suspend fun getRecipeDetail(id: Int): Resource<RecipeDetail>

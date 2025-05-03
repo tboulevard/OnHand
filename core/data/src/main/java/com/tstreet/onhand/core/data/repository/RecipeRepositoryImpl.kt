@@ -43,7 +43,7 @@ class RecipeRepositoryImpl @Inject constructor(
 
     override suspend fun findRecipes(
         fetchStrategy: FetchStrategy,
-        ingredients: List<String>
+        ingredients: List<Ingredient>
     ): Resource<List<RecipePreview>> {
         Log.d("[OnHand]", "findRecipes($fetchStrategy, $ingredients)")
 
@@ -62,7 +62,7 @@ class RecipeRepositoryImpl @Inject constructor(
                 val networkResponse =
                     onHandNetworkDataSource
                         .get()
-                        .findRecipesFromIngredients(ingredients)
+                        .findRecipesFromIngredients(ingredients.map { it.name })
 
                 return when (networkResponse) {
                     is Success -> {

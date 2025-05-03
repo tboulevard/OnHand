@@ -10,6 +10,16 @@ import com.tstreet.onhand.core.model.ui.RecipeSearchUiState
 import com.tstreet.onhand.core.model.ui.RecipeWithSaveState
 import javax.inject.Inject
 
+/**
+ * Extension function to check if the list is a subset of another list
+ * Returns true if every element in this list is contained in the other list
+ */
+private fun <T> List<T>.isSubsetOf(other: List<T>): Boolean {
+    if (this.isEmpty() && other.isNotEmpty()) return false
+
+    return this.all { it in other }
+}
+
 @FeatureScope
 class SearchRecipeUiStateMapper @Inject constructor() {
 
@@ -30,7 +40,13 @@ class SearchRecipeUiStateMapper @Inject constructor() {
 }
 
 fun List<RecipePreviewWithSaveState>.toRecipeWithSaveStateItemList(): List<RecipeWithSaveState> {
+
+
     return map {
+
+        val ingredientsMissingButInShoppingList = it.ingredientsMissingButInShoppingList
+        val ingredientsMissing = it.preview.missedIngredients
+
         RecipeWithSaveState(
             preview = it.preview,
             saveState =
@@ -45,7 +61,7 @@ fun List<RecipePreviewWithSaveState>.toRecipeWithSaveStateItemList(): List<Recip
                         }
                     }
                 ),
-            ingredientState = mutableStateOf(
+            ingredientPantryState = mutableStateOf(
                 when {
                     it.preview.missedIngredientCount > 0 -> {
                         IngredientAvailability.MISSING_INGREDIENTS
@@ -56,8 +72,17 @@ fun List<RecipePreviewWithSaveState>.toRecipeWithSaveStateItemList(): List<Recip
                     }
                 }
             ),
-            // TODO: reflect missing ingredient state in real time
-            missingIngredientsInCart = mutableStateOf(it.ingredientsMissingButInShoppingList)
+            ingredientShoppingCartState = mutableStateOf(
+                when {
+                    ingredientsMissingButInShoppingList.isSubsetOf(ingredientsMissing) -> {
+                        IngredientAvailability.ALL_INGREDIENTS_AVAILABLE
+                    }
+
+                    else -> {
+                        IngredientAvailability.MISSING_INGREDIENTS
+                    }
+                }
+            )
         )
     }
 }

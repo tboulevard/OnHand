@@ -9,8 +9,7 @@ import kotlinx.coroutines.flow.Flow
 interface ShoppingListDao {
 
     @Query("SELECT * from shopping_list")
-    @Transaction
-    fun getShoppingList(): Flow<List<ShoppingListEntity>>
+    suspend fun getShoppingList(): List<ShoppingListEntity>
 
     @Query("SELECT DISTINCT mappedRecipePreview from shopping_list WHERE mappedRecipePreview IS NOT NULL")
     @Transaction

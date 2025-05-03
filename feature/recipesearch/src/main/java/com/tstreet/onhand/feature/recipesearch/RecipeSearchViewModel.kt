@@ -10,6 +10,7 @@ import com.tstreet.onhand.core.domain.usecase.recipes.GetRecipesUseCase
 import com.tstreet.onhand.core.domain.usecase.recipes.SaveRecipeUseCase
 import com.tstreet.onhand.core.domain.usecase.recipes.SortBy
 import com.tstreet.onhand.core.domain.usecase.recipes.UnsaveRecipeUseCase
+import com.tstreet.onhand.core.model.ui.IngredientAvailability
 import com.tstreet.onhand.core.model.ui.RecipeSaveState
 import com.tstreet.onhand.core.model.ui.RecipeSearchUiState
 import com.tstreet.onhand.core.model.ui.RecipeWithSaveState
@@ -143,11 +144,11 @@ class RecipeSearchViewModel @Inject constructor(
             addToShoppingList.get().invoke(
                 // TODO: .map for getting from RecipeIngredient -> Ingredient
                 missingIngredients = recipe.preview.missedIngredients,
-                recipePreview = recipe.preview
+                recipe = recipe.preview
             ).collect {
                 when (it.status) {
                     Status.SUCCESS -> {
-                        // TODO: Adding items to cart - propogate that missing items are in the cart?
+                        recipe.ingredientShoppingCartState.value = IngredientAvailability.ALL_INGREDIENTS_AVAILABLE
                     }
                     Status.ERROR -> {
                         _errorDialogState.update {

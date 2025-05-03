@@ -29,22 +29,47 @@ class ShoppingListRepositoryImpl @Inject constructor(
         Log.d("[OnHand]", "Creating ${this.javaClass.simpleName}")
     }
 
-    override fun getShoppingList(): Flow<Resource<List<ShoppingListIngredient>>> {
-        return shoppingListDao
-            .get()
-            .getShoppingList()
-            .map {
-                Resource.success(
-                    it.map(ShoppingListEntity::toExternalModel)
-                )
+    override suspend fun getShoppingList(): Resource<List<ShoppingListIngredient>> {
+        return try {
+            Resource.success(
+                shoppingListDao
+                    .get()
+                    .getShoppingList()
+                    .map(ShoppingListEntity::toExternalModel)
+            )
+        } catch (e: Exception) {
+            // TODO: rethrow in debug
+            Resource.error(msg = e.message.toString())
+        }
+    }
+
+    override suspend fun addIngredients(
+        shoppingList: List<ShoppingListIngredient>
+    ): Resource<Unit> {
+        return try {
+            shoppingListDao
+                .get()
+                .insertShoppingList(shoppingList.map(ShoppingListIngredient::asEntity))
+            Resource.success(null)
+        } catch (e: Exception) {
+            // TODO: rethrow in debug
+            Resource.error(msg = e.message.toString())
+        }
+    }
+
+    override suspend fun removeIngredient(ingredient: ShoppingListIngredient): Resource<Unit> {
+        return withContext(ioDispatcher) {
+            try {
+                shoppingListDao
+                    .get()
+                    .removeIngredient(ingredient.name)
+                Resource.success(null)
+            } catch (e: Exception) {
+                // TODO: rethrow in debug
+                Log.d("[OnHand]", "Error removing $ingredient from Shopping List, msg=${e.message}")
+                Resource.error(msg = e.message.toString())
             }
-            .catch {
-                // TODO: rethrow in debug mode
-                Log.d("[OnHand]", "Error retrieving shopping list ingredients: ${it.message}")
-                // In the context of a FlowCollector, so we need to emit
-                emit(Resource.error<Nothing>(msg = it.message.toString()))
-            }
-            .flowOn(ioDispatcher)
+        }
     }
 
     override fun getRecipesInShoppingList(): Flow<Resource<List<RecipePreview>>> {
@@ -64,20 +89,6 @@ class ShoppingListRepositoryImpl @Inject constructor(
                 emit(Resource.error<Nothing>(msg = it.message.toString()))
             }
             .flowOn(ioDispatcher)
-    }
-
-    override suspend fun insertIngredients(
-        shoppingList: List<ShoppingListIngredient>
-    ): Resource<Unit> {
-        return try {
-            shoppingListDao
-                .get()
-                .insertShoppingList(shoppingList.map(ShoppingListIngredient::asEntity))
-            Resource.success(null)
-        } catch (e: Exception) {
-            // TODO: rethrow in debug
-            Resource.error(msg = e.message.toString())
-        }
     }
 
     override suspend fun checkOffIngredient(ingredient: ShoppingListIngredient): Resource<Unit> {
@@ -124,20 +135,5 @@ class ShoppingListRepositoryImpl @Inject constructor(
         return shoppingListDao
             .get()
             .isEmpty()
-    }
-
-    override suspend fun removeIngredient(ingredient: ShoppingListIngredient): Resource<Unit> {
-        return withContext(ioDispatcher) {
-            try {
-                shoppingListDao
-                    .get()
-                    .removeIngredient(ingredient.name)
-                Resource.success(null)
-            } catch (e: Exception) {
-                // TODO: rethrow in debug
-                Log.d("[OnHand]", "Error removing $ingredient from Shopping List, msg=${e.message}")
-                Resource.error(msg = e.message.toString())
-            }
-        }
     }
 }
