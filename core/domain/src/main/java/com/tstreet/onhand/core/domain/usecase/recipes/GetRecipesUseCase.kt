@@ -25,13 +25,13 @@ class GetRecipesUseCase @Inject constructor(
 ) : UseCase() {
 
     operator fun invoke(sortBy: SortBy = DEFAULT_SORTING): Flow<RecipeSearchResult> {
-        val recipes =
-            getPantryIngredients().mapPantryToSortedRecipes(getShoppingListIngredients(), sortBy)
-
-        return recipes
-            .catch {
-                emit(RecipeSearchResult.Error)
-            }
+        return mapSortedRecipes(
+            getPantryIngredients(),
+            getShoppingListIngredients(),
+            sortBy
+        ).catch {
+            emit(RecipeSearchResult.Error)
+        }
             .onStart {
                 emit(RecipeSearchResult.Loading)
             }
@@ -51,13 +51,18 @@ class GetRecipesUseCase @Inject constructor(
         return map { SavedRecipesResult.Success(it) }
     }
 
-    private fun Flow<List<Ingredient>>.mapPantryToSortedRecipes(
+    private fun mapSortedRecipes(
+        pantryIngredientsFlow: Flow<List<Ingredient>>,
         shoppingListIngredientsFlow: Flow<Resource<List<ShoppingListIngredient>>>,
         sortBy: SortBy
     ): Flow<RecipeSearchResult> {
-        return combine(shoppingListIngredientsFlow) { pantryIngredients, shoppingListIngredients ->
+        return pantryIngredientsFlow.combine(shoppingListIngredientsFlow) { pantryIngredients, shoppingListIngredients ->
             if (pantryIngredients.isNotEmpty()) {
-                val recipes = getRecipesForPantry(pantryIngredients, shoppingListIngredients)
+                // Get recipes with metadata on missed ingredients, save state, etc.
+                val recipes =
+                    getRecipesForPantryAndShoppingList(pantryIngredients, shoppingListIngredients)
+
+                // Sort
                 val sortedRecipes = when (sortBy) {
                     SortBy.POPULARITY -> recipes.sortedByDescending { it.preview.likes }
                     SortBy.MISSING_INGREDIENTS -> recipes.sortedBy { it.preview.missedIngredientCount }
@@ -65,39 +70,55 @@ class GetRecipesUseCase @Inject constructor(
 
                 RecipeSearchResult.Success(sortedRecipes)
             } else {
+                // Pantry is empty
                 // TODO: Return some default list of recipes (most popular?)
                 RecipeSearchResult.Success(emptyList())
             }
         }
     }
 
-    private suspend fun getRecipesForPantry(
+    /**
+     * Takes pantry ingredients and combines them with the shopping list to return a list of recipes
+     * with metadata about how many ingredients are missing and if they are in the shopping list
+     * and/or pantry.
+     */
+    private suspend fun getRecipesForPantryAndShoppingList(
         pantryIngredients: List<Ingredient>,
         shoppingListIngredients: Resource<List<ShoppingListIngredient>>
     ): List<RecipePreviewWithSaveState> {
+
+        // Recipes based on pantry
         val recipeResource = recipeRepository.get().findRecipes(
-            fetchStrategy = FetchStrategy.NETWORK, ingredients = pantryIngredients.map { it.name }
+            fetchStrategy = FetchStrategy.NETWORK,
+            ingredients = pantryIngredients
         )
 
+        // Ingredients in shopping list
         val shoppingListIngredientNames =
             shoppingListIngredients.data?.map { it.name } ?: emptyList()
 
-        return recipeResource.data?.let {
-            it.map { recipe ->
-                val itemsMissingButInShoppingList =
-                    recipe.missedIngredients.filter { shoppingListIngredientNames.contains(it.ingredient.name) }
-                // TODO: make this a bulk operation -- many segmented DB reads this way
-                //  Also - this is retriggered when we sort for each element in list; unnecessary
-                //  if list contents haven't changed. Look into caching the results to re-use
-                //  specifically for sorting
-                val isRecipeSaved = recipeRepository.get().isRecipeSaved(recipe.id)
-                RecipePreviewWithSaveState(
-                    preview = recipe,
-                    isSaved = isRecipeSaved,
-                    ingredientsMissingButInShoppingList = itemsMissingButInShoppingList.map { it.ingredient }
-                )
+        return when (recipeResource.status) {
+            Status.SUCCESS -> {
+                val recipes = recipeResource.data ?: emptyList()
+                return recipes.map { recipe ->
+                    val missedIngredientsInShoppingList =
+                        recipe.missedIngredients.filter { shoppingListIngredientNames.contains(it.ingredient.name) }
+                    RecipePreviewWithSaveState(
+                        preview = recipe,
+                        // TODO: make this a bulk operation -- many segmented DB reads this way
+                        //  Also - this is retriggered when we sort for each element in list; unnecessary
+                        //  if list contents haven't changed. Look into caching the results to re-use
+                        //  specifically for sorting
+                        isSaved = recipeRepository.get().isRecipeSaved(recipe.id),
+                        ingredientsMissingButInShoppingList = missedIngredientsInShoppingList.map { it.ingredient }
+                    )
+                }
             }
-        } ?: emptyList()
+
+            Status.ERROR -> {
+                return emptyList()
+            }
+        }
     }
 
     private fun getPantryIngredients(): Flow<List<Ingredient>> {
@@ -107,7 +128,9 @@ class GetRecipesUseCase @Inject constructor(
     }
 
     private fun getShoppingListIngredients(): Flow<Resource<List<ShoppingListIngredient>>> {
-        return shoppingListRepository.get().getShoppingList()
+        return flow {
+            emit(shoppingListRepository.get().getShoppingList())
+        }
     }
 }
 

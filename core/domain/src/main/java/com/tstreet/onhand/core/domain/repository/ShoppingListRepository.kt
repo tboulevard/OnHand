@@ -7,11 +7,11 @@ import kotlinx.coroutines.flow.Flow
 
 interface ShoppingListRepository {
 
-    fun getShoppingList(): Flow<Resource<List<ShoppingListIngredient>>>
+    suspend fun getShoppingList(): Resource<List<ShoppingListIngredient>>
 
     fun getRecipesInShoppingList(): Flow<Resource<List<RecipePreview>>>
 
-    suspend fun insertIngredients(shoppingList: List<ShoppingListIngredient>): Resource<Unit>
+    suspend fun addIngredients(shoppingList: List<ShoppingListIngredient>): Resource<Unit>
 
     suspend fun checkOffIngredient(ingredient: ShoppingListIngredient): Resource<Unit>
 

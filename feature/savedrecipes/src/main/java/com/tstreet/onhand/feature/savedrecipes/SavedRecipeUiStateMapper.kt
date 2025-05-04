@@ -46,7 +46,7 @@ fun List<RecipePreviewWithSaveState>.toRecipeWithSaveStateItemList(): List<Recip
                         }
                     }
                 ),
-            ingredientState = mutableStateOf(
+            ingredientPantryState = mutableStateOf(
                 when {
                     it.preview.missedIngredientCount > 0 -> {
                         IngredientAvailability.MISSING_INGREDIENTS
@@ -57,8 +57,18 @@ fun List<RecipePreviewWithSaveState>.toRecipeWithSaveStateItemList(): List<Recip
                     }
                 }
             ),
-            // TODO: reflect missing ingredient state in real time
-            missingIngredientsInCart = mutableStateOf(it.ingredientsMissingButInShoppingList)
+            // TODO: refactor, weak cohesion
+            ingredientShoppingCartState = mutableStateOf(
+                when {
+                    it.ingredientsMissingButInShoppingList.size > 0 -> {
+                        IngredientAvailability.MISSING_INGREDIENTS
+                    }
+
+                    else -> {
+                        IngredientAvailability.ALL_INGREDIENTS_AVAILABLE
+                    }
+                }
+            )
         )
     }
 }

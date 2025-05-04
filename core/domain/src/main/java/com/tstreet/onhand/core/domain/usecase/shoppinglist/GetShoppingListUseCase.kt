@@ -16,8 +16,12 @@ class GetShoppingListUseCase @Inject constructor(
 
     operator fun invoke(): Flow<Resource<List<ShoppingListIngredient>>> {
         Log.d("[OnHand]", "GetShoppingListUseCase.invoke()")
-        return shoppingListRepository
-            .get()
-            .getShoppingList()
+        return flow {
+            emit(
+                shoppingListRepository
+                    .get()
+                    .getShoppingList()
+            )
+        }
     }
 }

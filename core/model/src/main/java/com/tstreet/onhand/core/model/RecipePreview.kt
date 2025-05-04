@@ -7,6 +7,9 @@ import kotlinx.serialization.Serializable
  * High-level representation of a recipe, containing identifying information and ingredients
  * to make it. More detailed information to be modeled in [RecipeDetail], which with this class form
  * the complete information for a recipe in [FullRecipe].
+ *
+ * Note: [MissedIngredients] and [UsedIngredients] are only calculated based on items in user's
+ * pantry (i.e. does not include shopping list ingredients).
  */
 @Serializable
 data class RecipePreview(
