@@ -7,7 +7,7 @@ import com.tstreet.onhand.core.domain.repository.ShoppingListRepository
 import com.tstreet.onhand.core.database.dao.ShoppingListDao
 import com.tstreet.onhand.core.database.model.*
 import com.tstreet.onhand.core.model.RecipePreview
-import com.tstreet.onhand.core.model.ShoppingListIngredient
+import com.tstreet.onhand.core.model.data.ShoppingListIngredient
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -30,30 +30,35 @@ class ShoppingListRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getShoppingList(): Resource<List<ShoppingListIngredient>> {
-        return try {
-            Resource.success(
-                shoppingListDao
-                    .get()
-                    .getShoppingList()
-                    .map(ShoppingListEntity::toExternalModel)
-            )
-        } catch (e: Exception) {
-            // TODO: rethrow in debug
-            Resource.error(msg = e.message.toString())
+        return withContext(ioDispatcher) {
+            try {
+                Resource.success(
+                    shoppingListDao
+                        .get()
+                        .getShoppingList()
+                        .map(ShoppingListEntity::toExternalModel)
+                )
+            } catch (e: Exception) {
+                Log.d("[OnHand]", "Error getting to shopping list - ${e.message}")
+                Resource.error(msg = e.message.toString())
+            }
         }
     }
 
     override suspend fun addIngredients(
         shoppingList: List<ShoppingListIngredient>
     ): Resource<Unit> {
-        return try {
-            shoppingListDao
-                .get()
-                .insertShoppingList(shoppingList.map(ShoppingListIngredient::asEntity))
-            Resource.success(null)
-        } catch (e: Exception) {
-            // TODO: rethrow in debug
-            Resource.error(msg = e.message.toString())
+        return withContext(ioDispatcher) {
+            try {
+                shoppingListDao
+                    .get()
+                    .insertShoppingList(shoppingList.map(ShoppingListIngredient::asEntity))
+                Resource.success(null)
+            } catch (e: Exception) {
+                // TODO: rethrow in debug
+                Log.d("[OnHand]", "Error adding to shopping list - ${e.message}")
+                Resource.error(msg = e.message.toString())
+            }
         }
     }
 
@@ -66,7 +71,7 @@ class ShoppingListRepositoryImpl @Inject constructor(
                 Resource.success(null)
             } catch (e: Exception) {
                 // TODO: rethrow in debug
-                Log.d("[OnHand]", "Error removing $ingredient from Shopping List, msg=${e.message}")
+                Log.d("[OnHand]", "Error removing $ingredient from Shopping List - ${e.message}")
                 Resource.error(msg = e.message.toString())
             }
         }
@@ -84,7 +89,7 @@ class ShoppingListRepositoryImpl @Inject constructor(
             }
             .catch {
                 // TODO: rethrow in debug mode
-                Log.d("[OnHand]", "Error retrieving shopping list recipes: ${it.message}")
+                Log.d("[OnHand]", "Error retrieving shopping list recipes - ${it.message}")
                 // In the context of a FlowCollector, so we need to emit
                 emit(Resource.error<Nothing>(msg = it.message.toString()))
             }
@@ -92,48 +97,60 @@ class ShoppingListRepositoryImpl @Inject constructor(
     }
 
     override suspend fun checkOffIngredient(ingredient: ShoppingListIngredient): Resource<Unit> {
-        return try {
-            shoppingListDao
-                .get()
-                .markIngredientPurchased(ingredient.name)
-            Resource.success(null)
-        } catch (e: Exception) {
-            // TODO: rethrow in debug
-            Resource.error(msg = e.message.toString())
+        return withContext(ioDispatcher) {
+            try {
+                shoppingListDao
+                    .get()
+                    .markIngredientPurchased(ingredient.name)
+                Resource.success(null)
+            } catch (e: Exception) {
+                // TODO: rethrow in debug
+                Log.d("[OnHand]", "Error checking off ingredient from Shopping List - ${e.message}")
+                Resource.error(msg = e.message.toString())
+            }
         }
     }
 
     override suspend fun uncheckIngredient(ingredient: ShoppingListIngredient): Resource<Unit> {
-        return try {
-            shoppingListDao
-                .get()
-                .unmarkIngredientPurchased(ingredient.name)
-            Resource.success(null)
-        } catch (e: Exception) {
-            // TODO: rethrow in debug
-            Resource.error(msg = e.message.toString())
+        return withContext(ioDispatcher) {
+            try {
+                shoppingListDao
+                    .get()
+                    .unmarkIngredientPurchased(ingredient.name)
+                Resource.success(null)
+            } catch (e: Exception) {
+                // TODO: rethrow in debug
+                Log.d("[OnHand]", "Error unchecking ingredient from Shopping List - ${e.message}")
+                Resource.error(msg = e.message.toString())
+            }
         }
     }
 
     override suspend fun isIngredientCheckedOff(name: String): Boolean {
-        return shoppingListDao
-            .get()
-            .isShoppingListIngredientPurchased(name)
+        return withContext(ioDispatcher) {
+            shoppingListDao
+                .get()
+                .isShoppingListIngredientPurchased(name)
+        }
     }
 
     override suspend fun removeRecipePreview(recipePreview: RecipePreview): Resource<Unit> {
-        return try {
-            shoppingListDao.get().removeRecipePreview(recipePreview)
-            Resource.success(null)
-        } catch (e: Exception) {
-            // TODO: rethrow in debug
-            Resource.error(msg = e.message.toString())
+        return withContext(ioDispatcher) {
+            try {
+                shoppingListDao.get().removeRecipePreview(recipePreview)
+                Resource.success(null)
+            } catch (e: Exception) {
+                Log.d("[OnHand]", "Error removing recipe preview - ${e.message}")
+                Resource.error(msg = e.message.toString())
+            }
         }
     }
 
     override suspend fun isEmpty(): Boolean {
-        return shoppingListDao
-            .get()
-            .isEmpty()
+        return withContext(ioDispatcher) {
+            shoppingListDao
+                .get()
+                .isEmpty()
+        }
     }
 }

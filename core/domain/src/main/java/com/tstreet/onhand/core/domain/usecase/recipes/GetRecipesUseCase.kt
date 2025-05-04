@@ -5,7 +5,7 @@ import com.tstreet.onhand.core.domain.repository.PantryRepository
 import com.tstreet.onhand.core.domain.repository.RecipeRepository
 import com.tstreet.onhand.core.domain.repository.ShoppingListRepository
 import com.tstreet.onhand.core.domain.usecase.UseCase
-import com.tstreet.onhand.core.model.ShoppingListIngredient
+import com.tstreet.onhand.core.model.data.ShoppingListIngredient
 import com.tstreet.onhand.core.model.data.Ingredient
 import com.tstreet.onhand.core.model.data.RecipePreviewWithSaveState
 import com.tstreet.onhand.core.model.domain.RecipeSearchResult

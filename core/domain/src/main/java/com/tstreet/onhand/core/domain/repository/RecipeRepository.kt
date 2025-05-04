@@ -16,11 +16,11 @@ interface RecipeRepository {
 
     suspend fun getRecipeDetail(id: Int): Resource<RecipeDetail>
 
-    suspend fun saveRecipePreview(recipePreview: RecipePreview)
+    suspend fun saveRecipePreview(recipePreview: RecipePreview): Resource<Unit>
 
     suspend fun saveFullRecipe(fullRecipe: FullRecipe): SaveRecipeResult
 
-    suspend fun unsaveRecipe(id: Int)
+    suspend fun unsaveRecipe(id: Int) : Resource<Unit>
 
     suspend fun isRecipeSaved(id: Int): Boolean
 

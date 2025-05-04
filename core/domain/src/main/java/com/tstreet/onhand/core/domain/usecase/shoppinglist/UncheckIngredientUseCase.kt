@@ -7,7 +7,7 @@ import com.tstreet.onhand.core.common.Resource
 import com.tstreet.onhand.core.common.Status
 import com.tstreet.onhand.core.domain.usecase.UseCase
 import com.tstreet.onhand.core.domain.repository.ShoppingListRepository
-import com.tstreet.onhand.core.model.ShoppingListIngredient
+import com.tstreet.onhand.core.model.data.ShoppingListIngredient
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
