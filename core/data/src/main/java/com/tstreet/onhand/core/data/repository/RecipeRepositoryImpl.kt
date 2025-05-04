@@ -46,43 +46,47 @@ class RecipeRepositoryImpl @Inject constructor(
         ingredients: List<Ingredient>
     ): Resource<List<RecipePreview>> {
         Log.d("[OnHand]", "findRecipes($fetchStrategy, $ingredients)")
-
-        return when (fetchStrategy) {
-            DATABASE -> {
-                try {
-                    Resource.success(data = getCachedRecipeSearchResults())
-                } catch (e: Exception) {
-                    // TODO: log analytics here
-                    // TODO: rethrow in debug
-                    Log.d("[OnHand]", "Error retrieving cached recipes: ${e.message}")
-                    Resource.error(msg = e.message.toString())
-                }
-            }
-            NETWORK -> {
-                val networkResponse =
-                    onHandNetworkDataSource
-                        .get()
-                        .findRecipesFromIngredients(ingredients.map { it.name })
-
-                return when (networkResponse) {
-                    is Success -> {
-                        val externalModel = networkResponse.body.map(NetworkRecipe::asExternalModel)
-                        // TODO: disable until further evaluation
-                        //cacheRecipeSearchResults(externalModel)
-                        Resource.success(data = externalModel)
+        return withContext(ioDispatcher) {
+            when (fetchStrategy) {
+                DATABASE -> {
+                    try {
+                        Resource.success(data = getCachedRecipeSearchResults())
+                    } catch (e: Exception) {
+                        // TODO: log analytics here
+                        // TODO: rethrow in debug
+                        Log.d("[OnHand]", "Error retrieving cached recipes: ${e.message}")
+                        Resource.error(msg = e.message.toString())
                     }
-                    is ApiError,
-                    is NetworkError,
-                    is UnknownError -> {
-                        Resource.error(
-                            msg = "${networkResponse::class.java.simpleName}, please check your " +
-                                    "device's network connectivity.\n\nShowing last calculated " +
-                                    "search result.",
-                            data = findRecipes(
-                                fetchStrategy = DATABASE,
-                                ingredients
-                            ).data
-                        )
+                }
+
+                NETWORK -> {
+                    val networkResponse =
+                        onHandNetworkDataSource
+                            .get()
+                            .findRecipesFromIngredients(ingredients.map { it.name })
+
+                    when (networkResponse) {
+                        is Success -> {
+                            val externalModel =
+                                networkResponse.body.map(NetworkRecipe::asExternalModel)
+                            // TODO: disable until further evaluation
+                            //cacheRecipeSearchResults(externalModel)
+                            Resource.success(data = externalModel)
+                        }
+
+                        is ApiError,
+                        is NetworkError,
+                        is UnknownError -> {
+                            Resource.error(
+                                msg = "${networkResponse::class.java.simpleName}, please check your " +
+                                        "device's network connectivity.\n\nShowing last calculated " +
+                                        "search result.",
+                                data = findRecipes(
+                                    fetchStrategy = DATABASE,
+                                    ingredients
+                                ).data
+                            )
+                        }
                     }
                 }
             }
@@ -91,63 +95,85 @@ class RecipeRepositoryImpl @Inject constructor(
 
     override suspend fun getRecipeDetail(id: Int): Resource<RecipeDetail> {
         Log.d("[OnHand]", "getRecipeDetail($id)")
-        val networkResponse = onHandNetworkDataSource
-            .get()
-            .getRecipeDetail(id)
+        return withContext(ioDispatcher) {
+            val networkResponse = onHandNetworkDataSource
+                .get()
+                .getRecipeDetail(id)
 
-        return when (networkResponse) {
-            is Success -> {
-                Resource.success(
-                    data = networkResponse.body.asExternalModel()
-                )
-            }
-            is ApiError,
-            is NetworkError,
-            is UnknownError -> {
-                Resource.error(
-                    msg = "${networkResponse::class.java.simpleName}, please check your " +
-                            "device's network connectivity. Unable to view recipe.",
-                )
+            when (networkResponse) {
+                is Success -> {
+                    Resource.success(
+                        data = networkResponse.body.asExternalModel()
+                    )
+                }
+
+                is ApiError,
+                is NetworkError,
+                is UnknownError -> {
+                    Resource.error(
+                        msg = "${networkResponse::class.java.simpleName}, please check your " +
+                                "device's network connectivity. Unable to view recipe.",
+                    )
+                }
             }
         }
     }
 
     override suspend fun saveRecipePreview(
         recipePreview: RecipePreview
-    ) {
-
-        val convertedEntity = recipePreview.toSavedRecipeEntity()
-        Log.d("[OnHand]", "saveRecipe($convertedEntity)")
-        savedRecipeDao
-            .get()
-            .addRecipe(convertedEntity)
+    ): Resource<Unit> {
+        return withContext(ioDispatcher) {
+            val convertedEntity = recipePreview.toSavedRecipeEntity()
+            Log.d("[OnHand]", "saveRecipe($convertedEntity)")
+            try {
+                savedRecipeDao
+                    .get()
+                    .addRecipe(convertedEntity)
+                Resource.success(Unit)
+            } catch (e: Exception) {
+                // TODO: log analytics here
+                // TODO: rethrow in debug
+                Resource.error(msg = e.message.toString())
+            }
+        }
     }
 
     override suspend fun saveFullRecipe(
         fullRecipe: FullRecipe
     ): SaveRecipeResult {
         Log.d("[OnHand]", "saveCustomRecipe($fullRecipe)")
-        return try {
-            savedRecipeDao
-                .get()
-                .addRecipe(fullRecipe.toSavedRecipeEntity())
-            SaveRecipeResult.success(fullRecipe.preview.id)
-        } catch (e: SQLiteConstraintException) {
-            // TODO: log analytics here
-            // TODO: rethrow in debug
-            SaveRecipeResult.namingConflict(e.message)
-        } catch (e: Exception) {
-            // TODO: log analytics here
-            // TODO: rethrow in debug
-            SaveRecipeResult.unknownError(e.message)
+        return withContext(ioDispatcher) {
+            try {
+                savedRecipeDao
+                    .get()
+                    .addRecipe(fullRecipe.toSavedRecipeEntity())
+                SaveRecipeResult.success(fullRecipe.preview.id)
+            } catch (e: SQLiteConstraintException) {
+                // TODO: log analytics here
+                // TODO: rethrow in debug
+                SaveRecipeResult.namingConflict(e.message)
+            } catch (e: Exception) {
+                // TODO: log analytics here
+                // TODO: rethrow in debug
+                SaveRecipeResult.unknownError(e.message)
+            }
         }
     }
 
-    override suspend fun unsaveRecipe(id: Int) {
+    override suspend fun unsaveRecipe(id: Int): Resource<Unit> {
         Log.d("[OnHand]", "unsaveRecipe($id)")
-        savedRecipeDao
-            .get()
-            .deleteRecipe(id)
+        return withContext(ioDispatcher) {
+            try {
+                savedRecipeDao
+                    .get()
+                    .deleteRecipe(id)
+                Resource.success(Unit)
+            } catch (e: Exception) {
+                // TODO: log analytics here
+                // TODO: rethrow in debug
+                Resource.error(msg = e.message.toString())
+            }
+        }
     }
 
     override suspend fun isRecipeSaved(id: Int): Boolean {
@@ -177,24 +203,28 @@ class RecipeRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateSavedRecipesMissingIngredient(ingredient: Ingredient) {
-        try {
-            savedRecipeDao
-                .get()
-                .updateRecipesMissingIngredient(ingredient.name)
-        } catch (e: Exception) {
-            // TODO: log analytics here
-            // TODO: rethrow in debug
+        return withContext(ioDispatcher) {
+            try {
+                savedRecipeDao
+                    .get()
+                    .updateRecipesMissingIngredient(ingredient.name)
+            } catch (e: Exception) {
+                // TODO: log analytics here
+                // TODO: rethrow in debug
+            }
         }
     }
 
     override suspend fun updateSavedRecipesUsingIngredient(ingredient: Ingredient) {
-        try {
-            savedRecipeDao
-                .get()
-                .updateRecipesUsingIngredient(ingredient.name)
-        } catch (e: Exception) {
-            // TODO: log analytics here
-            // TODO: rethrow in debug
+        return withContext(ioDispatcher) {
+            try {
+                savedRecipeDao
+                    .get()
+                    .updateRecipesUsingIngredient(ingredient.name)
+            } catch (e: Exception) {
+                // TODO: log analytics here
+                // TODO: rethrow in debug
+            }
         }
     }
 
@@ -235,6 +265,7 @@ class RecipeRepositoryImpl @Inject constructor(
                                 )
                             )
                         }
+
                         ERROR -> {
                             Resource.error(msg = detail.message.toString())
                         }
@@ -248,39 +279,49 @@ class RecipeRepositoryImpl @Inject constructor(
     }
 
     private suspend fun getSavedRecipe(id: Int): RecipePreviewWithSaveState {
-        return savedRecipeDao
-            .get()
-            .getRecipe(id)
-            .asSaveableRecipePreview()
+        return withContext(ioDispatcher) {
+            savedRecipeDao
+                .get()
+                .getRecipe(id)
+                .asSaveableRecipePreview()
+        }
     }
 
     private suspend fun getCachedRecipePreview(id: Int): RecipePreview {
-        return recipeSearchCacheDao
-            .get()
-            .getRecipe(id)
-            .asRecipePreview()
+        return withContext(ioDispatcher) {
+            recipeSearchCacheDao
+                .get()
+                .getRecipe(id)
+                .asRecipePreview()
+        }
     }
 
     override suspend fun isRecipeCustom(id: Int): Boolean {
         Log.d("[OnHand]", "isRecipeCustom($id)")
-        return savedRecipeDao
-            .get()
-            .isRecipeCustom(id) == 1
+        return withContext(ioDispatcher) {
+            savedRecipeDao
+                .get()
+                .isRecipeCustom(id) == 1
+        }
     }
 
     private suspend fun getCachedRecipeSearchResults(): List<RecipePreview> {
-        return recipeSearchCacheDao
-            .get()
-            .getRecipeSearchResult()
-            .map(RecipeSearchCacheEntity::asRecipePreview)
+        return withContext(ioDispatcher) {
+            recipeSearchCacheDao
+                .get()
+                .getRecipeSearchResult()
+                .map(RecipeSearchCacheEntity::asRecipePreview)
+        }
     }
 
     private suspend fun cacheRecipeSearchResults(recipePreviews: List<RecipePreview>) {
-        recipeSearchCacheDao
-            .get()
-            .cacheRecipeSearchResult(
-                recipePreviews.map(RecipePreview::toSearchCacheEntity)
-            )
+        return withContext(ioDispatcher) {
+            recipeSearchCacheDao
+                .get()
+                .cacheRecipeSearchResult(
+                    recipePreviews.map(RecipePreview::toSearchCacheEntity)
+                )
+        }
     }
 }
 

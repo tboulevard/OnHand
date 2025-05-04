@@ -20,6 +20,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Provider
@@ -74,82 +76,70 @@ class RecipeSearchViewModel @Inject constructor(
             initialValue = _infoDialogState.value
         )
 
-    fun onRecipeSaved(recipe: RecipeWithSaveState) {
-        // TODO: wrap all this in a lock to prevent concurrent execution. in general make
-        //  mutable states visible to only one thread
-        viewModelScope.launch {
-            // Save the recipe
-            saveRecipe.get().invoke(recipe.preview)
-                .onStart {
-                    // TODO: make the entire item unclickable during this time
-                    recipe.saveState.value = RecipeSaveState.LOADING
-                }
-                .collect {
-                    when (it) {
-                        // When save is successful, update UI state
-                        true -> {
-                            recipe.saveState.value = RecipeSaveState.SAVED
-                        }
+    private val saveRecipeLock = Mutex()
+    private val addToShoppingListLock = Mutex()
 
-                        else -> {
-                            // Retain the previous save state on error
-                            recipe.saveState.value = RecipeSaveState.NOT_SAVED
-                            _errorDialogState.update {
-                                displayed(
-                                    title = "Error",
-                                    message = "Recipe save unsuccessful, there was an error. " +
-                                            "Please try again."
-                                )
-                            }
+    fun onRecipeSaved(recipe: RecipeWithSaveState) {
+        viewModelScope.launch {
+            saveRecipeLock.withLock {
+                val result = saveRecipe.get().invoke(recipe.preview)
+                when (result.status) {
+                    Status.SUCCESS -> {
+                        recipe.saveState.value = RecipeSaveState.SAVED
+                    }
+
+                    Status.ERROR -> {
+                        recipe.saveState.value = RecipeSaveState.NOT_SAVED
+                        _errorDialogState.update {
+                            displayed(
+                                title = "Error",
+                                message = "Recipe save unsuccessful, there was an error. " +
+                                        "Please try again."
+                            )
                         }
                     }
                 }
+            }
         }
     }
 
     fun onRecipeUnsaved(recipe: RecipeWithSaveState) {
-// TODO: wrap all this in a lock to prevent concurrent execution. in general make
-        //  mutable states visible to only one thread
         viewModelScope.launch {
-            // Save the recipe
-            unsaveRecipe.get().invoke(recipe.preview)
-                .onStart {
-                    recipe.saveState.value = RecipeSaveState.LOADING
-                }
-                .collect {
-                    when (it) {
-                        // When save is successful, update UI state
-                        true -> {
-                            recipe.saveState.value = RecipeSaveState.NOT_SAVED
-                        }
+            saveRecipeLock.withLock {
+                val result = unsaveRecipe.get().invoke(recipe.preview)
+                when (result.status) {
+                    Status.SUCCESS -> {
+                        recipe.saveState.value = RecipeSaveState.NOT_SAVED
+                    }
 
-                        else -> {
-                            // Retain the previous save state on error
-                            recipe.saveState.value = RecipeSaveState.SAVED
-                            _errorDialogState.update {
-                                displayed(
-                                    title = "Error",
-                                    message = "Recipe unsave unsuccessful, there was an error. " +
-                                            "Please try again."
-                                )
-                            }
+                    Status.ERROR -> {
+                        recipe.saveState.value = RecipeSaveState.SAVED
+                        _errorDialogState.update {
+                            displayed(
+                                title = "Error",
+                                message = "Recipe unsave unsuccessful, there was an error. " +
+                                        "Please try again."
+                            )
                         }
                     }
                 }
+            }
         }
     }
 
     fun onAddToShoppingList(recipe: RecipeWithSaveState) {
         viewModelScope.launch {
-            addToShoppingList.get().invoke(
-                // TODO: .map for getting from RecipeIngredient -> Ingredient
-                missingIngredients = recipe.preview.missedIngredients,
-                recipe = recipe.preview
-            ).collect {
-                when (it.status) {
+            addToShoppingListLock.withLock {
+                val result = addToShoppingList.get().invoke(
+                    missingIngredients = recipe.preview.missedIngredients,
+                    recipe = recipe.preview
+                )
+                when (result.status) {
                     Status.SUCCESS -> {
-                        recipe.ingredientShoppingCartState.value = IngredientAvailability.ALL_INGREDIENTS_AVAILABLE
+                        recipe.ingredientShoppingCartState.value =
+                            IngredientAvailability.ALL_INGREDIENTS_AVAILABLE
                     }
+
                     Status.ERROR -> {
                         _errorDialogState.update {
                             displayed(

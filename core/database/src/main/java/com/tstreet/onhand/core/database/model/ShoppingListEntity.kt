@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.tstreet.onhand.core.model.RecipePreview
-import com.tstreet.onhand.core.model.ShoppingListIngredient
+import com.tstreet.onhand.core.model.data.ShoppingListIngredient
 
 @Entity(
     tableName = "shopping_list"

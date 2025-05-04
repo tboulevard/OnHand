@@ -21,6 +21,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tstreet.onhand.core.model.*
 import com.tstreet.onhand.core.model.data.Ingredient
 import com.tstreet.onhand.core.model.data.RecipeIngredient
+import com.tstreet.onhand.core.model.data.ShoppingListIngredient
 import com.tstreet.onhand.core.model.ui.ShoppingListItem
 import com.tstreet.onhand.core.model.ui.ShoppingListUiState
 import com.tstreet.onhand.core.ui.*

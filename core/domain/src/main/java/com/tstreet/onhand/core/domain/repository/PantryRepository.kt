@@ -25,5 +25,9 @@ interface PantryRepository {
      */
     suspend fun listPantry() : List<Ingredient>
 
+    /**
+     * Given a list of [Ingredient]s, returns the subset of those ingredients that are
+     * currently in the pantry.
+     */
     suspend fun listPantry(ingredients: List<Ingredient>): List<Ingredient>
 }

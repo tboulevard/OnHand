@@ -1,7 +1,7 @@
 package com.tstreet.onhand.core.model.ui
 
 import com.tstreet.onhand.core.model.RecipePreview
-import com.tstreet.onhand.core.model.ShoppingListIngredient
+import com.tstreet.onhand.core.model.data.ShoppingListIngredient
 
 sealed class ShoppingListUiState(
     val ingredients: List<ShoppingListIngredient>,

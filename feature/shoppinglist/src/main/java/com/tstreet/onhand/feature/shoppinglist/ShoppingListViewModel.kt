@@ -12,7 +12,7 @@ import com.tstreet.onhand.core.domain.usecase.shoppinglist.RemoveIngredientUseCa
 import com.tstreet.onhand.core.domain.usecase.shoppinglist.RemoveRecipeInShoppingListUseCase
 import com.tstreet.onhand.core.domain.usecase.shoppinglist.UncheckIngredientUseCase
 import com.tstreet.onhand.core.model.RecipePreview
-import com.tstreet.onhand.core.model.ShoppingListIngredient
+import com.tstreet.onhand.core.model.data.ShoppingListIngredient
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.displayed
 import com.tstreet.onhand.core.model.ui.RecipeDetailUiState

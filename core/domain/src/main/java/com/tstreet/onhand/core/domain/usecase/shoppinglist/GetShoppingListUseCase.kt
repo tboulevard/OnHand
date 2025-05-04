@@ -5,6 +5,7 @@ import com.tstreet.onhand.core.common.*
 import com.tstreet.onhand.core.domain.repository.ShoppingListRepository
 import com.tstreet.onhand.core.domain.usecase.UseCase
 import com.tstreet.onhand.core.model.*
+import com.tstreet.onhand.core.model.data.ShoppingListIngredient
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 import javax.inject.Provider

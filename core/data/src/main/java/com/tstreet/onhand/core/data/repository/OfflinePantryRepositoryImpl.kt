@@ -56,19 +56,23 @@ class OfflinePantryRepositoryImpl @Inject constructor(
     }
 
     override suspend fun listPantry(): List<Ingredient> {
-        // Artificial delay to simulate loading
-        delay((1000..2000L).random())
+        return withContext(ioDispatcher) {
+            // Artificial delay to simulate loading
+            delay((1000..2000L).random())
 
-        return pantryDao
-            .get()
-            .getAllFromPantry()
-            .map(PantryEntity::toIngredient)
+            pantryDao
+                .get()
+                .getAllFromPantry()
+                .map(PantryEntity::toIngredient)
+        }
     }
 
     override suspend fun listPantry(ingredients: List<Ingredient>): List<Ingredient> {
-        return pantryDao
-            .get()
-            .getPantryItemsWithIds(ingredients.map { it.id })
-            .map { it.toIngredient() }
+        return withContext(ioDispatcher) {
+            pantryDao
+                .get()
+                .getPantryItemsWithIds(ingredients.map { it.id })
+                .map { it.toIngredient() }
+        }
     }
 }
