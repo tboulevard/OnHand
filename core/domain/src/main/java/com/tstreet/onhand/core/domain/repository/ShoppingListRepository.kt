@@ -9,7 +9,7 @@ interface ShoppingListRepository {
 
     suspend fun getShoppingList(): Resource<List<ShoppingListIngredient>>
 
-    fun getRecipesInShoppingList(): Flow<Resource<List<RecipePreview>>>
+    suspend fun getRecipesInShoppingList(): Resource<List<RecipePreview>>
 
     suspend fun addIngredients(shoppingList: List<ShoppingListIngredient>): Resource<Unit>
 

@@ -3,7 +3,6 @@ package com.tstreet.onhand.core.database.dao;
 import androidx.room.*
 import com.tstreet.onhand.core.database.model.ShoppingListEntity
 import com.tstreet.onhand.core.model.RecipePreview
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ShoppingListDao {
@@ -13,7 +12,7 @@ interface ShoppingListDao {
 
     @Query("SELECT DISTINCT mappedRecipePreview from shopping_list WHERE mappedRecipePreview IS NOT NULL")
     @Transaction
-    fun getRecipesInShoppingList(): Flow<List<RecipePreview?>>
+    suspend fun getRecipesInShoppingList(): List<RecipePreview?>
 
     // TODO: For now, we only allow a given ingredient to be mapped to one recipe
     @Insert(onConflict = OnConflictStrategy.REPLACE)

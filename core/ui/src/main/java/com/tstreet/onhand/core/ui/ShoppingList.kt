@@ -14,40 +14,34 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import coil.compose.AsyncImage
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
-import com.tstreet.onhand.core.model.RecipePreview
+import com.tstreet.onhand.core.model.ui.UiShoppingListRecipe
 
 @Composable
 fun ShoppingListRecipeCards(
-    recipePreviews: List<RecipePreview>,
+    recipePreviews: List<UiShoppingListRecipe>,
     onItemClick: (String) -> Unit,
-    onRemoveClick: (Int) -> Unit
+    onRemoveClick: () -> Unit
 ) {
     LazyRow(
         modifier = Modifier.fillMaxWidth()
     ) {
         // TODO: Implement item keys for this approach to avoid recompositions, currently
         //  doesn't appear to work...
-        itemsIndexed(recipePreviews, key = { _, item -> item.id }) { index, recipe ->
+        itemsIndexed(recipePreviews) { index, recipe ->
             ShoppingListRecipeItem(
                 ShoppingListRecipeCard(
                     recipePreview = recipe,
                     onItemClick = onItemClick,
-                    onRemoveClick = onRemoveClick,
-                    index
+                    onRemoveClick = onRemoveClick
                 )
             )
         }
     }
 }
 
-@Preview
 @Composable
 fun ShoppingListRecipeItem(
-    @PreviewParameter(ShoppingListRecipeCardPreviewParamProvider::class)
     card: ShoppingListRecipeCard
 ) {
     Surface(
@@ -64,7 +58,7 @@ fun ShoppingListRecipeItem(
             Box(modifier = Modifier.fillMaxSize()) {
                 AsyncImage(
                     modifier = Modifier.fillMaxWidth(),
-                    model = card.recipePreview.image,
+                    model = card.recipePreview.imageUrl,
                     contentDescription = null
                 )
                 Icon(
@@ -73,7 +67,7 @@ fun ShoppingListRecipeItem(
                     modifier = Modifier
                         .size(24.dp)
                         .align(Alignment.TopEnd)
-                        .clickable { card.onRemoveClick(card.index) },
+                        .clickable { card.onRemoveClick() },
                     tint = MaterialTheme.colorScheme.inverseSurface
                 )
                 Surface(
@@ -96,32 +90,7 @@ fun ShoppingListRecipeItem(
 }
 
 class ShoppingListRecipeCard(
-    val recipePreview: RecipePreview,
+    val recipePreview: UiShoppingListRecipe,
     val onItemClick: (String) -> Unit,
-    val onRemoveClick: (Int) -> Unit,
-    val index: Int
+    val onRemoveClick: () -> Unit
 )
-
-// TODO: move below to a better location
-class ShoppingListRecipeCardPreviewParamProvider :
-    PreviewParameterProvider<ShoppingListRecipeCard> {
-    override val values: Sequence<ShoppingListRecipeCard> = sequenceOf(
-        ShoppingListRecipeCard(
-            recipePreview = RecipePreview(
-                id = 1,
-                title = "A very long recipe name that is very long",
-                image = "image.jpg",
-                imageType = "jpeg",
-                usedIngredientCount = 10,
-                usedIngredients = emptyList(),
-                missedIngredientCount = 3,
-                missedIngredients = emptyList(),
-                likes = 100,
-                isCustom = true
-            ),
-            onItemClick = { },
-            onRemoveClick = { },
-            index = 0
-        )
-    )
-}

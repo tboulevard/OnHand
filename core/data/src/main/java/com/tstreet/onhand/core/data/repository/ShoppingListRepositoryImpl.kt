@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Named
@@ -77,23 +78,20 @@ class ShoppingListRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getRecipesInShoppingList(): Flow<Resource<List<RecipePreview>>> {
-        return shoppingListDao
-            .get()
-            .getRecipesInShoppingList()
-            .map { recipes ->
+    override suspend fun getRecipesInShoppingList(): Resource<List<RecipePreview>> {
+        return withContext(ioDispatcher) {
+            try {
                 Resource.success(
-                    // SQL statement should guarantee non-null - .mapNotNull for compile safety
-                    recipes.mapNotNull { it }
+                    shoppingListDao
+                        .get()
+                        .getRecipesInShoppingList()
+                        .mapNotNull { it }
                 )
+            } catch (e: Exception) {
+                Log.d("[OnHand]", "Error getting to shopping list - ${e.message}")
+                Resource.error(msg = e.message.toString())
             }
-            .catch {
-                // TODO: rethrow in debug mode
-                Log.d("[OnHand]", "Error retrieving shopping list recipes - ${it.message}")
-                // In the context of a FlowCollector, so we need to emit
-                emit(Resource.error<Nothing>(msg = it.message.toString()))
-            }
-            .flowOn(ioDispatcher)
+        }
     }
 
     override suspend fun checkOffIngredient(ingredient: ShoppingListIngredient): Resource<Unit> {
