@@ -4,25 +4,24 @@ sealed interface ShoppingListUiState {
     object Loading : ShoppingListUiState
 
     data class Content(
-        val ingredients: List<UiShoppingListIngredient>,
-        val mappedRecipes: List<UiShoppingListRecipe>
+        val recipesWithIngredients: List<UiShoppingListRecipe>
     ) : ShoppingListUiState {
 
-        fun screenContent() = listOf(
-            UiShoppingListRowItem.Header(
-                text = "Shopping List"
-            ),
-            UiShoppingListRowItem.Summary(
-                numberOfRecipes = mappedRecipes.size,
-                numberOfIngredients = ingredients.size
-            ),
-            UiShoppingListRowItem.MappedRecipes(
-                recipePreviews = mappedRecipes
-            ),
-            UiShoppingListRowItem.Ingredients(
-                ingredients = ingredients
+        fun screenContent(): List<UiShoppingListRowItem> {
+            val rowItems = mutableListOf<UiShoppingListRowItem>(
+                UiShoppingListRowItem.Header(
+                    text = "Shopping List"
+                )
             )
-        )
+            
+            rowItems.addAll(recipesWithIngredients.map {
+                UiShoppingListRowItem.RecipeIngredientGroup(
+                    recipe = it
+                )
+            })
+            
+            return rowItems
+        }
     }
 
     object Error : ShoppingListUiState

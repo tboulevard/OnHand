@@ -23,28 +23,26 @@ class ShoppingListUiStateMapper @Inject constructor() {
         }
 
         is ShoppingListResult.Success -> {
+
+            val recipeToIngredientMap =
+                shoppingListResult.ingredients.groupBy { it.mappedRecipePreview }
+
             ShoppingListUiState.Content(
-                ingredients = shoppingListResult.ingredients.map {
-                    UiShoppingListIngredient(
-                        ingredient = it,
-                        mappedRecipe = it.mappedRecipePreview?.let { recipe ->
-                            UiShoppingListRecipe(
-                                id = recipe.id,
-                                title = recipe.title,
-                                imageUrl = recipe.image,
-                                recipePreview = recipe
-                            )
-                        },
-                        isChecked = mutableStateOf(it.isPurchased)
-                    )
-                },
-                mappedRecipes = shoppingListResult.mappedRecipes.map {
-                    UiShoppingListRecipe(
-                        id = it.id,
-                        title = it.title,
-                        imageUrl = it.image,
-                        recipePreview = it
-                    )
+                recipesWithIngredients = recipeToIngredientMap.mapNotNull { (recipe, ingredients) ->
+                    recipe?.let { r ->
+                        UiShoppingListRecipe(
+                            id = recipe.id,
+                            title = recipe.title,
+                            imageUrl = recipe.image,
+                            recipePreview = recipe,
+                            ingredients = ingredients.map { ingredient ->
+                                UiShoppingListIngredient(
+                                    ingredient,
+                                    isChecked = mutableStateOf(ingredient.isPurchased)
+                                )
+                            }
+                        )
+                    }
                 }
             )
         }

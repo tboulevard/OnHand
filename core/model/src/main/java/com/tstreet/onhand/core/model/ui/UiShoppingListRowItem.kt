@@ -1,6 +1,5 @@
 package com.tstreet.onhand.core.model.ui
 
-
 sealed interface UiShoppingListRowItem {
 
     data class Header(
@@ -15,8 +14,8 @@ sealed interface UiShoppingListRowItem {
         val text = "$numberOfRecipes recipes - $numberOfIngredients items"
     }
 
-    data class MappedRecipes(
-        val recipePreviews: List<UiShoppingListRecipe>
+    data class RecipeIngredientGroup(
+        val recipe: UiShoppingListRecipe
     ) : UiShoppingListRowItem
 
     data class Ingredients(

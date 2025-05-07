@@ -70,15 +70,6 @@ class GetShoppingListUseCase @Inject constructor(
                     Status.ERROR -> {
                         emptyList()
                     }
-                },
-                mappedRecipes = when (recipesInShoppingList.status) {
-                    Status.SUCCESS -> {
-                        recipesInShoppingList.data as List<RecipePreview>
-                    }
-
-                    Status.ERROR -> {
-                        emptyList()
-                    }
                 }
             )
         }
