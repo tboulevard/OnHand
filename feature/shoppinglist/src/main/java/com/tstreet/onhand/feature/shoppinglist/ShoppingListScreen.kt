@@ -1,7 +1,6 @@
 package com.tstreet.onhand.feature.shoppinglist
 
 import android.util.Log
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -14,14 +13,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.tstreet.onhand.core.model.*
-import com.tstreet.onhand.core.model.data.Ingredient
-import com.tstreet.onhand.core.model.data.RecipeIngredient
 import com.tstreet.onhand.core.model.ui.UiShoppingListRowItem
 import com.tstreet.onhand.core.model.ui.ShoppingListUiState
 import com.tstreet.onhand.core.model.ui.UiShoppingListIngredient
@@ -36,7 +30,6 @@ fun ShoppingListScreen(
     val errorDialogState by viewModel.errorDialogState.collectAsStateWithLifecycle()
     val removeRecipeDialogState by viewModel.removeRecipeDialogState.collectAsStateWithLifecycle()
 
-    // For general errors
     OnHandAlertDialog(
         onDismiss = viewModel::dismissErrorDialog,
         state = errorDialogState
@@ -58,8 +51,6 @@ fun ShoppingListScreen(
         }
         is ShoppingListUiState.Content -> {
             LazyColumn(verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()) {
-                // TODO: specify contentType here, since rows are different
-                //  https://developer.android.com/jetpack/compose/lists#content-type
                 itemsIndexed((uiState as ShoppingListUiState.Content).screenContent()) { _, item ->
                     when (item) {
                         is UiShoppingListRowItem.Header -> {
@@ -94,17 +85,18 @@ fun ShoppingListScreen(
                                 else -> {
                                     Column(
                                         modifier = Modifier
-                                            .fillMaxSize(),
+                                            .fillMaxSize()
+                                            .padding(horizontal = 24.dp),
                                         verticalArrangement = Arrangement.Center
                                     ) {
                                         Icon(
                                             Icons.Default.ShoppingCart,
-                                            contentDescription = "empty shopping card",
+                                            contentDescription = "Empty shopping cart",
                                             modifier = Modifier
                                                 .size(120.dp)
                                                 .align(Alignment.CenterHorizontally)
                                                 .padding(32.dp),
-                                            tint = MaterialTheme.colorScheme.inverseOnSurface
+                                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
                                         )
                                         Text(
                                             modifier = Modifier
@@ -113,8 +105,9 @@ fun ShoppingListScreen(
                                             text = "Your shopping list is empty. You can add " +
                                                     "items from recipes or manually enter your " +
                                                     "own.",
-                                            style = MaterialTheme.typography.bodyMedium,
+                                            style = MaterialTheme.typography.bodyLarge,
                                             textAlign = TextAlign.Center,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                     }
                                 }
@@ -138,16 +131,18 @@ fun ShoppingListIngredientCards(
     onUnmarkIngredient: (UiShoppingListIngredient) -> Unit = { },
     onRemoveIngredient: (UiShoppingListIngredient) -> Unit = { }
 ) {
-    ingredients.mapIndexed { _, ingredient ->
-        ShoppingListCardItem(
-            ShoppingListCard(
-                ingredient = ingredient,
-                recipePreview = ingredient.mappedRecipe
-            ),
-            onMarkIngredient = onMarkIngredient,
-            onUnmarkIngredient = onUnmarkIngredient,
-            onRemoveIngredient = onRemoveIngredient
-        )
+    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+        ingredients.forEach { ingredient ->
+            ShoppingListCardItem(
+                ShoppingListCard(
+                    ingredient = ingredient,
+                    recipePreview = ingredient.mappedRecipe
+                ),
+                onMarkIngredient = onMarkIngredient,
+                onUnmarkIngredient = onUnmarkIngredient,
+                onRemoveIngredient = onRemoveIngredient
+            )
+        }
     }
 }
 
@@ -158,26 +153,26 @@ fun ShoppingListCardItem(
     onUnmarkIngredient: (UiShoppingListIngredient) -> Unit = { },
     onRemoveIngredient: (UiShoppingListIngredient) -> Unit = { }
 ) {
-    Surface(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(
-                vertical = 8.dp, horizontal = 16.dp
-            ),
-        shadowElevation = 8.dp,
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 1.dp
+        ),
         shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surfaceTint
     ) {
         Row(
-            modifier = Modifier.clickable { /* TODO */ },
-            horizontalArrangement = Arrangement.SpaceBetween
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Checkbox(
                 checked = card.ingredient.isChecked.value,
-                modifier = Modifier
-                    .padding(start = 24.dp)
-                    .align(Alignment.CenterVertically)
-                    .size(24.dp),
                 onCheckedChange = {
                     if (card.ingredient.isChecked.value) {
                         onUnmarkIngredient(card.ingredient)
@@ -186,37 +181,45 @@ fun ShoppingListCardItem(
                     }
                 },
                 colors = CheckboxDefaults.colors(
-                    checkmarkColor = MaterialTheme.colorScheme.inverseOnSurface,
-                    checkedColor = MaterialTheme.colorScheme.inverseSurface,
-                    uncheckedColor = MaterialTheme.colorScheme.inverseSurface
+                    checkedColor = MaterialTheme.colorScheme.primary,
                 )
             )
+            
             Column(
                 modifier = Modifier
-                    .padding(20.dp)
                     .weight(1f)
+                    .padding(horizontal = 8.dp)
             ) {
                 Text(
-                    modifier = Modifier.padding(8.dp),
                     text = card.ingredient.ingredient.name,
-                    style = MaterialTheme.typography.headlineMedium
+                    style = MaterialTheme.typography.titleMedium,
+                    textDecoration = if (card.ingredient.isChecked.value) 
+                        TextDecoration.LineThrough else TextDecoration.None,
+                    color = if (card.ingredient.isChecked.value) 
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    else
+                        MaterialTheme.colorScheme.onSurface
                 )
+                
                 if (card.recipePreview != null) {
                     Text(
-                        modifier = Modifier.padding(8.dp),
                         text = card.recipePreview.title,
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 2.dp)
                     )
                 }
             }
-            Icon(
-                Icons.Default.Clear,
-                contentDescription = "remove",
-                modifier = Modifier
-                    .size(36.dp)
-                    .clickable { onRemoveIngredient(card.ingredient) },
-                tint = MaterialTheme.colorScheme.inverseOnSurface
-            )
+            
+            IconButton(
+                onClick = { onRemoveIngredient(card.ingredient) },
+            ) {
+                Icon(
+                    Icons.Default.Clear,
+                    contentDescription = "Remove item",
+                    tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
+                )
+            }
         }
     }
 }
