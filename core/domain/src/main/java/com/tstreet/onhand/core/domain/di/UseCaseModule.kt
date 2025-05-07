@@ -9,7 +9,6 @@ import com.tstreet.onhand.core.domain.usecase.recipes.SaveRecipeUseCase
 import com.tstreet.onhand.core.domain.usecase.recipes.UnsaveRecipeUseCase
 import com.tstreet.onhand.core.domain.usecase.shoppinglist.AddToShoppingListUseCase
 import com.tstreet.onhand.core.domain.usecase.shoppinglist.CheckOffIngredientUseCase
-import com.tstreet.onhand.core.domain.usecase.shoppinglist.GetRecipesInShoppingListUseCase
 import com.tstreet.onhand.core.domain.usecase.shoppinglist.GetShoppingListUseCase
 import com.tstreet.onhand.core.domain.usecase.shoppinglist.RemoveIngredientUseCase
 import com.tstreet.onhand.core.domain.usecase.shoppinglist.RemoveRecipeInShoppingListUseCase
@@ -63,11 +62,6 @@ interface UseCaseModule {
     @Binds
     fun bindsUncheckIngredientUseCase(
         useCase: UncheckIngredientUseCase
-    ): UseCase
-
-    @Binds
-    fun bindsGetRecipesInShoppingListUseCase(
-        useCase: GetRecipesInShoppingListUseCase
     ): UseCase
 
     @Binds

@@ -1,11 +1,12 @@
 package com.tstreet.onhand.feature.shoppinglist
 
-import androidx.compose.foundation.clickable
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -13,17 +14,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.tstreet.onhand.core.model.*
-import com.tstreet.onhand.core.model.data.Ingredient
-import com.tstreet.onhand.core.model.data.RecipeIngredient
-import com.tstreet.onhand.core.model.data.ShoppingListIngredient
-import com.tstreet.onhand.core.model.ui.ShoppingListItem
+import com.tstreet.onhand.core.model.ui.UiShoppingListRowItem
 import com.tstreet.onhand.core.model.ui.ShoppingListUiState
+import com.tstreet.onhand.core.model.ui.UiShoppingListIngredient
+import com.tstreet.onhand.core.model.ui.UiShoppingListRecipe
+import com.tstreet.onhand.core.model.ui.UiShoppingListRowItem.RecipeIngredientGroup
+import com.tstreet.onhand.core.model.ui.UiShoppingListRowItem.StandaloneIngredient
+import com.tstreet.onhand.core.model.ui.UiShoppingListRowItem.Summary
 import com.tstreet.onhand.core.ui.*
 
 @Composable
@@ -34,7 +34,6 @@ fun ShoppingListScreen(
     val errorDialogState by viewModel.errorDialogState.collectAsStateWithLifecycle()
     val removeRecipeDialogState by viewModel.removeRecipeDialogState.collectAsStateWithLifecycle()
 
-    // For general errors
     OnHandAlertDialog(
         onDismiss = viewModel::dismissErrorDialog,
         state = errorDialogState
@@ -43,29 +42,27 @@ fun ShoppingListScreen(
     // Recipe removal confirmation dialog
     OnHandAlertDialog(
         onDismiss = viewModel::dismissRemoveRecipeDialog,
-        onConfirm = viewModel::onRemoveRecipe,
+        onConfirm = { },
         dismissButtonText = "Cancel",
         confirmButtonText = "Yes",
         showConfirmButton = true,
         state = removeRecipeDialogState
     )
 
-    when (val state = uiState) {
-        is ShoppingListUiState.Loading -> {
+    when (uiState) {
+        ShoppingListUiState.Loading -> {
             OnHandProgressIndicator(modifier = Modifier.fillMaxSize())
         }
-        is ShoppingListUiState.Success -> {
+
+        is ShoppingListUiState.Content -> {
             LazyColumn(verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()) {
-                // TODO: specify contentType here, since rows are different
-                //  https://developer.android.com/jetpack/compose/lists#content-type
-                // TODO: Implement item keys for this approach to avoid recompositions, hashCode
-                //  doesn't appear to work...
-                itemsIndexed(state.screenContent()) { _, item ->
+                itemsIndexed((uiState as ShoppingListUiState.Content).screenContent()) { _, item ->
                     when (item) {
-                        is ShoppingListItem.Header -> {
+                        is UiShoppingListRowItem.Header -> {
                             OnHandScreenHeader(item.text)
                         }
-                        is ShoppingListItem.Summary -> {
+
+                        is Summary -> {
                             Text(
                                 modifier = Modifier
                                     .padding(8.dp),
@@ -74,37 +71,46 @@ fun ShoppingListScreen(
                                 textAlign = TextAlign.Center,
                             )
                         }
-                        is ShoppingListItem.MappedRecipes -> {
-                            ShoppingListRecipeCards(
-                                recipePreviews = item.recipePreviews,
-                                onItemClick = { /* TODO */ },
-                                onRemoveClick = viewModel::showRemoveRecipeDialog
+
+                        is RecipeIngredientGroup -> {
+                            RecipeIngredientGroup(
+                                recipeGroup = item,
+                                onMarkIngredient = viewModel::onCheckOffShoppingIngredient,
+                                onUnmarkIngredient = viewModel::onUncheckShoppingIngredient,
+                                onRemoveIngredient = viewModel::onRemoveIngredient,
+                                onRemoveRecipe = viewModel::showRemoveRecipeDialog
                             )
                         }
-                        is ShoppingListItem.Ingredients -> {
+                        
+                        // TODO: Map standalone ingredients (i.e. no mapped recipe)
+                        is StandaloneIngredient -> {
                             when {
                                 item.ingredients.isNotEmpty() -> {
                                     ShoppingListIngredientCards(
                                         ingredients = item.ingredients,
+                                        // TODO: potentially move viewmodel functions into mapper to reduce
+                                        //  ui clutter
                                         onMarkIngredient = viewModel::onCheckOffShoppingIngredient,
                                         onUnmarkIngredient = viewModel::onUncheckShoppingIngredient,
                                         onRemoveIngredient = viewModel::onRemoveIngredient
                                     )
                                 }
+
                                 else -> {
                                     Column(
                                         modifier = Modifier
-                                            .fillMaxSize(),
+                                            .fillMaxSize()
+                                            .padding(horizontal = 24.dp),
                                         verticalArrangement = Arrangement.Center
                                     ) {
                                         Icon(
                                             Icons.Default.ShoppingCart,
-                                            contentDescription = "empty shopping card",
+                                            contentDescription = "Empty shopping cart",
                                             modifier = Modifier
                                                 .size(120.dp)
                                                 .align(Alignment.CenterHorizontally)
                                                 .padding(32.dp),
-                                            tint = MaterialTheme.colorScheme.inverseOnSurface
+                                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
                                         )
                                         Text(
                                             modifier = Modifier
@@ -113,8 +119,9 @@ fun ShoppingListScreen(
                                             text = "Your shopping list is empty. You can add " +
                                                     "items from recipes or manually enter your " +
                                                     "own.",
-                                            style = MaterialTheme.typography.bodyMedium,
+                                            style = MaterialTheme.typography.bodyLarge,
                                             textAlign = TextAlign.Center,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                     }
                                 }
@@ -124,92 +131,62 @@ fun ShoppingListScreen(
                 }
             }
         }
-        is ShoppingListUiState.Error -> {
-            LazyColumn(verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()) {
-                // TODO: specify contentType here, since rows are different
-                //  https://developer.android.com/jetpack/compose/lists#content-type
-                itemsIndexed(state.screenContent()) { _, item ->
-                    when (item) {
-                        is ShoppingListItem.Header -> {
-                            OnHandScreenHeader(item.text)
-                        }
-                        is ShoppingListItem.Summary -> {
-                            Text(
-                                modifier = Modifier
-                                    .padding(8.dp),
-                                text = item.text,
-                                style = MaterialTheme.typography.titleLarge,
-                                textAlign = TextAlign.Center,
-                            )
-                        }
-                        is ShoppingListItem.MappedRecipes -> {
-                            ShoppingListRecipeCards(
-                                recipePreviews = item.recipePreviews,
-                                onItemClick = { /* TODO */ },
-                                onRemoveClick = viewModel::showRemoveRecipeDialog
-                            )
-                        }
-                        is ShoppingListItem.Ingredients -> {
-                            when {
-                                item.ingredients.isNotEmpty() -> {
-                                    ShoppingListIngredientCards(
-                                        ingredients = item.ingredients,
-                                        onMarkIngredient = viewModel::onCheckOffShoppingIngredient,
-                                        onUnmarkIngredient = viewModel::onUncheckShoppingIngredient,
-                                        onRemoveIngredient = viewModel::onRemoveIngredient
-                                    )
-                                }
-                                else -> {
-                                    Column(
-                                        modifier = Modifier
-                                            .fillMaxSize(),
-                                        verticalArrangement = Arrangement.Center
-                                    ) {
-                                        Icon(
-                                            Icons.Default.ShoppingCart,
-                                            contentDescription = "empty shopping card",
-                                            modifier = Modifier
-                                                .size(120.dp)
-                                                .align(Alignment.CenterHorizontally)
-                                                .padding(32.dp),
-                                            tint = MaterialTheme.colorScheme.inverseOnSurface
-                                        )
-                                        Text(
-                                            modifier = Modifier
-                                                .align(Alignment.CenterHorizontally)
-                                                .padding(16.dp),
-                                            text = "Your shopping list is empty. You can add " +
-                                                    "items from recipes or manually enter your " +
-                                                    "own.",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            textAlign = TextAlign.Center,
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+
+        ShoppingListUiState.Error -> {
+            Log.d("[OnHand]", "Error loading shopping list")
         }
     }
 }
 
 @Composable
-fun ShoppingListIngredientCards(
-    ingredients: List<ShoppingListIngredient>,
-    onMarkIngredient: (Int) -> Unit = { },
-    onUnmarkIngredient: (Int) -> Unit = { },
-    onRemoveIngredient: (Int) -> Unit = { }
+fun RecipeIngredientGroup(
+    recipeGroup: RecipeIngredientGroup,
+    onRemoveRecipe: () -> Unit,
+    onMarkIngredient: (UiShoppingListIngredient) -> Unit,
+    onUnmarkIngredient: (UiShoppingListIngredient) -> Unit,
+    onRemoveIngredient: (UiShoppingListIngredient) -> Unit
 ) {
-    ingredients.mapIndexed { index, ingredient ->
-        ShoppingListCardItem(
-            ShoppingListCard(
-                ingredientName = ingredient.name,
-                recipePreview = ingredient.mappedRecipePreview,
-                isIngredientChecked = ingredient.isPurchased,
-                index = index
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+    ) {
+        // Recipe header
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 4.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
             ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = recipeGroup.recipe.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+                
+                IconButton(onClick = { onRemoveRecipe() }) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Remove recipe",
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                }
+            }
+        }
+
+        // Ingredients list
+        ShoppingListIngredientCards(
+            ingredients = recipeGroup.recipe.ingredients,
             onMarkIngredient = onMarkIngredient,
             onUnmarkIngredient = onUnmarkIngredient,
             onRemoveIngredient = onRemoveIngredient
@@ -217,116 +194,96 @@ fun ShoppingListIngredientCards(
     }
 }
 
-@Preview
 @Composable
-fun ShoppingListCardItem(
-    @PreviewParameter(RecipeSearchCardPreviewParamProvider::class) card: ShoppingListCard,
-    onMarkIngredient: (Int) -> Unit = { },
-    onUnmarkIngredient: (Int) -> Unit = { },
-    onRemoveIngredient: (Int) -> Unit = { }
+fun ShoppingListIngredientCards(
+    ingredients: List<UiShoppingListIngredient>,
+    onMarkIngredient: (UiShoppingListIngredient) -> Unit = { },
+    onUnmarkIngredient: (UiShoppingListIngredient) -> Unit = { },
+    onRemoveIngredient: (UiShoppingListIngredient) -> Unit = { }
 ) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                vertical = 8.dp, horizontal = 16.dp
-            ),
-        shadowElevation = 8.dp,
-        shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surfaceTint
-    ) {
-        Row(
-            modifier = Modifier.clickable { /* TODO */ },
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Checkbox(
-                checked = card.isIngredientChecked,
-                modifier = Modifier
-                    .padding(start = 24.dp)
-                    .align(Alignment.CenterVertically)
-                    .size(24.dp),
-                onCheckedChange = {
-                    if (card.isIngredientChecked) {
-                        onUnmarkIngredient(card.index)
-                    } else {
-                        onMarkIngredient(card.index)
-                    }
-                },
-                colors = CheckboxDefaults.colors(
-                    checkmarkColor = MaterialTheme.colorScheme.inverseOnSurface,
-                    checkedColor = MaterialTheme.colorScheme.inverseSurface,
-                    uncheckedColor = MaterialTheme.colorScheme.inverseSurface
-                )
-            )
-            Column(
-                modifier = Modifier
-                    .padding(20.dp)
-                    .weight(1f)
-            ) {
-                Text(
-                    modifier = Modifier.padding(8.dp),
-                    text = card.ingredientName,
-                    style = MaterialTheme.typography.headlineMedium
-                )
-                if (card.recipePreview != null) {
-                    Text(
-                        modifier = Modifier.padding(8.dp),
-                        text = card.recipePreview.title,
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                }
-            }
-            Icon(
-                Icons.Default.Clear,
-                contentDescription = "remove",
-                modifier = Modifier
-                    .size(36.dp)
-                    .clickable { onRemoveIngredient(card.index) },
-                tint = MaterialTheme.colorScheme.inverseOnSurface
+    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+        ingredients.forEach { ingredient ->
+            ShoppingListCardItem(
+                ShoppingListCard(
+                    ingredient = ingredient
+                ),
+                onMarkIngredient = onMarkIngredient,
+                onUnmarkIngredient = onUnmarkIngredient,
+                onRemoveIngredient = onRemoveIngredient
             )
         }
     }
 }
 
-class ShoppingListCard(
-    val ingredientName: String,
-    val recipePreview: RecipePreview?,
-    val isIngredientChecked: Boolean,
-    val index: Int
-)
+@Composable
+fun ShoppingListCardItem(
+    card: ShoppingListCard,
+    onMarkIngredient: (UiShoppingListIngredient) -> Unit = { },
+    onUnmarkIngredient: (UiShoppingListIngredient) -> Unit = { },
+    onRemoveIngredient: (UiShoppingListIngredient) -> Unit = { }
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 1.dp
+        ),
+        shape = MaterialTheme.shapes.medium,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Checkbox(
+                checked = card.ingredient.isChecked.value,
+                onCheckedChange = {
+                    if (card.ingredient.isChecked.value) {
+                        onUnmarkIngredient(card.ingredient)
+                    } else {
+                        onMarkIngredient(card.ingredient)
+                    }
+                },
+                colors = CheckboxDefaults.colors(
+                    checkedColor = MaterialTheme.colorScheme.primary,
+                )
+            )
 
-// TODO: move all below to a better location...
-class RecipeSearchCardPreviewParamProvider : PreviewParameterProvider<ShoppingListCard> {
-    override val values: Sequence<ShoppingListCard> = sequenceOf(
-        ShoppingListCard(
-            ingredientName = "ingredient",
-            recipePreview =
-            RecipePreview(
-                id = 1,
-                title = "Recipe title1",
-                image = "image",
-                imageType = "imageType",
-                missedIngredientCount = 2,
-                missedIngredients = listOf(
-                    RecipeIngredient(
-                        Ingredient(4, "cheese"),
-                        amount = 2.0,
-                        unit = "oz"
-                    )
-                ),
-                usedIngredientCount = 1,
-                usedIngredients = listOf(
-                    RecipeIngredient(
-                        Ingredient(5, "garlic"),
-                        amount = 1.0,
-                        unit = "clove"
-                    )
-                ),
-                likes = 100,
-                isCustom = true,
-            ),
-            index = 0,
-            isIngredientChecked = true
-        )
-    )
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 8.dp)
+            ) {
+                Text(
+                    text = card.ingredient.ingredient.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    textDecoration = if (card.ingredient.isChecked.value)
+                        TextDecoration.LineThrough else TextDecoration.None,
+                    color = if (card.ingredient.isChecked.value)
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    else
+                        MaterialTheme.colorScheme.onSurface
+                )
+            }
+
+            IconButton(
+                onClick = { onRemoveIngredient(card.ingredient) },
+            ) {
+                Icon(
+                    Icons.Default.Clear,
+                    contentDescription = "Remove item",
+                    tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
+                )
+            }
+        }
+    }
 }
+
+class ShoppingListCard(
+    val ingredient: UiShoppingListIngredient
+)
