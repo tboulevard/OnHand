@@ -13,13 +13,13 @@ sealed interface ShoppingListUiState {
                     text = "Shopping List"
                 )
             )
-            
+
             rowItems.addAll(recipesWithIngredients.map {
                 UiShoppingListRowItem.RecipeIngredientGroup(
                     recipe = it
                 )
             })
-            
+
             return rowItems
         }
     }

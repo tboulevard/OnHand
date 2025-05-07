@@ -113,7 +113,7 @@ class ShoppingListViewModel @Inject constructor(
 
     fun onRemoveRecipe(item: UiShoppingListRecipe) {
         viewModelScope.launch {
-            when (removeRecipeInShoppingListUseCase.get().invoke(item.recipePreview).status) {
+            when (removeRecipeInShoppingListUseCase.get().invoke(item.recipe).status) {
                 SUCCESS -> {}
                 ERROR -> {
                     _errorDialogState.update {

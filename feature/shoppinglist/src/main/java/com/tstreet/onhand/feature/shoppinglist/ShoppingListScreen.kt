@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -19,6 +20,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tstreet.onhand.core.model.ui.UiShoppingListRowItem
 import com.tstreet.onhand.core.model.ui.ShoppingListUiState
 import com.tstreet.onhand.core.model.ui.UiShoppingListIngredient
+import com.tstreet.onhand.core.model.ui.UiShoppingListRecipe
+import com.tstreet.onhand.core.model.ui.UiShoppingListRowItem.RecipeIngredientGroup
+import com.tstreet.onhand.core.model.ui.UiShoppingListRowItem.StandaloneIngredient
+import com.tstreet.onhand.core.model.ui.UiShoppingListRowItem.Summary
 import com.tstreet.onhand.core.ui.*
 
 @Composable
@@ -57,7 +62,7 @@ fun ShoppingListScreen(
                             OnHandScreenHeader(item.text)
                         }
 
-                        is UiShoppingListRowItem.Summary -> {
+                        is Summary -> {
                             Text(
                                 modifier = Modifier
                                     .padding(8.dp),
@@ -67,20 +72,24 @@ fun ShoppingListScreen(
                             )
                         }
 
-                        is UiShoppingListRowItem.RecipeIngredientGroup -> {
+                        is RecipeIngredientGroup -> {
                             RecipeIngredientGroup(
                                 recipeGroup = item,
                                 onMarkIngredient = viewModel::onCheckOffShoppingIngredient,
                                 onUnmarkIngredient = viewModel::onUncheckShoppingIngredient,
-                                onRemoveIngredient = viewModel::onRemoveIngredient
+                                onRemoveIngredient = viewModel::onRemoveIngredient,
+                                onRemoveRecipe = viewModel::showRemoveRecipeDialog
                             )
                         }
-
-                        is UiShoppingListRowItem.Ingredients -> {
+                        
+                        // TODO: Map standalone ingredients (i.e. no mapped recipe)
+                        is StandaloneIngredient -> {
                             when {
                                 item.ingredients.isNotEmpty() -> {
                                     ShoppingListIngredientCards(
                                         ingredients = item.ingredients,
+                                        // TODO: potentially move viewmodel functions into mapper to reduce
+                                        //  ui clutter
                                         onMarkIngredient = viewModel::onCheckOffShoppingIngredient,
                                         onUnmarkIngredient = viewModel::onUncheckShoppingIngredient,
                                         onRemoveIngredient = viewModel::onRemoveIngredient
@@ -131,7 +140,8 @@ fun ShoppingListScreen(
 
 @Composable
 fun RecipeIngredientGroup(
-    recipeGroup: UiShoppingListRowItem.RecipeIngredientGroup,
+    recipeGroup: RecipeIngredientGroup,
+    onRemoveRecipe: () -> Unit,
     onMarkIngredient: (UiShoppingListIngredient) -> Unit,
     onUnmarkIngredient: (UiShoppingListIngredient) -> Unit,
     onRemoveIngredient: (UiShoppingListIngredient) -> Unit
@@ -155,13 +165,22 @@ fun RecipeIngredientGroup(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
                     text = recipeGroup.recipe.title,
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSecondaryContainer
                 )
+                
+                IconButton(onClick = { onRemoveRecipe() }) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Remove recipe",
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                }
             }
         }
 

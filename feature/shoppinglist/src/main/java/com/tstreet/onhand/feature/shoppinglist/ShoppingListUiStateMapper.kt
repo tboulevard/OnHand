@@ -34,7 +34,7 @@ class ShoppingListUiStateMapper @Inject constructor() {
                             id = recipe.id,
                             title = recipe.title,
                             imageUrl = recipe.image,
-                            recipePreview = recipe,
+                            recipe = recipe,
                             ingredients = ingredients.map { ingredient ->
                                 UiShoppingListIngredient(
                                     ingredient,
