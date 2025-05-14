@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.Status.ERROR
 import com.tstreet.onhand.core.common.Status.SUCCESS
+import com.tstreet.onhand.core.domain.usecase.shoppinglist.AddToShoppingListUseCase
 import com.tstreet.onhand.core.domain.usecase.shoppinglist.CheckOffIngredientUseCase
 import com.tstreet.onhand.core.domain.usecase.shoppinglist.GetShoppingListUseCase
 import com.tstreet.onhand.core.domain.usecase.shoppinglist.RemoveIngredientUseCase
@@ -25,6 +26,7 @@ import javax.inject.Provider
 
 class ShoppingListViewModel @Inject constructor(
     getShoppingListUseCase: Provider<GetShoppingListUseCase>,
+    private val addToShoppingListUseCase: Provider<AddToShoppingListUseCase>,
     private val removeIngredientUseCase: Provider<RemoveIngredientUseCase>,
     private val removeRecipeInShoppingListUseCase: Provider<RemoveRecipeInShoppingListUseCase>,
     private val checkIngredientUseCase: Provider<CheckOffIngredientUseCase>,
@@ -114,7 +116,16 @@ class ShoppingListViewModel @Inject constructor(
     fun onRemoveRecipe(item: UiShoppingListRecipe) {
         viewModelScope.launch {
             when (removeRecipeInShoppingListUseCase.get().invoke(item.recipe).status) {
-                SUCCESS -> {}
+                SUCCESS -> {
+                    item.isInCart.value = false
+
+                    // Remove all ingredients in the recipe too
+                    // TODO: Make a bulk operation in the future
+                    for (ingredient in item.ingredients) {
+                        onRemoveIngredient(ingredient)
+                    }
+                }
+
                 ERROR -> {
                     _errorDialogState.update {
                         displayed(
@@ -128,11 +139,41 @@ class ShoppingListViewModel @Inject constructor(
         }
     }
 
+    fun onUndoRemoveRecipe(item: UiShoppingListRecipe) {
+        viewModelScope.launch {
+            when (addToShoppingListUseCase.get()
+                .addShoppingListIngredients(
+                    item.ingredients.map { it.ingredient },
+                    item.recipe
+                ).status) {
+                SUCCESS -> {
+                    item.isInCart.value = true
+
+                    // Reflect that all ingredients were added back too
+                    // TODO: Make a bulk operation in the future
+                    for (ingredient in item.ingredients) {
+                        ingredient.isInCart.value = true
+                    }
+                }
+
+                ERROR -> {
+                    _errorDialogState.update {
+                        displayed(
+                            title = "Error",
+                            message = "There was a problem re-adding the recipe to your " +
+                                    "shopping list. Please try again."
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     fun onRemoveIngredient(item: UiShoppingListIngredient) {
         viewModelScope.launch {
             when (removeIngredientUseCase.get().invoke(item.ingredient).status) {
                 SUCCESS -> {
-
+                    item.isInCart.value = false
                 }
 
                 ERROR -> {
@@ -148,21 +189,27 @@ class ShoppingListViewModel @Inject constructor(
         }
     }
 
+    fun onAddIngredient(item: UiShoppingListIngredient) {
+        viewModelScope.launch {
+            when (addToShoppingListUseCase.get().addShoppingListIngredients(listOf(item.ingredient)).status) {
+                SUCCESS -> {
+                    item.isInCart.value = true
+                }
+
+                ERROR -> {
+                    _errorDialogState.update {
+                        displayed(
+                            title = "Error",
+                            message = "There was a problem adding the ingredient from your " +
+                                    "shopping list. Please try again."
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     fun dismissErrorDialog() {
         _errorDialogState.update { dismissed() }
-    }
-
-    fun dismissRemoveRecipeDialog() {
-        _removeRecipeDialogState.update { dismissed() }
-    }
-
-    fun showRemoveRecipeDialog() {
-        _removeRecipeDialogState.update {
-            displayed(
-                title = "Are you sure?",
-                message = "Are you sure you'd like to remove this recipe and all its " +
-                        "ingredients from your shopping list?"
-            )
-        }
     }
 }

@@ -33,6 +33,9 @@ interface ShoppingListDao {
     @Query("DELETE from shopping_list WHERE mappedRecipePreview = :recipe")
     suspend fun removeRecipePreview(recipe: RecipePreview)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addRecipePreview(shoppingListEntity: ShoppingListEntity)
+
     @Query("DELETE FROM shopping_list WHERE ingredientName = :name")
     suspend fun removeIngredient(name: String)
 }

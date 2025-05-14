@@ -8,7 +8,6 @@ import com.tstreet.onhand.core.domain.repository.PantryRepository
 import com.tstreet.onhand.core.domain.repository.RecipeRepository
 import com.tstreet.onhand.core.model.*
 import com.tstreet.onhand.core.model.data.Ingredient
-import com.tstreet.onhand.core.model.data.RecipeIngredient
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -37,12 +36,12 @@ class AddRecipeUseCase @Inject constructor(
      */
     private fun calculateMissedIngredients(
         pantryIngredients: List<Ingredient>,
-        customRecipeIngredients: List<RecipeIngredient>
-    ): List<RecipeIngredient> {
-        val newList = mutableListOf<RecipeIngredient>()
+        customRecipeIngredients: List<Ingredient>
+    ): List<Ingredient> {
+        val newList = mutableListOf<Ingredient>()
         customRecipeIngredients.filterTo(destination = newList) { customRecipeIngredient ->
             // Filter the ingredient if we find it in the pantry (not missing)
-            pantryIngredients.find { customRecipeIngredient.ingredient.name == it.name } == null
+            pantryIngredients.find { customRecipeIngredient.name == it.name } == null
         }
         return newList
     }
@@ -52,12 +51,12 @@ class AddRecipeUseCase @Inject constructor(
      */
     private fun calculateUsedIngredients(
         pantryIngredients: List<Ingredient>,
-        customRecipeIngredients: List<RecipeIngredient>
-    ): List<RecipeIngredient> {
-        val newList = mutableListOf<RecipeIngredient>()
+        customRecipeIngredients: List<Ingredient>
+    ): List<Ingredient> {
+        val newList = mutableListOf<Ingredient>()
         customRecipeIngredients.filterTo(destination = newList) { customRecipeIngredient ->
             // Filter the ingredient if we do not find it in the pantry (not used)
-            pantryIngredients.find { customRecipeIngredient.ingredient.name == it.name } != null
+            pantryIngredients.find { customRecipeIngredient.name == it.name } != null
         }
         return newList
     }

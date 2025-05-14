@@ -3,7 +3,6 @@ package com.tstreet.onhand.core.domain.repository
 import com.tstreet.onhand.core.common.Resource
 import com.tstreet.onhand.core.model.RecipePreview
 import com.tstreet.onhand.core.model.data.ShoppingListIngredient
-import kotlinx.coroutines.flow.Flow
 
 interface ShoppingListRepository {
 

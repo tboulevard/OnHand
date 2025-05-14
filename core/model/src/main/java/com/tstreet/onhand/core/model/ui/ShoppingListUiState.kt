@@ -25,4 +25,5 @@ sealed interface ShoppingListUiState {
     }
 
     object Error : ShoppingListUiState
+    object Empty : ShoppingListUiState
 }

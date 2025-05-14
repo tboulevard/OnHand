@@ -24,27 +24,32 @@ class ShoppingListUiStateMapper @Inject constructor() {
 
         is ShoppingListResult.Success -> {
 
-            val recipeToIngredientMap =
-                shoppingListResult.ingredients.groupBy { it.mappedRecipePreview }
+            if (shoppingListResult.ingredients.isEmpty()) {
+                ShoppingListUiState.Empty
+            } else {
 
-            ShoppingListUiState.Content(
-                recipesWithIngredients = recipeToIngredientMap.mapNotNull { (recipe, ingredients) ->
-                    recipe?.let { r ->
-                        UiShoppingListRecipe(
-                            id = recipe.id,
-                            title = recipe.title,
-                            imageUrl = recipe.image,
-                            recipe = recipe,
-                            ingredients = ingredients.map { ingredient ->
-                                UiShoppingListIngredient(
-                                    ingredient,
-                                    isChecked = mutableStateOf(ingredient.isPurchased)
-                                )
-                            }
-                        )
+                val recipeToIngredientMap =
+                    shoppingListResult.ingredients.groupBy { it.mappedRecipePreview }
+
+                ShoppingListUiState.Content(
+                    recipesWithIngredients = recipeToIngredientMap.mapNotNull { (recipe, ingredients) ->
+                        recipe?.let { r ->
+                            UiShoppingListRecipe(
+                                id = recipe.id,
+                                title = recipe.title,
+                                imageUrl = recipe.image,
+                                recipe = recipe,
+                                ingredients = ingredients.map { ingredient ->
+                                    UiShoppingListIngredient(
+                                        ingredient = ingredient,
+                                        isChecked = mutableStateOf(ingredient.isPurchased)
+                                    )
+                                }
+                            )
+                        }
                     }
-                }
-            )
+                )
+            }
         }
     }
 }

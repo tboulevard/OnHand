@@ -1,6 +1,6 @@
 package com.tstreet.onhand.core.model
 
-import com.tstreet.onhand.core.model.data.RecipeIngredient
+import com.tstreet.onhand.core.model.data.Ingredient
 import kotlinx.serialization.Serializable
 
 /**
@@ -18,9 +18,9 @@ data class RecipePreview(
     val image: String,
     val imageType: String,
     val usedIngredientCount: Int,
-    val usedIngredients: List<RecipeIngredient>,
+    val usedIngredients: List<Ingredient>,
     val missedIngredientCount: Int,
-    val missedIngredients: List<RecipeIngredient>,
+    val missedIngredients: List<Ingredient>,
     val likes: Int,
     val isCustom: Boolean
 )
