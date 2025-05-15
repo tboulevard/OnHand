@@ -3,9 +3,12 @@ package com.tstreet.onhand.core.domain.usecase.shoppinglist
 import com.tstreet.onhand.core.common.Status
 import com.tstreet.onhand.core.common.Resource
 import com.tstreet.onhand.core.common.FeatureScope
+import com.tstreet.onhand.core.domain.repository.PantryRepository
 import com.tstreet.onhand.core.domain.repository.ShoppingListRepository
 import com.tstreet.onhand.core.domain.usecase.UseCase
 import com.tstreet.onhand.core.model.*
+import com.tstreet.onhand.core.model.data.Ingredient
+import com.tstreet.onhand.core.model.data.PantryIngredient
 import com.tstreet.onhand.core.model.data.ShoppingListIngredient
 import com.tstreet.onhand.core.model.domain.ShoppingListResult
 import kotlinx.coroutines.flow.*
@@ -14,13 +17,15 @@ import javax.inject.Provider
 
 @FeatureScope
 class GetShoppingListUseCase @Inject constructor(
-    private val shoppingListRepository: Provider<ShoppingListRepository>
+    private val shoppingListRepository: Provider<ShoppingListRepository>,
+    private val pantryRepository: Provider<PantryRepository>
 ) : UseCase() {
 
     operator fun invoke(): Flow<ShoppingListResult> {
         return combineShoppingListAndRecipes(
             getShoppingList(),
-            getRecipesInShoppingList()
+            getRecipesInShoppingList(),
+            getPantryList()
         ).catch {
             emit(ShoppingListResult.Error)
         }.onStart {
@@ -47,6 +52,9 @@ class GetShoppingListUseCase @Inject constructor(
             )
         }
     }
+    
+    private fun getPantryList(): Flow<List<Ingredient>> =
+        flow { emit(pantryRepository.get().listPantry()) }
 
     /**
      * Given a [Flow] of [ShoppingListIngredient]s and a [Flow] of [RecipePreview]s and merge them
@@ -56,15 +64,20 @@ class GetShoppingListUseCase @Inject constructor(
      */
     private fun combineShoppingListAndRecipes(
         shoppingListFlow: Flow<Resource<List<ShoppingListIngredient>>>,
-        recipesInShoppingListFlow: Flow<Resource<List<RecipePreview>>>
+        recipesInShoppingListFlow: Flow<Resource<List<RecipePreview>>>,
+        pantryListFlow: Flow<List<Ingredient>>
     ): Flow<ShoppingListResult> =
-        shoppingListFlow.combine(
-            recipesInShoppingListFlow
-        ) { shoppingListIngredients, recipesInShoppingList ->
+        combine(
+            shoppingListFlow,
+            recipesInShoppingListFlow,
+            pantryListFlow
+        ) { shoppingListIngredients, recipesInShoppingList, pantryIngredients ->
             ShoppingListResult.Success(
                 ingredients = when (shoppingListIngredients.status) {
                     Status.SUCCESS -> {
-                        shoppingListIngredients.data as List<ShoppingListIngredient>
+                        (shoppingListIngredients.data as List<ShoppingListIngredient>).map {
+                            it.copy(inPantry = pantryIngredients.contains(it.ingredient))
+                        }
                     }
 
                     Status.ERROR -> {

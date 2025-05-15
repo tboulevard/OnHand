@@ -37,4 +37,22 @@ class Converters {
             null
         }
     }
+
+    @TypeConverter
+    fun toIngredient(str: String?): Ingredient? {
+        return if (str != null) {
+            Json.decodeFromString(str)
+        } else {
+            null
+        }
+    }
+
+    @TypeConverter
+    fun fromIngredient(ingredient: Ingredient?): String? {
+        return if (ingredient != null) {
+            Json.encodeToString(ingredient)
+        } else {
+            null
+        }
+    }
 }

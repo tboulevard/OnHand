@@ -2,6 +2,7 @@ package com.tstreet.onhand.feature.savedrecipes
 
 import androidx.compose.runtime.mutableStateOf
 import com.tstreet.onhand.core.common.FeatureScope
+import com.tstreet.onhand.core.model.data.Ingredient
 import com.tstreet.onhand.core.model.data.RecipePreviewWithSaveState
 import com.tstreet.onhand.core.model.domain.SavedRecipesResult
 import com.tstreet.onhand.core.model.ui.IngredientAvailability
@@ -60,15 +61,25 @@ fun List<RecipePreviewWithSaveState>.toRecipeWithSaveStateItemList(): List<Recip
             // TODO: refactor, weak cohesion
             ingredientShoppingCartState = mutableStateOf(
                 when {
-                    it.ingredientsMissingButInShoppingList.size > 0 -> {
-                        IngredientAvailability.MISSING_INGREDIENTS
+                    it.preview.missedIngredients.containsAllIngredients(it.ingredientsMissingButInShoppingList) -> {
+                        IngredientAvailability.ALL_INGREDIENTS_AVAILABLE
                     }
 
                     else -> {
-                        IngredientAvailability.ALL_INGREDIENTS_AVAILABLE
+                        IngredientAvailability.MISSING_INGREDIENTS
                     }
                 }
             )
         )
     }
+}
+
+/**
+ * Extension function that checks if all ingredients in the current list are contained in another list.
+ * Ingredients are compared by their ids.
+ */
+private fun List<Ingredient>.containsAllIngredients(ingredients: List<Ingredient>): Boolean {
+    val thisIds = this.map { it.id }.toSet()
+    val otherIds = ingredients.map { it.id }.toSet()
+    return otherIds.containsAll(thisIds)
 }

@@ -25,7 +25,7 @@ class AddToShoppingListUseCase @Inject constructor(
         val result = shoppingListRepository.get().addIngredients(
             missingIngredients.map {
                 ShoppingListIngredient(
-                    it.name,
+                    it,
                     recipe,
                     false
                 )

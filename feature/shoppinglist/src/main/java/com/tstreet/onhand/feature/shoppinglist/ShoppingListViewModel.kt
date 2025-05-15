@@ -6,12 +6,12 @@ import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.common.Status.ERROR
 import com.tstreet.onhand.core.common.Status.SUCCESS
+import com.tstreet.onhand.core.domain.usecase.pantry.AddToPantryUseCase
+import com.tstreet.onhand.core.domain.usecase.pantry.RemoveFromPantryUseCase
 import com.tstreet.onhand.core.domain.usecase.shoppinglist.AddToShoppingListUseCase
-import com.tstreet.onhand.core.domain.usecase.shoppinglist.CheckOffIngredientUseCase
 import com.tstreet.onhand.core.domain.usecase.shoppinglist.GetShoppingListUseCase
 import com.tstreet.onhand.core.domain.usecase.shoppinglist.RemoveIngredientUseCase
 import com.tstreet.onhand.core.domain.usecase.shoppinglist.RemoveRecipeInShoppingListUseCase
-import com.tstreet.onhand.core.domain.usecase.shoppinglist.UncheckIngredientUseCase
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.displayed
 import com.tstreet.onhand.core.model.ui.ShoppingListUiState
@@ -26,11 +26,11 @@ import javax.inject.Provider
 
 class ShoppingListViewModel @Inject constructor(
     getShoppingListUseCase: Provider<GetShoppingListUseCase>,
+    private val addToPantryUseCase: Provider<AddToPantryUseCase>,
     private val addToShoppingListUseCase: Provider<AddToShoppingListUseCase>,
     private val removeIngredientUseCase: Provider<RemoveIngredientUseCase>,
     private val removeRecipeInShoppingListUseCase: Provider<RemoveRecipeInShoppingListUseCase>,
-    private val checkIngredientUseCase: Provider<CheckOffIngredientUseCase>,
-    private val uncheckIngredientUseCase: Provider<UncheckIngredientUseCase>,
+    private val removeFromPantryUseCase: Provider<RemoveFromPantryUseCase>,
     private val mapper: ShoppingListUiStateMapper,
     @Named(IO) private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
@@ -60,30 +60,22 @@ class ShoppingListViewModel @Inject constructor(
             initialValue = _errorDialogState.value
         )
 
-    private val _removeRecipeDialogState = MutableStateFlow(dismissed())
-    val removeRecipeDialogState = _removeRecipeDialogState
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = _removeRecipeDialogState.value
-        )
-
     fun onCheckOffShoppingIngredient(item: UiShoppingListIngredient) {
         viewModelScope.launch {
-            checkIngredientUseCase.get().invoke(item.ingredient).collect { resource ->
-                when (resource.status) {
-                    SUCCESS -> {
-                        item.isChecked.value = true
-                    }
+            val result = addToPantryUseCase.get().invoke(item.ingredient.ingredient)
 
-                    ERROR -> {
-                        _errorDialogState.update {
-                            displayed(
-                                title = "Error",
-                                message = "There was a problem checking off the ingredient in " +
-                                        "your shopping list. Please try again."
-                            )
-                        }
+            when (result.status) {
+                SUCCESS -> {
+                    item.isChecked.value = true
+                }
+
+                ERROR -> {
+                    _errorDialogState.update {
+                        displayed(
+                            title = "Error",
+                            message = "There was a problem checking off the ingredient in " +
+                                    "your shopping list. Please try again."
+                        )
                     }
                 }
             }
@@ -92,21 +84,20 @@ class ShoppingListViewModel @Inject constructor(
 
     fun onUncheckShoppingIngredient(item: UiShoppingListIngredient) {
         viewModelScope.launch {
-            // Save the recipe
-            uncheckIngredientUseCase.get().invoke(item.ingredient).collect { resource ->
-                when (resource.status) {
-                    SUCCESS -> {
-                        item.isChecked.value = false
-                    }
+            val result = removeFromPantryUseCase.get().invoke(item.ingredient.ingredient)
 
-                    ERROR -> {
-                        _errorDialogState.update {
-                            displayed(
-                                title = "Error",
-                                message = "There was a problem unchecking the ingredient in your " +
-                                        "shopping list. Please try again."
-                            )
-                        }
+            when (result.status) {
+                SUCCESS -> {
+                    item.isChecked.value = false
+                }
+
+                ERROR -> {
+                    _errorDialogState.update {
+                        displayed(
+                            title = "Error",
+                            message = "There was a problem unchecking the ingredient in your " +
+                                    "shopping list. Please try again."
+                        )
                     }
                 }
             }
@@ -191,7 +182,8 @@ class ShoppingListViewModel @Inject constructor(
 
     fun onAddIngredient(item: UiShoppingListIngredient) {
         viewModelScope.launch {
-            when (addToShoppingListUseCase.get().addShoppingListIngredients(listOf(item.ingredient)).status) {
+            when (addToShoppingListUseCase.get()
+                .addShoppingListIngredients(listOf(item.ingredient)).status) {
                 SUCCESS -> {
                     item.isInCart.value = true
                 }

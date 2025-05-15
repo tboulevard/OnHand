@@ -95,7 +95,7 @@ class GetRecipesUseCase @Inject constructor(
 
         // Ingredients in shopping list
         val shoppingListIngredientNames =
-            shoppingListIngredients.data?.map { it.name } ?: emptyList()
+            shoppingListIngredients.data?.map { it.ingredient.name } ?: emptyList()
 
         return when (recipeResource.status) {
             Status.SUCCESS -> {

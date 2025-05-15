@@ -18,15 +18,6 @@ interface ShoppingListDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertShoppingList(shoppingList: List<ShoppingListEntity>)
 
-    @Query("SELECT 1 from shopping_list WHERE ingredientName = :name AND isPurchased = 1")
-    suspend fun isShoppingListIngredientPurchased(name: String): Boolean
-
-    @Query("UPDATE shopping_list SET isPurchased = 1 WHERE ingredientName = :name AND isPurchased = 0")
-    suspend fun markIngredientPurchased(name: String)
-
-    @Query("UPDATE shopping_list SET isPurchased = 0 WHERE ingredientName = :name AND isPurchased = 1")
-    suspend fun unmarkIngredientPurchased(name: String)
-
     @Query("SELECT (SELECT COUNT(*) FROM shopping_list) == 0")
     suspend fun isEmpty(): Boolean
 
@@ -36,6 +27,6 @@ interface ShoppingListDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addRecipePreview(shoppingListEntity: ShoppingListEntity)
 
-    @Query("DELETE FROM shopping_list WHERE ingredientName = :name")
-    suspend fun removeIngredient(name: String)
+    @Query("DELETE FROM shopping_list WHERE ingredientId = :id")
+    suspend fun removeIngredient(id: Int)
 }

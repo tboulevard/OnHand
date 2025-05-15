@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tstreet.onhand.core.model.ui.UiShoppingListRowItem
 import com.tstreet.onhand.core.model.ui.ShoppingListUiState
@@ -200,7 +201,10 @@ fun RecipeCardWithIngredientsGroup(
                 Text(
                     text = recipeGroup.recipe.title,
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
                 )
 
                 IconButton(
@@ -303,7 +307,7 @@ fun ShoppingListCardItem(
                     .padding(horizontal = 8.dp)
             ) {
                 Text(
-                    text = card.ingredient.ingredient.name,
+                    text = card.ingredient.ingredient.ingredient.name,
                     style = MaterialTheme.typography.titleMedium,
                     textDecoration = if (card.ingredient.isChecked.value)
                         TextDecoration.LineThrough else TextDecoration.None,

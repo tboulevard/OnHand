@@ -42,7 +42,7 @@ class ShoppingListUiStateMapper @Inject constructor() {
                                 ingredients = ingredients.map { ingredient ->
                                     UiShoppingListIngredient(
                                         ingredient = ingredient,
-                                        isChecked = mutableStateOf(ingredient.isPurchased)
+                                        isChecked = mutableStateOf(ingredient.inPantry)
                                     )
                                 }
                             )
