@@ -156,7 +156,7 @@ private fun RecipeDetailContent(state: RecipeDetailUiState.Success) {
                 Spacer(modifier = Modifier.height(4.dp))
                 state.recipe?.preview?.usedIngredients?.forEach { ingredient ->
                     Text(
-                        text = "• ${ingredient.ingredient.name}",
+                        text = "• ${ingredient.name}",
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(start = 8.dp)
                     )
@@ -173,7 +173,7 @@ private fun RecipeDetailContent(state: RecipeDetailUiState.Success) {
                 Spacer(modifier = Modifier.height(4.dp))
                 state.recipe?.preview?.missedIngredients?.forEach { ingredient ->
                     Text(
-                        text = "• ${ingredient.ingredient.name}",
+                        text = "• ${ingredient.name}",
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(start = 8.dp)
                     )

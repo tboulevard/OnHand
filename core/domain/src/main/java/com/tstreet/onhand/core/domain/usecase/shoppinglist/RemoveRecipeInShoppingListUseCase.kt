@@ -20,7 +20,7 @@ class RemoveRecipeInShoppingListUseCase @Inject constructor(
     @Named(IO) private val ioDispatcher: CoroutineDispatcher,
 ) : UseCase() {
 
-    operator suspend fun invoke(recipePreview: RecipePreview): Resource<Unit> {
+    suspend operator fun invoke(recipePreview: RecipePreview): Resource<Unit> {
         Log.d("[OnHand]", "RemoveRecipeInShoppingListUseCase.invoke()")
         return withContext(ioDispatcher) {
             val result = shoppingListRepository.get().removeRecipePreview(recipePreview)

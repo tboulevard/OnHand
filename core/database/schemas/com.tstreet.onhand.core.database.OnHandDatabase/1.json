@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "be49d83cebf1240cec1c7be112a30abe",
+    "identityHash": "e9de1cbece7fa6de86660a97bd110cd7",
     "entities": [
       {
         "tableName": "ingredient_catalog",
@@ -212,11 +212,17 @@
       },
       {
         "tableName": "shopping_list",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ingredientName` TEXT NOT NULL, `mappedRecipePreview` TEXT NOT NULL, `isPurchased` INTEGER NOT NULL, PRIMARY KEY(`ingredientName`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ingredientId` INTEGER NOT NULL, `ingredient` TEXT NOT NULL, `mappedRecipePreview` TEXT NOT NULL, PRIMARY KEY(`ingredientId`))",
         "fields": [
           {
-            "fieldPath": "ingredientName",
-            "columnName": "ingredientName",
+            "fieldPath": "ingredientId",
+            "columnName": "ingredientId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ingredient",
+            "columnName": "ingredient",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -225,18 +231,12 @@
             "columnName": "mappedRecipePreview",
             "affinity": "TEXT",
             "notNull": true
-          },
-          {
-            "fieldPath": "isPurchased",
-            "columnName": "isPurchased",
-            "affinity": "INTEGER",
-            "notNull": true
           }
         ],
         "primaryKey": {
           "autoGenerate": false,
           "columnNames": [
-            "ingredientName"
+            "ingredientId"
           ]
         },
         "indices": [],
@@ -246,7 +246,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'be49d83cebf1240cec1c7be112a30abe')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e9de1cbece7fa6de86660a97bd110cd7')"
     ]
   }
 }

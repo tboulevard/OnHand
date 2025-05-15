@@ -8,17 +8,8 @@ import com.tstreet.onhand.core.model.ui.IngredientAvailability
 import com.tstreet.onhand.core.model.ui.RecipeSaveState
 import com.tstreet.onhand.core.model.ui.RecipeSearchUiState
 import com.tstreet.onhand.core.model.ui.RecipeWithSaveState
+import com.tstreet.onhand.core.model.data.Ingredient
 import javax.inject.Inject
-
-/**
- * Extension function to check if the list is a subset of another list
- * Returns true if every element in this list is contained in the other list
- */
-private fun <T> List<T>.isSubsetOf(other: List<T>): Boolean {
-    if (this.isEmpty() && other.isNotEmpty()) return false
-
-    return this.all { it in other }
-}
 
 @FeatureScope
 class SearchRecipeUiStateMapper @Inject constructor() {
@@ -39,14 +30,9 @@ class SearchRecipeUiStateMapper @Inject constructor() {
     }
 }
 
+// TODO: duplicated, centralize later
 fun List<RecipePreviewWithSaveState>.toRecipeWithSaveStateItemList(): List<RecipeWithSaveState> {
-
-
     return map {
-
-        val ingredientsMissingButInShoppingList = it.ingredientsMissingButInShoppingList
-        val ingredientsMissing = it.preview.missedIngredients
-
         RecipeWithSaveState(
             preview = it.preview,
             saveState =
@@ -72,9 +58,10 @@ fun List<RecipePreviewWithSaveState>.toRecipeWithSaveStateItemList(): List<Recip
                     }
                 }
             ),
+            // TODO: refactor, weak cohesion
             ingredientShoppingCartState = mutableStateOf(
                 when {
-                    ingredientsMissingButInShoppingList.isSubsetOf(ingredientsMissing) -> {
+                    it.preview.missedIngredients.containsAllIngredients(it.ingredientsMissingButInShoppingList) -> {
                         IngredientAvailability.ALL_INGREDIENTS_AVAILABLE
                     }
 
@@ -85,4 +72,14 @@ fun List<RecipePreviewWithSaveState>.toRecipeWithSaveStateItemList(): List<Recip
             )
         )
     }
+}
+
+/**
+ * Extension function that checks if all ingredients in the current list are contained in another list.
+ * Ingredients are compared by their ids.
+ */
+private fun List<Ingredient>.containsAllIngredients(ingredients: List<Ingredient>): Boolean {
+    val thisIds = this.map { it.id }.toSet()
+    val otherIds = ingredients.map { it.id }.toSet()
+    return otherIds.containsAll(thisIds)
 }

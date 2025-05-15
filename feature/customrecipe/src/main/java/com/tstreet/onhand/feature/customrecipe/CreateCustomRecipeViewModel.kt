@@ -8,7 +8,6 @@ import com.tstreet.onhand.core.domain.usecase.customrecipe.AddRecipeUseCase
 import com.tstreet.onhand.core.domain.usecase.customrecipe.CustomRecipeInputUseCase
 import com.tstreet.onhand.core.model.CustomRecipeInput
 import com.tstreet.onhand.core.model.data.Ingredient
-import com.tstreet.onhand.core.model.data.RecipeIngredient
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.displayed
 import com.tstreet.onhand.core.model.ui.InputValidationState.Companion.hidden
@@ -138,13 +137,7 @@ class CreateCustomRecipeViewModel @Inject constructor(
         CustomRecipeInput(
             recipeTitle = _title.value,
             instructions = _instructions.value,
-            ingredients = ingredients.map {
-                RecipeIngredient(
-                    ingredient = it,
-                    amount = 0.0,
-                    unit = ""
-                )
-            },
+            ingredients = emptyList(),
             // TODO: revisit below when we allow submitting custom images
             recipeImage = _coverImage.value,
             recipeImageType = "",

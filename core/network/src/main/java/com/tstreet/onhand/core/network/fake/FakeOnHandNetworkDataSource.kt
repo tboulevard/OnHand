@@ -218,7 +218,7 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
                 preparationMinutes = 20,
                 cookingMinutes = 30,
                 aggregateLikes = 500,
-                healthScore = 90,
+                healthScore = 90f,
                 creditsText = "Food Network",
                 //license = "CC BY-SA 4.0", TODO:
                 sourceName = "Food Network",

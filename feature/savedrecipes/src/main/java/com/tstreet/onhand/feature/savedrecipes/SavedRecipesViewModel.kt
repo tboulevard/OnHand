@@ -107,7 +107,7 @@ class SavedRecipesViewModel @Inject constructor(
     fun onAddToShoppingList(recipe: RecipeWithSaveState) {
         viewModelScope.launch {
             addToShoppingListLock.withLock {
-                val result = addToShoppingList.get().invoke(
+                val result = addToShoppingList.get().addIngredients(
                     missingIngredients = recipe.preview.missedIngredients,
                     recipe = recipe.preview
                 )

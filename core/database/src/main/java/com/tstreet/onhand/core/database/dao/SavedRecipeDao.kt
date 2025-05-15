@@ -35,10 +35,10 @@ abstract class SavedRecipeDao {
     @Transaction
     open suspend fun updateRecipesMissingIngredient(ingredientName: String) {
         getRecipesMissingIngredient(ingredientName).map { entity ->
-            entity.previewProperties.missedIngredients.find { it.ingredient.name == ingredientName }
+            entity.previewProperties.missedIngredients.find { it.name == ingredientName }
                 ?.let { missedIngredient ->
                     val newMissedIngredients =
-                        entity.previewProperties.missedIngredients.filterNot { it.ingredient.name == ingredientName }
+                        entity.previewProperties.missedIngredients.filterNot { it.name == ingredientName }
                     val newUsedIngredients =
                         entity.previewProperties.usedIngredients + missedIngredient
                     // Copy all existing recipe properties except those that we want changed
@@ -64,10 +64,10 @@ abstract class SavedRecipeDao {
     @Transaction
     open suspend fun updateRecipesUsingIngredient(ingredientName: String) {
         getRecipesUsingIngredient(ingredientName).map { entity ->
-            entity.previewProperties.usedIngredients.find { it.ingredient.name == ingredientName }
+            entity.previewProperties.usedIngredients.find { it.name == ingredientName }
                 ?.let { usedIngredient ->
                     val newUsedIngredients =
-                        entity.previewProperties.usedIngredients.filterNot { it.ingredient.name == ingredientName }
+                        entity.previewProperties.usedIngredients.filterNot { it.name == ingredientName }
                     val newMissedIngredients =
                         entity.previewProperties.missedIngredients + usedIngredient
                     val newProperties = entity.previewProperties.copy(

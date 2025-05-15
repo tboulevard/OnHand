@@ -95,14 +95,14 @@ class GetRecipesUseCase @Inject constructor(
 
         // Ingredients in shopping list
         val shoppingListIngredientNames =
-            shoppingListIngredients.data?.map { it.name } ?: emptyList()
+            shoppingListIngredients.data?.map { it.ingredient.name } ?: emptyList()
 
         return when (recipeResource.status) {
             Status.SUCCESS -> {
                 val recipes = recipeResource.data ?: emptyList()
                 return recipes.map { recipe ->
                     val missedIngredientsInShoppingList =
-                        recipe.missedIngredients.filter { shoppingListIngredientNames.contains(it.ingredient.name) }
+                        recipe.missedIngredients.filter { shoppingListIngredientNames.contains(it.name) }
                     RecipePreviewWithSaveState(
                         preview = recipe,
                         // TODO: make this a bulk operation -- many segmented DB reads this way
@@ -110,7 +110,7 @@ class GetRecipesUseCase @Inject constructor(
                         //  if list contents haven't changed. Look into caching the results to re-use
                         //  specifically for sorting
                         isSaved = recipeRepository.get().isRecipeSaved(recipe.id),
-                        ingredientsMissingButInShoppingList = missedIngredientsInShoppingList.map { it.ingredient }
+                        ingredientsMissingButInShoppingList = missedIngredientsInShoppingList
                     )
                 }
             }

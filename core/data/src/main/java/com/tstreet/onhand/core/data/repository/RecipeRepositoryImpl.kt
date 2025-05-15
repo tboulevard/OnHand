@@ -13,7 +13,6 @@ import com.tstreet.onhand.core.database.dao.SavedRecipeDao
 import com.tstreet.onhand.core.database.model.*
 import com.tstreet.onhand.core.model.*
 import com.tstreet.onhand.core.model.data.Ingredient
-import com.tstreet.onhand.core.model.data.RecipeIngredient
 import com.tstreet.onhand.core.model.data.RecipePreviewWithSaveState
 import com.tstreet.onhand.core.network.OnHandNetworkDataSource
 import com.tstreet.onhand.core.network.model.NetworkRecipe
@@ -343,12 +342,8 @@ fun NetworkRecipe.asExternalModel() = RecipePreview(
     isCustom = false
 )
 
-private fun NetworkRecipeIngredient.asExternalModel() = RecipeIngredient(
+private fun NetworkRecipeIngredient.asExternalModel() =
     Ingredient(
         id = id,
         name = name,
-    ),
-    image = image,
-    amount = amount,
-    unit = unit,
-)
+    )

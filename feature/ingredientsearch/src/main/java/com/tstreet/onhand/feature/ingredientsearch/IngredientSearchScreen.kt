@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tstreet.onhand.core.model.ui.SearchUiState
 import com.tstreet.onhand.core.model.ui.UiSearchIngredient
 import com.tstreet.onhand.core.ui.IngredientSearchBar
@@ -27,7 +28,7 @@ fun IngredientSearchScreen(
     viewModel: IngredientSearchViewModel,
     onBackClicked: () -> Unit
 ) {
-    val uiState by viewModel.searchUiState.collectAsState()
+    val uiState by viewModel.searchUiState.collectAsStateWithLifecycle()
     val searchText by viewModel.displayedSearchText.collectAsState()
     val errorDialogState = viewModel.errorDialogState.collectAsState()
 

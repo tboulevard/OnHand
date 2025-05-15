@@ -1,5 +1,6 @@
 package com.tstreet.onhand.core.domain.usecase.pantry
 
+import android.util.Log
 import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.domain.usecase.UseCase
 import com.tstreet.onhand.core.domain.repository.PantryRepository
@@ -24,6 +25,7 @@ class GetPantryUseCase @Inject constructor(
         }.onStart {
             emit(PantryListResult.Loading)
         }.catch {
+            Log.d("[OnHand]", "Error getting pantry", it)
             emit(PantryListResult.Error)
         }
     }
