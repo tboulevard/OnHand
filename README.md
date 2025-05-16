@@ -20,6 +20,8 @@ OnHand is a simple recipe generation app for Android written with Kotlin, Jetpac
 
 ## File Structure
 
+OnHand follows a modularized [Clean Architecture](https://developer.android.com/topic/architecture).
+
 | Module                |Purpose                  |
 |-----------------------|---------------------------|
 |	`:app` | Contains MainActivity, navigation logic, AndroidManifest, and logic for the creation of root application component.          |
@@ -36,7 +38,8 @@ OnHand is a simple recipe generation app for Android written with Kotlin, Jetpac
 
 ## Technologies
 
-Written using  **Kotlin**  with  **Jetpack Compose**  as the UI framework.  
+Written using  **Kotlin**  with  **Jetpack Compose**  as the UI framework.
+  
 In addition, the following are used in the project:
 
 - [**Compose Navigation**](https://developer.android.com/jetpack/compose/navigation)  - for navigating between features.
