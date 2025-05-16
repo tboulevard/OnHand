@@ -68,9 +68,11 @@ class RecipeRepositoryImpl @Inject constructor(
                         is Success -> {
                             val externalModel =
                                 networkResponse.body.map(NetworkRecipe::asExternalModel)
+
                             // TODO: Note, we rely on this step to merge previews into FullRecipes;
                             //  Evaluate later.
                             cacheRecipeSearchResults(externalModel)
+                            
                             Resource.success(data = externalModel)
                         }
 

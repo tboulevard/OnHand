@@ -120,7 +120,6 @@ fun ShoppingListScreen(
                         is Summary -> {
                             SummaryCard(summary = item)
                         }
-
                         is RecipeIngredientGroup -> {
                             RecipeCardWithIngredientsGroup(
                                 recipeGroup = item,

@@ -6,11 +6,10 @@ OnHand is a simple recipe generation app for Android written with Kotlin, Jetpac
 
 ## Screenshots
 
-<img src="https://github.com/tboulevard/OnHand/assets/5940570/2005ad20-add4-409b-aca1-b6e710b53042" width="185"/>
-<img src="https://github.com/tboulevard/OnHand/assets/5940570/91e0b5b4-ec58-40b1-82d6-61c0b5c5d85c" width="185"/> 
-<img src="https://github.com/tboulevard/OnHand/assets/5940570/af5126cf-9ffe-4708-aa5e-8a1f5b3346e2" width="185"/>
-<img src="https://github.com/tboulevard/OnHand/assets/5940570/b071ffd4-0bd7-404d-a234-ceebc8f96b22" width="185"/>
-<img src="https://github.com/tboulevard/OnHand/assets/5940570/bd6fd7e0-30f7-4f62-937a-4cd36f262965" width="185"/>
+<img src="https://github.com/user-attachments/assets/e2098905-0fb6-4a0e-843d-e6acab9bb5e4" width="185"/> 
+<img src="https://github.com/user-attachments/assets/4ce6f25e-7750-43f3-aa50-0f50c2301d94" width="185"/>
+<img src="https://github.com/user-attachments/assets/47f60471-b38c-42e0-b799-6d7e3cdf0d28" width="185"/>
+<img src="https://github.com/user-attachments/assets/e5e5420c-53b6-4c1c-a24b-14e76820a1ef" width="185"/>
 
 ## Features
 
@@ -18,7 +17,6 @@ OnHand is a simple recipe generation app for Android written with Kotlin, Jetpac
 - Recipe search, derived from items in pantry
 - Ability to save recipes
 - Shopping list calculation on recipes for missing pantry ingredients
-- Custom recipe creation
 
 ## File Structure
 
