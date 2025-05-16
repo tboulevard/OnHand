@@ -47,7 +47,8 @@ sealed class BottomNavigationScreen(
 val BottomNavigationScreens = listOf(
     BottomNavigationScreen.Home,
     BottomNavigationScreen.RecipeSearch,
-    BottomNavigationScreen.AddCustomRecipe,
+    // TODO: Enable when feature complete.
+    //BottomNavigationScreen.AddCustomRecipe,
     BottomNavigationScreen.SavedRecipes,
     BottomNavigationScreen.ShoppingList,
 )

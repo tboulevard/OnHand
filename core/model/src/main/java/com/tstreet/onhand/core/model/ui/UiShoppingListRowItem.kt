@@ -19,7 +19,21 @@ sealed interface UiShoppingListRowItem {
      */
     data class RecipeIngredientGroup(
         val recipe: UiShoppingListRecipe
-    ) : UiShoppingListRowItem
+    ) : UiShoppingListRowItem {
+        fun getCollectionProgress() : Float {
+            val totalIngredients = recipe.ingredients.size
+            val checkedIngredients = recipe.ingredients.count { it.isChecked.value }
+            return if (totalIngredients > 0) checkedIngredients.toFloat() / totalIngredients else 0f
+        }
+
+        fun getCheckedIngredients() : Int {
+            return recipe.ingredients.count { it.isChecked.value }
+        }
+
+        fun getTotalIngredients() : Int {
+            return recipe.ingredients.size
+        }
+    }
 
     /**
      * An ingredient that is not associated with a recipe.

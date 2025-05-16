@@ -31,8 +31,6 @@ class OfflineIngredientSearchRepositoryImpl @Inject constructor(
         return dao.get()
             .getIngredients(query)
             .map {
-                // Artificial delay to simulate loading
-                delay((500L..1000L).random())
                 it.map(IngredientEntity::toIngredient)
             }.flowOn(ioDispatcher)
     }
@@ -41,8 +39,6 @@ class OfflineIngredientSearchRepositoryImpl @Inject constructor(
         return dao.get()
             .getRandomIngredients()
             .map {
-                // Artificial delay to simulate loading
-                delay((500L..1000L).random())
                 it.map(IngredientEntity::toIngredient)
             }.flowOn(ioDispatcher)
     }

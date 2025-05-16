@@ -68,8 +68,11 @@ class RecipeRepositoryImpl @Inject constructor(
                         is Success -> {
                             val externalModel =
                                 networkResponse.body.map(NetworkRecipe::asExternalModel)
-                            // TODO: disable until further evaluation
-                            //cacheRecipeSearchResults(externalModel)
+
+                            // TODO: Note, we rely on this step to merge previews into FullRecipes;
+                            //  Evaluate later.
+                            cacheRecipeSearchResults(externalModel)
+                            
                             Resource.success(data = externalModel)
                         }
 
