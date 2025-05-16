@@ -123,7 +123,7 @@ fun RecipeCardItem(
                             Text(
                                 text = recipe.title,
                                 style = MaterialTheme.typography.titleMedium,
-                                maxLines = 1,
+                                maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
                                 modifier = Modifier.weight(1f)
                             )
