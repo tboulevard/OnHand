@@ -16,6 +16,8 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
     }
 
     override suspend fun getIngredients(prefix: String): OnHandNetworkResponse<NetworkIngredientSearchResult> {
+        delay(randomArtificialDelay())
+
         return NetworkResponse.Success(
             body = NetworkIngredientSearchResult(
                 results = listOf(
@@ -52,7 +54,8 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
         ingredients: List<String>
     ): OnHandNetworkResponse<List<NetworkRecipe>> {
         // For testing purposes (progress indicators, etc)
-        delay(ARTIFICIAL_DELAY_MILLIS)
+        delay(randomArtificialDelay())
+
         return NetworkResponse.Success(
             body = listOf(
                 NetworkRecipe(
@@ -510,8 +513,8 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
     }
 
     override suspend fun getRecipeDetail(id: Int): OnHandNetworkResponse<NetworkRecipeDetail> {
-        delay(ARTIFICIAL_DELAY_MILLIS)
-        
+        delay(randomArtificialDelay())
+
         // Return different recipe details based on the ID
         return when (id) {
             634698 -> NetworkResponse.Success(
@@ -547,7 +550,7 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
                     instructions = "Preheat oven to 350 degree F.\nBring a large pot of lightly salted water to a boil. Add pasta and cook for 8 to 10 minutes or until al dente; drain.\nIn a large skillet over medium heat, brown beef with onion and garlic; drain. Return to heat and add tomato sauce, oregano, 1 teaspoon salt and 1/4 teaspoon pepper; set aside.\nIn a bowl, combine ricotta, Parmesan, eggs, parsley, 1/2 teaspoon salt and 1/8 teaspoon pepper.\nSpread 1/2 cup of the meat sauce in a 9x13 inch baking dish.\nFill each manicotti shell with 3 tablespoons of the cheese mixture and arrange over sauce. Pour remaining sauce over top and sprinkle with mozzarella.\nBake in preheated oven for 35 minutes, until mozzarella is melted and bubbly."
                 )
             )
-            
+
             648279 -> NetworkResponse.Success(
                 NetworkRecipeDetail(
                     vegetarian = true,
@@ -581,7 +584,7 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
                     instructions = "In a large bowl, whisk together the eggs, salt, and pepper. Stir in the grated Parmesan cheese.\nHeat olive oil in a 10-inch oven-proof skillet over medium-high heat. Add the onions and sauté until translucent, about 2-3 minutes.\nAdd the garlic and cook for another minute.\nAdd the chopped tomatoes and carrots and cook for 2-3 minutes more, until the carrots are slightly softened and the mixture is hot.\nPour the egg mixture over the vegetables in the skillet and stir gently to combine. Lower the heat to medium-low and let cook without stirring until the edges begin to set, about 2-3 minutes.\nPlace the skillet under the broiler and broil until the top is golden and the eggs are completely set, about 3-5 minutes.\nRemove from the oven and let cool for a minute before sliding the frittata onto a serving plate. Cut into wedges and serve warm or at room temperature."
                 )
             )
-            
+
             else -> NetworkResponse.Success(
                 NetworkRecipeDetail(
                     vegetarian = false,
@@ -619,4 +622,4 @@ class FakeOnHandNetworkDataSource @Inject constructor() : OnHandNetworkDataSourc
     }
 }
 
-private const val ARTIFICIAL_DELAY_MILLIS = 800L
+private fun randomArtificialDelay() = (500..1200L).random()

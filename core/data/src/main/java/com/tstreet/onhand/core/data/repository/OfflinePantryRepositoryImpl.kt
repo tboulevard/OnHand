@@ -57,9 +57,6 @@ class OfflinePantryRepositoryImpl @Inject constructor(
 
     override suspend fun listPantry(): List<Ingredient> {
         return withContext(ioDispatcher) {
-            // Artificial delay to simulate loading
-            delay((500..1000L).random())
-
             pantryDao
                 .get()
                 .getAllFromPantry()

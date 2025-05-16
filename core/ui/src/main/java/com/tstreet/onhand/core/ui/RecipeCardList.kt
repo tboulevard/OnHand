@@ -1,30 +1,46 @@
 package com.tstreet.onhand.core.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.*
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.tstreet.onhand.core.common.RECIPE_DETAIL_ROUTE
 import com.tstreet.onhand.core.model.RecipePreview
 import com.tstreet.onhand.core.model.ui.IngredientAvailability
 import com.tstreet.onhand.core.model.ui.RecipeSaveState
 import com.tstreet.onhand.core.model.ui.RecipeWithSaveState
+import kotlinx.coroutines.delay
 
 @Composable
 fun RecipeCardList(
@@ -37,7 +53,8 @@ fun RecipeCardList(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(8.dp)
+            .padding(8.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         itemsIndexed(recipes) { _, item ->
             RecipeCardItem(
@@ -51,6 +68,7 @@ fun RecipeCardList(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeCardItem(
     recipeWithSaveState: RecipeWithSaveState,
@@ -100,24 +118,29 @@ fun RecipeCardItem(
                             tint = MaterialTheme.colorScheme.primary,
                         )
                     }
-                    Text(
-                        text = recipe.title,
-                        style = MaterialTheme.typography.titleMedium,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    if (recipeWithSaveState.saveState.value == RecipeSaveState.SAVED) {
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Surface(
-                            shape = MaterialTheme.shapes.small,
-                            color = MaterialTheme.colorScheme.error.copy(alpha = 0.1f),
-                            contentColor = MaterialTheme.colorScheme.error
-                        ) {
+                    Box(modifier = Modifier.weight(1f)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                "Saved",
-                                style = MaterialTheme.typography.labelSmall,
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                text = recipe.title,
+                                style = MaterialTheme.typography.titleMedium,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f)
                             )
+                            if (recipeWithSaveState.saveState.value == RecipeSaveState.SAVED) {
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Surface(
+                                    shape = MaterialTheme.shapes.small,
+                                    color = MaterialTheme.colorScheme.error.copy(alpha = 0.1f),
+                                    contentColor = MaterialTheme.colorScheme.error
+                                ) {
+                                    Text(
+                                        "Saved",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -338,7 +361,7 @@ private fun AddToShoppingListButton(
                     overflow = TextOverflow.Ellipsis
                 )
             } else {
-                //  What's in our shopping cart does satisfy the recipe
+                // What's in our shopping cart does satisfy the recipe
                 Icon(
                     Icons.Default.Check,
                     contentDescription = "All ingredients in shopping cart",
@@ -377,14 +400,14 @@ class RecipeCardPreviewParamProvider : PreviewParameterProvider<RecipeWithSaveSt
         RecipeWithSaveState(
             RecipePreview(
                 id = 1,
-                title = "A very long recipe name that is very long",
-                image = "image",
-                imageType = "imageType",
+                title = "Homemade Pizza with Fresh Toppings",
+                image = "https://spoonacular.com/recipeImages/511728-312x231.jpg",
+                imageType = "jpg",
                 usedIngredientCount = 10,
                 usedIngredients = emptyList(),
                 missedIngredientCount = 3,
                 missedIngredients = emptyList(),
-                likes = 100,
+                likes = 1024,
                 isCustom = true
             ),
             saveState = mutableStateOf(RecipeSaveState.SAVED),
