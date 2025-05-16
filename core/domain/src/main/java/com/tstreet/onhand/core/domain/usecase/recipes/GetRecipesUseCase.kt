@@ -116,6 +116,7 @@ class GetRecipesUseCase @Inject constructor(
             }
 
             Status.ERROR -> {
+                // TODO: instead of empty list, propagate error state
                 return emptyList()
             }
         }
