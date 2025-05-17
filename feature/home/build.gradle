@@ -1,0 +1,26 @@
+plugins {
+    id 'onhand.android.feature'
+    id 'onhand.android.library.compose'
+}
+
+android {
+    namespace 'com.tstreet.onhand.feature.home'
+
+    defaultConfig {
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+        }
+        mockDebug {
+            initWith(debug)
+            matchingFallbacks = ['debug']
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}

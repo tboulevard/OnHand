@@ -1,0 +1,47 @@
+plugins {
+    id 'onhand.android.library.compose'
+}
+
+android {
+    namespace 'com.tstreet.onhand.core.ui'
+
+    defaultConfig {
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+        }
+        mockDebug {
+            initWith(debug)
+            matchingFallbacks = ['debug']
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation project(path: ':core:model')
+    implementation project(path: ':core:common')
+
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.appcompat
+    implementation libs.androidx.compose.ui
+    implementation libs.androidx.compose.material3
+    implementation libs.coil.kt
+    implementation libs.coil.kt.compose
+
+    testImplementation libs.junit4
+
+    androidTestImplementation libs.androidx.test.ext
+    androidTestImplementation libs.androidx.test.espresso.core
+
+    debugImplementation libs.androidx.compose.ui.tooling
+    // TODO: debugImplementation doesn't work for this dependency for some reason...look
+    //  into later. We use implementation to circumvent the bug for now.
+    implementation libs.androidx.compose.ui.tooling.preview
+}

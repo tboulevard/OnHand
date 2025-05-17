@@ -1,0 +1,47 @@
+plugins {
+    id 'onhand.android.library'
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
+}
+
+android {
+    namespace 'com.tstreet.onhand.core.database'
+
+    defaultConfig {
+        consumerProguardFiles "consumer-rules.pro"
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas")
+        }
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+        }
+        mockDebug {
+            initWith(debug)
+            matchingFallbacks = ['debug']
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation project(path: ':core:model')
+
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.appcompat
+    implementation libs.dagger
+    kapt libs.dagger.compiler
+    ksp libs.room.compiler
+    implementation libs.room.ktx
+    implementation libs.room.runtime
+    implementation libs.kotlinx.serialization.json
+
+    testImplementation libs.junit4
+    androidTestImplementation libs.androidx.test.ext
+    androidTestImplementation libs.androidx.test.espresso.core
+}

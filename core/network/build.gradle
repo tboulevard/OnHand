@@ -1,0 +1,54 @@
+plugins {
+    id 'onhand.android.library'
+    alias(libs.plugins.kotlin.serialization)
+}
+
+android {
+    namespace 'com.tstreet.onhand.core.network'
+
+    defaultConfig {
+        consumerProguardFiles "consumer-rules.pro"
+        buildConfigField "boolean", "useFakeDataSource", "false"
+
+        // TODO: Only read local.properties in debug since we don't need it in other build variants
+        Properties properties = new Properties()
+        if (project.rootProject.file("local.properties").canRead()) {
+            properties.load(project.rootProject.file("local.properties").newDataInputStream())
+        }
+
+        buildConfigField "String", "spoonacularApiKey", properties.getProperty("spoonacular_api_key", "\"\"")
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+        }
+        mockDebug {
+            initWith(debug)
+            matchingFallbacks = ['debug']
+            buildConfigField "boolean", "useFakeDataSource", "true"
+        }
+        release {
+            // TODO: strategy for inputting spoonacular_api_key if we decide to release
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation project(path: ':core:model')
+    implementation project(path: ':core:common')
+
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.appcompat
+    implementation libs.okhttp.logging
+    implementation libs.kotlinx.serialization.json
+    implementation libs.retrofit.kotlin.serialization
+    implementation libs.dagger
+    kapt libs.dagger.compiler
+
+    testImplementation libs.junit4
+    androidTestImplementation libs.androidx.test.ext
+    androidTestImplementation libs.androidx.test.espresso.core
+}

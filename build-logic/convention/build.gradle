@@ -1,0 +1,48 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    alias(libs.plugins.kotlin.dslPlugin)
+}
+
+group = "com.tstreet.onhand.buildlogic"
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_17.toString()
+    }
+}
+
+dependencies {
+    compileOnly libs.android.gradlePlugin
+    compileOnly libs.kotlin.gradlePlugin
+}
+
+gradlePlugin {
+    plugins {
+        androidFeature {
+            id = "onhand.android.feature"
+            implementationClass = "AndroidFeatureConventionPlugin"
+        }
+        androidLibrary {
+            id = "onhand.android.library"
+            implementationClass = "AndroidLibraryConventionPlugin"
+        }
+        androidLibraryCompose {
+            id = "onhand.android.library.compose"
+            implementationClass = "AndroidLibraryComposeConventionPlugin"
+        }
+        androidApplication {
+            id = "onhand.android.application"
+            implementationClass = "AndroidApplicationConventionPlugin"
+        }
+        androidApplicationCompose {
+            id = "onhand.android.application.compose"
+            implementationClass = "AndroidApplicationComposeConventionPlugin"
+        }
+    }
+}
