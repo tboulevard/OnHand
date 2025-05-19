@@ -3,6 +3,7 @@ package com.tstreet.onhand.feature.recipesearch
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tstreet.onhand.core.common.CommonModule.DEFAULT
 import com.tstreet.onhand.core.common.Status
 import com.tstreet.onhand.core.domain.usecase.shoppinglist.AddToShoppingListUseCase
 import com.tstreet.onhand.core.domain.usecase.recipes.DEFAULT_SORTING
@@ -32,7 +33,7 @@ class RecipeSearchViewModel @Inject constructor(
     private val unsaveRecipe: Provider<UnsaveRecipeUseCase>,
     private val addToShoppingList: Provider<AddToShoppingListUseCase>,
     private val mapper: SearchRecipeUiStateMapper,
-    @Named("IO") ioDispatcher: CoroutineDispatcher
+    @Named(DEFAULT) dispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     init {
@@ -53,7 +54,7 @@ class RecipeSearchViewModel @Inject constructor(
         }.map { getRecipesResult ->
             mapper.mapGetRecipesResultToUi(getRecipesResult)
         }
-        .flowOn(ioDispatcher)
+        .flowOn(dispatcher)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),

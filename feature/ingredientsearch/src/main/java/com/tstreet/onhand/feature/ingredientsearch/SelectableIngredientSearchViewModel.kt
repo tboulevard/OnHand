@@ -2,7 +2,7 @@ package com.tstreet.onhand.feature.ingredientsearch
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.viewModelScope
-import com.tstreet.onhand.core.common.CommonModule.IO
+import com.tstreet.onhand.core.common.CommonModule.DEFAULT
 import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.domain.usecase.ingredientsearch.IngredientSearchUseCase
 import com.tstreet.onhand.core.model.data.Ingredient
@@ -20,8 +20,8 @@ import javax.inject.Provider
 class SelectableIngredientSearchViewModel @Inject constructor(
     searchIngredients: Provider<IngredientSearchUseCase>,
     mapper: SearchUiStateMapper,
-    @Named(IO) private val ioDispatcher: CoroutineDispatcher
-) : IngredientSearchViewModel(searchIngredients, mapper, ioDispatcher) {
+    @Named(DEFAULT) private val dispatcher: CoroutineDispatcher
+) : IngredientSearchViewModel(searchIngredients, mapper, dispatcher) {
 
     val selectedIngredients = mutableStateListOf<Ingredient>()
 

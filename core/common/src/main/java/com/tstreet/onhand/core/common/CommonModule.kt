@@ -12,11 +12,16 @@ import javax.inject.Named
 object CommonModule {
 
     const val IO = "IO"
+    const val DEFAULT = "DEFAULT"
     const val SHARED_PREF_FILE = "onhand"
 
     @Provides
     @Named(IO)
     fun provideIODispatcher(): CoroutineDispatcher = Dispatchers.IO
+
+    @Provides
+    @Named(DEFAULT)
+    fun provideDefaultDispatcher(): CoroutineDispatcher = Dispatchers.Default
 
     @Provides
     @Named(SHARED_PREF_FILE)

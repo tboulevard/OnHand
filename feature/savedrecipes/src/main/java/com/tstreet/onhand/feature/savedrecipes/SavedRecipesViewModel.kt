@@ -3,6 +3,7 @@ package com.tstreet.onhand.feature.savedrecipes
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tstreet.onhand.core.common.CommonModule.DEFAULT
 import com.tstreet.onhand.core.common.Status
 import com.tstreet.onhand.core.domain.usecase.recipes.GetRecipesUseCase
 import com.tstreet.onhand.core.domain.usecase.recipes.SaveRecipeUseCase
@@ -14,11 +15,13 @@ import com.tstreet.onhand.core.model.ui.RecipeWithSaveState
 import com.tstreet.onhand.core.model.ui.SavedRecipesUiState
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.displayed
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
+import javax.inject.Named
 import javax.inject.Provider
 
 class SavedRecipesViewModel @Inject constructor(
@@ -26,7 +29,8 @@ class SavedRecipesViewModel @Inject constructor(
     private val unsaveRecipe: Provider<UnsaveRecipeUseCase>,
     private val saveRecipe: Provider<SaveRecipeUseCase>,
     private val addToShoppingList: Provider<AddToShoppingListUseCase>,
-    private val mapper: SavedRecipeUiStateMapper
+    private val mapper: SavedRecipeUiStateMapper,
+    @Named(DEFAULT) private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     init {
@@ -39,6 +43,7 @@ class SavedRecipesViewModel @Inject constructor(
         .map {
             mapper.mapSavedRecipesResultToUi(it)
         }
+        .flowOn(dispatcher)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
