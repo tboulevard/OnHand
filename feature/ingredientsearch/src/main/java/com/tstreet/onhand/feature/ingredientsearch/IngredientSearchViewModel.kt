@@ -14,7 +14,7 @@ import javax.inject.Provider
 abstract class IngredientSearchViewModel(
     private val searchIngredients: Provider<IngredientSearchUseCase>,
     private val mapper: SearchUiStateMapper,
-    ioDispatcher: CoroutineDispatcher
+    dispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     init {
@@ -42,7 +42,7 @@ abstract class IngredientSearchViewModel(
             searchIngredients.get().getPantryMapped(searchQuery)
         }.map { searchResult ->
             mapper.mapSearchResultToSearchUi(searchResult)
-        }.flowOn(ioDispatcher)
+        }.flowOn(dispatcher)
 
     val searchUiState: StateFlow<SearchUiState> =
         _searchUiState

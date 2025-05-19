@@ -22,9 +22,7 @@ class IngredientSearchUseCase @Inject constructor(
 ) : UseCase() {
 
     fun getPantryMapped(
-        query: String,
-        isExactIngredient: Boolean = false,
-        limit: Int = 10,
+        query: String
     ): Flow<IngredientSearchResult> {
 
         if (query.isBlank()) {

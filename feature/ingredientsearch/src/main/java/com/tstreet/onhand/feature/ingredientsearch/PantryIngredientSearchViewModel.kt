@@ -1,7 +1,7 @@
 package com.tstreet.onhand.feature.ingredientsearch
 
 import androidx.lifecycle.viewModelScope
-import com.tstreet.onhand.core.common.CommonModule.IO
+import com.tstreet.onhand.core.common.CommonModule.DEFAULT
 import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.common.Status
 import com.tstreet.onhand.core.domain.usecase.ingredientsearch.IngredientSearchUseCase
@@ -22,8 +22,8 @@ class PantryIngredientSearchViewModel @Inject constructor(
     val removeFromPantry: Provider<RemoveFromPantryUseCase>,
     searchIngredients: Provider<IngredientSearchUseCase>,
     mapper: SearchUiStateMapper,
-    @Named(IO) private val ioDispatcher: CoroutineDispatcher
-) : IngredientSearchViewModel(searchIngredients, mapper, ioDispatcher) {
+    @Named(DEFAULT) private val dispatcher: CoroutineDispatcher
+) : IngredientSearchViewModel(searchIngredients, mapper, dispatcher) {
 
     override fun onItemClick(item: UiSearchIngredient) {
         viewModelScope.launch {

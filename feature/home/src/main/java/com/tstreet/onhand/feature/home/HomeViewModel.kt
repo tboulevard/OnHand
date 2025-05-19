@@ -3,7 +3,7 @@ package com.tstreet.onhand.feature.home
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.tstreet.onhand.core.common.CommonModule.IO
+import com.tstreet.onhand.core.common.CommonModule.DEFAULT
 import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.common.Status.*
 import com.tstreet.onhand.core.domain.usecase.ingredientsearch.IngredientSearchUseCase
@@ -30,7 +30,7 @@ class HomeViewModel @Inject constructor(
     private val addToPantry: Provider<AddToPantryUseCase>,
     private val removeFromPantry: Provider<RemoveFromPantryUseCase>,
     ingredientSearchUseCase: Provider<IngredientSearchUseCase>,
-    @Named(IO) private val ioDispatcher: CoroutineDispatcher,
+    @Named(DEFAULT) private val dispatcher: CoroutineDispatcher,
     private val mapper: HomeUiStateMapper
 ) : ViewModel() {
 
@@ -43,7 +43,7 @@ class HomeViewModel @Inject constructor(
             .map {
                 mapper.mapPantryListResultToPantryUi(it)
             }
-            .flowOn(ioDispatcher)
+            .flowOn(dispatcher)
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
@@ -54,7 +54,7 @@ class HomeViewModel @Inject constructor(
         ingredientSearchUseCase.get().getSuggestedIngredients()
             .map { result ->
                 mapper.mapSuggestedIngredientsToSearchUiState(result)
-            }.flowOn(ioDispatcher)
+            }.flowOn(dispatcher)
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),

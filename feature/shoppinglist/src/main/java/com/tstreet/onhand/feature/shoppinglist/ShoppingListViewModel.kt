@@ -3,7 +3,7 @@ package com.tstreet.onhand.feature.shoppinglist
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.tstreet.onhand.core.common.CommonModule.IO
+import com.tstreet.onhand.core.common.CommonModule.DEFAULT
 import com.tstreet.onhand.core.common.Status.ERROR
 import com.tstreet.onhand.core.common.Status.SUCCESS
 import com.tstreet.onhand.core.domain.usecase.pantry.AddToPantryUseCase
@@ -32,7 +32,7 @@ class ShoppingListViewModel @Inject constructor(
     private val removeRecipeInShoppingListUseCase: Provider<RemoveRecipeInShoppingListUseCase>,
     private val removeFromPantryUseCase: Provider<RemoveFromPantryUseCase>,
     private val mapper: ShoppingListUiStateMapper,
-    @Named(IO) private val ioDispatcher: CoroutineDispatcher
+    @Named(DEFAULT) private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     init {
@@ -45,7 +45,7 @@ class ShoppingListViewModel @Inject constructor(
             .invoke()
             .map {
                 mapper.mapShoppingListResultToUi(it)
-            }.flowOn(ioDispatcher)
+            }.flowOn(dispatcher)
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
