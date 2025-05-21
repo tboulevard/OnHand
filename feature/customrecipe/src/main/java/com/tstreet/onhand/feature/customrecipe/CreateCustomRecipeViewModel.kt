@@ -3,24 +3,14 @@ package com.tstreet.onhand.feature.customrecipe
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.tstreet.onhand.core.common.Status.*
-import com.tstreet.onhand.core.domain.usecase.customrecipe.AddRecipeUseCase
-import com.tstreet.onhand.core.domain.usecase.customrecipe.CustomRecipeInputUseCase
 import com.tstreet.onhand.core.model.CustomRecipeInput
 import com.tstreet.onhand.core.model.data.Ingredient
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
-import com.tstreet.onhand.core.ui.AlertDialogState.Companion.displayed
 import com.tstreet.onhand.core.model.ui.InputValidationState.Companion.hidden
-import com.tstreet.onhand.core.model.ui.InputValidationState.Companion.shown
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Provider
 
-class CreateCustomRecipeViewModel @Inject constructor(
-    private val addRecipeUseCase: Provider<AddRecipeUseCase>,
-    private val validateInputUseCase: Provider<CustomRecipeInputUseCase>
-) : ViewModel() {
+class CreateCustomRecipeViewModel @Inject constructor() : ViewModel() {
 
     init {
         Log.d("[OnHand]", "${this.javaClass.simpleName} created")
@@ -82,21 +72,6 @@ class CreateCustomRecipeViewModel @Inject constructor(
     )
 
     fun onTitleChanged(text: String) {
-        viewModelScope.launch {
-            _title.update { text }
-            // We don't show input validation text for empty input, just disable save
-            if (text.isEmpty()) {
-                _isTitleValid.update { false }
-                _titleInputValidationState.update { hidden() }
-            } else if (validateInputUseCase.get().recipeExists(text)) {
-                _isTitleValid.update { false }
-                _titleInputValidationState.update { shown("Recipe with this name already exists") }
-            } else {
-                // Valid input
-                _isTitleValid.update { true }
-                _titleInputValidationState.update { hidden() }
-            }
-        }
     }
 
     fun onInstructionsChanged(text: String) {
@@ -108,25 +83,6 @@ class CreateCustomRecipeViewModel @Inject constructor(
     }
 
     fun onSaveRecipe(ingredients: List<Ingredient>) {
-        viewModelScope.launch {
-            addRecipeUseCase.get()
-                .invoke(collectCustomRecipeInput(ingredients))
-                .collect { result ->
-                    when {
-                        result.status == SUCCESS && result.data != null -> {
-                            _createdRecipeId.update { result.data }
-                        }
-                        else -> {
-                            _errorDialogState.update {
-                                displayed(
-                                    title = "Error",
-                                    message = result.message.toString()
-                                )
-                            }
-                        }
-                    }
-                }
-        }
     }
 
     fun dismissErrorDialog() {
