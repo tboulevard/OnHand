@@ -2,8 +2,6 @@ package com.tstreet.onhand.feature.customrecipe
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -14,16 +12,28 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.tstreet.onhand.core.common.CREATE_RECIPE_ROUTE
 import com.tstreet.onhand.core.common.PANTRY_INGREDIENT_SEARCH_ROUTE
+import com.tstreet.onhand.core.common.R.string.add_cover_image
+import com.tstreet.onhand.core.common.R.string.add_cover_image_content_description
+import com.tstreet.onhand.core.common.R.string.add_ingredients
+import com.tstreet.onhand.core.common.R.string.add_ingredients_content_description
+import com.tstreet.onhand.core.common.R.string.cooking_steps_optional
+import com.tstreet.onhand.core.common.R.string.create_recipe
+import com.tstreet.onhand.core.common.R.string.ingredients_string
+import com.tstreet.onhand.core.common.R.string.instructions_title
+import com.tstreet.onhand.core.common.R.string.no_ingredients_added
+import com.tstreet.onhand.core.common.R.string.recipe_title
+import com.tstreet.onhand.core.common.R.string.remove_ingredient_content_description
+import com.tstreet.onhand.core.common.R.string.save_recipe
+import com.tstreet.onhand.core.common.R.string.title_input_error
 import com.tstreet.onhand.core.common.RECIPE_DETAIL_ROUTE
-import com.tstreet.onhand.core.model.ui.SelectableIngredient
 import com.tstreet.onhand.core.ui.OnHandAlertDialog
-import com.tstreet.onhand.core.ui.OnHandScreenHeader
 import com.tstreet.onhand.feature.ingredientsearch.SelectableIngredientSearchViewModel
 
 // TODO: use @PreviewParameter + create module with fake models to populate composables
@@ -66,7 +76,7 @@ fun CreateCustomRecipeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Create Recipe") },
+                title = { Text(stringResource(create_recipe)) },
                 modifier = Modifier.statusBarsPadding()
             )
         },
@@ -80,7 +90,7 @@ fun CreateCustomRecipeScreen(
                     enabled = ingredients.isNotEmpty() && isTitleValid.value,
                     modifier = Modifier.padding(horizontal = 16.dp)
                 ) {
-                    Text(text = "Save Recipe")
+                    Text(text = stringResource(save_recipe))
                 }
             }
         }
@@ -98,7 +108,7 @@ fun CreateCustomRecipeScreen(
             OutlinedTextField(
                 value = title.value,
                 onValueChange = viewModel::onTitleChanged,
-                label = { Text("Recipe Title") },
+                label = { Text(stringResource(recipe_title)) },
                 textStyle = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.fillMaxWidth(),
                 isError = inputValidationText.value.shown,
@@ -107,7 +117,7 @@ fun CreateCustomRecipeScreen(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 Icons.Default.Warning,
-                                contentDescription = "Title input error",
+                                contentDescription = stringResource(title_input_error),
                                 modifier = Modifier.size(16.dp),
                                 tint = MaterialTheme.colorScheme.error
                             )
@@ -141,13 +151,13 @@ fun CreateCustomRecipeScreen(
                     ) {
                         Icon(
                             Icons.Default.Add,
-                            contentDescription = "Add cover image",
+                            contentDescription = stringResource(add_cover_image_content_description),
                             modifier = Modifier.size(48.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Add Cover Image",
+                            text = stringResource(add_cover_image),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -159,7 +169,7 @@ fun CreateCustomRecipeScreen(
             
             // Ingredients Section
             Text(
-                text = "Ingredients",
+                text = stringResource(ingredients_string),
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
@@ -182,13 +192,13 @@ fun CreateCustomRecipeScreen(
                     ) {
                         Icon(
                             Icons.Default.Add,
-                            contentDescription = "Add ingredients",
+                            contentDescription = stringResource(add_ingredients_content_description),
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(24.dp)
                         )
                         Spacer(modifier = Modifier.width(16.dp))
                         Text(
-                            text = "Add ingredients",
+                            text = stringResource(add_ingredients),
                             style = MaterialTheme.typography.bodyLarge
                         )
                     }
@@ -215,7 +225,9 @@ fun CreateCustomRecipeScreen(
                                     }) {
                                         Icon(
                                             Icons.Default.Delete,
-                                            contentDescription = "Remove ingredient",
+                                            contentDescription = stringResource(
+                                                remove_ingredient_content_description
+                                            ),
                                             tint = MaterialTheme.colorScheme.error
                                         )
                                     }
@@ -234,7 +246,7 @@ fun CreateCustomRecipeScreen(
                         ) {
                             Spacer(modifier = Modifier.width(40.dp))  
                             Text(
-                                "No ingredients added yet",
+                                stringResource(no_ingredients_added),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -247,7 +259,7 @@ fun CreateCustomRecipeScreen(
             
             // Instructions Section
             Text(
-                text = "Instructions",
+                text = stringResource(instructions_title),
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
@@ -255,7 +267,7 @@ fun CreateCustomRecipeScreen(
             OutlinedTextField(
                 value = instructions.value ?: "",
                 onValueChange = viewModel::onInstructionsChanged,
-                label = { Text("Cooking steps (optional)") },
+                label = { Text(stringResource(cooking_steps_optional)) },
                 textStyle = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier
                     .fillMaxWidth()

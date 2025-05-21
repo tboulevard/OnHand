@@ -1,7 +1,6 @@
 package com.tstreet.onhand.feature.recipesearch
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -14,13 +13,22 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.tstreet.onhand.core.common.R.string.add_ingredients
+import com.tstreet.onhand.core.common.R.string.discover_recipes
+import com.tstreet.onhand.core.common.R.string.got_it
+import com.tstreet.onhand.core.common.R.string.pantry_empty
+import com.tstreet.onhand.core.common.R.string.pantry_empty_message
+import com.tstreet.onhand.core.common.R.string.recipe_search_info_content_description
+import com.tstreet.onhand.core.common.R.string.selected_content_description
+import com.tstreet.onhand.core.common.R.string.sort_by
+import com.tstreet.onhand.core.common.R.string.sort_dropdown_content_description
 import com.tstreet.onhand.core.domain.usecase.recipes.DEFAULT_SORTING
 import com.tstreet.onhand.core.domain.usecase.recipes.SortBy
 import com.tstreet.onhand.core.model.ui.RecipeSearchUiState.*
@@ -38,7 +46,7 @@ fun RecipeSearchScreen(
 
     OnHandAlertDialog(
         onDismiss = viewModel::dismissInfoDialog,
-        dismissButtonText = "Got it \uD83D\uDC4C",
+        dismissButtonText = stringResource(got_it),
         state = openInfoDialog.value
     )
 
@@ -59,7 +67,7 @@ fun RecipeSearchScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Discover Recipes",
+                        text = stringResource(discover_recipes),
                         style = MaterialTheme.typography.headlineMedium.copy(
                             fontWeight = FontWeight.Bold
                         ),
@@ -74,7 +82,9 @@ fun RecipeSearchScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Info,
-                            contentDescription = "Recipe search information",
+                            contentDescription = stringResource(
+                                recipe_search_info_content_description
+                            ),
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
@@ -167,7 +177,7 @@ fun EmptyStateMessage() {
                 )
                 
                 Text(
-                    text = "Your pantry is empty",
+                    text = stringResource(pantry_empty),
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.Bold
                     ),
@@ -176,7 +186,7 @@ fun EmptyStateMessage() {
                 )
                 
                 Text(
-                    text = "Add ingredients to your pantry to see recipes that match what you have.",
+                    text = stringResource(pantry_empty_message),
                     style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
@@ -201,7 +211,7 @@ fun EmptyStateMessage() {
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        "Add ingredients",
+                        stringResource(add_ingredients),
                         style = MaterialTheme.typography.labelLarge.copy(
                             fontWeight = FontWeight.Medium
                         )
@@ -244,7 +254,7 @@ fun SortBySpinner(
                     onValueChange = { },
                     label = { 
                         Text(
-                            "Sort By",
+                            stringResource(sort_by),
                             style = MaterialTheme.typography.labelMedium.copy(
                                 fontWeight = FontWeight.Medium
                             )
@@ -253,7 +263,7 @@ fun SortBySpinner(
                     trailingIcon = {
                         Icon(
                             imageVector = Icons.Default.ArrowDropDown,
-                            contentDescription = "Sort dropdown"
+                            contentDescription = stringResource(sort_dropdown_content_description)
                         )
                     },
                     textStyle = MaterialTheme.typography.bodyMedium.copy(
@@ -276,7 +286,7 @@ fun SortBySpinner(
                         .background(MaterialTheme.colorScheme.surfaceVariant)
                         .animateContentSize()
                 ) {
-                    SortBy.values().forEach { selectionOption ->
+                    SortBy.entries.forEach { selectionOption ->
                         DropdownMenuItem(
                             text = { 
                                 Text(
@@ -299,7 +309,9 @@ fun SortBySpinner(
                                 if (selectionOption == sortOrder) {
                                     Icon(
                                         Icons.Default.Check,
-                                        contentDescription = "Selected",
+                                        contentDescription = stringResource(
+                                            selected_content_description
+                                        ),
                                         tint = MaterialTheme.colorScheme.primary
                                     )
                                 }

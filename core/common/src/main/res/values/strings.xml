@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Create Custom Recipe Screen -->
+    <string name="create_recipe">Create Recipe</string>
+    <string name="save_recipe">Save Recipe</string>
+    <string name="recipe_title">Recipe Title</string>
+    <string name="title_input_error">Title input error</string>
+    <string name="add_cover_image">Add Cover Image</string>
+    <string name="add_cover_image_content_description">Add cover image</string>
+    <string name="add_ingredients_content_description">Add ingredients</string>
+    <string name="remove_ingredient_content_description">Remove ingredient</string>
+    <string name="no_ingredients_added">No ingredients added yet</string>
+    <string name="cooking_steps_optional">Cooking steps (optional)</string>
+
+    <!-- Home Screen -->
+    <string name="suggested_ingredients_title">Suggested Ingredients</string>
+    <string name="unable_to_load_suggestions">Unable to load suggestions</string>
+    <string name="no_suggestions_available">No suggestions available</string>
+    <string name="in_pantry_content_description">In pantry</string>
+    <string name="add_to_pantry_content_description">Add to pantry</string>
+    <string name="your_pantry_title">Your Pantry</string>
+    <string name="pantry_empty_title">Your pantry is empty</string>
+
+    <!-- Ingredient Search Screen -->
+    <string name="in_pantry">In pantry</string>
+    <string name="remove_ingredient">Remove ingredient</string>
+    <string name="add_ingredient">Add ingredient</string>
+    <string name="no_results_found">No results found</string>
+
+    <!-- Recipe Detail Screen -->
+    <string name="recipe_details_title">Recipe Details</string>
+    <string name="navigate_back_content_description">Navigate back</string>
+    <string name="error_title">Error</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="no_title_provided">No title provided</string>
+    <string name="you_have">You have:</string>
+    <string name="you_are_missing">You are missing:</string>
+    <string name="no_instructions_provided">No instructions provided</string>
+    <string name="step_format">Step %1$d: %2$s</string>
+
+    <!-- Recipe Search Screen -->
+    <string name="discover_recipes">Discover Recipes</string>
+    <string name="recipe_search_info_content_description">Recipe search information</string>
+    <string name="got_it">Got it 👌</string>
+    <string name="pantry_empty">Your pantry is empty</string>
+    <string name="sort_by">Sort By</string>
+    <string name="sort_dropdown_content_description">Sort dropdown</string>
+    <string name="selected_content_description">Selected</string>
+
+    <!-- Saved Recipes Screen -->
+    <string name="saved_recipes">Saved Recipes</string>
+    <string name="nothing_saved">Nothing saved 🫠</string>
+
+    <!-- Shopping List Screen -->
+    <string name="add_ingredient_dialog_title">Add Ingredient</string>
+    <string name="feature_coming_soon">Feature coming soon!</string>
+    <string name="add_item_manually">Add item manually</string>
+    <string name="additional_items">Additional Items</string>
+    <string name="retry">Retry</string>
+    <string name="empty_shopping_cart">Empty shopping cart</string>
+    <string name="shopping_list_empty">Your shopping list is empty</string>
+    <string name="shopping_list_empty_message">Add items from recipes or manually enter your own</string>
+    <string name="remove_recipe">Remove recipe</string>
+    <string name="restore_recipe">Restore recipe</string>
+    <string name="collapse">Collapse</string>
+    <string name="expand">Expand</string>
+    <string name="items_collected_format">%1$d of %2$d items collected</string>
+    <string name="remove_item">Remove item</string>
+    <string name="restore_item">Restore item</string>
+
+    <!-- Common -->
+    <string name="error_message">Something went wrong</string>
+    <string name="pantry_empty_message">Add ingredients to your pantry to see recipes that match what you have.</string>
+    <string name="add_ingredients">Add ingredients</string>
+    <string name="instructions_title">Instructions</string>
+    <string name="ingredients_string">Ingredients</string>
+</resources>
