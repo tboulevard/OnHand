@@ -9,7 +9,6 @@ import com.tstreet.onhand.core.database.model.toIngredient
 import com.tstreet.onhand.core.database.model.toPantryEntity
 import com.tstreet.onhand.core.model.data.Ingredient
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Named

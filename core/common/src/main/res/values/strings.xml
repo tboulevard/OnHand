@@ -31,7 +31,6 @@
     <string name="recipe_details_title">Recipe Details</string>
     <string name="navigate_back_content_description">Navigate back</string>
     <string name="error_title">Error</string>
-    <string name="dismiss">Dismiss</string>
     <string name="no_title_provided">No title provided</string>
     <string name="you_have">You have:</string>
     <string name="you_are_missing">You are missing:</string>
@@ -74,4 +73,6 @@
     <string name="add_ingredients">Add ingredients</string>
     <string name="instructions_title">Instructions</string>
     <string name="ingredients_string">Ingredients</string>
+    <string name="confirm">Confirm</string>
+    <string name="dismiss">Dismiss</string>
 </resources>

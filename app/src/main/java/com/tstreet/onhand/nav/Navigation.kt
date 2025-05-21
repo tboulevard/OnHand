@@ -23,8 +23,8 @@ import com.tstreet.onhand.core.common.injectedViewModel
 import com.tstreet.onhand.core.data.di.DataComponent
 import com.tstreet.onhand.core.ui.RECIPE_ID_NAV_KEY
 import com.tstreet.onhand.feature.customrecipe.CreateCustomRecipeScreen
-import com.tstreet.onhand.feature.home.HomeScreen
 import com.tstreet.onhand.feature.customrecipe.di.DaggerCustomRecipeComponent
+import com.tstreet.onhand.feature.home.HomeScreenContainer
 import com.tstreet.onhand.feature.home.di.DaggerHomeComponent
 import com.tstreet.onhand.feature.ingredientsearch.IngredientSearchScreen
 import com.tstreet.onhand.feature.ingredientsearch.di.DaggerIngredientSearchComponent
@@ -95,10 +95,8 @@ private fun NavigationConfiguration(
         navController = navController,
         startDestination = BottomNavigationScreen.Home.route
     ) {
-        // Note: each composable { } block is triggered for each recomposition (potentially as
-        // often each new frame). Revisit whether this is a performance issue later.
         composable(route = BottomNavigationScreen.Home.route) {
-            HomeScreen(
+            HomeScreenContainer(
                 injectedViewModel {
                     DaggerHomeComponent
                         .builder()
@@ -107,7 +105,7 @@ private fun NavigationConfiguration(
                         .build()
                         .viewModel
                 },
-                onIngredientSearchClick = {
+                onIngredientSearchBarClicked = {
                     navController.navigate(Screen.PantryIngredientSearch.route)
                 }
             )

@@ -29,9 +29,9 @@ class HomeViewModel @Inject constructor(
     getPantry: Provider<GetPantryUseCase>,
     private val addToPantry: Provider<AddToPantryUseCase>,
     private val removeFromPantry: Provider<RemoveFromPantryUseCase>,
-    ingredientSearchUseCase: Provider<IngredientSearchUseCase>,
-    @Named(DEFAULT) private val dispatcher: CoroutineDispatcher,
-    private val mapper: HomeUiStateMapper
+    ingredientSearch: Provider<IngredientSearchUseCase>,
+    private val mapper: HomeUiStateMapper,
+    @Named(DEFAULT) private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     init {
@@ -51,7 +51,7 @@ class HomeViewModel @Inject constructor(
             )
 
     val suggestedIngredientsUiState: StateFlow<SearchUiState> =
-        ingredientSearchUseCase.get().getSuggestedIngredients()
+        ingredientSearch.get().getSuggestedIngredients()
             .map { result ->
                 mapper.mapSuggestedIngredientsToSearchUiState(result)
             }.flowOn(dispatcher)
@@ -110,7 +110,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun dismissErrorDialog() {
+    fun onDismissErrorDialog() {
         _errorDialogState.update { dismissed() }
     }
 

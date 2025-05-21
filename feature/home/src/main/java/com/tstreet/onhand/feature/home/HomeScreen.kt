@@ -7,7 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,12 +18,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tstreet.onhand.core.common.R.string.add_to_pantry_content_description
 import com.tstreet.onhand.core.common.R.string.error_message
@@ -34,53 +34,79 @@ import com.tstreet.onhand.core.common.R.string.pantry_empty_title
 import com.tstreet.onhand.core.common.R.string.suggested_ingredients_title
 import com.tstreet.onhand.core.common.R.string.unable_to_load_suggestions
 import com.tstreet.onhand.core.common.R.string.your_pantry_title
+import com.tstreet.onhand.core.model.data.Ingredient
 import com.tstreet.onhand.core.model.ui.PantryUiState
 import com.tstreet.onhand.core.model.ui.SearchUiState
 import com.tstreet.onhand.core.model.ui.UiPantryIngredient
 import com.tstreet.onhand.core.model.ui.UiSearchIngredient
+import com.tstreet.onhand.core.ui.AlertDialogState
+import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
 import com.tstreet.onhand.core.ui.IngredientSearchBar
 import com.tstreet.onhand.core.ui.OnHandAlertDialog
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
-import kotlinx.coroutines.delay
 
 @Composable
-fun HomeScreen(
+fun HomeScreenContainer(
     viewModel: HomeViewModel,
-    onIngredientSearchClick: () -> Unit
+    onIngredientSearchBarClicked: () -> Unit
 ) {
     Log.d("[OnHand]", "HomeScreen recomposition")
     val pantryUiState by viewModel.pantryUiState.collectAsStateWithLifecycle()
     val suggestedIngredientsUiState by viewModel.suggestedIngredientsUiState.collectAsStateWithLifecycle()
-    val errorDialogState = viewModel.errorDialogState.collectAsStateWithLifecycle()
+    val errorDialogState by viewModel.errorDialogState.collectAsStateWithLifecycle()
 
-    val onIngredientClick = remember { viewModel::onToggleIngredient }
-    val dismissErrorDialog = remember { viewModel::dismissErrorDialog }
+    val onToggleIngredient = remember { viewModel::onToggleIngredient }
+    val onDismissErrorDialog = remember { viewModel::onDismissErrorDialog }
 
+    HomeScreen(
+        suggestedIngredientsUiState,
+        pantryUiState,
+        onIngredientSearchBarClicked,
+        onToggleIngredient,
+        errorDialogState,
+        onDismissErrorDialog
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeScreen(
+    suggestedIngredientsUiState: SearchUiState,
+    pantryUiState: PantryUiState,
+    onIngredientSearchClick: () -> Unit,
+    onToggleIngredient: (UiPantryIngredient) -> Unit,
+    errorDialogState: AlertDialogState,
+    onDismissErrorDialog: () -> Unit
+) {
     OnHandAlertDialog(
-        onDismiss = dismissErrorDialog,
-        state = errorDialogState.value
+        onDismiss = onDismissErrorDialog,
+        state = errorDialogState
     )
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 16.dp),
-        verticalArrangement = Arrangement.Top
-    ) {
-        IngredientSearchBar(
-            onClick = onIngredientSearchClick,
-            enabled = false
-        )
-        
-        SuggestedIngredients(
-            suggestedIngredientsState = suggestedIngredientsUiState,
-            onIngredientClick = onIngredientClick
-        )
-        
-        PantryItemList(
-            pantryUiState,
-            onIngredientClick
-        )
+    Scaffold(
+        topBar = {
+            IngredientSearchBar(
+                onClick = onIngredientSearchClick,
+                enabled = false
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            verticalArrangement = Arrangement.Top
+        ) {
+            SuggestedIngredients(
+                suggestedIngredientsUiState,
+                onToggleIngredient
+            )
+
+            Pantry(
+                pantryUiState,
+                onToggleIngredient
+            )
+        }
     }
 }
 
@@ -98,14 +124,14 @@ private fun SuggestedIngredients(
             ),
             color = MaterialTheme.colorScheme.onSurface
         )
-    
+
         when (suggestedIngredientsState) {
             SearchUiState.Loading -> {
                 Box(modifier = Modifier.height(120.dp)) {
                     OnHandProgressIndicator(modifier = Modifier.fillMaxWidth())
                 }
             }
-            
+
             SearchUiState.Error -> {
                 Text(
                     modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
@@ -114,7 +140,7 @@ private fun SuggestedIngredients(
                     color = MaterialTheme.colorScheme.error
                 )
             }
-            
+
             SearchUiState.Empty -> {
                 Text(
                     modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
@@ -123,7 +149,7 @@ private fun SuggestedIngredients(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
+
             is SearchUiState.Content -> {
                 LazyRow(
                     contentPadding = PaddingValues(horizontal = 16.dp),
@@ -153,55 +179,35 @@ private fun SuggestedIngredientItem(
     ingredient: UiSearchIngredient,
     onClick: () -> Unit
 ) {
-    val isInPantry = ingredient.inPantry.value
-    
     // Animation for color change
     val backgroundColor by animateColorAsState(
-        targetValue = if (isInPantry) 
-            MaterialTheme.colorScheme.primaryContainer 
-        else 
+        targetValue = if (ingredient.inPantry.value)
+            MaterialTheme.colorScheme.primaryContainer
+        else
             MaterialTheme.colorScheme.surfaceVariant,
         animationSpec = tween(durationMillis = 300),
         label = "backgroundColorAnimation"
     )
-    
+
     val contentColor by animateColorAsState(
-        targetValue = if (isInPantry) 
-            MaterialTheme.colorScheme.onPrimaryContainer 
-        else 
+        targetValue = if (ingredient.inPantry.value)
+            MaterialTheme.colorScheme.onPrimaryContainer
+        else
             MaterialTheme.colorScheme.onSurfaceVariant,
         animationSpec = tween(durationMillis = 300),
         label = "contentColorAnimation"
     )
-    
-    // Scale animation on click
-    var isPressed by remember { mutableStateOf(false) }
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.95f else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = "scaleAnimation"
-    )
-    
+
     Card(
         modifier = Modifier
             .width(160.dp)
             .height(70.dp)
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            }
             .shadow(
                 elevation = 4.dp,
                 shape = RoundedCornerShape(16.dp)
             )
             .clickable(
-                onClick = {
-                    isPressed = true
-                    onClick()
-                }
+                onClick = onClick
             ),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
@@ -210,13 +216,7 @@ private fun SuggestedIngredientItem(
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        LaunchedEffect(isPressed) {
-            if (isPressed) {
-                delay(100)
-                isPressed = false
-            }
-        }
-        
+
         Row(
             modifier = Modifier
                 .padding(horizontal = 12.dp, vertical = 8.dp)
@@ -234,12 +234,12 @@ private fun SuggestedIngredientItem(
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
             )
-            
+
             Icon(
-                imageVector = if (isInPantry) Icons.Filled.Check else Icons.Filled.Add,
-                contentDescription = if (isInPantry) 
+                imageVector = if (ingredient.inPantry.value) Icons.Filled.Check else Icons.Filled.Add,
+                contentDescription = if (ingredient.inPantry.value)
                     stringResource(in_pantry_content_description)
-                else 
+                else
                     stringResource(add_to_pantry_content_description),
                 modifier = Modifier.size(18.dp),
                 tint = contentColor
@@ -249,9 +249,9 @@ private fun SuggestedIngredientItem(
 }
 
 @Composable
-private fun PantryItemList(
+private fun Pantry(
     pantryUiState: PantryUiState,
-    onToggleFromPantry: (UiPantryIngredient) -> Unit
+    onIngredientClick: (UiPantryIngredient) -> Unit
 ) {
     Log.d("[OnHand]", "PantryItemList recomposition")
 
@@ -271,169 +271,73 @@ private fun PantryItemList(
             }
 
             is PantryUiState.Content -> {
-                PantryCardList(
-                    pantry = pantryUiState.ingredients,
-                    onItemClick = onToggleFromPantry
+                PantryIngredientList(
+                    pantryIngredients = pantryUiState.ingredients,
+                    onItemClick = onIngredientClick
                 )
             }
 
-            PantryUiState.Empty -> {
-                EmptyPantryMessage()
-            }
-
-            PantryUiState.Error -> {
-                Log.d("[OnHand], ", "Error in PantryItemList")
-                ErrorMessage()
-            }
+            PantryUiState.Empty -> EmptyPantryMessage()
+            PantryUiState.Error -> ErrorMessage()
         }
     }
 }
 
 @Composable
-private fun EmptyPantryMessage() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(24.dp),
-        contentAlignment = Alignment.Center
+fun PantryIngredientList(
+    pantryIngredients: List<UiPantryIngredient>,
+    onItemClick: (UiPantryIngredient) -> Unit
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-        ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Info,
-                    contentDescription = null,
-                    modifier = Modifier.size(48.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                
-                Text(
-                    text = stringResource(pantry_empty_title),
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Medium
-                    ),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                
-                Text(
-                    text = stringResource(pantry_empty_message),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                    textAlign = TextAlign.Center
-                )
-            }
+        items(pantryIngredients, key = { item -> item.ingredient.id }) { ingredient ->
+            PantryListItem(
+                ingredient,
+                onItemClick = onItemClick
+            )
         }
     }
 }
 
 @Composable
-private fun ErrorMessage() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(24.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.7f)
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-        ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Warning,
-                    contentDescription = null,
-                    modifier = Modifier.size(48.dp),
-                    tint = MaterialTheme.colorScheme.error
-                )
-                
-                Text(
-                    text = stringResource(error_message),
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Medium
-                    ),
-                    color = MaterialTheme.colorScheme.onErrorContainer
-                )
-            }
-        }
-    }
-}
-
-private class PantryItemCard(
-    val pantryIngredient: UiPantryIngredient
-)
-
-@Composable
-private fun PantryListItem(
-    card: PantryItemCard,
-    onItemClicked: (UiPantryIngredient) -> Unit
+fun PantryListItem(
+    ingredient: UiPantryIngredient,
+    onItemClick: (UiPantryIngredient) -> Unit
 ) {
     // Animation for color change
-    val isInPantry = card.pantryIngredient.inPantry.value
+    val isInPantry = ingredient.inPantry.value
     val backgroundColor by animateColorAsState(
-        targetValue = if (isInPantry) 
-            MaterialTheme.colorScheme.primaryContainer 
-        else 
+        targetValue = if (isInPantry)
+            MaterialTheme.colorScheme.primaryContainer
+        else
             MaterialTheme.colorScheme.surfaceVariant,
         animationSpec = tween(durationMillis = 300),
         label = "backgroundColorAnimation"
     )
-    
+
     val contentColor by animateColorAsState(
-        targetValue = if (isInPantry) 
-            MaterialTheme.colorScheme.onPrimaryContainer 
-        else 
+        targetValue = if (isInPantry)
+            MaterialTheme.colorScheme.onPrimaryContainer
+        else
             MaterialTheme.colorScheme.onSurfaceVariant,
         animationSpec = tween(durationMillis = 300),
         label = "contentColorAnimation"
     )
-    
-    // Scale animation on click
-    var isPressed by remember { mutableStateOf(false) }
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.95f else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = "scaleAnimation"
-    )
-    
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            }
             .shadow(
                 elevation = 4.dp,
                 shape = RoundedCornerShape(16.dp)
             )
             .clickable {
-                isPressed = true
-                onItemClicked(card.pantryIngredient)
+                onItemClick(ingredient)
             },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
@@ -442,13 +346,6 @@ private fun PantryListItem(
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        LaunchedEffect(isPressed) {
-            if (isPressed) {
-                delay(100)
-                isPressed = false
-            }
-        }
-        
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -456,7 +353,7 @@ private fun PantryListItem(
                 .padding(horizontal = 16.dp, vertical = 16.dp)
         ) {
             Text(
-                text = card.pantryIngredient.ingredient.name,
+                text = ingredient.ingredient.name,
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.Medium
                 ),
@@ -486,22 +383,293 @@ private fun PantryListItem(
 }
 
 @Composable
-private fun PantryCardList(
-    pantry: List<UiPantryIngredient>,
-    onItemClick: (UiPantryIngredient) -> Unit
-) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+fun EmptyPantryMessage() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(24.dp),
+        contentAlignment = Alignment.Center
     ) {
-        itemsIndexed(pantry, key = { _, item -> item.ingredient.id }) { _, item ->
-            PantryListItem(
-                card = PantryItemCard(item),
-                onItemClicked = onItemClick
-            )
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Info,
+                    contentDescription = null,
+                    modifier = Modifier.size(48.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+
+                Text(
+                    text = stringResource(pantry_empty_title),
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Medium
+                    ),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Text(
+                    text = stringResource(pantry_empty_message),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
+}
+
+@Composable
+fun ErrorMessage() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(24.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.7f)
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Warning,
+                    contentDescription = null,
+                    modifier = Modifier.size(48.dp),
+                    tint = MaterialTheme.colorScheme.error
+                )
+
+                Text(
+                    text = stringResource(error_message),
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Medium
+                    ),
+                    color = MaterialTheme.colorScheme.onErrorContainer
+                )
+            }
+        }
+    }
+}
+
+// TODO: Look into only including previews in debug builds
+@Preview(showBackground = true, widthDp = 400, heightDp = 800)
+@Composable
+fun HomeScreenPreview() {
+    val samplePantryIngredients = listOf(
+        UiPantryIngredient(
+            ingredient = Ingredient(
+                id = 1,
+                name = "Chicken"
+            ),
+            inPantry = remember { mutableStateOf(true) }
+        ),
+        UiPantryIngredient(
+            ingredient = Ingredient(
+                id = 2,
+                name = "Bell Pepper"
+            ),
+            inPantry = remember { mutableStateOf(true) }
+        ),
+        UiPantryIngredient(
+            ingredient = Ingredient(
+                id = 3,
+                name = "Olive Oil"
+            ),
+            inPantry = remember { mutableStateOf(true) }
+        ),
+        UiPantryIngredient(
+            ingredient = Ingredient(
+                id = 4,
+                name = "Tomatoes"
+            ),
+            inPantry = remember { mutableStateOf(false) }
+        )
+    )
+
+    val sampleSuggestedIngredients = listOf(
+        UiSearchIngredient(
+            ingredient = Ingredient(
+                id = 5,
+                name = "Garlic"
+            ),
+            inPantry = remember { mutableStateOf(false) }
+        ),
+        UiSearchIngredient(
+            ingredient = Ingredient(
+                id = 6,
+                name = "Black Pepper"
+            ),
+            inPantry = remember { mutableStateOf(true) }
+        ),
+        UiSearchIngredient(
+            ingredient = Ingredient(
+                id = 7,
+                name = "Salt"
+            ),
+            inPantry = remember { mutableStateOf(false) }
+        )
+    )
+
+    MaterialTheme {
+        HomeScreen(
+            suggestedIngredientsUiState = SearchUiState.Content(sampleSuggestedIngredients),
+            pantryUiState = PantryUiState.Content(samplePantryIngredients),
+            onIngredientSearchClick = {},
+            onToggleIngredient = {},
+            errorDialogState = dismissed(),
+            onDismissErrorDialog = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, widthDp = 400, heightDp = 800)
+@Composable
+fun HomeScreenEmptyPantryPreview() {
+    val sampleSuggestedIngredients = listOf(
+        UiSearchIngredient(
+            ingredient = Ingredient(
+                id = 5,
+                name = "Garlic"
+            ),
+            inPantry = remember { mutableStateOf(false) }
+        ),
+        UiSearchIngredient(
+            ingredient = Ingredient(
+                id = 6,
+                name = "Black Pepper"
+            ),
+            inPantry = remember { mutableStateOf(true) }
+        )
+    )
+
+    HomeScreen(
+        suggestedIngredientsUiState = SearchUiState.Content(sampleSuggestedIngredients),
+        pantryUiState = PantryUiState.Empty,
+        onIngredientSearchClick = {},
+        onToggleIngredient = {},
+        errorDialogState = dismissed(),
+        onDismissErrorDialog = {}
+    )
+}
+
+@Preview(showBackground = true, widthDp = 400, heightDp = 800)
+@Composable
+fun HomeScreenErrorStatePreview() {
+    HomeScreen(
+        suggestedIngredientsUiState = SearchUiState.Error,
+        pantryUiState = PantryUiState.Error,
+        onIngredientSearchClick = {},
+        onToggleIngredient = {},
+        errorDialogState = dismissed(),
+        onDismissErrorDialog = {}
+    )
+}
+
+@Preview(showBackground = true, widthDp = 400, heightDp = 800)
+@Composable
+fun HomeScreenLoadingStatePreview() {
+    HomeScreen(
+        suggestedIngredientsUiState = SearchUiState.Loading,
+        pantryUiState = PantryUiState.Loading,
+        onIngredientSearchClick = {},
+        onToggleIngredient = {},
+        errorDialogState = dismissed(),
+        onDismissErrorDialog = {}
+    )
+}
+
+@Preview(showBackground = true, widthDp = 180, heightDp = 80)
+@Composable
+fun SuggestedIngredientItemPreview() {
+    SuggestedIngredientItem(
+        ingredient = UiSearchIngredient(
+            ingredient = Ingredient(
+                id = 1,
+                name = "Bell Pepper"
+            ),
+            inPantry = remember { mutableStateOf(false) }
+        ),
+        onClick = {}
+    )
+}
+
+@Preview(showBackground = true, widthDp = 180, heightDp = 80)
+@Composable
+fun SuggestedIngredientItemInPantryPreview() {
+    SuggestedIngredientItem(
+        ingredient = UiSearchIngredient(
+            ingredient = Ingredient(
+                id = 1,
+                name = "Bell Pepper"
+            ),
+            inPantry = remember { mutableStateOf(true) }
+        ),
+        onClick = {}
+    )
+}
+
+@Preview(showBackground = true, widthDp = 180)
+@Composable
+fun PantryListItemPreview() {
+    PantryListItem(
+        ingredient = UiPantryIngredient(
+            ingredient = Ingredient(
+                id = 1,
+                name = "Chicken"
+            ),
+            inPantry = remember { mutableStateOf(true) }
+        ),
+        onItemClick = {}
+    )
+}
+
+@Preview(showBackground = true, widthDp = 180)
+@Composable
+fun PantryListItemNotInPantryPreview() {
+    PantryListItem(
+        ingredient = UiPantryIngredient(
+            ingredient = Ingredient(
+                id = 2,
+                name = "Tomatoes"
+            ),
+            inPantry = remember { mutableStateOf(false) }
+        ),
+        onItemClick = {}
+    )
+}
+
+@Preview(showBackground = true, widthDp = 400)
+@Composable
+fun EmptyPantryMessagePreview() {
+    EmptyPantryMessage()
+}
+
+@Preview(showBackground = true, widthDp = 400)
+@Composable
+fun ErrorMessagePreview() {
+    ErrorMessage()
 }
