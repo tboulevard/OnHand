@@ -4,13 +4,16 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.material3.AlertDialog
+import androidx.compose.ui.res.stringResource
+import com.tstreet.onhand.core.common.R.string.confirm
+import com.tstreet.onhand.core.common.R.string.dismiss
 
 @Composable
 fun OnHandAlertDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit = { },
-    dismissButtonText: String = "Dismiss",
-    confirmButtonText: String = "Confirm",
+    dismissButtonText: String = stringResource(dismiss),
+    confirmButtonText: String = stringResource(confirm),
     showConfirmButton: Boolean = false,
     state: AlertDialogState,
 ) {

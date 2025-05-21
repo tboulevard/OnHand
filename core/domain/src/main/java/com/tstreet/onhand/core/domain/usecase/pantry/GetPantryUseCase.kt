@@ -5,7 +5,7 @@ import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.domain.usecase.UseCase
 import com.tstreet.onhand.core.domain.repository.PantryRepository
 import com.tstreet.onhand.core.model.data.PantryIngredient
-import com.tstreet.onhand.core.model.domain.PantryListResult
+import com.tstreet.onhand.core.model.domain.GetPantryResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
@@ -18,15 +18,15 @@ class GetPantryUseCase @Inject constructor(
     private val repository: Provider<PantryRepository>,
 ) : UseCase() {
 
-    operator fun invoke(): Flow<PantryListResult> {
-        return flow<PantryListResult> {
+    operator fun invoke(): Flow<GetPantryResult> {
+        return flow<GetPantryResult> {
             val pantry = repository.get().listPantry().map { PantryIngredient(it, true) }
-            emit(PantryListResult.Success(pantry))
+            emit(GetPantryResult.Success(pantry))
         }.onStart {
-            emit(PantryListResult.Loading)
+            emit(GetPantryResult.Loading)
         }.catch {
             Log.d("[OnHand]", "Error getting pantry", it)
-            emit(PantryListResult.Error)
+            emit(GetPantryResult.Error)
         }
     }
 }
