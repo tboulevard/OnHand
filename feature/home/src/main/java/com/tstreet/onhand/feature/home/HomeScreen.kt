@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tstreet.onhand.core.common.R.string.add_to_pantry_content_description
 import com.tstreet.onhand.core.common.R.string.error_message
@@ -33,11 +34,13 @@ import com.tstreet.onhand.core.common.R.string.pantry_empty_title
 import com.tstreet.onhand.core.common.R.string.suggested_ingredients_title
 import com.tstreet.onhand.core.common.R.string.unable_to_load_suggestions
 import com.tstreet.onhand.core.common.R.string.your_pantry_title
+import com.tstreet.onhand.core.model.data.Ingredient
 import com.tstreet.onhand.core.model.ui.PantryUiState
 import com.tstreet.onhand.core.model.ui.SearchUiState
 import com.tstreet.onhand.core.model.ui.UiPantryIngredient
 import com.tstreet.onhand.core.model.ui.UiSearchIngredient
 import com.tstreet.onhand.core.ui.AlertDialogState
+import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
 import com.tstreet.onhand.core.ui.IngredientSearchBar
 import com.tstreet.onhand.core.ui.OnHandAlertDialog
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
@@ -204,9 +207,7 @@ private fun SuggestedIngredientItem(
                 shape = RoundedCornerShape(16.dp)
             )
             .clickable(
-                onClick = {
-                    onClick()
-                }
+                onClick = onClick
             ),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
@@ -275,6 +276,7 @@ private fun Pantry(
                     onItemClick = onIngredientClick
                 )
             }
+
             PantryUiState.Empty -> EmptyPantryMessage()
             PantryUiState.Error -> ErrorMessage()
         }
@@ -448,7 +450,9 @@ fun ErrorMessage() {
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
             Column(
-                modifier = Modifier.padding(24.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
@@ -469,4 +473,203 @@ fun ErrorMessage() {
             }
         }
     }
+}
+
+// TODO: Look into only including previews in debug builds
+@Preview(showBackground = true, widthDp = 400, heightDp = 800)
+@Composable
+fun HomeScreenPreview() {
+    val samplePantryIngredients = listOf(
+        UiPantryIngredient(
+            ingredient = Ingredient(
+                id = 1,
+                name = "Chicken"
+            ),
+            inPantry = remember { mutableStateOf(true) }
+        ),
+        UiPantryIngredient(
+            ingredient = Ingredient(
+                id = 2,
+                name = "Bell Pepper"
+            ),
+            inPantry = remember { mutableStateOf(true) }
+        ),
+        UiPantryIngredient(
+            ingredient = Ingredient(
+                id = 3,
+                name = "Olive Oil"
+            ),
+            inPantry = remember { mutableStateOf(true) }
+        ),
+        UiPantryIngredient(
+            ingredient = Ingredient(
+                id = 4,
+                name = "Tomatoes"
+            ),
+            inPantry = remember { mutableStateOf(false) }
+        )
+    )
+
+    val sampleSuggestedIngredients = listOf(
+        UiSearchIngredient(
+            ingredient = Ingredient(
+                id = 5,
+                name = "Garlic"
+            ),
+            inPantry = remember { mutableStateOf(false) }
+        ),
+        UiSearchIngredient(
+            ingredient = Ingredient(
+                id = 6,
+                name = "Black Pepper"
+            ),
+            inPantry = remember { mutableStateOf(true) }
+        ),
+        UiSearchIngredient(
+            ingredient = Ingredient(
+                id = 7,
+                name = "Salt"
+            ),
+            inPantry = remember { mutableStateOf(false) }
+        )
+    )
+
+    MaterialTheme {
+        HomeScreen(
+            suggestedIngredientsUiState = SearchUiState.Content(sampleSuggestedIngredients),
+            pantryUiState = PantryUiState.Content(samplePantryIngredients),
+            onIngredientSearchClick = {},
+            onToggleIngredient = {},
+            errorDialogState = dismissed(),
+            onDismissErrorDialog = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, widthDp = 400, heightDp = 800)
+@Composable
+fun HomeScreenEmptyPantryPreview() {
+    val sampleSuggestedIngredients = listOf(
+        UiSearchIngredient(
+            ingredient = Ingredient(
+                id = 5,
+                name = "Garlic"
+            ),
+            inPantry = remember { mutableStateOf(false) }
+        ),
+        UiSearchIngredient(
+            ingredient = Ingredient(
+                id = 6,
+                name = "Black Pepper"
+            ),
+            inPantry = remember { mutableStateOf(true) }
+        )
+    )
+
+    HomeScreen(
+        suggestedIngredientsUiState = SearchUiState.Content(sampleSuggestedIngredients),
+        pantryUiState = PantryUiState.Empty,
+        onIngredientSearchClick = {},
+        onToggleIngredient = {},
+        errorDialogState = dismissed(),
+        onDismissErrorDialog = {}
+    )
+}
+
+@Preview(showBackground = true, widthDp = 400, heightDp = 800)
+@Composable
+fun HomeScreenErrorStatePreview() {
+    HomeScreen(
+        suggestedIngredientsUiState = SearchUiState.Error,
+        pantryUiState = PantryUiState.Error,
+        onIngredientSearchClick = {},
+        onToggleIngredient = {},
+        errorDialogState = dismissed(),
+        onDismissErrorDialog = {}
+    )
+}
+
+@Preview(showBackground = true, widthDp = 400, heightDp = 800)
+@Composable
+fun HomeScreenLoadingStatePreview() {
+    HomeScreen(
+        suggestedIngredientsUiState = SearchUiState.Loading,
+        pantryUiState = PantryUiState.Loading,
+        onIngredientSearchClick = {},
+        onToggleIngredient = {},
+        errorDialogState = dismissed(),
+        onDismissErrorDialog = {}
+    )
+}
+
+@Preview(showBackground = true, widthDp = 180, heightDp = 80)
+@Composable
+fun SuggestedIngredientItemPreview() {
+    SuggestedIngredientItem(
+        ingredient = UiSearchIngredient(
+            ingredient = Ingredient(
+                id = 1,
+                name = "Bell Pepper"
+            ),
+            inPantry = remember { mutableStateOf(false) }
+        ),
+        onClick = {}
+    )
+}
+
+@Preview(showBackground = true, widthDp = 180, heightDp = 80)
+@Composable
+fun SuggestedIngredientItemInPantryPreview() {
+    SuggestedIngredientItem(
+        ingredient = UiSearchIngredient(
+            ingredient = Ingredient(
+                id = 1,
+                name = "Bell Pepper"
+            ),
+            inPantry = remember { mutableStateOf(true) }
+        ),
+        onClick = {}
+    )
+}
+
+@Preview(showBackground = true, widthDp = 180)
+@Composable
+fun PantryListItemPreview() {
+    PantryListItem(
+        ingredient = UiPantryIngredient(
+            ingredient = Ingredient(
+                id = 1,
+                name = "Chicken"
+            ),
+            inPantry = remember { mutableStateOf(true) }
+        ),
+        onItemClick = {}
+    )
+}
+
+@Preview(showBackground = true, widthDp = 180)
+@Composable
+fun PantryListItemNotInPantryPreview() {
+    PantryListItem(
+        ingredient = UiPantryIngredient(
+            ingredient = Ingredient(
+                id = 2,
+                name = "Tomatoes"
+            ),
+            inPantry = remember { mutableStateOf(false) }
+        ),
+        onItemClick = {}
+    )
+}
+
+@Preview(showBackground = true, widthDp = 400)
+@Composable
+fun EmptyPantryMessagePreview() {
+    EmptyPantryMessage()
+}
+
+@Preview(showBackground = true, widthDp = 400)
+@Composable
+fun ErrorMessagePreview() {
+    ErrorMessage()
 }
