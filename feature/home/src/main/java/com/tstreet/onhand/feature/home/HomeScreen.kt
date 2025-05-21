@@ -19,11 +19,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.tstreet.onhand.core.common.R.string.add_to_pantry_content_description
+import com.tstreet.onhand.core.common.R.string.error_message
+import com.tstreet.onhand.core.common.R.string.in_pantry_content_description
+import com.tstreet.onhand.core.common.R.string.no_suggestions_available
+import com.tstreet.onhand.core.common.R.string.pantry_empty_message
+import com.tstreet.onhand.core.common.R.string.pantry_empty_title
+import com.tstreet.onhand.core.common.R.string.suggested_ingredients_title
+import com.tstreet.onhand.core.common.R.string.unable_to_load_suggestions
+import com.tstreet.onhand.core.common.R.string.your_pantry_title
 import com.tstreet.onhand.core.model.ui.PantryUiState
 import com.tstreet.onhand.core.model.ui.SearchUiState
 import com.tstreet.onhand.core.model.ui.UiPantryIngredient
@@ -82,7 +92,7 @@ private fun SuggestedIngredients(
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
         Text(
             modifier = Modifier.padding(start = 16.dp, bottom = 12.dp),
-            text = "Suggested Ingredients",
+            text = stringResource(suggested_ingredients_title),
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.Bold
             ),
@@ -99,7 +109,7 @@ private fun SuggestedIngredients(
             SearchUiState.Error -> {
                 Text(
                     modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
-                    text = "Unable to load suggestions",
+                    text = stringResource(unable_to_load_suggestions),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.error
                 )
@@ -108,7 +118,7 @@ private fun SuggestedIngredients(
             SearchUiState.Empty -> {
                 Text(
                     modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
-                    text = "No suggestions available",
+                    text = stringResource(no_suggestions_available),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -227,7 +237,10 @@ private fun SuggestedIngredientItem(
             
             Icon(
                 imageVector = if (isInPantry) Icons.Filled.Check else Icons.Filled.Add,
-                contentDescription = if (isInPantry) "In pantry" else "Add to pantry",
+                contentDescription = if (isInPantry) 
+                    stringResource(in_pantry_content_description)
+                else 
+                    stringResource(add_to_pantry_content_description),
                 modifier = Modifier.size(18.dp),
                 tint = contentColor
             )
@@ -245,7 +258,7 @@ private fun PantryItemList(
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
         Text(
             modifier = Modifier.padding(start = 16.dp, bottom = 16.dp),
-            text = "Your Pantry",
+            text = stringResource(your_pantry_title),
             style = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.Bold
             ),
@@ -307,7 +320,7 @@ private fun EmptyPantryMessage() {
                 )
                 
                 Text(
-                    text = "Your pantry is empty",
+                    text = stringResource(pantry_empty_title),
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Medium
                     ),
@@ -315,7 +328,7 @@ private fun EmptyPantryMessage() {
                 )
                 
                 Text(
-                    text = "You can add items by searching for ingredients",
+                    text = stringResource(pantry_empty_message),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                     textAlign = TextAlign.Center
@@ -356,7 +369,7 @@ private fun ErrorMessage() {
                 )
                 
                 Text(
-                    text = "Something went wrong",
+                    text = stringResource(error_message),
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Medium
                     ),
@@ -454,7 +467,7 @@ private fun PantryListItem(
             if (isInPantry) {
                 Icon(
                     imageVector = Icons.Filled.Check,
-                    contentDescription = "In pantry",
+                    contentDescription = stringResource(in_pantry_content_description),
                     modifier = Modifier
                         .size(24.dp)
                         .padding(start = 4.dp)
@@ -462,7 +475,7 @@ private fun PantryListItem(
             } else {
                 Icon(
                     imageVector = Icons.Filled.Add,
-                    contentDescription = "Add to pantry",
+                    contentDescription = stringResource(add_to_pantry_content_description),
                     modifier = Modifier
                         .size(24.dp)
                         .padding(start = 4.dp)

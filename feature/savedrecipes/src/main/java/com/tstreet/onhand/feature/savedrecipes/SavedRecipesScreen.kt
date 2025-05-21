@@ -12,10 +12,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.tstreet.onhand.core.common.R.string.nothing_saved
+import com.tstreet.onhand.core.common.R.string.saved_recipes
 import com.tstreet.onhand.core.model.ui.SavedRecipesUiState
 import com.tstreet.onhand.core.model.ui.SavedRecipesUiState.Content
 import com.tstreet.onhand.core.model.ui.SavedRecipesUiState.Loading
@@ -45,7 +48,7 @@ fun SavedRecipesScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Saved Recipes",
+                        text = stringResource(saved_recipes),
                         style = MaterialTheme.typography.headlineMedium.copy(
                             fontWeight = FontWeight.Bold
                         ),
@@ -103,7 +106,7 @@ private fun EmptyStateMessage() {
             modifier = Modifier
                 .align(Alignment.CenterVertically)
                 .padding(8.dp),
-            text = "Nothing saved \uD83E\uDEE0",
+            text = stringResource(nothing_saved),
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center,
         )

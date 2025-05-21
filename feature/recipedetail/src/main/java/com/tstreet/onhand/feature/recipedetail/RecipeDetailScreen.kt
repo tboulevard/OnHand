@@ -32,10 +32,22 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.tstreet.onhand.core.common.R.string.dismiss
+import com.tstreet.onhand.core.common.R.string.error_title
+import com.tstreet.onhand.core.common.R.string.ingredients_string
+import com.tstreet.onhand.core.common.R.string.instructions_title
+import com.tstreet.onhand.core.common.R.string.navigate_back_content_description
+import com.tstreet.onhand.core.common.R.string.no_instructions_provided
+import com.tstreet.onhand.core.common.R.string.no_title_provided
+import com.tstreet.onhand.core.common.R.string.recipe_details_title
+import com.tstreet.onhand.core.common.R.string.step_format
+import com.tstreet.onhand.core.common.R.string.you_are_missing
+import com.tstreet.onhand.core.common.R.string.you_have
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
 import com.tstreet.onhand.core.model.ui.RecipeDetailUiState
 
@@ -46,17 +58,17 @@ fun RecipeDetailScreen(
     viewModel: RecipeDetailViewModel
 ) {
     val uiState by viewModel.recipeDetailUiState.collectAsStateWithLifecycle()
-    val openErrorDialog = viewModel.showErrorDialog.collectAsStateWithLifecycle()
+    val openErrorDialog by viewModel.showErrorDialog.collectAsStateWithLifecycle()
     
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Recipe Details") },
+                title = { Text(stringResource(recipe_details_title)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = "Navigate back"
+                            contentDescription = stringResource(navigate_back_content_description)
                         )
                     }
                 },
@@ -81,14 +93,14 @@ fun RecipeDetailScreen(
                     RecipeDetailContent(state)
                 }
                 is RecipeDetailUiState.Error -> {
-                    if (openErrorDialog.value) {
+                    if (openErrorDialog) {
                         AlertDialog(
                             onDismissRequest = {
                                 viewModel.dismissErrorDialog()
                                 navController.popBackStack()
                             },
                             title = {
-                                Text("Error", style = MaterialTheme.typography.titleLarge)
+                                Text(stringResource(error_title), style = MaterialTheme.typography.titleLarge)
                             },
                             text = {
                                 Text(state.message, style = MaterialTheme.typography.bodyMedium)
@@ -98,7 +110,7 @@ fun RecipeDetailScreen(
                                     viewModel.dismissErrorDialog()
                                     navController.popBackStack()
                                 }) {
-                                    Text("Dismiss")
+                                    Text(stringResource(dismiss))
                                 }
                             },
                             confirmButton = { },
@@ -121,7 +133,7 @@ private fun RecipeDetailContent(state: RecipeDetailUiState.Success) {
             .padding(16.dp)
     ) {
         Text(
-            text = state.recipe?.preview?.title ?: "No title provided",
+            text = state.recipe?.preview?.title ?: stringResource(no_title_provided),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary
@@ -139,7 +151,7 @@ private fun RecipeDetailContent(state: RecipeDetailUiState.Success) {
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    text = "Ingredients",
+                    text = stringResource(ingredients_string),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -149,7 +161,7 @@ private fun RecipeDetailContent(state: RecipeDetailUiState.Success) {
                 
                 // Available ingredients
                 Text(
-                    text = "You have:",
+                    text = stringResource(you_have),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.secondary
                 )
@@ -166,7 +178,7 @@ private fun RecipeDetailContent(state: RecipeDetailUiState.Success) {
                 
                 // Missing ingredients
                 Text(
-                    text = "You are missing:",
+                    text = stringResource(you_are_missing),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.error
                 )
@@ -193,7 +205,7 @@ private fun RecipeDetailContent(state: RecipeDetailUiState.Success) {
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    text = "Instructions",
+                    text = stringResource(instructions_title),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -203,12 +215,14 @@ private fun RecipeDetailContent(state: RecipeDetailUiState.Success) {
                 Divider()
                 Spacer(modifier = Modifier.height(8.dp))
                 
-                val instructions = state.recipe?.detail?.instructions ?: "No instructions provided"
+                val noInstructionsText = stringResource(no_instructions_provided)
+                val instructions = state.recipe?.detail?.instructions ?: noInstructionsText
                 val steps = remember {
-                    if (instructions == "No instructions provided") {
-                        listOf("No instructions provided")
+                    if (instructions == noInstructionsText) {
+                        listOf(noInstructionsText)
                     } else {
                         // Split instructions into steps based on numbering or line breaks
+                        // TODO: Move to viewmodel at least
                         instructions.split(Regex("\\d+\\.\\s|\\n+"))
                             .filter { it.trim().isNotEmpty() }
                             .map { it.trim() }
@@ -218,7 +232,7 @@ private fun RecipeDetailContent(state: RecipeDetailUiState.Success) {
                 val completedSteps = remember { mutableStateListOf<Int>() }
                 
                 steps.forEachIndexed { index, step ->
-                    if (step != "No instructions provided") {
+                    if (step != noInstructionsText) {
                         InstructionStep(
                             stepNumber = index + 1,
                             stepText = step,
@@ -266,7 +280,7 @@ private fun InstructionStep(
         )
         
         Text(
-            text = "Step $stepNumber: $stepText",
+            text = stringResource(step_format, stepNumber, stepText),
             style = MaterialTheme.typography.bodyMedium,
             color = if (isCompleted) 
                 MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)

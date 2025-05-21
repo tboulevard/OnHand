@@ -13,9 +13,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.tstreet.onhand.core.common.R.string.add_ingredient
+import com.tstreet.onhand.core.common.R.string.error_message
+import com.tstreet.onhand.core.common.R.string.in_pantry
+import com.tstreet.onhand.core.common.R.string.no_results_found
+import com.tstreet.onhand.core.common.R.string.remove_ingredient
 import com.tstreet.onhand.core.model.ui.SearchUiState
 import com.tstreet.onhand.core.model.ui.UiSearchIngredient
 import com.tstreet.onhand.core.ui.IngredientSearchBar
@@ -103,7 +109,7 @@ private fun IngredientSearchListItem(
                 
                 if (card.inPantry) {
                     Text(
-                        text = "In pantry",
+                        text = stringResource(in_pantry),
                         style = MaterialTheme.typography.bodySmall,
                         color = if (card.isSelected) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f) 
                                else MaterialTheme.colorScheme.onSurfaceVariant
@@ -113,7 +119,10 @@ private fun IngredientSearchListItem(
 
             Icon(
                 imageVector = if (card.isSelected) Icons.Outlined.Check else Icons.Outlined.Add,
-                contentDescription = if (card.isSelected) "Remove ingredient" else "Add ingredient",
+                contentDescription = if (card.isSelected) 
+                    stringResource(remove_ingredient)
+                else 
+                    stringResource(add_ingredient),
                 tint = if (card.isSelected) MaterialTheme.colorScheme.onPrimaryContainer 
                       else MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(start = 8.dp)
@@ -146,7 +155,7 @@ fun IngredientSearchCardList(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "No results found",
+                        text = stringResource(no_results_found),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -194,7 +203,7 @@ fun IngredientSearchCardList(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "Something went wrong",
+                        text = stringResource(error_message),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.error
                     )
