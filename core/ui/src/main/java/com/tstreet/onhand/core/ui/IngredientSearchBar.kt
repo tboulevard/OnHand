@@ -1,9 +1,10 @@
 package com.tstreet.onhand.core.ui
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
@@ -11,6 +12,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -24,10 +26,37 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.tstreet.onhand.core.ui.theming.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun IngredientSearchBar(
+fun IngredientSearchBarScaffold(
+    searchText: String = "",
+    onTextChanged: (String) -> Unit = { },
+    onBackClicked: () -> Unit = { },
+    onClick: () -> Unit = { },
+    enabled: Boolean = true,
+    content: @Composable (PaddingValues) -> Unit
+) {
+    Scaffold(
+        modifier = Modifier.padding(AppTheme.sizes.medium),
+        topBar = {
+            IngredientSearchBar(
+                searchText,
+                onTextChanged,
+                onBackClicked,
+                onClick,
+                enabled
+            )
+        }
+    ) { paddingValues ->
+        content(paddingValues)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun IngredientSearchBar(
     searchText: String = "",
     onTextChanged: (String) -> Unit = { },
     onBackClicked: () -> Unit = { },
@@ -46,7 +75,11 @@ fun IngredientSearchBar(
     TextField(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .border(
+                width = AppTheme.sizes.extraSmall,
+                color = AppTheme.colorScheme.primary,
+                shape = AppTheme.shapes.fullyRoundedCornerShape
+            )
             .clickable {
                 onClick.invoke()
             }
@@ -83,7 +116,7 @@ fun IngredientSearchBar(
                 )
             }
         },
-        shape = RoundedCornerShape(28.dp),
+        shape = AppTheme.shapes.fullyRoundedCornerShape,
         colors = TextFieldDefaults.textFieldColors(
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,

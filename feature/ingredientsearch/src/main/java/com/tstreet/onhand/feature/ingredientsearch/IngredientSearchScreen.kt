@@ -24,7 +24,7 @@ import com.tstreet.onhand.core.common.R.string.no_results_found
 import com.tstreet.onhand.core.common.R.string.remove_ingredient
 import com.tstreet.onhand.core.model.ui.SearchUiState
 import com.tstreet.onhand.core.model.ui.UiSearchIngredient
-import com.tstreet.onhand.core.ui.IngredientSearchBar
+import com.tstreet.onhand.core.ui.IngredientSearchBarScaffold
 import com.tstreet.onhand.core.ui.OnHandAlertDialog
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
 
@@ -46,14 +46,10 @@ fun IngredientSearchScreen(
         state = errorDialogState.value
     )
 
-    Scaffold(
-        topBar = {
-            IngredientSearchBar(
-                searchText = searchText,
-                onTextChanged = onIngredientSearchTextChanged,
-                onBackClicked = onBackClicked
-            )
-        }
+    IngredientSearchBarScaffold(
+        searchText = searchText,
+        onTextChanged = onIngredientSearchTextChanged,
+        onBackClicked = onBackClicked
     ) { paddingValues ->
         IngredientSearchCardList(
             modifier = Modifier.padding(paddingValues),
@@ -86,8 +82,8 @@ private fun IngredientSearchListItem(
             defaultElevation = 2.dp
         ),
         colors = CardDefaults.elevatedCardColors(
-            containerColor = if (card.isSelected) MaterialTheme.colorScheme.primaryContainer 
-                            else MaterialTheme.colorScheme.surface
+            containerColor = if (card.isSelected) MaterialTheme.colorScheme.primaryContainer
+            else MaterialTheme.colorScheme.surface
         )
     ) {
         Row(
@@ -101,30 +97,32 @@ private fun IngredientSearchListItem(
                 Text(
                     text = card.name,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = if (card.isSelected) MaterialTheme.colorScheme.onPrimaryContainer 
-                           else MaterialTheme.colorScheme.onSurface,
+                    color = if (card.isSelected) MaterialTheme.colorScheme.onPrimaryContainer
+                    else MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                
+
                 if (card.inPantry) {
                     Text(
                         text = stringResource(in_pantry),
                         style = MaterialTheme.typography.bodySmall,
-                        color = if (card.isSelected) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f) 
-                               else MaterialTheme.colorScheme.onSurfaceVariant
+                        color = if (card.isSelected) MaterialTheme.colorScheme.onPrimaryContainer.copy(
+                            alpha = 0.7f
+                        )
+                        else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
 
             Icon(
                 imageVector = if (card.isSelected) Icons.Outlined.Check else Icons.Outlined.Add,
-                contentDescription = if (card.isSelected) 
+                contentDescription = if (card.isSelected)
                     stringResource(remove_ingredient)
-                else 
+                else
                     stringResource(add_ingredient),
-                tint = if (card.isSelected) MaterialTheme.colorScheme.onPrimaryContainer 
-                      else MaterialTheme.colorScheme.primary,
+                tint = if (card.isSelected) MaterialTheme.colorScheme.onPrimaryContainer
+                else MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(start = 8.dp)
             )
         }

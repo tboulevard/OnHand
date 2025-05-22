@@ -41,7 +41,6 @@ import com.tstreet.onhand.core.model.ui.UiPantryIngredient
 import com.tstreet.onhand.core.model.ui.UiSearchIngredient
 import com.tstreet.onhand.core.ui.AlertDialogState
 import com.tstreet.onhand.core.ui.AlertDialogState.Companion.dismissed
-import com.tstreet.onhand.core.ui.IngredientSearchBar
 import com.tstreet.onhand.core.ui.OnHandAlertDialog
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
 
@@ -85,10 +84,10 @@ fun HomeScreen(
 
     Scaffold(
         topBar = {
-            IngredientSearchBar(
-                onClick = onIngredientSearchClick,
-                enabled = false
-            )
+//            IngredientSearchBar(
+//                onClick = onIngredientSearchClick,
+//                enabled = false
+//            )
         }
     ) { paddingValues ->
         Column(

@@ -28,7 +28,7 @@ import com.tstreet.onhand.core.model.data.IngredientCategory
 import com.tstreet.onhand.core.model.ui.home.HomeViewUiStateV2
 import com.tstreet.onhand.core.model.ui.home.PantryRowItem
 import com.tstreet.onhand.core.model.ui.home.UiPantryIngredientV2
-import com.tstreet.onhand.core.ui.IngredientSearchBar
+import com.tstreet.onhand.core.ui.IngredientSearchBarScaffold
 import com.tstreet.onhand.core.ui.theming.OnHandTheme
 
 @Composable
@@ -52,14 +52,9 @@ fun HomeScreenV2(
     onIngredientSearchBarClick: () -> Unit,
     onIngredientClick: () -> Unit
 ) {
-
-    Scaffold(
-        topBar = {
-            IngredientSearchBar(
-                onClick = onIngredientSearchBarClick,
-                enabled = false
-            )
-        }
+    IngredientSearchBarScaffold(
+        onClick = onIngredientSearchBarClick,
+        enabled = false
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -106,7 +101,12 @@ fun PantryBody(
             when (item) {
                 is PantryRowItem.Header -> {
                     PantryIngredientCategoryHeader(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                top = 4.dp,
+                                bottom = 4.dp
+                            ),
                         category = item.category,
                         this@LazyColumn
                     )
@@ -137,8 +137,10 @@ fun PantryIngredientListItem(
         // Column with (name, addtl info)
 
         Column(horizontalAlignment = Alignment.Start) {
-            Text(item.ingredientName)
-            Spacer(modifier = Modifier.size(16.dp))
+            Text(
+                item.ingredientName,
+            )
+            Spacer(modifier = Modifier.size(4.dp))
             Text("Additional Info")
         }
 
