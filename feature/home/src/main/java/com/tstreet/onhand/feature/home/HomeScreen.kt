@@ -97,10 +97,6 @@ fun HomeScreen(
                 .padding(paddingValues),
             verticalArrangement = Arrangement.Top
         ) {
-            SuggestedIngredients(
-                suggestedIngredientsUiState,
-                onToggleIngredient
-            )
 
             Pantry(
                 pantryUiState,
@@ -253,8 +249,6 @@ private fun Pantry(
     pantryUiState: PantryUiState,
     onIngredientClick: (UiPantryIngredient) -> Unit
 ) {
-    Log.d("[OnHand]", "PantryItemList recomposition")
-
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
         Text(
             modifier = Modifier.padding(start = 16.dp, bottom = 16.dp),

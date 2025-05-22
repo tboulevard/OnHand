@@ -1,7 +1,6 @@
 package com.tstreet.onhand.core.domain.repository
 
 import com.tstreet.onhand.core.model.data.Ingredient
-import kotlinx.coroutines.flow.Flow
 
 interface PantryRepository {
 

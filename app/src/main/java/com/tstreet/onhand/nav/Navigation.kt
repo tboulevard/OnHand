@@ -25,6 +25,7 @@ import com.tstreet.onhand.core.ui.RECIPE_ID_NAV_KEY
 import com.tstreet.onhand.feature.customrecipe.CreateCustomRecipeScreen
 import com.tstreet.onhand.feature.customrecipe.di.DaggerCustomRecipeComponent
 import com.tstreet.onhand.feature.home.HomeScreenContainer
+import com.tstreet.onhand.feature.home.HomeScreenContainerV2
 import com.tstreet.onhand.feature.home.di.DaggerHomeComponent
 import com.tstreet.onhand.feature.ingredientsearch.IngredientSearchScreen
 import com.tstreet.onhand.feature.ingredientsearch.di.DaggerIngredientSearchComponent
@@ -96,16 +97,16 @@ private fun NavigationConfiguration(
         startDestination = BottomNavigationScreen.Home.route
     ) {
         composable(route = BottomNavigationScreen.Home.route) {
-            HomeScreenContainer(
+            HomeScreenContainerV2(
                 injectedViewModel {
                     DaggerHomeComponent
                         .builder()
                         .commonComponent(commonComponent)
                         .dataComponent(dataComponent)
                         .build()
-                        .viewModel
+                        .viewModelV2
                 },
-                onIngredientSearchBarClicked = {
+                onIngredientSearchBarClick = {
                     navController.navigate(Screen.PantryIngredientSearch.route)
                 }
             )

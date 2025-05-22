@@ -6,6 +6,7 @@ import com.tstreet.onhand.core.data.di.DataComponent
 import com.tstreet.onhand.core.domain.di.UseCaseModule
 import com.tstreet.onhand.core.domain.usecase.ingredientsearch.IngredientSearchUseCase
 import com.tstreet.onhand.feature.home.HomeViewModel
+import com.tstreet.onhand.feature.home.HomeViewModelV2
 import dagger.Component
 
 @Component(
@@ -20,5 +21,6 @@ import dagger.Component
 @FeatureScope
 interface HomeComponent {
     val viewModel: HomeViewModel
+    val viewModelV2: HomeViewModelV2
     val ingredientSearchUseCase: IngredientSearchUseCase
 }

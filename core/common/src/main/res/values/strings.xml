@@ -67,6 +67,25 @@
     <string name="remove_item">Remove item</string>
     <string name="restore_item">Restore item</string>
 
+    <!-- Ingredient Categories -->
+    <string name="category_dairy_eggs">Dairy &amp; Eggs</string>
+    <string name="category_meat_seafood">Meat &amp; Seafood</string>
+    <string name="category_produce">Produce</string>
+    <string name="category_bakery_bread">Bakery &amp; Bread</string>
+    <string name="category_canned_jarred">Canned &amp; Jarred Goods</string>
+    <string name="category_dry_goods_pasta">Dry Goods &amp; Pasta</string>
+    <string name="category_breakfast_foods">Breakfast Foods</string>
+    <string name="category_snacks_chips">Snacks &amp; Chips</string>
+    <string name="category_baking_ingredients">Baking Ingredients</string>
+    <string name="category_condiments_sauces">Condiments &amp; Sauces</string>
+    <string name="category_spices_seasonings">Spices &amp; Seasonings</string>
+    <string name="category_beverages">Beverages</string>
+    <string name="category_frozen_foods">Frozen Foods</string>
+    <string name="category_international_foods">International Foods</string>
+    <string name="category_health_foods">Health Foods</string>
+    <string name="category_non_food_items">Non-Food Items</string>
+    <string name="category_baby_pet_food">Baby &amp; Pet Food</string>
+
     <!-- Common -->
     <string name="error_message">Something went wrong</string>
     <string name="pantry_empty_message">Add ingredients to your pantry to see recipes that match what you have.</string>

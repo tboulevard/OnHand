@@ -4,10 +4,13 @@ import androidx.compose.runtime.mutableStateOf
 import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.model.domain.GetPantryResult
 import com.tstreet.onhand.core.model.domain.SuggestedIngredientsResult
+import com.tstreet.onhand.core.model.ui.home.HomeViewUiStateV2
 import com.tstreet.onhand.core.model.ui.PantryUiState
 import com.tstreet.onhand.core.model.ui.SearchUiState
 import com.tstreet.onhand.core.model.ui.UiPantryIngredient
 import com.tstreet.onhand.core.model.ui.UiSearchIngredient
+import com.tstreet.onhand.core.model.ui.home.PantryRowItem
+import com.tstreet.onhand.core.model.ui.home.UiPantryIngredientV2
 import javax.inject.Inject
 
 @FeatureScope
@@ -64,4 +67,43 @@ class HomeUiStateMapper @Inject constructor() {
                 }
             }
         }
+
+    fun mapToHomeUiState(
+        result: GetPantryResult
+    ): HomeViewUiStateV2 {
+        return when (result) {
+            GetPantryResult.Error -> {
+                HomeViewUiStateV2.Error
+            }
+
+            GetPantryResult.Loading -> {
+                HomeViewUiStateV2.Loading
+            }
+
+            is GetPantryResult.Success -> {
+                HomeViewUiStateV2.Content(
+                    result.ingredients.groupBy {
+                        it.ingredient.category
+                    }.flatMap { entry ->
+                        mutableListOf<PantryRowItem>(
+                            PantryRowItem.Header(entry.key)
+                        ).also {
+                            it.addAll(
+                                entry.value.map { ingredient ->
+                                    PantryRowItem.Ingredient(
+                                        UiPantryIngredientV2(
+                                            ingredient.ingredient.name,
+                                            entry.key,
+                                            inPantry = mutableStateOf(true),
+                                            inShoppingCart = mutableStateOf(false)
+                                        )
+                                    )
+                                }
+                            )
+                        }
+                    }
+                )
+            }
+        }
+    }
 }
