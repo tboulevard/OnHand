@@ -25,15 +25,17 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.tstreet.onhand.core.common.R.string.search_ingredients
 import com.tstreet.onhand.core.ui.theming.AppTheme
+import com.tstreet.onhand.core.ui.theming.Blue500
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IngredientSearchBarScaffold(
     searchText: String = "",
     onTextChanged: (String) -> Unit = { },
-    onBackClicked: () -> Unit = { },
+    onBackClicked: (() -> Unit)? = null,
     onClick: () -> Unit = { },
     enabled: Boolean = true,
     content: @Composable (PaddingValues) -> Unit
@@ -48,7 +50,8 @@ fun IngredientSearchBarScaffold(
                 onClick,
                 enabled
             )
-        }
+        },
+        containerColor = AppTheme.colorScheme.background
     ) { paddingValues ->
         content(paddingValues)
     }
@@ -56,10 +59,10 @@ fun IngredientSearchBarScaffold(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun IngredientSearchBar(
+fun IngredientSearchBar(
     searchText: String = "",
-    onTextChanged: (String) -> Unit = { },
-    onBackClicked: () -> Unit = { },
+    onTextChanged: (String) -> Unit,
+    onBackClicked: (() -> Unit)?,
     onClick: () -> Unit = { },
     enabled: Boolean = true
 ) {
@@ -75,6 +78,7 @@ private fun IngredientSearchBar(
     TextField(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(bottom = AppTheme.sizes.medium)
             .border(
                 width = AppTheme.sizes.extraSmall,
                 color = AppTheme.colorScheme.primary,
@@ -89,10 +93,9 @@ private fun IngredientSearchBar(
         onValueChange = onTextChanged,
         enabled = enabled,
         singleLine = true,
-        // TODO: Centralize strings
-        placeholder = { Text("Search Ingredients") },
+        placeholder = { Text(stringResource(search_ingredients)) },
         leadingIcon = {
-            if (enabled) {
+            if (onBackClicked != null) {
                 IconButton(onClick = onBackClicked) {
                     Icon(
                         imageVector = Icons.Filled.ArrowBack,

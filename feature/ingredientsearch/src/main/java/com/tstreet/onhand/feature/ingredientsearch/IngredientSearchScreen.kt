@@ -27,6 +27,7 @@ import com.tstreet.onhand.core.model.ui.UiSearchIngredient
 import com.tstreet.onhand.core.ui.IngredientSearchBarScaffold
 import com.tstreet.onhand.core.ui.OnHandAlertDialog
 import com.tstreet.onhand.core.ui.OnHandProgressIndicator
+import com.tstreet.onhand.core.ui.theming.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -1,6 +1,7 @@
 package com.tstreet.onhand.feature.home
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,15 +12,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -29,6 +33,7 @@ import com.tstreet.onhand.core.model.ui.home.HomeViewUiStateV2
 import com.tstreet.onhand.core.model.ui.home.PantryRowItem
 import com.tstreet.onhand.core.model.ui.home.UiPantryIngredientV2
 import com.tstreet.onhand.core.ui.IngredientSearchBarScaffold
+import com.tstreet.onhand.core.ui.theming.AppTheme
 import com.tstreet.onhand.core.ui.theming.OnHandTheme
 
 @Composable
@@ -54,7 +59,7 @@ fun HomeScreenV2(
 ) {
     IngredientSearchBarScaffold(
         onClick = onIngredientSearchBarClick,
-        enabled = false
+        enabled = false,
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -65,6 +70,9 @@ fun HomeScreenV2(
 
             when (uiState) {
                 is HomeViewUiStateV2.Content -> {
+                    IngredientCategoryFilters(
+                        modifier = Modifier.padding(AppTheme.sizes.small)
+                    )
                     PantryBody(
                         modifier = Modifier.fillMaxSize(),
                         rows = uiState.pantryRows,
@@ -89,6 +97,30 @@ fun HomeScreenV2(
     }
 }
 
+@Composable
+fun IngredientCategoryFilters(
+    modifier: Modifier
+) {
+    LazyRow(modifier) {
+        items(IngredientCategory.entries.toList()) { item ->
+            IngredientCategoryFilterItem(item)
+        }
+    }
+}
+
+@Composable
+fun IngredientCategoryFilterItem(item: IngredientCategory) {
+    Card(
+        modifier = Modifier.padding(AppTheme.sizes.small)
+    ) {
+        Text(
+            modifier = Modifier.padding(AppTheme.sizes.normal),
+            text = stringResource(item.displayName),
+            style = AppTheme.typography.bodySmall
+        )
+    }
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PantryBody(
@@ -104,8 +136,10 @@ fun PantryBody(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(
-                                top = 4.dp,
-                                bottom = 4.dp
+                                start = AppTheme.sizes.small,
+                                top = AppTheme.sizes.medium,
+                                bottom = AppTheme.sizes.normal,
+                                end = AppTheme.sizes.small
                             ),
                         category = item.category,
                         this@LazyColumn
@@ -131,17 +165,31 @@ fun PantryIngredientListItem(
     item: UiPantryIngredientV2,
     onClick: () -> Unit
 ) {
-    Row(modifier) {
-        // Image
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            modifier = Modifier
+                .size(48.dp)
+                .padding(AppTheme.sizes.small),
+            painter = painterResource(item.category.placeholder),
+            contentDescription = null
+        )
 
-        // Column with (name, addtl info)
-
-        Column(horizontalAlignment = Alignment.Start) {
+        Column(
+            modifier = Modifier.padding(AppTheme.sizes.small),
+            horizontalAlignment = Alignment.Start
+        ) {
             Text(
                 item.ingredientName,
+                style = AppTheme.typography.bodyLarge
             )
-            Spacer(modifier = Modifier.size(4.dp))
-            Text("Additional Info")
+            Spacer(modifier = Modifier.size(AppTheme.sizes.small))
+            Text(
+                "Additional Info",
+                style = AppTheme.typography.labelMedium
+            )
         }
 
         // State Info
@@ -156,8 +204,19 @@ fun PantryIngredientCategoryHeader(
     category: IngredientCategory,
     scope: LazyListScope
 ) {
-    Row(modifier) {
-        Text(stringResource(category.displayName))
+    Card(
+        modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = AppTheme.colorScheme.secondaryContainer,
+            contentColor = AppTheme.colorScheme.onSecondaryContainer
+        )
+    ) {
+        Row(modifier.padding(AppTheme.sizes.small)) {
+            Text(
+                stringResource(category.displayName),
+                style = AppTheme.typography.headlineSmall
+            )
+        }
     }
 }
 

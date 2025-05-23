@@ -22,6 +22,7 @@
     <string name="pantry_empty_title">Your pantry is empty</string>
 
     <!-- Ingredient Search Screen -->
+    <string name="search_ingredients">Search ingredients</string>
     <string name="in_pantry">In pantry</string>
     <string name="remove_ingredient">Remove ingredient</string>
     <string name="add_ingredient">Add ingredient</string>

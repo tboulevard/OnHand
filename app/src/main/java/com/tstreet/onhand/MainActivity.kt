@@ -25,7 +25,7 @@ class MainActivity : ComponentActivity() {
             OnHandTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = AppTheme.colorScheme.background
+                    color = AppTheme.colorScheme.background,
                 ) {
                     Navigation(
                         commonComponent,
