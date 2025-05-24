@@ -29,7 +29,10 @@ interface PantryDao {
     @Query("SELECT * FROM pantry")
     suspend fun getAllFromPantry(): List<PantryEntity>
 
-    @Query("SELECT * FROM pantry WHERE id IN (:ids)")
-    suspend fun getPantryItemsWithIds(ids: List<Int>): List<PantryEntity>
+    @Query("SELECT * FROM pantry")
+    fun getAllFromPantryFlow(): Flow<List<PantryEntity>>
+
+    @Query("SELECT * FROM pantry WHERE ingredientName IN (:names)")
+    suspend fun getPantryItemsWithNames(names: List<String>): List<PantryEntity>
 
 }

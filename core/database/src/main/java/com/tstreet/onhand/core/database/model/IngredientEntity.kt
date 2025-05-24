@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.tstreet.onhand.core.model.data.Ingredient
+import com.tstreet.onhand.core.model.data.IngredientCategory
 
 @Entity(
     tableName = "ingredient_catalog"
@@ -15,8 +16,9 @@ class IngredientEntity(
     @ColumnInfo(name = "inPantry") val inPantry: Boolean
 )
 
-fun IngredientEntity.toIngredient() =
+fun IngredientEntity.toPantryIngredient() =
     Ingredient(
         id = id,
-        name = ingredientName
+        name = ingredientName,
+        category = IngredientCategory.randomCategory()
     )

@@ -8,6 +8,10 @@ enum class IngredientCategory(
     @StringRes val displayName: Int,
     @DrawableRes val placeholder: Int
 ) {
+    ALL(
+        R.string.category_all,
+        R.drawable.recipe_placeholder
+    ),
     DAIRY_AND_EGGS(
         R.string.category_dairy_eggs,
         R.drawable.dairy_placeholder
@@ -68,10 +72,10 @@ enum class IngredientCategory(
         }
 
         /**
-         * For testing purposes.
+         * A random non-all category - For testing purposes.
          */
         fun randomCategory(): IngredientCategory {
-            return allEntries.random()
+            return allEntries.filter { it != ALL }.random()
         }
     }
 }

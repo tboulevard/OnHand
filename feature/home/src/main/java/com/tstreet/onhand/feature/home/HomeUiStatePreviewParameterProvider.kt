@@ -5,11 +5,13 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.tstreet.onhand.core.model.data.IngredientCategory
 import com.tstreet.onhand.core.model.ui.home.HomeViewUiStateV2
 import com.tstreet.onhand.core.model.ui.home.PantryRowItem
+import com.tstreet.onhand.core.model.ui.home.SelectedIngredientCategoryState
 import com.tstreet.onhand.core.model.ui.home.UiPantryIngredientV2
 
 class HomeUiStatePreviewParameterProvider : PreviewParameterProvider<HomeViewUiStateV2> {
     override val values: Sequence<HomeViewUiStateV2> = sequenceOf(
         HomeViewUiStateV2.Content(
+            filterState = SelectedIngredientCategoryState.default,
             pantryRows = listOf(
                 PantryRowItem.Header(
                     IngredientCategory.PRODUCE

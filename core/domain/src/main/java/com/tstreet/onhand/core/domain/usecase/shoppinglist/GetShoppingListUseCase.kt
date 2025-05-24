@@ -52,8 +52,8 @@ class GetShoppingListUseCase @Inject constructor(
             )
         }
     }
-    
-    private fun getPantryList(): Flow<List<Ingredient>> =
+
+    private fun getPantryList(): Flow<List<PantryIngredient>> =
         flow { emit(pantryRepository.get().listPantry()) }
 
     /**
@@ -65,7 +65,7 @@ class GetShoppingListUseCase @Inject constructor(
     private fun combineShoppingListAndRecipes(
         shoppingListFlow: Flow<Resource<List<ShoppingListIngredient>>>,
         recipesInShoppingListFlow: Flow<Resource<List<RecipePreview>>>,
-        pantryListFlow: Flow<List<Ingredient>>
+        pantryListFlow: Flow<List<PantryIngredient>>
     ): Flow<ShoppingListResult> =
         combine(
             shoppingListFlow,
@@ -76,7 +76,9 @@ class GetShoppingListUseCase @Inject constructor(
                 ingredients = when (shoppingListIngredients.status) {
                     Status.SUCCESS -> {
                         (shoppingListIngredients.data as List<ShoppingListIngredient>).map {
-                            it.copy(inPantry = pantryIngredients.contains(it.ingredient))
+                            // TODO: clean this up
+                            it.copy(inPantry = pantryIngredients.map { it.ingredient }
+                                .contains(it.ingredient))
                         }
                     }
 

@@ -7,6 +7,7 @@ import com.tstreet.onhand.core.domain.repository.ShoppingListRepository
 import com.tstreet.onhand.core.domain.usecase.UseCase
 import com.tstreet.onhand.core.model.data.ShoppingListIngredient
 import com.tstreet.onhand.core.model.data.Ingredient
+import com.tstreet.onhand.core.model.data.PantryIngredient
 import com.tstreet.onhand.core.model.data.RecipePreviewWithSaveState
 import com.tstreet.onhand.core.model.domain.RecipeSearchResult
 import com.tstreet.onhand.core.model.domain.SavedRecipesResult
@@ -52,7 +53,7 @@ class GetRecipesUseCase @Inject constructor(
     }
 
     private fun mapSortedRecipes(
-        pantryIngredientsFlow: Flow<List<Ingredient>>,
+        pantryIngredientsFlow: Flow<List<PantryIngredient>>,
         shoppingListIngredientsFlow: Flow<Resource<List<ShoppingListIngredient>>>,
         sortBy: SortBy
     ): Flow<RecipeSearchResult> {
@@ -83,14 +84,14 @@ class GetRecipesUseCase @Inject constructor(
      * and/or pantry.
      */
     private suspend fun getRecipesForPantryAndShoppingList(
-        pantryIngredients: List<Ingredient>,
+        pantryIngredients: List<PantryIngredient>,
         shoppingListIngredients: Resource<List<ShoppingListIngredient>>
     ): List<RecipePreviewWithSaveState> {
 
         // Recipes based on pantry
         val recipeResource = recipeRepository.get().findRecipes(
             fetchStrategy = FetchStrategy.NETWORK,
-            ingredients = pantryIngredients
+            ingredients = pantryIngredients.map { it.ingredient }
         )
 
         // Ingredients in shopping list
@@ -122,7 +123,7 @@ class GetRecipesUseCase @Inject constructor(
         }
     }
 
-    private fun getPantryIngredients(): Flow<List<Ingredient>> {
+    private fun getPantryIngredients(): Flow<List<PantryIngredient>> {
         return flow {
             emit(pantryRepository.get().listPantry())
         }

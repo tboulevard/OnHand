@@ -69,6 +69,7 @@
     <string name="restore_item">Restore item</string>
 
     <!-- Ingredient Categories -->
+    <string name="category_all">All</string>
     <string name="category_dairy_eggs">Dairy &amp; Eggs</string>
     <string name="category_meat_seafood">Meat &amp; Seafood</string>
     <string name="category_produce">Produce</string>

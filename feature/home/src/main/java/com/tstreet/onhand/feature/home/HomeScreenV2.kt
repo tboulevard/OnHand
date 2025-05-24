@@ -1,7 +1,10 @@
 package com.tstreet.onhand.feature.home
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +26,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,6 +35,8 @@ import androidx.compose.ui.unit.dp
 import com.tstreet.onhand.core.model.data.IngredientCategory
 import com.tstreet.onhand.core.model.ui.home.HomeViewUiStateV2
 import com.tstreet.onhand.core.model.ui.home.PantryRowItem
+import com.tstreet.onhand.core.model.ui.home.SelectableIngredientCategory
+import com.tstreet.onhand.core.model.ui.home.SelectedIngredientCategoryState
 import com.tstreet.onhand.core.model.ui.home.UiPantryIngredientV2
 import com.tstreet.onhand.core.ui.IngredientSearchBarScaffold
 import com.tstreet.onhand.core.ui.theming.AppTheme
@@ -46,7 +52,8 @@ fun HomeScreenContainerV2(
     HomeScreenV2(
         uiState,
         onIngredientSearchBarClick,
-        viewModel::onIngredientClick
+        viewModel::onIngredientClick,
+        viewModel::onCategoryClick
     )
 }
 
@@ -55,7 +62,8 @@ fun HomeScreenContainerV2(
 fun HomeScreenV2(
     uiState: HomeViewUiStateV2,
     onIngredientSearchBarClick: () -> Unit,
-    onIngredientClick: () -> Unit
+    onIngredientClick: () -> Unit,
+    onCategoryClick: (SelectableIngredientCategory) -> Unit,
 ) {
     IngredientSearchBarScaffold(
         onClick = onIngredientSearchBarClick,
@@ -71,7 +79,9 @@ fun HomeScreenV2(
             when (uiState) {
                 is HomeViewUiStateV2.Content -> {
                     IngredientCategoryFilters(
-                        modifier = Modifier.padding(AppTheme.sizes.small)
+                        modifier = Modifier.padding(AppTheme.sizes.small),
+                        uiState.filterState,
+                        onCategoryClick
                     )
                     PantryBody(
                         modifier = Modifier.fillMaxSize(),
@@ -99,24 +109,41 @@ fun HomeScreenV2(
 
 @Composable
 fun IngredientCategoryFilters(
-    modifier: Modifier
+    modifier: Modifier,
+    filterState: SelectedIngredientCategoryState,
+    onCategoryClick: (SelectableIngredientCategory) -> Unit
 ) {
     LazyRow(modifier) {
-        items(IngredientCategory.entries.toList()) { item ->
-            IngredientCategoryFilterItem(item)
+        items(filterState.categories) { item ->
+            IngredientCategoryFilterItem(item, onCategoryClick)
         }
     }
 }
 
 @Composable
-fun IngredientCategoryFilterItem(item: IngredientCategory) {
+fun IngredientCategoryFilterItem(
+    item: SelectableIngredientCategory,
+    onClick: (SelectableIngredientCategory) -> Unit
+) {
     Card(
-        modifier = Modifier.padding(AppTheme.sizes.small)
+        modifier = Modifier.padding(AppTheme.sizes.small),
+        colors = CardDefaults.cardColors(
+            containerColor = if (item.isSelected.value) AppTheme.colorScheme.secondaryContainer else Color.Unspecified,
+            contentColor = if (item.isSelected.value) AppTheme.colorScheme.onSecondaryContainer else Color.Unspecified
+        ),
+        border = BorderStroke(
+            width = AppTheme.sizes.extraSmall,
+            color = AppTheme.colorScheme.secondaryContainer
+        )
+
     ) {
         Text(
-            modifier = Modifier.padding(AppTheme.sizes.normal),
-            text = stringResource(item.displayName),
-            style = AppTheme.typography.bodySmall
+            modifier =
+                Modifier
+                    .clickable { onClick(item) }
+                    .padding(AppTheme.sizes.normal),
+            text = stringResource(item.category.displayName),
+            style = AppTheme.typography.bodySmall,
         )
     }
 }
@@ -191,9 +218,6 @@ fun PantryIngredientListItem(
                 style = AppTheme.typography.labelMedium
             )
         }
-
-        // State Info
-
     }
 }
 
@@ -222,11 +246,11 @@ fun PantryIngredientCategoryHeader(
 
 @Preview
 @Composable
-private fun SearchScreenPreview(
+private fun HomeScreenPreview(
     @PreviewParameter(HomeUiStatePreviewParameterProvider::class)
     uiState: HomeViewUiStateV2,
 ) {
     OnHandTheme {
-        HomeScreenV2(uiState, { }, { })
+        HomeScreenV2(uiState, { }, { }, { })
     }
 }

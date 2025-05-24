@@ -1,6 +1,7 @@
 package com.tstreet.onhand.core.domain.repository
 
 import com.tstreet.onhand.core.model.data.Ingredient
+import com.tstreet.onhand.core.model.data.PantryIngredient
 
 interface PantryRepository {
 
@@ -19,14 +20,13 @@ interface PantryRepository {
     suspend fun removeIngredient(ingredient: Ingredient) : Int
 
     /**
-     * Emits [Ingredient]s in pantry each time there's an update to the underlying
-     * table.
+     * Returns all [Ingredient]s in pantry.
      */
-    suspend fun listPantry() : List<Ingredient>
+    suspend fun listPantry() : List<PantryIngredient>
 
     /**
      * Given a list of [Ingredient]s, returns the subset of those ingredients that are
      * currently in the pantry.
      */
-    suspend fun listPantry(ingredients: List<Ingredient>): List<Ingredient>
+    suspend fun listPantry(ingredients: List<Ingredient>): List<PantryIngredient>
 }

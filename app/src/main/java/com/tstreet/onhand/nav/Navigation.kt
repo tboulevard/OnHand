@@ -23,10 +23,8 @@ import com.tstreet.onhand.core.common.injectedViewModel
 import com.tstreet.onhand.core.data.di.DataComponent
 import com.tstreet.onhand.core.ui.RECIPE_ID_NAV_KEY
 import com.tstreet.onhand.core.ui.theming.AppTheme
-import com.tstreet.onhand.core.ui.theming.Red500
 import com.tstreet.onhand.feature.customrecipe.CreateCustomRecipeScreen
 import com.tstreet.onhand.feature.customrecipe.di.DaggerCustomRecipeComponent
-import com.tstreet.onhand.feature.home.HomeScreenContainer
 import com.tstreet.onhand.feature.home.HomeScreenContainerV2
 import com.tstreet.onhand.feature.home.di.DaggerHomeComponent
 import com.tstreet.onhand.feature.ingredientsearch.IngredientSearchScreen
