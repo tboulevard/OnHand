@@ -4,6 +4,7 @@ import android.util.Log
 import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.domain.usecase.UseCase
 import com.tstreet.onhand.core.domain.repository.PantryRepository
+import com.tstreet.onhand.core.model.data.IngredientCategory
 import com.tstreet.onhand.core.model.domain.GetPantryResult
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
@@ -16,9 +17,15 @@ class GetPantryUseCase @Inject constructor(
     private val repository: Provider<PantryRepository>,
 ) : UseCase() {
 
-    operator fun invoke() =
+    operator fun invoke(category: IngredientCategory = IngredientCategory.ALL) =
         flow<GetPantryResult> {
-            emit(GetPantryResult.Success(repository.get().listPantry()))
+            emit(
+                if (category == IngredientCategory.ALL) {
+                    GetPantryResult.Success(repository.get().listPantry())
+                } else {
+                    GetPantryResult.Success(repository.get().listPantryByCategory(category))
+                }
+            )
         }.onStart {
             emit(GetPantryResult.Loading)
         }.catch {

@@ -1,5 +1,6 @@
 package com.tstreet.onhand.core.domain.usecase.ingredientsearch
 
+import android.util.Log
 import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.domain.usecase.UseCase
 import com.tstreet.onhand.core.domain.repository.IngredientSearchRepository
@@ -30,7 +31,8 @@ class IngredientSearchUseCase @Inject constructor(
 
         return searchIngredients(query)
             .mapItemsInPantry()
-            .catch {
+            .catch { e ->
+                Log.d("[OnHand]", "Error: ${e.localizedMessage}")
                 emit(IngredientSearchResult.Error)
             }.onStart {
                 emit(IngredientSearchResult.Loading)

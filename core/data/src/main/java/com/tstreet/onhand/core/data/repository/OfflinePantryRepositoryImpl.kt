@@ -8,6 +8,7 @@ import com.tstreet.onhand.core.database.model.PantryEntity
 import com.tstreet.onhand.core.database.model.toPantryIngredient
 import com.tstreet.onhand.core.database.model.toPantryEntity
 import com.tstreet.onhand.core.model.data.Ingredient
+import com.tstreet.onhand.core.model.data.IngredientCategory
 import com.tstreet.onhand.core.model.data.PantryIngredient
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -60,6 +61,15 @@ class OfflinePantryRepositoryImpl @Inject constructor(
             pantryDao
                 .get()
                 .getAllFromPantry()
+                .map(PantryEntity::toPantryIngredient)
+        }
+    }
+
+    override suspend fun listPantryByCategory(category: IngredientCategory): List<PantryIngredient> {
+        return withContext(ioDispatcher) {
+            pantryDao
+                .get()
+                .getPantryMatchingCategory(category)
                 .map(PantryEntity::toPantryIngredient)
         }
     }

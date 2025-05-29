@@ -3,7 +3,6 @@ package com.tstreet.onhand.feature.home
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -36,7 +35,6 @@ import com.tstreet.onhand.core.model.data.IngredientCategory
 import com.tstreet.onhand.core.model.ui.home.HomeViewUiStateV2
 import com.tstreet.onhand.core.model.ui.home.PantryRowItem
 import com.tstreet.onhand.core.model.ui.home.SelectableIngredientCategory
-import com.tstreet.onhand.core.model.ui.home.SelectedIngredientCategoryState
 import com.tstreet.onhand.core.model.ui.home.UiPantryIngredientV2
 import com.tstreet.onhand.core.ui.IngredientSearchBarScaffold
 import com.tstreet.onhand.core.ui.theming.AppTheme
@@ -51,6 +49,7 @@ fun HomeScreenContainerV2(
 
     HomeScreenV2(
         uiState,
+        viewModel.filterCategories,
         onIngredientSearchBarClick,
         viewModel::onIngredientClick,
         viewModel::onCategoryClick
@@ -61,6 +60,7 @@ fun HomeScreenContainerV2(
 @Composable
 fun HomeScreenV2(
     uiState: HomeViewUiStateV2,
+    filterCategories: List<SelectableIngredientCategory>,
     onIngredientSearchBarClick: () -> Unit,
     onIngredientClick: () -> Unit,
     onCategoryClick: (SelectableIngredientCategory) -> Unit,
@@ -80,7 +80,7 @@ fun HomeScreenV2(
                 is HomeViewUiStateV2.Content -> {
                     IngredientCategoryFilters(
                         modifier = Modifier.padding(AppTheme.sizes.small),
-                        uiState.filterState,
+                        filterCategories,
                         onCategoryClick
                     )
                     PantryBody(
@@ -110,11 +110,11 @@ fun HomeScreenV2(
 @Composable
 fun IngredientCategoryFilters(
     modifier: Modifier,
-    filterState: SelectedIngredientCategoryState,
+    filterState: List<SelectableIngredientCategory>,
     onCategoryClick: (SelectableIngredientCategory) -> Unit
 ) {
     LazyRow(modifier) {
-        items(filterState.categories) { item ->
+        items(filterState) { item ->
             IngredientCategoryFilterItem(item, onCategoryClick)
         }
     }
@@ -248,9 +248,9 @@ fun PantryIngredientCategoryHeader(
 @Composable
 private fun HomeScreenPreview(
     @PreviewParameter(HomeUiStatePreviewParameterProvider::class)
-    uiState: HomeViewUiStateV2,
+    preview: HomeCombinedPreviewParameterUiState
 ) {
     OnHandTheme {
-        HomeScreenV2(uiState, { }, { }, { })
+        HomeScreenV2(preview.uiStateV2, preview.filterCategories, { }, { }, { })
     }
 }

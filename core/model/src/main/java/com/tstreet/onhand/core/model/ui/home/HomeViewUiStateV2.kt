@@ -4,7 +4,6 @@ package com.tstreet.onhand.core.model.ui.home
 sealed interface HomeViewUiStateV2 {
 
     data class Content(
-        val filterState: SelectedIngredientCategoryState,
         val pantryRows: List<PantryRowItem>
     ) : HomeViewUiStateV2
 
