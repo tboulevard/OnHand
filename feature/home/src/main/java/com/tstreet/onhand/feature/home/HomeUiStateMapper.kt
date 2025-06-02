@@ -3,9 +3,8 @@ package com.tstreet.onhand.feature.home
 import androidx.compose.runtime.mutableStateOf
 import com.tstreet.onhand.core.common.FeatureScope
 import com.tstreet.onhand.core.model.domain.GetPantryResult
-import com.tstreet.onhand.core.model.ui.home.HomeViewUiStateV2
+import com.tstreet.onhand.core.model.ui.home.HomeUiState
 import com.tstreet.onhand.core.model.ui.home.PantryRowItem
-import com.tstreet.onhand.core.model.ui.home.SelectableIngredientCategory
 import com.tstreet.onhand.core.model.ui.home.UiPantryIngredientV2
 import javax.inject.Inject
 
@@ -13,20 +12,19 @@ import javax.inject.Inject
 class HomeUiStateMapper @Inject constructor() {
 
     fun mapToHomeUiState(
-        ingredientCategories: List<SelectableIngredientCategory>,
         getPantryResult: GetPantryResult
-    ): HomeViewUiStateV2 {
+    ): HomeUiState {
         return when (getPantryResult) {
             GetPantryResult.Error -> {
-                HomeViewUiStateV2.Error
+                HomeUiState.Error
             }
 
             GetPantryResult.Loading -> {
-                HomeViewUiStateV2.Loading
+                HomeUiState.Loading
             }
 
             is GetPantryResult.Success -> {
-                HomeViewUiStateV2.Content(
+                HomeUiState.Content(
                     pantryRows = getPantryResult.ingredients.groupBy {
                         it.ingredient.category
                     }.flatMap { entry ->
@@ -37,10 +35,8 @@ class HomeUiStateMapper @Inject constructor() {
                                 entry.value.map { ingredient ->
                                     PantryRowItem.Ingredient(
                                         UiPantryIngredientV2(
-                                            ingredient.ingredient.name,
-                                            entry.key,
-                                            inPantry = mutableStateOf(ingredient.inPantry),
-                                            inShoppingCart = mutableStateOf(false)
+                                            ingredient.ingredient,
+                                            inPantry = mutableStateOf(ingredient.inPantry)
                                         )
                                     )
                                 }

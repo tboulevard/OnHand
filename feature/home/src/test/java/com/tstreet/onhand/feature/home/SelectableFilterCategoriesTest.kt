@@ -6,20 +6,19 @@ import org.junit.Assert.assertTrue
 import org.junit.Assert.assertFalse
 
 class SelectableFilterCategoriesTest {
+    
+    private val manager = CategoryFilterSelectionManager()
 
     @Test
     fun whenAllSelectedAndAnotherCategorySelected_allIsDeselectedAndOtherCategoryIsSelected() {
-        // Given
-        val selectableFilterCategories = SelectableFilterCategories()
-        
         // When - select a non-ALL category (ALL is selected by default)
-        val produceCategory = selectableFilterCategories.selectableCategories.find { 
+        val produceCategory = manager.selectableCategories.find {
             it.category == IngredientCategory.PRODUCE 
         }!!
-        selectableFilterCategories.onSelected(produceCategory)
+        manager.onSelected(produceCategory)
         
         // Then
-        val allCategory = selectableFilterCategories.selectableCategories.find { 
+        val allCategory = manager.selectableCategories.find {
             it.category == IngredientCategory.ALL 
         }
         
@@ -30,17 +29,16 @@ class SelectableFilterCategoriesTest {
     @Test
     fun whenCategorySelected_currentIsDeselectedNewCategoryIsSelected() {
         // Given
-        val selectableFilterCategories = SelectableFilterCategories()
-        val produceCategory = selectableFilterCategories.selectableCategories.find { 
+        val produceCategory = manager.selectableCategories.find {
             it.category == IngredientCategory.PRODUCE 
         }!!
-        selectableFilterCategories.onSelected(produceCategory) // First select PRODUCE
+        manager.onSelected(produceCategory) // First select PRODUCE
         
         // When - select a different category
-        val dairyCategory = selectableFilterCategories.selectableCategories.find { 
+        val dairyCategory = manager.selectableCategories.find {
             it.category == IngredientCategory.DAIRY_AND_EGGS 
         }!!
-        selectableFilterCategories.onSelected(dairyCategory)
+        manager.onSelected(dairyCategory)
         
         // Then
         assertFalse("PRODUCE category should be deselected", produceCategory.isSelected.value)
@@ -50,17 +48,16 @@ class SelectableFilterCategoriesTest {
     @Test
     fun whenOneNonAllCategorySelectedAndThatCategoryIsDeselected_allCategoryIsSelected() {
         // Given
-        val selectableFilterCategories = SelectableFilterCategories()
-        val produceCategory = selectableFilterCategories.selectableCategories.find { 
+        val produceCategory = manager.selectableCategories.find {
             it.category == IngredientCategory.PRODUCE 
         }!!
-        selectableFilterCategories.onSelected(produceCategory) // First select PRODUCE
+        manager.onSelected(produceCategory) // First select PRODUCE
         
         // When - deselect the same category (clicking it again)
-        selectableFilterCategories.onSelected(produceCategory)
+        manager.onSelected(produceCategory)
         
         // Then
-        val allCategory = selectableFilterCategories.selectableCategories.find { 
+        val allCategory = manager.selectableCategories.find {
             it.category == IngredientCategory.ALL 
         }
         

@@ -2,8 +2,9 @@ package com.tstreet.onhand.feature.home
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import com.tstreet.onhand.core.model.data.Ingredient
 import com.tstreet.onhand.core.model.data.IngredientCategory
-import com.tstreet.onhand.core.model.ui.home.HomeViewUiStateV2
+import com.tstreet.onhand.core.model.ui.home.HomeUiState
 import com.tstreet.onhand.core.model.ui.home.PantryRowItem
 import com.tstreet.onhand.core.model.ui.home.SelectableIngredientCategory
 import com.tstreet.onhand.core.model.ui.home.UiPantryIngredientV2
@@ -26,24 +27,28 @@ class HomeUiStatePreviewParameterProvider :
                     mutableStateOf(false)
                 )
             ),
-            uiStateV2 = HomeViewUiStateV2.Content(
+            uiStateV2 = HomeUiState.Content(
                 pantryRows = listOf(
                     PantryRowItem.Header(
                         IngredientCategory.PRODUCE
                     ),
                     PantryRowItem.Ingredient(
                         UiPantryIngredientV2(
-                            "Broccoli",
-                            IngredientCategory.PRODUCE,
+                            Ingredient(
+                                id = 1,
+                                name = "Broccoli",
+                                IngredientCategory.PRODUCE
+                            ),
                             mutableStateOf(true),
-                            mutableStateOf(true)
                         )
                     ),
                     PantryRowItem.Ingredient(
                         UiPantryIngredientV2(
-                            "Carrots",
-                            IngredientCategory.PRODUCE,
-                            mutableStateOf(false),
+                            Ingredient(
+                                id = 2,
+                                name = "Carrot",
+                                IngredientCategory.PRODUCE
+                            ),
                             mutableStateOf(false)
                         )
                     ),
@@ -52,9 +57,11 @@ class HomeUiStatePreviewParameterProvider :
                     ),
                     PantryRowItem.Ingredient(
                         UiPantryIngredientV2(
-                            "Chicken Thigh",
-                            IngredientCategory.MEAT_AND_SEAFOOD,
-                            mutableStateOf(true),
+                            Ingredient(
+                                id = 3,
+                                name = "Chicken Thigh",
+                                IngredientCategory.MEAT_AND_SEAFOOD
+                            ),
                             mutableStateOf(false)
                         )
                     ),
@@ -62,10 +69,11 @@ class HomeUiStatePreviewParameterProvider :
                         IngredientCategory.DAIRY_AND_EGGS
                     ),
                     PantryRowItem.Ingredient(
-                        UiPantryIngredientV2(
-                            "Whole Milk",
-                            IngredientCategory.DAIRY_AND_EGGS,
-                            mutableStateOf(false),
+                        UiPantryIngredientV2(Ingredient(
+                            id = 4,
+                            name = "Whole Milk",
+                            IngredientCategory.DAIRY_AND_EGGS
+                        ),
                             mutableStateOf(true)
                         )
                     ),
@@ -76,7 +84,7 @@ class HomeUiStatePreviewParameterProvider :
 }
 
 class HomeCombinedPreviewParameterUiState(
-    val uiStateV2: HomeViewUiStateV2,
+    val uiStateV2: HomeUiState,
     val filterCategories: List<SelectableIngredientCategory>
 )
 

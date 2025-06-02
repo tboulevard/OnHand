@@ -67,8 +67,8 @@ enum class IngredientCategory(
 
     companion object {
 
-        private val allEntries: Array<IngredientCategory> by lazy {
-            IngredientCategory.entries.toTypedArray()
+        val allEntries: Set<IngredientCategory> by lazy {
+            IngredientCategory.entries.toSet()
         }
 
         /**

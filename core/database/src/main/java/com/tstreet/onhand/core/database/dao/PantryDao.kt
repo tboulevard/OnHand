@@ -39,4 +39,7 @@ interface PantryDao {
     @Query("SELECT * FROM pantry WHERE category = :category")
     suspend fun getPantryMatchingCategory(category: IngredientCategory): List<PantryEntity>
 
+    @Query("SELECT * FROM pantry WHERE category = :category")
+    fun getPantryMatchingCategoryFlow(category: IngredientCategory): Flow<List<PantryEntity>>
+
 }

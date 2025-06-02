@@ -11,6 +11,9 @@ import com.tstreet.onhand.core.model.data.Ingredient
 import com.tstreet.onhand.core.model.data.IngredientCategory
 import com.tstreet.onhand.core.model.data.PantryIngredient
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Named
@@ -65,6 +68,13 @@ class OfflinePantryRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun listPantryFlow(): Flow<List<PantryIngredient>> {
+        return pantryDao.get().getAllFromPantryFlow()
+            .map {
+                it.map(PantryEntity::toPantryIngredient)
+            }.flowOn(ioDispatcher)
+    }
+
     override suspend fun listPantryByCategory(category: IngredientCategory): List<PantryIngredient> {
         return withContext(ioDispatcher) {
             pantryDao
@@ -72,6 +82,13 @@ class OfflinePantryRepositoryImpl @Inject constructor(
                 .getPantryMatchingCategory(category)
                 .map(PantryEntity::toPantryIngredient)
         }
+    }
+
+    override fun listPantryByCategoryFlow(category: IngredientCategory): Flow<List<PantryIngredient>> {
+        return pantryDao.get().getPantryMatchingCategoryFlow(category)
+            .map {
+                it.map(PantryEntity::toPantryIngredient)
+            }.flowOn(ioDispatcher)
     }
 
     override suspend fun listPantry(ingredients: List<Ingredient>): List<PantryIngredient> {

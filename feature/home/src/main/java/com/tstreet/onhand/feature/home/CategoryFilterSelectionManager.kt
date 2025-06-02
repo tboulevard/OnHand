@@ -8,9 +8,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import javax.inject.Inject
 
-class SelectableFilterCategories @Inject constructor() {
+class CategoryFilterSelectionManager @Inject constructor() {
 
-    val selectableCategories = IngredientCategory.entries.map { entry ->
+    /**
+     * List of selectable elements as [SelectableIngredientCategory].
+     */
+    val selectableCategories = IngredientCategory.allEntries.map { entry ->
         SelectableIngredientCategory(
             entry,
             if (entry == IngredientCategory.ALL) mutableStateOf(true) else mutableStateOf(
@@ -19,10 +22,17 @@ class SelectableFilterCategories @Inject constructor() {
         )
     }
 
-    val selected =
+    /**
+     * Currently selected [IngredientCategory].
+     */
+    private val selected =
         MutableStateFlow(getCategory(IngredientCategory.ALL))
 
-    // Select current category, deselect all others
+    /**
+     * Handles all selection logic - currently only supports selection of one category at a time.
+     *
+     * If selected category is de-selected, we revert to [IngredientCategory.ALL] (i.e. no filter).
+     */
     fun onSelected(new: SelectableIngredientCategory) {
         val currentlySelectedCategory = selected.value.category
         val newCategory = new.category
@@ -66,8 +76,10 @@ class SelectableFilterCategories @Inject constructor() {
         return retrievedCategory
     }
 
+    /**
+     * Gets the UI class, [SelectableIngredientCategory], associated with [IngredientCategory]
+     */
     private fun getCategory(category: IngredientCategory) =
         selectableCategories.find { it.category == category }!!
-
 
 }

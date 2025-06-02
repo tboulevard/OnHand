@@ -28,7 +28,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.tstreet.onhand.core.common.R.string.search_ingredients
 import com.tstreet.onhand.core.ui.theming.AppTheme
-import com.tstreet.onhand.core.ui.theming.Blue500
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
