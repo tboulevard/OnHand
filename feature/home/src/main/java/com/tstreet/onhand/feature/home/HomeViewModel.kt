@@ -5,29 +5,29 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tstreet.onhand.core.common.CommonModule.DEFAULT
 import com.tstreet.onhand.core.common.FeatureScope
-import com.tstreet.onhand.core.common.Resource
-import com.tstreet.onhand.core.common.Status
+import com.tstreet.onhand.core.common.Status.ERROR
+import com.tstreet.onhand.core.common.Status.SUCCESS
 import com.tstreet.onhand.core.domain.usecase.pantry.AddToPantryUseCase
 import com.tstreet.onhand.core.domain.usecase.pantry.GetPantryUseCase
 import com.tstreet.onhand.core.domain.usecase.pantry.RemoveFromPantryUseCase
+import com.tstreet.onhand.core.model.data.IngredientCategory
 import com.tstreet.onhand.core.model.ui.home.HomeUiState
 import com.tstreet.onhand.core.model.ui.home.SelectableIngredientCategory
 import com.tstreet.onhand.core.model.ui.home.UiPantryIngredientV2
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
 
 @FeatureScope
 class HomeViewModel @Inject constructor(
-    getPantry: GetPantryUseCase,
+    private val getPantry: GetPantryUseCase,
     private val addToPantry: AddToPantryUseCase,
     private val removeFromPantry: RemoveFromPantryUseCase,
     private val mapper: HomeUiStateMapper,
@@ -35,25 +35,22 @@ class HomeViewModel @Inject constructor(
     @Named(DEFAULT) private val defaultDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
-    val filterCategories = categoryFilterManager.selectableCategories
+    private val _uiState = MutableStateFlow(
+        HomeUiState(filterCategories = categoryFilterManager.selectableCategories)
+    )
+    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
-    /**
-     * TODO: DB state reflected immediately because we expose as a flow - remove this
-     */
-    val uiState: StateFlow<HomeUiState> =
-        categoryFilterManager.observeSelected {
-            getPantry(it)
-        }.map { getPantryResult ->
-            mapper.mapToHomeUiState(
-                getPantryResult
-            )
+    init {
+        loadPantry()
+        viewModelScope.launch {
+            categoryFilterManager.observeSelected {
+                applyFilters(it)
+            }.collect {
+
+            }
         }
-            .flowOn(defaultDispatcher)
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000L),
-                initialValue = HomeUiState.Loading
-            )
+
+    }
 
     private val _event = Channel<HomeUiEvent>()
     val event = _event.receiveAsFlow()
@@ -82,16 +79,34 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    private fun loadPantry() {
+        viewModelScope.launch {
+            val result = getPantry(
+                // TODO: Just select first category - change to support multi select later
+                _uiState.value.filterCategories.first { it.isSelected.value }.category
+            )
+
+            val pantryRows = mapper.mapToPantryUi(result)
+
+            _uiState.update { it.copy(pantryRows = pantryRows) }
+        }
+    }
+
+    private fun applyFilters(filterCategory: IngredientCategory) {
+        val filterCategories = _uiState.value.filterCategories
+        filterCategories.find { it.category == filterCategory }?.isSelected?.value = true
+        loadPantry()
+    }
+
     private fun addToPantry(ingredient: UiPantryIngredientV2) {
         viewModelScope.launch {
-            val result = addToPantry(ingredient.ingredient)
-            when (result.status) {
-                Status.SUCCESS -> {
+            when (addToPantry(ingredient.ingredient).status) {
+                SUCCESS -> {
                     _event.send(HomeUiEvent.ShowSnackbar("Added ${ingredient.ingredient.name} to pantry."))
                     ingredient.inPantry.value = true
                 }
 
-                Status.ERROR -> {
+                ERROR -> {
                     _event.send(HomeUiEvent.ShowSnackbar("Error adding to pantry. Please try again."))
                 }
             }
@@ -100,14 +115,13 @@ class HomeViewModel @Inject constructor(
 
     private fun removeFromPantry(ingredient: UiPantryIngredientV2) {
         viewModelScope.launch {
-            val result = removeFromPantry(ingredient.ingredient)
-            when (result.status) {
-                Status.SUCCESS -> {
+            when (removeFromPantry(ingredient.ingredient).status) {
+                SUCCESS -> {
                     _event.send(HomeUiEvent.ShowSnackbar("Removed ${ingredient.ingredient.name} from pantry."))
                     ingredient.inPantry.value = false
                 }
 
-                Status.ERROR -> {
+                ERROR -> {
                     _event.send(HomeUiEvent.ShowSnackbar("Error removing from pantry. Please try again."))
                 }
             }

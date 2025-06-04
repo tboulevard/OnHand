@@ -3,9 +3,8 @@ package com.tstreet.onhand.feature.home
 import androidx.compose.runtime.mutableStateOf
 import com.tstreet.onhand.core.model.data.IngredientCategory
 import com.tstreet.onhand.core.model.ui.home.SelectableIngredientCategory
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class CategoryFilterSelectionManager @Inject constructor() {
@@ -60,8 +59,8 @@ class CategoryFilterSelectionManager @Inject constructor() {
     }
 
     fun <T> observeSelected(
-        mappedFlow: (IngredientCategory) -> Flow<T>
-    ) = selected.flatMapLatest { mappedFlow(it.category) }
+        mappedFlow: (IngredientCategory) -> T
+    ) = selected.map { mappedFlow(it.category) }
 
     /**
      * Mark [category] within [selectableCategories] as [selected]. Returns the marked category,

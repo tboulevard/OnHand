@@ -9,5 +9,4 @@ sealed interface GetPantryResult {
     ) : GetPantryResult
 
     object Error : GetPantryResult
-    object Loading : GetPantryResult
 }

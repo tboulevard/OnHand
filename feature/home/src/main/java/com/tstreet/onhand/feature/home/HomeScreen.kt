@@ -29,7 +29,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,6 +38,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tstreet.onhand.core.common.R.string.add_to_pantry_content_description
 import com.tstreet.onhand.core.common.R.string.remove_from_pantry_content_description
 import com.tstreet.onhand.core.model.data.IngredientCategory
@@ -61,8 +61,6 @@ fun HomeScreenContainer(
     HomeScreen(
         uiState,
         event,
-        // TODO: Make this part of the UI state object
-        viewModel.filterCategories,
         onIngredientSearchBarClick,
         viewModel::onEvent
     )
@@ -73,7 +71,6 @@ fun HomeScreenContainer(
 fun HomeScreen(
     uiState: HomeUiState,
     event: HomeUiEvent,
-    filterCategories: List<SelectableIngredientCategory>,
     onIngredientSearchBarClick: () -> Unit,
     onEvent: (HomeUiEvent) -> Unit
 ) {
@@ -105,34 +102,18 @@ fun HomeScreen(
             verticalArrangement = Arrangement.Top
         ) {
 
-            when (uiState) {
-                is HomeUiState.Content -> {
-                    IngredientCategoryFilters(
-                        modifier = Modifier.padding(AppTheme.sizes.small),
-                        filterCategories,
-                        onEvent
-                    )
-                    PantryBody(
-                        modifier = Modifier.fillMaxSize(),
-                        rows = uiState.pantryRows,
-                        onEvent
-                    )
-                }
-
-                HomeUiState.Empty -> {
-
-                }
-
-                HomeUiState.Error -> {
-
-
-                }
-
-                HomeUiState.Loading -> {
-
-                }
-            }
+            IngredientCategoryFilters(
+                modifier = Modifier.padding(AppTheme.sizes.small),
+                uiState.filterCategories,
+                onEvent
+            )
+            PantryBody(
+                modifier = Modifier.fillMaxSize(),
+                rows = uiState.pantryRows,
+                onEvent
+            )
         }
+
     }
 }
 
@@ -302,9 +283,9 @@ fun PantryIngredientCategoryHeader(
 @Composable
 private fun HomeScreenPreview(
     @PreviewParameter(HomeUiStatePreviewParameterProvider::class)
-    preview: HomeCombinedPreviewParameterUiState
+    previewUiState: HomeUiState
 ) {
     OnHandTheme {
-        HomeScreen(preview.uiStateV2, HomeUiEvent.Idle, preview.filterCategories, { }, { })
+        HomeScreen(previewUiState, HomeUiEvent.Idle, { }, { })
     }
 }

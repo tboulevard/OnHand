@@ -10,9 +10,9 @@ import com.tstreet.onhand.core.model.ui.home.SelectableIngredientCategory
 import com.tstreet.onhand.core.model.ui.home.UiPantryIngredientV2
 
 class HomeUiStatePreviewParameterProvider :
-    PreviewParameterProvider<HomeCombinedPreviewParameterUiState> {
-    override val values: Sequence<HomeCombinedPreviewParameterUiState> = sequenceOf(
-        HomeCombinedPreviewParameterUiState(
+    PreviewParameterProvider<HomeUiState> {
+    override val values: Sequence<HomeUiState> = sequenceOf(
+        HomeUiState(
             filterCategories = listOf(
                 SelectableIngredientCategory(
                     IngredientCategory.ALL,
@@ -27,65 +27,57 @@ class HomeUiStatePreviewParameterProvider :
                     mutableStateOf(false)
                 )
             ),
-            uiStateV2 = HomeUiState.Content(
-                pantryRows = listOf(
-                    PantryRowItem.Header(
-                        IngredientCategory.PRODUCE
-                    ),
-                    PantryRowItem.Ingredient(
-                        UiPantryIngredientV2(
-                            Ingredient(
-                                id = 1,
-                                name = "Broccoli",
-                                IngredientCategory.PRODUCE
-                            ),
-                            mutableStateOf(true),
-                        )
-                    ),
-                    PantryRowItem.Ingredient(
-                        UiPantryIngredientV2(
-                            Ingredient(
-                                id = 2,
-                                name = "Carrot",
-                                IngredientCategory.PRODUCE
-                            ),
-                            mutableStateOf(false)
-                        )
-                    ),
-                    PantryRowItem.Header(
-                        IngredientCategory.MEAT_AND_SEAFOOD
-                    ),
-                    PantryRowItem.Ingredient(
-                        UiPantryIngredientV2(
-                            Ingredient(
-                                id = 3,
-                                name = "Chicken Thigh",
-                                IngredientCategory.MEAT_AND_SEAFOOD
-                            ),
-                            mutableStateOf(false)
-                        )
-                    ),
-                    PantryRowItem.Header(
-                        IngredientCategory.DAIRY_AND_EGGS
-                    ),
-                    PantryRowItem.Ingredient(
-                        UiPantryIngredientV2(Ingredient(
+            pantryRows = listOf(
+                PantryRowItem.Header(
+                    IngredientCategory.PRODUCE
+                ),
+                PantryRowItem.Ingredient(
+                    UiPantryIngredientV2(
+                        Ingredient(
+                            id = 1,
+                            name = "Broccoli",
+                            IngredientCategory.PRODUCE
+                        ),
+                        mutableStateOf(true),
+                    )
+                ),
+                PantryRowItem.Ingredient(
+                    UiPantryIngredientV2(
+                        Ingredient(
+                            id = 2,
+                            name = "Carrot",
+                            IngredientCategory.PRODUCE
+                        ),
+                        mutableStateOf(false)
+                    )
+                ),
+                PantryRowItem.Header(
+                    IngredientCategory.MEAT_AND_SEAFOOD
+                ),
+                PantryRowItem.Ingredient(
+                    UiPantryIngredientV2(
+                        Ingredient(
+                            id = 3,
+                            name = "Chicken Thigh",
+                            IngredientCategory.MEAT_AND_SEAFOOD
+                        ),
+                        mutableStateOf(false)
+                    )
+                ),
+                PantryRowItem.Header(
+                    IngredientCategory.DAIRY_AND_EGGS
+                ),
+                PantryRowItem.Ingredient(
+                    UiPantryIngredientV2(
+                        Ingredient(
                             id = 4,
                             name = "Whole Milk",
                             IngredientCategory.DAIRY_AND_EGGS
                         ),
-                            mutableStateOf(true)
-                        )
-                    ),
-                )
+                        mutableStateOf(true)
+                    )
+                ),
             )
         )
     )
 }
-
-class HomeCombinedPreviewParameterUiState(
-    val uiStateV2: HomeUiState,
-    val filterCategories: List<SelectableIngredientCategory>
-)
-
-
