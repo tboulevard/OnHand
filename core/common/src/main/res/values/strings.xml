@@ -18,10 +18,12 @@
     <string name="no_suggestions_available">No suggestions available</string>
     <string name="in_pantry_content_description">In pantry</string>
     <string name="add_to_pantry_content_description">Add to pantry</string>
+    <string name="remove_from_pantry_content_description">Remove from pantry</string>
     <string name="your_pantry_title">Your Pantry</string>
     <string name="pantry_empty_title">Your pantry is empty</string>
 
     <!-- Ingredient Search Screen -->
+    <string name="search_ingredients">Search ingredients</string>
     <string name="in_pantry">In pantry</string>
     <string name="remove_ingredient">Remove ingredient</string>
     <string name="add_ingredient">Add ingredient</string>
@@ -66,6 +68,26 @@
     <string name="items_collected_format">%1$d of %2$d items collected</string>
     <string name="remove_item">Remove item</string>
     <string name="restore_item">Restore item</string>
+
+    <!-- Ingredient Categories -->
+    <string name="category_all">All</string>
+    <string name="category_dairy_eggs">Dairy &amp; Eggs</string>
+    <string name="category_meat_seafood">Meat &amp; Seafood</string>
+    <string name="category_produce">Produce</string>
+    <string name="category_bakery_bread">Bakery &amp; Bread</string>
+    <string name="category_canned_jarred">Canned &amp; Jarred Goods</string>
+    <string name="category_dry_goods_pasta">Dry Goods &amp; Pasta</string>
+    <string name="category_breakfast_foods">Breakfast Foods</string>
+    <string name="category_snacks_chips">Snacks &amp; Chips</string>
+    <string name="category_baking_ingredients">Baking Ingredients</string>
+    <string name="category_condiments_sauces">Condiments &amp; Sauces</string>
+    <string name="category_spices_seasonings">Spices &amp; Seasonings</string>
+    <string name="category_beverages">Beverages</string>
+    <string name="category_frozen_foods">Frozen Foods</string>
+    <string name="category_international_foods">International Foods</string>
+    <string name="category_health_foods">Health Foods</string>
+    <string name="category_non_food_items">Non-Food Items</string>
+    <string name="category_baby_pet_food">Baby &amp; Pet Food</string>
 
     <!-- Common -->
     <string name="error_message">Something went wrong</string>

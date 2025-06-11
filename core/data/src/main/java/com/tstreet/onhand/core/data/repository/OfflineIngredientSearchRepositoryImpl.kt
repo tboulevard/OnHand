@@ -5,7 +5,7 @@ import com.tstreet.onhand.core.common.CommonModule.IO
 import com.tstreet.onhand.core.domain.repository.IngredientSearchRepository
 import com.tstreet.onhand.core.database.dao.IngredientDao
 import com.tstreet.onhand.core.database.model.IngredientEntity
-import com.tstreet.onhand.core.database.model.toIngredient
+import com.tstreet.onhand.core.database.model.toPantryIngredient
 import com.tstreet.onhand.core.model.data.Ingredient
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -30,15 +30,7 @@ class OfflineIngredientSearchRepositoryImpl @Inject constructor(
         return dao.get()
             .getIngredients(query)
             .map {
-                it.map(IngredientEntity::toIngredient)
-            }.flowOn(ioDispatcher)
-    }
-
-    override fun mostPopularIngredients(): Flow<List<Ingredient>> {
-        return dao.get()
-            .getRandomIngredients()
-            .map {
-                it.map(IngredientEntity::toIngredient)
+                it.map(IngredientEntity::toPantryIngredient)
             }.flowOn(ioDispatcher)
     }
 }

@@ -30,6 +30,7 @@ dependencies {
     implementation libs.androidx.appcompat
     implementation libs.androidx.compose.runtime
     implementation libs.kotlinx.serialization.json
+    api project(path: ':core:common')
     testImplementation libs.junit4
     androidTestImplementation libs.androidx.test.ext
     androidTestImplementation libs.androidx.test.espresso.core

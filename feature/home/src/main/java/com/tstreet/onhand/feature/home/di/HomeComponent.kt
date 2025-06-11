@@ -19,6 +19,6 @@ import dagger.Component
 )
 @FeatureScope
 interface HomeComponent {
-    val viewModel: HomeViewModel
+    val viewModelV2: HomeViewModel
     val ingredientSearchUseCase: IngredientSearchUseCase
 }
